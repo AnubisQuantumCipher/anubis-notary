@@ -1,0 +1,3 @@
+(coq.theory
+ (name anubis_notary)
+ (theories Stdlib Ltac2 Equations stdpp iris iris_contrib lrust caesium lithium refinedrust))

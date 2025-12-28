@@ -1,0 +1,49 @@
+{
+  "export_libs": [],
+  "items": [
+    {
+      "kind": "function",
+      "name": "merkle_right_child",
+      "path": [
+        "anubis_verified",
+        "merkle_right_child"
+      ],
+      "spec": "type_of_merkle_right_child",
+      "trait_req_incl": "trait_incl_of_merkle_right_child"
+    },
+    {
+      "kind": "function",
+      "name": "merkle_parent",
+      "path": [
+        "anubis_verified",
+        "merkle_parent"
+      ],
+      "spec": "type_of_merkle_parent",
+      "trait_req_incl": "trait_incl_of_merkle_parent"
+    },
+    {
+      "kind": "function",
+      "name": "add_one",
+      "path": [
+        "anubis_verified",
+        "add_one"
+      ],
+      "spec": "type_of_add_one",
+      "trait_req_incl": "trait_incl_of_add_one"
+    },
+    {
+      "kind": "function",
+      "name": "merkle_left_child",
+      "path": [
+        "anubis_verified",
+        "merkle_left_child"
+      ],
+      "spec": "type_of_merkle_left_child",
+      "trait_req_incl": "trait_incl_of_merkle_left_child"
+    }
+  ],
+  "module_dependencies": [],
+  "refinedrust_module": "generated_specs_anubis_verified",
+  "refinedrust_name": "anubis_verified",
+  "refinedrust_path": "refinedrust.examples.anubis_verified.generated"
+}

@@ -1,0 +1,1268 @@
+DIGEST f91423395e0944a87f492d3de8044e28
+Fanubis_proofs.theories.crypto_model
+R621:623 Stdlib.micromega.Lia <> <> lib
+R625:630 Stdlib.ZArith.ZArith <> <> lib
+R632:635 Stdlib.Lists.List <> <> lib
+R637:650 Stdlib.Strings.String <> <> lib
+R680:709 Stdlib.Logic.FunctionalExtensionality <> <> lib
+R739:754 Stdlib.Program.Equality <> <> lib
+R784:800 Stdlib.Arith.Compare_dec <> <> lib
+R830:838 Stdlib.Bool.Bool <> <> lib
+R848:860 Stdlib.Lists.List ListNotations <> mod
+def 998:1001 <> byte
+R1006:1007 Corelib.Init.Specif <> ::type_scope:'{'_x_':'_x_'|'_x_'}' not
+R1009:1011 Corelib.Init.Specif <> ::type_scope:'{'_x_':'_x_'|'_x_'}' not
+R1013:1015 Corelib.Init.Specif <> ::type_scope:'{'_x_':'_x_'|'_x_'}' not
+R1028:1029 Corelib.Init.Specif <> ::type_scope:'{'_x_':'_x_'|'_x_'}' not
+R1012:1012 Corelib.Numbers.BinNums <> Z ind
+binder 1008:1008 <> n:1
+R1017:1020 Stdlib.ZArith.BinInt <> ::Z_scope:x_'<='_x_'<'_x not
+R1022:1024 Stdlib.ZArith.BinInt <> ::Z_scope:x_'<='_x_'<'_x not
+R1021:1021 anubis_proofs.theories.crypto_model <> n:1 var
+R1021:1021 anubis_proofs.theories.crypto_model <> n:1 var
+def 1092:1100 <> byte_to_Z
+R1107:1110 anubis_proofs.theories.crypto_model <> byte def
+binder 1103:1103 <> b:2
+R1115:1115 Corelib.Numbers.BinNums <> Z ind
+R1120:1128 Corelib.Init.Specif <> proj1_sig def
+R1130:1130 anubis_proofs.theories.crypto_model <> b:2 var
+def 1210:1218 <> Z_to_byte
+R1225:1225 Corelib.Numbers.BinNums <> Z ind
+binder 1221:1221 <> n:3
+R1234:1237 Stdlib.ZArith.BinInt <> ::Z_scope:x_'<='_x_'<'_x not
+R1239:1241 Stdlib.ZArith.BinInt <> ::Z_scope:x_'<='_x_'<'_x not
+R1238:1238 anubis_proofs.theories.crypto_model <> n:3 var
+R1238:1238 anubis_proofs.theories.crypto_model <> n:3 var
+binder 1229:1229 <> H:4
+R1249:1252 anubis_proofs.theories.crypto_model <> byte def
+R1257:1261 Corelib.Init.Specif <> exist constr
+R1267:1267 anubis_proofs.theories.crypto_model <> H:4 var
+R1265:1265 anubis_proofs.theories.crypto_model <> n:3 var
+def 1325:1329 <> bytes
+R1334:1337 Corelib.Init.Datatypes <> list ind
+R1339:1342 anubis_proofs.theories.crypto_model <> byte def
+def 1388:1396 <> bytes_len
+R1404:1408 anubis_proofs.theories.crypto_model <> bytes def
+binder 1399:1400 <> bs:5
+R1413:1415 Corelib.Init.Datatypes <> nat ind
+R1420:1430 Stdlib.Lists.List <> length abbrev
+R1432:1433 anubis_proofs.theories.crypto_model <> bs:5 var
+ax 1681:1698 <> timing_independent
+binder 1710:1710 <> A:6
+binder 1712:1712 <> B:7
+R1723:1723 Corelib.Init.Logic <> ::type_scope:x_'->'_x not
+R1730:1734 Corelib.Init.Logic <> ::type_scope:x_'->'_x not
+R1725:1728 Corelib.Init.Logic <> ::type_scope:x_'->'_x not
+R1724:1724 anubis_proofs.theories.crypto_model <> A:6 var
+R1729:1729 anubis_proofs.theories.crypto_model <> B:7 var
+ax 1804:1829 <> timing_independent_compose
+binder 1843:1843 <> A:10
+binder 1845:1845 <> B:11
+binder 1847:1847 <> C:12
+R1863:1866 Corelib.Init.Logic <> ::type_scope:x_'->'_x not
+R1862:1862 anubis_proofs.theories.crypto_model <> A:10 var
+R1867:1867 anubis_proofs.theories.crypto_model <> B:11 var
+binder 1858:1858 <> f:13
+R1876:1879 Corelib.Init.Logic <> ::type_scope:x_'->'_x not
+R1875:1875 anubis_proofs.theories.crypto_model <> B:11 var
+R1880:1880 anubis_proofs.theories.crypto_model <> C:12 var
+binder 1871:1871 <> g:14
+R1908:1915 Corelib.Init.Logic <> ::type_scope:x_'->'_x not
+R1888:1905 anubis_proofs.theories.crypto_model <> timing_independent defax
+R1907:1907 anubis_proofs.theories.crypto_model <> f:13 var
+R1936:1943 Corelib.Init.Logic <> ::type_scope:x_'->'_x not
+R1916:1933 anubis_proofs.theories.crypto_model <> timing_independent defax
+R1935:1935 anubis_proofs.theories.crypto_model <> g:14 var
+R1944:1961 anubis_proofs.theories.crypto_model <> timing_independent defax
+binder 1968:1968 <> x:15
+R1973:1973 anubis_proofs.theories.crypto_model <> g:14 var
+R1976:1976 anubis_proofs.theories.crypto_model <> f:13 var
+R1978:1978 anubis_proofs.theories.crypto_model <> x:15 var
+ax 2030:2051 <> timing_independent_xor
+R2069:2071 Corelib.Init.Datatypes <> nat ind
+binder 2065:2065 <> n:18
+R2079:2096 anubis_proofs.theories.crypto_model <> timing_independent defax
+R2112:2114 Corelib.Init.Datatypes <> ::type_scope:x_'*'_x not
+R2107:2111 anubis_proofs.theories.crypto_model <> bytes def
+R2115:2119 anubis_proofs.theories.crypto_model <> bytes def
+binder 2103:2103 <> p:19
+R2144:2144 anubis_proofs.theories.crypto_model <> p:19 var
+binder 2135:2135 <> a:20
+binder 2138:2138 <> b:21
+R2161:2167 Stdlib.Arith.PeanoNat Nat eqb def
+R2170:2180 Stdlib.Lists.List <> length abbrev
+R2182:2182 anubis_proofs.theories.crypto_model <> a:20 var
+R2186:2196 Stdlib.Lists.List <> length abbrev
+R2198:2198 anubis_proofs.theories.crypto_model <> b:21 var
+R2214:2217 Corelib.Init.Datatypes <> true constr
+R2222:2225 Corelib.Init.Datatypes <> Some constr
+R2228:2234 Stdlib.Lists.List <> combine def
+R2238:2238 anubis_proofs.theories.crypto_model <> b:21 var
+R2236:2236 anubis_proofs.theories.crypto_model <> a:20 var
+R2249:2253 Corelib.Init.Datatypes <> false constr
+R2258:2261 Corelib.Init.Datatypes <> None constr
+modtype 2328:2340 <> HASH_FUNCTION
+ax 2384:2388 HASH_FUNCTION state
+ax 2434:2437 HASH_FUNCTION init
+R2441:2445 anubis_proofs.theories.crypto_model HASH_FUNCTION state defax
+ax 2494:2499 HASH_FUNCTION absorb
+R2508:2511 Corelib.Init.Logic <> ::type_scope:x_'->'_x not
+R2503:2507 anubis_proofs.theories.crypto_model HASH_FUNCTION state defax
+R2517:2520 Corelib.Init.Logic <> ::type_scope:x_'->'_x not
+R2512:2516 anubis_proofs.theories.crypto_model <> bytes def
+R2521:2525 anubis_proofs.theories.crypto_model HASH_FUNCTION state defax
+ax 2577:2583 HASH_FUNCTION squeeze
+R2592:2595 Corelib.Init.Logic <> ::type_scope:x_'->'_x not
+R2587:2591 anubis_proofs.theories.crypto_model HASH_FUNCTION state defax
+R2599:2602 Corelib.Init.Logic <> ::type_scope:x_'->'_x not
+R2596:2598 Corelib.Init.Datatypes <> nat ind
+R2603:2607 anubis_proofs.theories.crypto_model <> bytes def
+ax 2650:2653 HASH_FUNCTION hash
+R2662:2665 Corelib.Init.Logic <> ::type_scope:x_'->'_x not
+R2657:2661 anubis_proofs.theories.crypto_model <> bytes def
+R2669:2672 Corelib.Init.Logic <> ::type_scope:x_'->'_x not
+R2666:2668 Corelib.Init.Datatypes <> nat ind
+R2673:2677 anubis_proofs.theories.crypto_model <> bytes def
+ax 2751:2768 HASH_FUNCTION hash_deterministic
+R2792:2796 anubis_proofs.theories.crypto_model <> bytes def
+binder 2784:2788 <> input:34
+R2804:2806 Corelib.Init.Datatypes <> nat ind
+binder 2800:2800 <> n:35
+R2828:2830 Corelib.Init.Logic <> ::type_scope:x_'='_x not
+R2816:2819 anubis_proofs.theories.crypto_model HASH_FUNCTION hash defax
+R2821:2825 anubis_proofs.theories.crypto_model <> input:34 var
+R2827:2827 anubis_proofs.theories.crypto_model <> n:35 var
+R2831:2834 anubis_proofs.theories.crypto_model HASH_FUNCTION hash defax
+R2836:2840 anubis_proofs.theories.crypto_model <> input:34 var
+R2842:2842 anubis_proofs.theories.crypto_model <> n:35 var
+ax 2897:2907 HASH_FUNCTION hash_length
+R2931:2935 anubis_proofs.theories.crypto_model <> bytes def
+binder 2923:2927 <> input:38
+R2943:2945 Corelib.Init.Datatypes <> nat ind
+binder 2939:2939 <> n:39
+R2979:2981 Corelib.Init.Logic <> ::type_scope:x_'='_x not
+R2955:2963 anubis_proofs.theories.crypto_model <> bytes_len def
+R2966:2969 anubis_proofs.theories.crypto_model HASH_FUNCTION hash defax
+R2971:2975 anubis_proofs.theories.crypto_model <> input:38 var
+R2977:2977 anubis_proofs.theories.crypto_model <> n:39 var
+R2982:2982 anubis_proofs.theories.crypto_model <> n:39 var
+ax 3062:3080 HASH_FUNCTION collision_resistant
+ax 3166:3183 HASH_FUNCTION preimage_resistant
+ax 3249:3273 HASH_FUNCTION second_preimage_resistant
+R3287:3299 anubis_proofs.theories.crypto_model HASH_FUNCTION <> modtype
+R3356:3368 anubis_proofs.theories.crypto_model HASH_FUNCTION <> mod
+mod 3344:3351 <> SHA3_256
+def 3434:3437 SHA3_256 lane
+R3442:3442 Corelib.Numbers.BinNums <> Z ind
+def 3477:3487 SHA3_256 state_array
+R3492:3495 Corelib.Init.Datatypes <> list ind
+R3498:3501 Corelib.Init.Datatypes <> list ind
+R3503:3506 anubis_proofs.theories.crypto_model SHA3_256 lane def
+def 3523:3527 SHA3_256 state
+R3532:3542 anubis_proofs.theories.crypto_model SHA3_256 state_array def
+def 3594:3597 SHA3_256 init
+R3601:3605 anubis_proofs.theories.crypto_model SHA3_256 state def
+R3614:3619 Corelib.Lists.ListDef <> repeat def
+R3622:3627 Corelib.Lists.ListDef <> repeat def
+def 3701:3710 SHA3_256 rate_bytes
+R3714:3716 Corelib.Init.Datatypes <> nat ind
+def 3782:3793 SHA3_256 output_bytes
+R3797:3799 Corelib.Init.Datatypes <> nat ind
+ax 3856:3861 SHA3_256 absorb
+R3870:3873 Corelib.Init.Logic <> ::type_scope:x_'->'_x not
+R3865:3869 anubis_proofs.theories.crypto_model SHA3_256 state def
+R3879:3882 Corelib.Init.Logic <> ::type_scope:x_'->'_x not
+R3874:3878 anubis_proofs.theories.crypto_model <> bytes def
+R3883:3887 anubis_proofs.theories.crypto_model SHA3_256 state def
+ax 3939:3945 SHA3_256 squeeze
+R3954:3957 Corelib.Init.Logic <> ::type_scope:x_'->'_x not
+R3949:3953 anubis_proofs.theories.crypto_model SHA3_256 state def
+R3961:3964 Corelib.Init.Logic <> ::type_scope:x_'->'_x not
+R3958:3960 Corelib.Init.Datatypes <> nat ind
+R3965:3969 anubis_proofs.theories.crypto_model <> bytes def
+def 4014:4017 SHA3_256 hash
+R4028:4032 anubis_proofs.theories.crypto_model <> bytes def
+binder 4020:4024 <> input:52
+R4040:4042 Corelib.Init.Datatypes <> nat ind
+binder 4036:4036 <> n:53
+R4047:4051 anubis_proofs.theories.crypto_model <> bytes def
+R4060:4066 anubis_proofs.theories.crypto_model SHA3_256 squeeze defax
+R4069:4074 anubis_proofs.theories.crypto_model SHA3_256 absorb defax
+R4076:4079 anubis_proofs.theories.crypto_model SHA3_256 init def
+R4081:4085 anubis_proofs.theories.crypto_model <> input:52 var
+R4088:4088 anubis_proofs.theories.crypto_model <> n:53 var
+def 4146:4153 SHA3_256 sha3_256
+R4164:4168 anubis_proofs.theories.crypto_model <> bytes def
+binder 4156:4160 <> input:54
+R4173:4177 anubis_proofs.theories.crypto_model <> bytes def
+R4186:4189 anubis_proofs.theories.crypto_model SHA3_256 hash def
+R4191:4195 anubis_proofs.theories.crypto_model <> input:54 var
+R4197:4208 anubis_proofs.theories.crypto_model SHA3_256 output_bytes def
+ax 4220:4237 SHA3_256 hash_deterministic
+R4261:4265 anubis_proofs.theories.crypto_model <> bytes def
+binder 4253:4257 <> input:55
+R4273:4275 Corelib.Init.Datatypes <> nat ind
+binder 4269:4269 <> n:56
+R4297:4299 Corelib.Init.Logic <> ::type_scope:x_'='_x not
+R4285:4288 anubis_proofs.theories.crypto_model SHA3_256 hash def
+R4290:4294 anubis_proofs.theories.crypto_model <> input:55 var
+R4296:4296 anubis_proofs.theories.crypto_model <> n:56 var
+R4300:4303 anubis_proofs.theories.crypto_model SHA3_256 hash def
+R4305:4309 anubis_proofs.theories.crypto_model <> input:55 var
+R4311:4311 anubis_proofs.theories.crypto_model <> n:56 var
+ax 4323:4333 SHA3_256 hash_length
+R4357:4361 anubis_proofs.theories.crypto_model <> bytes def
+binder 4349:4353 <> input:59
+R4369:4371 Corelib.Init.Datatypes <> nat ind
+binder 4365:4365 <> n:60
+R4405:4407 Corelib.Init.Logic <> ::type_scope:x_'='_x not
+R4381:4389 anubis_proofs.theories.crypto_model <> bytes_len def
+R4392:4395 anubis_proofs.theories.crypto_model SHA3_256 hash def
+R4397:4401 anubis_proofs.theories.crypto_model <> input:59 var
+R4403:4403 anubis_proofs.theories.crypto_model <> n:60 var
+R4408:4408 anubis_proofs.theories.crypto_model <> n:60 var
+ax 4454:4472 SHA3_256 collision_resistant
+ax 4494:4511 SHA3_256 preimage_resistant
+ax 4533:4557 SHA3_256 second_preimage_resistant
+ax 4636:4654 SHA3_256 random_oracle_model
+R4668:4675 anubis_proofs.theories.crypto_model SHA3_256 <> mod
+mod 4724:4731 <> SHAKE256
+def 4747:4751 SHAKE256 state
+R4756:4769 anubis_proofs.theories.crypto_model SHA3_256 state def
+def 4785:4788 SHAKE256 init
+R4793:4805 anubis_proofs.theories.crypto_model SHA3_256 init def
+def 4872:4881 SHAKE256 rate_bytes
+R4885:4887 Corelib.Init.Datatypes <> nat ind
+ax 4969:4974 SHAKE256 absorb
+R4983:4986 Corelib.Init.Logic <> ::type_scope:x_'->'_x not
+R4978:4982 anubis_proofs.theories.crypto_model SHAKE256 state def
+R4992:4995 Corelib.Init.Logic <> ::type_scope:x_'->'_x not
+R4987:4991 anubis_proofs.theories.crypto_model <> bytes def
+R4996:5000 anubis_proofs.theories.crypto_model SHAKE256 state def
+ax 5015:5021 SHAKE256 squeeze
+R5030:5033 Corelib.Init.Logic <> ::type_scope:x_'->'_x not
+R5025:5029 anubis_proofs.theories.crypto_model SHAKE256 state def
+R5037:5040 Corelib.Init.Logic <> ::type_scope:x_'->'_x not
+R5034:5036 Corelib.Init.Datatypes <> nat ind
+R5041:5045 anubis_proofs.theories.crypto_model <> bytes def
+def 5122:5124 SHAKE256 xof
+R5135:5139 anubis_proofs.theories.crypto_model <> bytes def
+binder 5127:5131 <> input:75
+R5156:5158 Corelib.Init.Datatypes <> nat ind
+binder 5143:5152 <> output_len:76
+R5163:5167 anubis_proofs.theories.crypto_model <> bytes def
+R5176:5182 anubis_proofs.theories.crypto_model SHAKE256 squeeze defax
+R5185:5190 anubis_proofs.theories.crypto_model SHAKE256 absorb defax
+R5192:5195 anubis_proofs.theories.crypto_model SHAKE256 init def
+R5197:5201 anubis_proofs.theories.crypto_model <> input:75 var
+R5204:5213 anubis_proofs.theories.crypto_model <> output_len:76 var
+ax 5225:5241 SHAKE256 xof_deterministic
+R5265:5269 anubis_proofs.theories.crypto_model <> bytes def
+binder 5257:5261 <> input:77
+R5277:5279 Corelib.Init.Datatypes <> nat ind
+binder 5273:5273 <> n:78
+R5300:5302 Corelib.Init.Logic <> ::type_scope:x_'='_x not
+R5289:5291 anubis_proofs.theories.crypto_model SHAKE256 xof def
+R5293:5297 anubis_proofs.theories.crypto_model <> input:77 var
+R5299:5299 anubis_proofs.theories.crypto_model <> n:78 var
+R5303:5305 anubis_proofs.theories.crypto_model SHAKE256 xof def
+R5307:5311 anubis_proofs.theories.crypto_model <> input:77 var
+R5313:5313 anubis_proofs.theories.crypto_model <> n:78 var
+ax 5325:5334 SHAKE256 xof_length
+R5358:5362 anubis_proofs.theories.crypto_model <> bytes def
+binder 5350:5354 <> input:81
+R5370:5372 Corelib.Init.Datatypes <> nat ind
+binder 5366:5366 <> n:82
+R5405:5407 Corelib.Init.Logic <> ::type_scope:x_'='_x not
+R5382:5390 anubis_proofs.theories.crypto_model <> bytes_len def
+R5393:5395 anubis_proofs.theories.crypto_model SHAKE256 xof def
+R5397:5401 anubis_proofs.theories.crypto_model <> input:81 var
+R5403:5403 anubis_proofs.theories.crypto_model <> n:82 var
+R5408:5408 anubis_proofs.theories.crypto_model <> n:82 var
+ax 5477:5509 SHAKE256 xof_indistinguishable_from_random
+R5523:5530 anubis_proofs.theories.crypto_model SHAKE256 <> mod
+modtype 5581:5596 <> SIGNATURE_SCHEME
+ax 5630:5639 SIGNATURE_SCHEME secret_key
+ax 5661:5670 SIGNATURE_SCHEME public_key
+ax 5692:5700 SIGNATURE_SCHEME signature
+ax 5757:5762 SIGNATURE_SCHEME keygen
+R5771:5774 Corelib.Init.Logic <> ::type_scope:x_'->'_x not
+R5766:5770 anubis_proofs.theories.crypto_model <> bytes def
+R5785:5787 Corelib.Init.Datatypes <> ::type_scope:x_'*'_x not
+R5775:5784 anubis_proofs.theories.crypto_model SIGNATURE_SCHEME secret_key defax
+R5788:5797 anubis_proofs.theories.crypto_model SIGNATURE_SCHEME public_key defax
+ax 5837:5840 SIGNATURE_SCHEME sign
+R5854:5857 Corelib.Init.Logic <> ::type_scope:x_'->'_x not
+R5844:5853 anubis_proofs.theories.crypto_model SIGNATURE_SCHEME secret_key defax
+R5863:5866 Corelib.Init.Logic <> ::type_scope:x_'->'_x not
+R5858:5862 anubis_proofs.theories.crypto_model <> bytes def
+R5867:5875 anubis_proofs.theories.crypto_model SIGNATURE_SCHEME signature defax
+ax 5919:5924 SIGNATURE_SCHEME verify
+R5938:5941 Corelib.Init.Logic <> ::type_scope:x_'->'_x not
+R5928:5937 anubis_proofs.theories.crypto_model SIGNATURE_SCHEME public_key defax
+R5947:5950 Corelib.Init.Logic <> ::type_scope:x_'->'_x not
+R5942:5946 anubis_proofs.theories.crypto_model <> bytes def
+R5960:5963 Corelib.Init.Logic <> ::type_scope:x_'->'_x not
+R5951:5959 anubis_proofs.theories.crypto_model SIGNATURE_SCHEME signature defax
+R5964:5967 Corelib.Init.Datatypes <> bool ind
+ax 6011:6022 SIGNATURE_SCHEME sig_to_bytes
+R6035:6038 Corelib.Init.Logic <> ::type_scope:x_'->'_x not
+R6026:6034 anubis_proofs.theories.crypto_model SIGNATURE_SCHEME signature defax
+R6039:6043 anubis_proofs.theories.crypto_model <> bytes def
+ax 6058:6069 SIGNATURE_SCHEME bytes_to_sig
+R6078:6081 Corelib.Init.Logic <> ::type_scope:x_'->'_x not
+R6073:6077 anubis_proofs.theories.crypto_model <> bytes def
+R6082:6087 Corelib.Init.Datatypes <> option ind
+R6089:6097 anubis_proofs.theories.crypto_model SIGNATURE_SCHEME signature defax
+ax 6142:6152 SIGNATURE_SCHEME pk_to_bytes
+R6166:6169 Corelib.Init.Logic <> ::type_scope:x_'->'_x not
+R6156:6165 anubis_proofs.theories.crypto_model SIGNATURE_SCHEME public_key defax
+R6170:6174 anubis_proofs.theories.crypto_model <> bytes def
+ax 6189:6199 SIGNATURE_SCHEME bytes_to_pk
+R6208:6211 Corelib.Init.Logic <> ::type_scope:x_'->'_x not
+R6203:6207 anubis_proofs.theories.crypto_model <> bytes def
+R6212:6217 Corelib.Init.Datatypes <> option ind
+R6219:6228 anubis_proofs.theories.crypto_model SIGNATURE_SCHEME public_key defax
+ax 6286:6304 SIGNATURE_SCHEME sign_verify_correct
+R6327:6331 anubis_proofs.theories.crypto_model <> bytes def
+binder 6320:6323 <> seed:107
+R6341:6345 anubis_proofs.theories.crypto_model <> bytes def
+binder 6335:6337 <> msg:108
+R6371:6376 anubis_proofs.theories.crypto_model SIGNATURE_SCHEME keygen defax
+R6378:6381 anubis_proofs.theories.crypto_model <> seed:107 var
+binder 6360:6361 <> sk:109
+binder 6364:6365 <> pk:110
+R6419:6421 Corelib.Init.Logic <> ::type_scope:x_'='_x not
+R6392:6397 anubis_proofs.theories.crypto_model SIGNATURE_SCHEME verify defax
+R6399:6400 anubis_proofs.theories.crypto_model <> pk:110 var
+R6402:6404 anubis_proofs.theories.crypto_model <> msg:108 var
+R6407:6410 anubis_proofs.theories.crypto_model SIGNATURE_SCHEME sign defax
+R6412:6413 anubis_proofs.theories.crypto_model <> sk:109 var
+R6415:6417 anubis_proofs.theories.crypto_model <> msg:108 var
+R6422:6425 Corelib.Init.Datatypes <> true constr
+ax 6488:6507 SIGNATURE_SCHEME keygen_deterministic
+R6530:6534 anubis_proofs.theories.crypto_model <> bytes def
+binder 6523:6526 <> seed:113
+R6555:6557 Corelib.Init.Logic <> ::type_scope:x_'='_x not
+R6544:6549 anubis_proofs.theories.crypto_model SIGNATURE_SCHEME keygen defax
+R6551:6554 anubis_proofs.theories.crypto_model <> seed:113 var
+R6558:6563 anubis_proofs.theories.crypto_model SIGNATURE_SCHEME keygen defax
+R6565:6568 anubis_proofs.theories.crypto_model <> seed:113 var
+ax 6667:6680 SIGNATURE_SCHEME euf_cma_secure
+R6694:6709 anubis_proofs.theories.crypto_model SIGNATURE_SCHEME <> modtype
+R6777:6792 anubis_proofs.theories.crypto_model SIGNATURE_SCHEME <> mod
+mod 6766:6772 <> MLDSA87
+def 6841:6854 MLDSA87 security_level
+R6858:6860 Corelib.Init.Datatypes <> nat ind
+def 6901:6901 MLDSA87 n
+R6905:6907 Corelib.Init.Datatypes <> nat ind
+def 6966:6966 MLDSA87 k
+R6970:6972 Corelib.Init.Datatypes <> nat ind
+def 7025:7025 MLDSA87 l
+R7029:7031 Corelib.Init.Datatypes <> nat ind
+def 7087:7087 MLDSA87 q
+R7091:7091 Corelib.Numbers.BinNums <> Z ind
+def 7162:7170 MLDSA87 seed_size
+R7174:7176 Corelib.Init.Datatypes <> nat ind
+def 7198:7204 MLDSA87 sk_size
+R7208:7210 Corelib.Init.Datatypes <> nat ind
+def 7234:7240 MLDSA87 pk_size
+R7244:7246 Corelib.Init.Datatypes <> nat ind
+def 7270:7277 MLDSA87 sig_size
+R7281:7283 Corelib.Init.Datatypes <> nat ind
+def 7336:7345 MLDSA87 secret_key
+R7350:7354 anubis_proofs.theories.crypto_model <> bytes def
+def 7370:7379 MLDSA87 public_key
+R7384:7388 anubis_proofs.theories.crypto_model <> bytes def
+def 7404:7412 MLDSA87 signature
+R7417:7421 anubis_proofs.theories.crypto_model <> bytes def
+ax 7479:7484 MLDSA87 keygen
+R7493:7496 Corelib.Init.Logic <> ::type_scope:x_'->'_x not
+R7488:7492 anubis_proofs.theories.crypto_model <> bytes def
+R7507:7509 Corelib.Init.Datatypes <> ::type_scope:x_'*'_x not
+R7497:7506 anubis_proofs.theories.crypto_model MLDSA87 secret_key def
+R7510:7519 anubis_proofs.theories.crypto_model MLDSA87 public_key def
+ax 7597:7600 MLDSA87 sign
+R7614:7617 Corelib.Init.Logic <> ::type_scope:x_'->'_x not
+R7604:7613 anubis_proofs.theories.crypto_model MLDSA87 secret_key def
+R7623:7626 Corelib.Init.Logic <> ::type_scope:x_'->'_x not
+R7618:7622 anubis_proofs.theories.crypto_model <> bytes def
+R7627:7635 anubis_proofs.theories.crypto_model MLDSA87 signature def
+ax 7683:7688 MLDSA87 verify
+R7702:7705 Corelib.Init.Logic <> ::type_scope:x_'->'_x not
+R7692:7701 anubis_proofs.theories.crypto_model MLDSA87 public_key def
+R7711:7714 Corelib.Init.Logic <> ::type_scope:x_'->'_x not
+R7706:7710 anubis_proofs.theories.crypto_model <> bytes def
+R7724:7727 Corelib.Init.Logic <> ::type_scope:x_'->'_x not
+R7715:7723 anubis_proofs.theories.crypto_model MLDSA87 signature def
+R7728:7731 Corelib.Init.Datatypes <> bool ind
+def 7771:7782 MLDSA87 sig_to_bytes
+R7789:7797 anubis_proofs.theories.crypto_model MLDSA87 signature def
+binder 7785:7785 <> s:124
+R7802:7806 anubis_proofs.theories.crypto_model <> bytes def
+R7811:7811 anubis_proofs.theories.crypto_model <> s:124 var
+def 7828:7839 MLDSA87 bytes_to_sig
+R7847:7851 anubis_proofs.theories.crypto_model <> bytes def
+binder 7842:7843 <> bs:125
+R7856:7861 Corelib.Init.Datatypes <> option ind
+R7863:7871 anubis_proofs.theories.crypto_model MLDSA87 signature def
+R7883:7889 Stdlib.Arith.PeanoNat Nat eqb def
+R7892:7900 anubis_proofs.theories.crypto_model <> bytes_len def
+R7902:7903 anubis_proofs.theories.crypto_model <> bs:125 var
+R7906:7913 anubis_proofs.theories.crypto_model MLDSA87 sig_size def
+R7933:7936 Corelib.Init.Datatypes <> None constr
+R7920:7923 Corelib.Init.Datatypes <> Some constr
+R7925:7926 anubis_proofs.theories.crypto_model <> bs:125 var
+def 7953:7963 MLDSA87 pk_to_bytes
+R7971:7980 anubis_proofs.theories.crypto_model MLDSA87 public_key def
+binder 7966:7967 <> pk:126
+R7985:7989 anubis_proofs.theories.crypto_model <> bytes def
+R7994:7995 anubis_proofs.theories.crypto_model <> pk:126 var
+def 8012:8022 MLDSA87 bytes_to_pk
+R8030:8034 anubis_proofs.theories.crypto_model <> bytes def
+binder 8025:8026 <> bs:127
+R8039:8044 Corelib.Init.Datatypes <> option ind
+R8046:8055 anubis_proofs.theories.crypto_model MLDSA87 public_key def
+R8067:8073 Stdlib.Arith.PeanoNat Nat eqb def
+R8076:8084 anubis_proofs.theories.crypto_model <> bytes_len def
+R8086:8087 anubis_proofs.theories.crypto_model <> bs:127 var
+R8090:8096 anubis_proofs.theories.crypto_model MLDSA87 pk_size def
+R8116:8119 Corelib.Init.Datatypes <> None constr
+R8103:8106 Corelib.Init.Datatypes <> Some constr
+R8108:8109 anubis_proofs.theories.crypto_model <> bs:127 var
+ax 8160:8178 MLDSA87 sign_verify_correct
+R8201:8205 anubis_proofs.theories.crypto_model <> bytes def
+binder 8194:8197 <> seed:128
+R8215:8219 anubis_proofs.theories.crypto_model <> bytes def
+binder 8209:8211 <> msg:129
+R8245:8250 anubis_proofs.theories.crypto_model MLDSA87 keygen defax
+R8252:8255 anubis_proofs.theories.crypto_model <> seed:128 var
+binder 8234:8235 <> sk:130
+binder 8238:8239 <> pk:131
+R8293:8295 Corelib.Init.Logic <> ::type_scope:x_'='_x not
+R8266:8271 anubis_proofs.theories.crypto_model MLDSA87 verify defax
+R8273:8274 anubis_proofs.theories.crypto_model <> pk:131 var
+R8276:8278 anubis_proofs.theories.crypto_model <> msg:129 var
+R8281:8284 anubis_proofs.theories.crypto_model MLDSA87 sign defax
+R8286:8287 anubis_proofs.theories.crypto_model <> sk:130 var
+R8289:8291 anubis_proofs.theories.crypto_model <> msg:129 var
+R8296:8299 Corelib.Init.Datatypes <> true constr
+ax 8311:8330 MLDSA87 keygen_deterministic
+R8353:8357 anubis_proofs.theories.crypto_model <> bytes def
+binder 8346:8349 <> seed:134
+R8378:8380 Corelib.Init.Logic <> ::type_scope:x_'='_x not
+R8367:8372 anubis_proofs.theories.crypto_model MLDSA87 keygen defax
+R8374:8377 anubis_proofs.theories.crypto_model <> seed:134 var
+R8381:8386 anubis_proofs.theories.crypto_model MLDSA87 keygen defax
+R8388:8391 anubis_proofs.theories.crypto_model <> seed:134 var
+ax 8432:8443 MLDSA87 keygen_sizes
+R8466:8470 anubis_proofs.theories.crypto_model <> bytes def
+binder 8459:8462 <> seed:137
+R8506:8515 Corelib.Init.Logic <> ::type_scope:x_'->'_x not
+R8494:8496 Corelib.Init.Logic <> ::type_scope:x_'='_x not
+R8480:8488 anubis_proofs.theories.crypto_model <> bytes_len def
+R8490:8493 anubis_proofs.theories.crypto_model <> seed:137 var
+R8497:8505 anubis_proofs.theories.crypto_model MLDSA87 seed_size def
+R8532:8537 anubis_proofs.theories.crypto_model MLDSA87 keygen defax
+R8539:8542 anubis_proofs.theories.crypto_model <> seed:137 var
+binder 8521:8522 <> sk:138
+binder 8525:8526 <> pk:139
+R8575:8578 Corelib.Init.Logic <> ::type_scope:x_'/\'_x not
+R8565:8567 Corelib.Init.Logic <> ::type_scope:x_'='_x not
+R8553:8561 anubis_proofs.theories.crypto_model <> bytes_len def
+R8563:8564 anubis_proofs.theories.crypto_model <> sk:138 var
+R8568:8574 anubis_proofs.theories.crypto_model MLDSA87 sk_size def
+R8591:8593 Corelib.Init.Logic <> ::type_scope:x_'='_x not
+R8579:8587 anubis_proofs.theories.crypto_model <> bytes_len def
+R8589:8590 anubis_proofs.theories.crypto_model <> pk:139 var
+R8594:8600 anubis_proofs.theories.crypto_model MLDSA87 pk_size def
+ax 8646:8654 MLDSA87 sign_size
+R8675:8684 anubis_proofs.theories.crypto_model MLDSA87 secret_key def
+binder 8670:8671 <> sk:142
+R8694:8698 anubis_proofs.theories.crypto_model <> bytes def
+binder 8688:8690 <> msg:143
+R8731:8733 Corelib.Init.Logic <> ::type_scope:x_'='_x not
+R8708:8716 anubis_proofs.theories.crypto_model <> bytes_len def
+R8719:8722 anubis_proofs.theories.crypto_model MLDSA87 sign defax
+R8724:8725 anubis_proofs.theories.crypto_model <> sk:142 var
+R8727:8729 anubis_proofs.theories.crypto_model <> msg:143 var
+R8734:8741 anubis_proofs.theories.crypto_model MLDSA87 sig_size def
+ax 8811:8824 MLDSA87 euf_cma_secure
+ax 8878:8886 MLDSA87 pq_secure
+ax 8955:8970 MLDSA87 security_level_5
+R8978:8986 anubis_proofs.theories.crypto_model MLDSA87 pq_secure defax
+R8993:8999 anubis_proofs.theories.crypto_model MLDSA87 <> mod
+modtype 9037:9047 <> AEAD_SCHEME
+ax 9077:9079 AEAD_SCHEME key
+ax 9101:9105 AEAD_SCHEME nonce
+ax 9127:9129 AEAD_SCHEME tag
+ax 9177:9184 AEAD_SCHEME key_size
+R9188:9190 Corelib.Init.Datatypes <> nat ind
+ax 9205:9214 AEAD_SCHEME nonce_size
+R9218:9220 Corelib.Init.Datatypes <> nat ind
+ax 9235:9242 AEAD_SCHEME tag_size
+R9246:9248 Corelib.Init.Datatypes <> nat ind
+ax 9321:9327 AEAD_SCHEME encrypt
+R9334:9337 Corelib.Init.Logic <> ::type_scope:x_'->'_x not
+R9331:9333 anubis_proofs.theories.crypto_model AEAD_SCHEME key defax
+R9343:9346 Corelib.Init.Logic <> ::type_scope:x_'->'_x not
+R9338:9342 anubis_proofs.theories.crypto_model AEAD_SCHEME nonce defax
+R9352:9355 Corelib.Init.Logic <> ::type_scope:x_'->'_x not
+R9347:9351 anubis_proofs.theories.crypto_model <> bytes def
+R9361:9364 Corelib.Init.Logic <> ::type_scope:x_'->'_x not
+R9356:9360 anubis_proofs.theories.crypto_model <> bytes def
+R9370:9372 Corelib.Init.Datatypes <> ::type_scope:x_'*'_x not
+R9365:9369 anubis_proofs.theories.crypto_model <> bytes def
+R9373:9375 anubis_proofs.theories.crypto_model AEAD_SCHEME tag defax
+ax 9459:9465 AEAD_SCHEME decrypt
+R9472:9475 Corelib.Init.Logic <> ::type_scope:x_'->'_x not
+R9469:9471 anubis_proofs.theories.crypto_model AEAD_SCHEME key defax
+R9481:9484 Corelib.Init.Logic <> ::type_scope:x_'->'_x not
+R9476:9480 anubis_proofs.theories.crypto_model AEAD_SCHEME nonce defax
+R9490:9493 Corelib.Init.Logic <> ::type_scope:x_'->'_x not
+R9485:9489 anubis_proofs.theories.crypto_model <> bytes def
+R9497:9500 Corelib.Init.Logic <> ::type_scope:x_'->'_x not
+R9494:9496 anubis_proofs.theories.crypto_model AEAD_SCHEME tag defax
+R9506:9509 Corelib.Init.Logic <> ::type_scope:x_'->'_x not
+R9501:9505 anubis_proofs.theories.crypto_model <> bytes def
+R9510:9515 Corelib.Init.Datatypes <> option ind
+R9517:9521 anubis_proofs.theories.crypto_model <> bytes def
+ax 9585:9607 AEAD_SCHEME encrypt_decrypt_correct
+R9627:9629 anubis_proofs.theories.crypto_model AEAD_SCHEME key defax
+binder 9623:9623 <> k:168
+R9637:9641 anubis_proofs.theories.crypto_model AEAD_SCHEME nonce defax
+binder 9633:9633 <> n:169
+R9654:9658 anubis_proofs.theories.crypto_model <> bytes def
+binder 9645:9646 <> pt:170
+binder 9648:9650 <> aad:171
+R9683:9689 anubis_proofs.theories.crypto_model AEAD_SCHEME encrypt defax
+R9691:9691 anubis_proofs.theories.crypto_model <> k:168 var
+R9693:9693 anubis_proofs.theories.crypto_model <> n:169 var
+R9695:9696 anubis_proofs.theories.crypto_model <> pt:170 var
+R9698:9700 anubis_proofs.theories.crypto_model <> aad:171 var
+binder 9673:9674 <> ct:172
+binder 9677:9677 <> t:173
+R9731:9733 Corelib.Init.Logic <> ::type_scope:x_'='_x not
+R9711:9717 anubis_proofs.theories.crypto_model AEAD_SCHEME decrypt defax
+R9719:9719 anubis_proofs.theories.crypto_model <> k:168 var
+R9721:9721 anubis_proofs.theories.crypto_model <> n:169 var
+R9723:9724 anubis_proofs.theories.crypto_model <> ct:172 var
+R9726:9726 anubis_proofs.theories.crypto_model <> t:173 var
+R9728:9730 anubis_proofs.theories.crypto_model <> aad:171 var
+R9734:9737 Corelib.Init.Datatypes <> Some constr
+R9739:9740 anubis_proofs.theories.crypto_model <> pt:170 var
+ax 9835:9848 AEAD_SCHEME ind_cpa_secure
+ax 9924:9938 AEAD_SCHEME int_ctxt_secure
+R9952:9962 anubis_proofs.theories.crypto_model AEAD_SCHEME <> modtype
+R10036:10046 anubis_proofs.theories.crypto_model AEAD_SCHEME <> mod
+mod 10016:10031 <> ChaCha20Poly1305
+def 10062:10069 ChaCha20Poly1305 key_size
+R10073:10075 Corelib.Init.Datatypes <> nat ind
+def 10097:10106 ChaCha20Poly1305 nonce_size
+R10110:10112 Corelib.Init.Datatypes <> nat ind
+def 10134:10141 ChaCha20Poly1305 tag_size
+R10145:10147 Corelib.Init.Datatypes <> nat ind
+def 10170:10172 ChaCha20Poly1305 key
+R10177:10181 anubis_proofs.theories.crypto_model <> bytes def
+def 10197:10201 ChaCha20Poly1305 nonce
+R10206:10210 anubis_proofs.theories.crypto_model <> bytes def
+def 10226:10228 ChaCha20Poly1305 tag
+R10233:10237 anubis_proofs.theories.crypto_model <> bytes def
+ax 10285:10298 ChaCha20Poly1305 chacha20_block
+R10305:10308 Corelib.Init.Logic <> ::type_scope:x_'->'_x not
+R10302:10304 anubis_proofs.theories.crypto_model ChaCha20Poly1305 key def
+R10314:10317 Corelib.Init.Logic <> ::type_scope:x_'->'_x not
+R10309:10313 anubis_proofs.theories.crypto_model ChaCha20Poly1305 nonce def
+R10319:10322 Corelib.Init.Logic <> ::type_scope:x_'->'_x not
+R10318:10318 Corelib.Numbers.BinNums <> Z ind
+R10323:10327 anubis_proofs.theories.crypto_model <> bytes def
+ax 10342:10357 ChaCha20Poly1305 chacha20_encrypt
+R10364:10367 Corelib.Init.Logic <> ::type_scope:x_'->'_x not
+R10361:10363 anubis_proofs.theories.crypto_model ChaCha20Poly1305 key def
+R10373:10376 Corelib.Init.Logic <> ::type_scope:x_'->'_x not
+R10368:10372 anubis_proofs.theories.crypto_model ChaCha20Poly1305 nonce def
+R10382:10385 Corelib.Init.Logic <> ::type_scope:x_'->'_x not
+R10377:10381 anubis_proofs.theories.crypto_model <> bytes def
+R10386:10390 anubis_proofs.theories.crypto_model <> bytes def
+ax 10428:10435 ChaCha20Poly1305 poly1305
+R10444:10447 Corelib.Init.Logic <> ::type_scope:x_'->'_x not
+R10439:10443 anubis_proofs.theories.crypto_model <> bytes def
+R10453:10456 Corelib.Init.Logic <> ::type_scope:x_'->'_x not
+R10448:10452 anubis_proofs.theories.crypto_model <> bytes def
+R10457:10459 anubis_proofs.theories.crypto_model ChaCha20Poly1305 tag def
+ax 10502:10508 ChaCha20Poly1305 encrypt
+R10515:10518 Corelib.Init.Logic <> ::type_scope:x_'->'_x not
+R10512:10514 anubis_proofs.theories.crypto_model ChaCha20Poly1305 key def
+R10524:10527 Corelib.Init.Logic <> ::type_scope:x_'->'_x not
+R10519:10523 anubis_proofs.theories.crypto_model ChaCha20Poly1305 nonce def
+R10533:10536 Corelib.Init.Logic <> ::type_scope:x_'->'_x not
+R10528:10532 anubis_proofs.theories.crypto_model <> bytes def
+R10542:10545 Corelib.Init.Logic <> ::type_scope:x_'->'_x not
+R10537:10541 anubis_proofs.theories.crypto_model <> bytes def
+R10551:10553 Corelib.Init.Datatypes <> ::type_scope:x_'*'_x not
+R10546:10550 anubis_proofs.theories.crypto_model <> bytes def
+R10554:10556 anubis_proofs.theories.crypto_model ChaCha20Poly1305 tag def
+ax 10571:10577 ChaCha20Poly1305 decrypt
+R10584:10587 Corelib.Init.Logic <> ::type_scope:x_'->'_x not
+R10581:10583 anubis_proofs.theories.crypto_model ChaCha20Poly1305 key def
+R10593:10596 Corelib.Init.Logic <> ::type_scope:x_'->'_x not
+R10588:10592 anubis_proofs.theories.crypto_model ChaCha20Poly1305 nonce def
+R10602:10605 Corelib.Init.Logic <> ::type_scope:x_'->'_x not
+R10597:10601 anubis_proofs.theories.crypto_model <> bytes def
+R10609:10612 Corelib.Init.Logic <> ::type_scope:x_'->'_x not
+R10606:10608 anubis_proofs.theories.crypto_model ChaCha20Poly1305 tag def
+R10618:10621 Corelib.Init.Logic <> ::type_scope:x_'->'_x not
+R10613:10617 anubis_proofs.theories.crypto_model <> bytes def
+R10622:10627 Corelib.Init.Datatypes <> option ind
+R10629:10633 anubis_proofs.theories.crypto_model <> bytes def
+ax 10645:10667 ChaCha20Poly1305 encrypt_decrypt_correct
+R10687:10689 anubis_proofs.theories.crypto_model ChaCha20Poly1305 key def
+binder 10683:10683 <> k:190
+R10697:10701 anubis_proofs.theories.crypto_model ChaCha20Poly1305 nonce def
+binder 10693:10693 <> n:191
+R10714:10718 anubis_proofs.theories.crypto_model <> bytes def
+binder 10705:10706 <> pt:192
+binder 10708:10710 <> aad:193
+R10743:10749 anubis_proofs.theories.crypto_model ChaCha20Poly1305 encrypt defax
+R10751:10751 anubis_proofs.theories.crypto_model <> k:190 var
+R10753:10753 anubis_proofs.theories.crypto_model <> n:191 var
+R10755:10756 anubis_proofs.theories.crypto_model <> pt:192 var
+R10758:10760 anubis_proofs.theories.crypto_model <> aad:193 var
+binder 10733:10734 <> ct:194
+binder 10737:10737 <> t:195
+R10791:10793 Corelib.Init.Logic <> ::type_scope:x_'='_x not
+R10771:10777 anubis_proofs.theories.crypto_model ChaCha20Poly1305 decrypt defax
+R10779:10779 anubis_proofs.theories.crypto_model <> k:190 var
+R10781:10781 anubis_proofs.theories.crypto_model <> n:191 var
+R10783:10784 anubis_proofs.theories.crypto_model <> ct:194 var
+R10786:10786 anubis_proofs.theories.crypto_model <> t:195 var
+R10788:10790 anubis_proofs.theories.crypto_model <> aad:193 var
+R10794:10797 Corelib.Init.Datatypes <> Some constr
+R10799:10800 anubis_proofs.theories.crypto_model <> pt:192 var
+ax 10873:10886 ChaCha20Poly1305 encrypt_length
+R10906:10908 anubis_proofs.theories.crypto_model ChaCha20Poly1305 key def
+binder 10902:10902 <> k:198
+R10916:10920 anubis_proofs.theories.crypto_model ChaCha20Poly1305 nonce def
+binder 10912:10912 <> n:199
+R10933:10937 anubis_proofs.theories.crypto_model <> bytes def
+binder 10924:10925 <> pt:200
+binder 10927:10929 <> aad:201
+R10962:10968 anubis_proofs.theories.crypto_model ChaCha20Poly1305 encrypt defax
+R10970:10970 anubis_proofs.theories.crypto_model <> k:198 var
+R10972:10972 anubis_proofs.theories.crypto_model <> n:199 var
+R10974:10975 anubis_proofs.theories.crypto_model <> pt:200 var
+R10977:10979 anubis_proofs.theories.crypto_model <> aad:201 var
+binder 10952:10953 <> ct:202
+R11002:11004 Corelib.Init.Logic <> ::type_scope:x_'='_x not
+R10990:10998 anubis_proofs.theories.crypto_model <> bytes_len def
+R11000:11001 anubis_proofs.theories.crypto_model <> ct:202 var
+R11005:11013 anubis_proofs.theories.crypto_model <> bytes_len def
+R11015:11016 anubis_proofs.theories.crypto_model <> pt:200 var
+ax 11061:11074 ChaCha20Poly1305 ind_cpa_secure
+ax 11096:11110 ChaCha20Poly1305 int_ctxt_secure
+ax 11175:11189 ChaCha20Poly1305 ind_cca2_secure
+R11211:11214 Corelib.Init.Logic <> ::type_scope:x_'/\'_x not
+R11197:11210 anubis_proofs.theories.crypto_model ChaCha20Poly1305 ind_cpa_secure defax
+R11215:11229 anubis_proofs.theories.crypto_model ChaCha20Poly1305 int_ctxt_secure defax
+ax 11273:11295 ChaCha20Poly1305 nonce_misuse_detectable
+R11315:11317 anubis_proofs.theories.crypto_model ChaCha20Poly1305 key def
+binder 11311:11311 <> k:211
+R11325:11329 anubis_proofs.theories.crypto_model ChaCha20Poly1305 nonce def
+binder 11321:11321 <> n:212
+R11347:11351 anubis_proofs.theories.crypto_model <> bytes def
+binder 11333:11335 <> pt1:213
+binder 11337:11339 <> pt2:214
+binder 11341:11343 <> aad:215
+R11371:11380 Corelib.Init.Logic <> ::type_scope:x_'->'_x not
+R11364:11367 Corelib.Init.Logic <> ::type_scope:x_'<>'_x not
+R11361:11363 anubis_proofs.theories.crypto_model <> pt1:213 var
+R11368:11370 anubis_proofs.theories.crypto_model <> pt2:214 var
+R11398:11404 anubis_proofs.theories.crypto_model ChaCha20Poly1305 encrypt defax
+R11406:11406 anubis_proofs.theories.crypto_model <> k:211 var
+R11408:11408 anubis_proofs.theories.crypto_model <> n:212 var
+R11410:11412 anubis_proofs.theories.crypto_model <> pt1:213 var
+R11414:11416 anubis_proofs.theories.crypto_model <> aad:215 var
+binder 11386:11388 <> ct1:216
+binder 11391:11392 <> t1:217
+R11444:11450 anubis_proofs.theories.crypto_model ChaCha20Poly1305 encrypt defax
+R11452:11452 anubis_proofs.theories.crypto_model <> k:211 var
+R11454:11454 anubis_proofs.theories.crypto_model <> n:212 var
+R11456:11458 anubis_proofs.theories.crypto_model <> pt2:214 var
+R11460:11462 anubis_proofs.theories.crypto_model <> aad:215 var
+binder 11432:11434 <> ct2:218
+binder 11437:11438 <> t2:219
+R11476:11479 Corelib.Init.Logic <> ::type_scope:x_'<>'_x not
+R11473:11475 anubis_proofs.theories.crypto_model <> ct1:216 var
+R11480:11482 anubis_proofs.theories.crypto_model <> ct2:218 var
+R11489:11504 anubis_proofs.theories.crypto_model ChaCha20Poly1305 <> mod
+modtype 11561:11563 <> KDF
+ax 11598:11609 KDF min_salt_len
+R11613:11615 Corelib.Init.Datatypes <> nat ind
+ax 11630:11643 KDF min_output_len
+R11647:11649 Corelib.Init.Datatypes <> nat ind
+ax 11664:11677 KDF max_output_len
+R11681:11683 Corelib.Init.Datatypes <> nat ind
+ax 11733:11738 KDF derive
+R11747:11750 Corelib.Init.Logic <> ::type_scope:x_'->'_x not
+R11742:11746 anubis_proofs.theories.crypto_model <> bytes def
+R11756:11759 Corelib.Init.Logic <> ::type_scope:x_'->'_x not
+R11751:11755 anubis_proofs.theories.crypto_model <> bytes def
+R11765:11768 Corelib.Init.Logic <> ::type_scope:x_'->'_x not
+R11760:11764 anubis_proofs.theories.crypto_model <> bytes def
+R11772:11775 Corelib.Init.Logic <> ::type_scope:x_'->'_x not
+R11769:11771 Corelib.Init.Datatypes <> nat ind
+R11776:11780 anubis_proofs.theories.crypto_model <> bytes def
+ax 11829:11841 KDF derive_length
+R11878:11882 anubis_proofs.theories.crypto_model <> bytes def
+binder 11857:11864 <> password:230
+binder 11866:11869 <> salt:231
+binder 11871:11874 <> info:232
+R11892:11894 Corelib.Init.Datatypes <> nat ind
+binder 11886:11888 <> len:233
+R11931:11940 Corelib.Init.Logic <> ::type_scope:x_'->'_x not
+R11908:11911 Corelib.Init.Peano <> ::nat_scope:x_'<='_x not
+R11905:11907 anubis_proofs.theories.crypto_model <> len:233 var
+R11912:11925 anubis_proofs.theories.crypto_model KDF max_output_len defax
+R11982:11984 Corelib.Init.Logic <> ::type_scope:x_'='_x not
+R11941:11949 anubis_proofs.theories.crypto_model <> bytes_len def
+R11952:11957 anubis_proofs.theories.crypto_model KDF derive defax
+R11959:11966 anubis_proofs.theories.crypto_model <> password:230 var
+R11968:11971 anubis_proofs.theories.crypto_model <> salt:231 var
+R11973:11976 anubis_proofs.theories.crypto_model <> info:232 var
+R11978:11980 anubis_proofs.theories.crypto_model <> len:233 var
+R11985:11987 anubis_proofs.theories.crypto_model <> len:233 var
+ax 12020:12039 KDF derive_deterministic
+R12076:12080 anubis_proofs.theories.crypto_model <> bytes def
+binder 12055:12062 <> password:236
+binder 12064:12067 <> salt:237
+binder 12069:12072 <> info:238
+R12090:12092 Corelib.Init.Datatypes <> nat ind
+binder 12084:12086 <> len:239
+R12131:12133 Corelib.Init.Logic <> ::type_scope:x_'='_x not
+R12102:12107 anubis_proofs.theories.crypto_model KDF derive defax
+R12109:12116 anubis_proofs.theories.crypto_model <> password:236 var
+R12118:12121 anubis_proofs.theories.crypto_model <> salt:237 var
+R12123:12126 anubis_proofs.theories.crypto_model <> info:238 var
+R12128:12130 anubis_proofs.theories.crypto_model <> len:239 var
+R12134:12139 anubis_proofs.theories.crypto_model KDF derive defax
+R12141:12148 anubis_proofs.theories.crypto_model <> password:236 var
+R12150:12153 anubis_proofs.theories.crypto_model <> salt:237 var
+R12155:12158 anubis_proofs.theories.crypto_model <> info:238 var
+R12160:12162 anubis_proofs.theories.crypto_model <> len:239 var
+ax 12211:12220 KDF kdf_secure
+R12234:12236 anubis_proofs.theories.crypto_model KDF <> modtype
+mod 12281:12288 <> Argon2id
+def 12321:12327 Argon2id version
+R12331:12331 Corelib.Numbers.BinNums <> Z ind
+def 12365:12371 Argon2id variant
+R12375:12375 Corelib.Numbers.BinNums <> Z ind
+def 12535:12548 Argon2id min_m_cost_kib
+R12552:12552 Corelib.Numbers.BinNums <> Z ind
+def 12600:12617 Argon2id default_m_cost_kib
+R12621:12621 Corelib.Numbers.BinNums <> Z ind
+def 12669:12678 Argon2id min_t_cost
+R12682:12682 Corelib.Numbers.BinNums <> Z ind
+def 12703:12717 Argon2id min_parallelism
+R12721:12721 Corelib.Numbers.BinNums <> Z ind
+def 12804:12819 Argon2id block_size_bytes
+R12823:12825 Corelib.Init.Datatypes <> nat ind
+def 12849:12859 Argon2id block_words
+R12863:12865 Corelib.Init.Datatypes <> nat ind
+rec 12885:12890 Argon2id params
+proj 12911:12916 Argon2id m_cost
+proj 12954:12959 Argon2id t_cost
+proj 12999:13005 Argon2id p_lanes
+proj 13040:13046 Argon2id tag_len
+R12920:12920 Corelib.Numbers.BinNums <> Z ind
+R12963:12963 Corelib.Numbers.BinNums <> Z ind
+R13009:13009 Corelib.Numbers.BinNums <> Z ind
+R13050:13052 Corelib.Init.Datatypes <> nat ind
+def 13134:13145 Argon2id valid_params
+R13152:13157 anubis_proofs.theories.crypto_model Argon2id params rec
+binder 13148:13148 <> p:249
+R13200:13207 Corelib.Init.Logic <> ::type_scope:x_'/\'_x not
+R13182:13185 Stdlib.ZArith.BinInt <> ::Z_scope:x_'>='_x not
+R13174:13179 anubis_proofs.theories.crypto_model Argon2id m_cost proj
+R13181:13181 anubis_proofs.theories.crypto_model <> p:249 var
+R13186:13199 anubis_proofs.theories.crypto_model Argon2id min_m_cost_kib def
+R13230:13237 Corelib.Init.Logic <> ::type_scope:x_'/\'_x not
+R13216:13219 Stdlib.ZArith.BinInt <> ::Z_scope:x_'>='_x not
+R13208:13213 anubis_proofs.theories.crypto_model Argon2id t_cost proj
+R13215:13215 anubis_proofs.theories.crypto_model <> p:249 var
+R13220:13229 anubis_proofs.theories.crypto_model Argon2id min_t_cost def
+R13266:13273 Corelib.Init.Logic <> ::type_scope:x_'/\'_x not
+R13247:13250 Stdlib.ZArith.BinInt <> ::Z_scope:x_'>='_x not
+R13238:13244 anubis_proofs.theories.crypto_model Argon2id p_lanes proj
+R13246:13246 anubis_proofs.theories.crypto_model <> p:249 var
+R13251:13265 anubis_proofs.theories.crypto_model Argon2id min_parallelism def
+R13293:13296 Corelib.Init.Logic <> ::type_scope:x_'/\'_x not
+R13284:13286 Corelib.Init.Peano <> ::nat_scope:x_'>'_x not
+R13275:13281 anubis_proofs.theories.crypto_model Argon2id tag_len proj
+R13283:13283 anubis_proofs.theories.crypto_model <> p:249 var
+R13307:13310 Corelib.Init.Peano <> ::nat_scope:x_'<='_x not
+R13298:13304 anubis_proofs.theories.crypto_model Argon2id tag_len proj
+R13306:13306 anubis_proofs.theories.crypto_model <> p:249 var
+def 13372:13388 Argon2id low_memory_params
+R13392:13397 anubis_proofs.theories.crypto_model Argon2id params rec
+R13409:13414 anubis_proofs.theories.crypto_model Argon2id m_cost proj
+R13409:13414 anubis_proofs.theories.crypto_model Argon2id m_cost proj
+R13409:13414 anubis_proofs.theories.crypto_model Argon2id m_cost proj
+R13439:13444 anubis_proofs.theories.crypto_model Argon2id t_cost proj
+R13439:13444 anubis_proofs.theories.crypto_model Argon2id t_cost proj
+R13493:13499 anubis_proofs.theories.crypto_model Argon2id p_lanes proj
+R13493:13499 anubis_proofs.theories.crypto_model Argon2id p_lanes proj
+R13511:13517 anubis_proofs.theories.crypto_model Argon2id tag_len proj
+R13511:13517 anubis_proofs.theories.crypto_model Argon2id tag_len proj
+R13419:13432 anubis_proofs.theories.crypto_model Argon2id min_m_cost_kib def
+def 13590:13603 Argon2id default_params
+R13607:13612 anubis_proofs.theories.crypto_model Argon2id params rec
+R13624:13629 anubis_proofs.theories.crypto_model Argon2id m_cost proj
+R13624:13629 anubis_proofs.theories.crypto_model Argon2id m_cost proj
+R13624:13629 anubis_proofs.theories.crypto_model Argon2id m_cost proj
+R13658:13663 anubis_proofs.theories.crypto_model Argon2id t_cost proj
+R13658:13663 anubis_proofs.theories.crypto_model Argon2id t_cost proj
+R13684:13690 anubis_proofs.theories.crypto_model Argon2id p_lanes proj
+R13684:13690 anubis_proofs.theories.crypto_model Argon2id p_lanes proj
+R13702:13708 anubis_proofs.theories.crypto_model Argon2id tag_len proj
+R13702:13708 anubis_proofs.theories.crypto_model Argon2id tag_len proj
+R13634:13651 anubis_proofs.theories.crypto_model Argon2id default_m_cost_kib def
+R13668:13677 anubis_proofs.theories.crypto_model Argon2id min_t_cost def
+prf 13732:13754 Argon2id low_memory_params_valid
+R13758:13769 anubis_proofs.theories.crypto_model Argon2id valid_params def
+R13771:13787 anubis_proofs.theories.crypto_model Argon2id low_memory_params def
+R13810:13821 anubis_proofs.theories.crypto_model Argon2id valid_params def
+R13824:13840 anubis_proofs.theories.crypto_model Argon2id low_memory_params def
+R13843:13856 anubis_proofs.theories.crypto_model Argon2id min_m_cost_kib def
+R13859:13868 anubis_proofs.theories.crypto_model Argon2id min_t_cost def
+R13871:13885 anubis_proofs.theories.crypto_model Argon2id min_parallelism def
+prf 13959:13978 Argon2id default_params_valid
+R13982:13993 anubis_proofs.theories.crypto_model Argon2id valid_params def
+R13995:14008 anubis_proofs.theories.crypto_model Argon2id default_params def
+R14031:14042 anubis_proofs.theories.crypto_model Argon2id valid_params def
+R14045:14058 anubis_proofs.theories.crypto_model Argon2id default_params def
+R14061:14078 anubis_proofs.theories.crypto_model Argon2id default_m_cost_kib def
+R14081:14094 anubis_proofs.theories.crypto_model Argon2id min_m_cost_kib def
+R14097:14106 anubis_proofs.theories.crypto_model Argon2id min_t_cost def
+R14109:14123 anubis_proofs.theories.crypto_model Argon2id min_parallelism def
+ax 14238:14247 Argon2id compute_H0
+R14257:14260 Corelib.Init.Logic <> ::type_scope:x_'->'_x not
+R14251:14256 anubis_proofs.theories.crypto_model Argon2id params rec
+R14266:14269 Corelib.Init.Logic <> ::type_scope:x_'->'_x not
+R14261:14265 anubis_proofs.theories.crypto_model <> bytes def
+R14275:14278 Corelib.Init.Logic <> ::type_scope:x_'->'_x not
+R14270:14274 anubis_proofs.theories.crypto_model <> bytes def
+R14284:14287 Corelib.Init.Logic <> ::type_scope:x_'->'_x not
+R14279:14283 anubis_proofs.theories.crypto_model <> bytes def
+R14293:14296 Corelib.Init.Logic <> ::type_scope:x_'->'_x not
+R14288:14292 anubis_proofs.theories.crypto_model <> bytes def
+R14297:14301 anubis_proofs.theories.crypto_model <> bytes def
+ax 14355:14361 Argon2id H_prime
+R14370:14373 Corelib.Init.Logic <> ::type_scope:x_'->'_x not
+R14365:14369 anubis_proofs.theories.crypto_model <> bytes def
+R14377:14380 Corelib.Init.Logic <> ::type_scope:x_'->'_x not
+R14374:14376 Corelib.Init.Datatypes <> nat ind
+R14381:14385 anubis_proofs.theories.crypto_model <> bytes def
+ax 14444:14457 Argon2id H_prime_length
+R14481:14485 anubis_proofs.theories.crypto_model <> bytes def
+binder 14473:14477 <> input:254
+R14495:14497 Corelib.Init.Datatypes <> nat ind
+binder 14489:14491 <> len:255
+R14520:14529 Corelib.Init.Logic <> ::type_scope:x_'->'_x not
+R14511:14513 Corelib.Init.Peano <> ::nat_scope:x_'>'_x not
+R14508:14510 anubis_proofs.theories.crypto_model <> len:255 var
+R14559:14561 Corelib.Init.Logic <> ::type_scope:x_'='_x not
+R14530:14538 anubis_proofs.theories.crypto_model <> bytes_len def
+R14541:14547 anubis_proofs.theories.crypto_model Argon2id H_prime defax
+R14549:14553 anubis_proofs.theories.crypto_model <> input:254 var
+R14555:14557 anubis_proofs.theories.crypto_model <> len:255 var
+R14562:14564 anubis_proofs.theories.crypto_model <> len:255 var
+ax 14612:14612 Argon2id G
+R14621:14624 Corelib.Init.Logic <> ::type_scope:x_'->'_x not
+R14616:14620 anubis_proofs.theories.crypto_model <> bytes def
+R14630:14633 Corelib.Init.Logic <> ::type_scope:x_'->'_x not
+R14625:14629 anubis_proofs.theories.crypto_model <> bytes def
+R14634:14638 anubis_proofs.theories.crypto_model <> bytes def
+ax 14688:14699 Argon2id G_block_size
+R14721:14725 anubis_proofs.theories.crypto_model <> bytes def
+binder 14715:14715 <> x:260
+binder 14717:14717 <> y:261
+R14765:14774 Corelib.Init.Logic <> ::type_scope:x_'->'_x not
+R14746:14748 Corelib.Init.Logic <> ::type_scope:x_'='_x not
+R14735:14743 anubis_proofs.theories.crypto_model <> bytes_len def
+R14745:14745 anubis_proofs.theories.crypto_model <> x:260 var
+R14749:14764 anubis_proofs.theories.crypto_model Argon2id block_size_bytes def
+R14805:14814 Corelib.Init.Logic <> ::type_scope:x_'->'_x not
+R14786:14788 Corelib.Init.Logic <> ::type_scope:x_'='_x not
+R14775:14783 anubis_proofs.theories.crypto_model <> bytes_len def
+R14785:14785 anubis_proofs.theories.crypto_model <> y:261 var
+R14789:14804 anubis_proofs.theories.crypto_model Argon2id block_size_bytes def
+R14832:14834 Corelib.Init.Logic <> ::type_scope:x_'='_x not
+R14815:14823 anubis_proofs.theories.crypto_model <> bytes_len def
+R14826:14826 anubis_proofs.theories.crypto_model Argon2id G defax
+R14828:14828 anubis_proofs.theories.crypto_model <> x:260 var
+R14830:14830 anubis_proofs.theories.crypto_model <> y:261 var
+R14835:14850 anubis_proofs.theories.crypto_model Argon2id block_size_bytes def
+ax 14900:14907 Argon2id argon2id
+R14917:14920 Corelib.Init.Logic <> ::type_scope:x_'->'_x not
+R14911:14916 anubis_proofs.theories.crypto_model Argon2id params rec
+R14926:14929 Corelib.Init.Logic <> ::type_scope:x_'->'_x not
+R14921:14925 anubis_proofs.theories.crypto_model <> bytes def
+R14935:14938 Corelib.Init.Logic <> ::type_scope:x_'->'_x not
+R14930:14934 anubis_proofs.theories.crypto_model <> bytes def
+R14939:14943 anubis_proofs.theories.crypto_model <> bytes def
+ax 15006:15020 Argon2id argon2id_length
+R15040:15045 anubis_proofs.theories.crypto_model Argon2id params rec
+binder 15036:15036 <> p:266
+R15065:15069 anubis_proofs.theories.crypto_model <> bytes def
+binder 15049:15056 <> password:267
+binder 15058:15061 <> salt:268
+R15093:15102 Corelib.Init.Logic <> ::type_scope:x_'->'_x not
+R15079:15090 anubis_proofs.theories.crypto_model Argon2id valid_params def
+R15092:15092 anubis_proofs.theories.crypto_model <> p:266 var
+R15139:15141 Corelib.Init.Logic <> ::type_scope:x_'='_x not
+R15103:15111 anubis_proofs.theories.crypto_model <> bytes_len def
+R15114:15121 anubis_proofs.theories.crypto_model Argon2id argon2id defax
+R15123:15123 anubis_proofs.theories.crypto_model <> p:266 var
+R15125:15132 anubis_proofs.theories.crypto_model <> password:267 var
+R15134:15137 anubis_proofs.theories.crypto_model <> salt:268 var
+R15142:15148 anubis_proofs.theories.crypto_model Argon2id tag_len proj
+R15150:15150 anubis_proofs.theories.crypto_model <> p:266 var
+ax 15199:15209 Argon2id memory_hard
+R15219:15222 Corelib.Init.Logic <> ::type_scope:x_'->'_x not
+R15213:15218 anubis_proofs.theories.crypto_model Argon2id params rec
+ax 15296:15319 Argon2id memory_hardness_security
+R15339:15344 anubis_proofs.theories.crypto_model Argon2id params rec
+binder 15335:15335 <> p:273
+R15368:15377 Corelib.Init.Logic <> ::type_scope:x_'->'_x not
+R15354:15365 anubis_proofs.theories.crypto_model Argon2id valid_params def
+R15367:15367 anubis_proofs.theories.crypto_model <> p:273 var
+R15378:15388 anubis_proofs.theories.crypto_model Argon2id memory_hard defax
+R15390:15390 anubis_proofs.theories.crypto_model <> p:273 var
+R15397:15404 anubis_proofs.theories.crypto_model Argon2id <> mod
+mod 15444:15459 <> DomainSeparation
+def 15536:15546 DomainSeparation sign_domain
+R15550:15554 anubis_proofs.theories.crypto_model <> bytes def
+R15559:15561 Corelib.Init.Datatypes <> nil constr
+def 15609:15621 DomainSeparation attest_domain
+R15625:15629 anubis_proofs.theories.crypto_model <> bytes def
+R15634:15636 Corelib.Init.Datatypes <> nil constr
+def 15685:15698 DomainSeparation license_domain
+R15702:15706 anubis_proofs.theories.crypto_model <> bytes def
+R15711:15713 Corelib.Init.Datatypes <> nil constr
+def 15763:15777 DomainSeparation rotation_domain
+R15781:15785 anubis_proofs.theories.crypto_model <> bytes def
+R15790:15792 Corelib.Init.Datatypes <> nil constr
+def 15918:15933 DomainSeparation domain_separated
+R15944:15948 anubis_proofs.theories.crypto_model <> bytes def
+binder 15936:15937 <> d1:276
+binder 15939:15940 <> d2:277
+R15967:15970 Corelib.Init.Logic <> ::type_scope:x_'<>'_x not
+R15965:15966 anubis_proofs.theories.crypto_model <> d1:276 var
+R15971:15972 anubis_proofs.theories.crypto_model <> d2:277 var
+ax 16027:16042 DomainSeparation domains_distinct
+R16092:16099 Corelib.Init.Logic <> ::type_scope:x_'/\'_x not
+R16050:16065 anubis_proofs.theories.crypto_model DomainSeparation domain_separated def
+R16067:16077 anubis_proofs.theories.crypto_model DomainSeparation sign_domain def
+R16079:16091 anubis_proofs.theories.crypto_model DomainSeparation attest_domain def
+R16143:16150 Corelib.Init.Logic <> ::type_scope:x_'/\'_x not
+R16100:16115 anubis_proofs.theories.crypto_model DomainSeparation domain_separated def
+R16117:16127 anubis_proofs.theories.crypto_model DomainSeparation sign_domain def
+R16129:16142 anubis_proofs.theories.crypto_model DomainSeparation license_domain def
+R16195:16202 Corelib.Init.Logic <> ::type_scope:x_'/\'_x not
+R16151:16166 anubis_proofs.theories.crypto_model DomainSeparation domain_separated def
+R16168:16178 anubis_proofs.theories.crypto_model DomainSeparation sign_domain def
+R16180:16194 anubis_proofs.theories.crypto_model DomainSeparation rotation_domain def
+R16248:16255 Corelib.Init.Logic <> ::type_scope:x_'/\'_x not
+R16203:16218 anubis_proofs.theories.crypto_model DomainSeparation domain_separated def
+R16220:16232 anubis_proofs.theories.crypto_model DomainSeparation attest_domain def
+R16234:16247 anubis_proofs.theories.crypto_model DomainSeparation license_domain def
+R16302:16309 Corelib.Init.Logic <> ::type_scope:x_'/\'_x not
+R16256:16271 anubis_proofs.theories.crypto_model DomainSeparation domain_separated def
+R16273:16285 anubis_proofs.theories.crypto_model DomainSeparation attest_domain def
+R16287:16301 anubis_proofs.theories.crypto_model DomainSeparation rotation_domain def
+R16310:16325 anubis_proofs.theories.crypto_model DomainSeparation domain_separated def
+R16327:16340 anubis_proofs.theories.crypto_model DomainSeparation license_domain def
+R16342:16356 anubis_proofs.theories.crypto_model DomainSeparation rotation_domain def
+def 16408:16418 DomainSeparation with_domain
+R16434:16438 anubis_proofs.theories.crypto_model <> bytes def
+binder 16421:16426 <> domain:280
+binder 16428:16430 <> msg:281
+R16443:16447 anubis_proofs.theories.crypto_model <> bytes def
+R16462:16465 Corelib.Init.Datatypes <> ::list_scope:x_'++'_x not
+R16456:16461 anubis_proofs.theories.crypto_model <> domain:280 var
+R16466:16468 anubis_proofs.theories.crypto_model <> msg:281 var
+prf 16550:16571 DomainSeparation app_same_length_prefix
+binder 16587:16587 <> A:282
+R16612:16615 Corelib.Init.Datatypes <> list ind
+R16617:16617 anubis_proofs.theories.crypto_model <> A:282 var
+binder 16598:16599 <> d1:283
+binder 16601:16602 <> d2:284
+binder 16604:16605 <> m1:285
+binder 16607:16608 <> m2:286
+R16658:16667 Corelib.Init.Logic <> ::type_scope:x_'->'_x not
+R16641:16643 Corelib.Init.Logic <> ::type_scope:x_'='_x not
+R16627:16637 Stdlib.Lists.List <> length abbrev
+R16639:16640 anubis_proofs.theories.crypto_model <> d1:283 var
+R16644:16654 Stdlib.Lists.List <> length abbrev
+R16656:16657 anubis_proofs.theories.crypto_model <> d2:284 var
+R16687:16696 Corelib.Init.Logic <> ::type_scope:x_'->'_x not
+R16676:16678 Corelib.Init.Logic <> ::type_scope:x_'='_x not
+R16670:16673 Corelib.Init.Datatypes <> ::list_scope:x_'++'_x not
+R16668:16669 anubis_proofs.theories.crypto_model <> d1:283 var
+R16674:16675 anubis_proofs.theories.crypto_model <> m1:285 var
+R16681:16684 Corelib.Init.Datatypes <> ::list_scope:x_'++'_x not
+R16679:16680 anubis_proofs.theories.crypto_model <> d2:284 var
+R16685:16686 anubis_proofs.theories.crypto_model <> m2:286 var
+R16699:16701 Corelib.Init.Logic <> ::type_scope:x_'='_x not
+R16697:16698 anubis_proofs.theories.crypto_model <> d1:283 var
+R16702:16703 anubis_proofs.theories.crypto_model <> d2:284 var
+prf 17216:17240 DomainSeparation prefix_unique_same_length
+binder 17256:17256 <> A:287
+R17281:17284 Corelib.Init.Datatypes <> list ind
+R17286:17286 anubis_proofs.theories.crypto_model <> A:287 var
+binder 17267:17268 <> d1:288
+binder 17270:17271 <> d2:289
+binder 17273:17274 <> m1:290
+binder 17276:17277 <> m2:291
+R17327:17336 Corelib.Init.Logic <> ::type_scope:x_'->'_x not
+R17310:17312 Corelib.Init.Logic <> ::type_scope:x_'='_x not
+R17296:17306 Stdlib.Lists.List <> length abbrev
+R17308:17309 anubis_proofs.theories.crypto_model <> d1:288 var
+R17313:17323 Stdlib.Lists.List <> length abbrev
+R17325:17326 anubis_proofs.theories.crypto_model <> d2:289 var
+R17345:17354 Corelib.Init.Logic <> ::type_scope:x_'->'_x not
+R17339:17342 Corelib.Init.Logic <> ::type_scope:x_'<>'_x not
+R17337:17338 anubis_proofs.theories.crypto_model <> d1:288 var
+R17343:17344 anubis_proofs.theories.crypto_model <> d2:289 var
+R17363:17366 Corelib.Init.Logic <> ::type_scope:x_'<>'_x not
+R17357:17360 Corelib.Init.Datatypes <> ::list_scope:x_'++'_x not
+R17355:17356 anubis_proofs.theories.crypto_model <> d1:288 var
+R17361:17362 anubis_proofs.theories.crypto_model <> m1:290 var
+R17369:17372 Corelib.Init.Datatypes <> ::list_scope:x_'++'_x not
+R17367:17368 anubis_proofs.theories.crypto_model <> d2:289 var
+R17373:17374 anubis_proofs.theories.crypto_model <> m2:291 var
+R17451:17472 anubis_proofs.theories.crypto_model DomainSeparation app_same_length_prefix thm
+R17451:17472 anubis_proofs.theories.crypto_model DomainSeparation app_same_length_prefix thm
+prf 17653:17678 DomainSeparation domain_separation_security
+R17702:17706 anubis_proofs.theories.crypto_model <> bytes def
+binder 17694:17695 <> d1:292
+binder 17697:17698 <> d2:293
+R17718:17722 anubis_proofs.theories.crypto_model <> bytes def
+binder 17710:17711 <> m1:294
+binder 17713:17714 <> m2:295
+R17763:17772 Corelib.Init.Logic <> ::type_scope:x_'->'_x not
+R17746:17748 Corelib.Init.Logic <> ::type_scope:x_'='_x not
+R17732:17742 Stdlib.Lists.List <> length abbrev
+R17744:17745 anubis_proofs.theories.crypto_model <> d1:292 var
+R17749:17759 Stdlib.Lists.List <> length abbrev
+R17761:17762 anubis_proofs.theories.crypto_model <> d2:293 var
+R17795:17804 Corelib.Init.Logic <> ::type_scope:x_'->'_x not
+R17773:17788 anubis_proofs.theories.crypto_model DomainSeparation domain_separated def
+R17790:17791 anubis_proofs.theories.crypto_model <> d1:292 var
+R17793:17794 anubis_proofs.theories.crypto_model <> d2:293 var
+R17822:17825 Corelib.Init.Logic <> ::type_scope:x_'<>'_x not
+R17805:17815 anubis_proofs.theories.crypto_model DomainSeparation with_domain def
+R17817:17818 anubis_proofs.theories.crypto_model <> d1:292 var
+R17820:17821 anubis_proofs.theories.crypto_model <> m1:294 var
+R17826:17836 anubis_proofs.theories.crypto_model DomainSeparation with_domain def
+R17838:17839 anubis_proofs.theories.crypto_model <> d2:293 var
+R17841:17842 anubis_proofs.theories.crypto_model <> m2:295 var
+R17899:17909 anubis_proofs.theories.crypto_model DomainSeparation with_domain def
+R17922:17946 anubis_proofs.theories.crypto_model DomainSeparation prefix_unique_same_length thm
+R17922:17946 anubis_proofs.theories.crypto_model DomainSeparation prefix_unique_same_length thm
+R17980:17995 anubis_proofs.theories.crypto_model DomainSeparation domain_separated def
+R18029:18044 anubis_proofs.theories.crypto_model DomainSeparation <> mod
+mod 18084:18094 <> Zeroization
+ax 18143:18149 Zeroization mem_loc
+ax 18203:18209 Zeroization zeroize
+R18220:18223 Corelib.Init.Logic <> ::type_scope:x_'->'_x not
+R18213:18219 anubis_proofs.theories.crypto_model Zeroization mem_loc defax
+ax 18294:18301 Zeroization all_zero
+R18312:18315 Corelib.Init.Logic <> ::type_scope:x_'->'_x not
+R18305:18311 anubis_proofs.theories.crypto_model Zeroization mem_loc defax
+ax 18376:18390 Zeroization zeroize_correct
+R18412:18418 anubis_proofs.theories.crypto_model Zeroization mem_loc defax
+binder 18406:18408 <> loc:302
+R18439:18442 Corelib.Init.Logic <> ::type_scope:x_'->'_x not
+R18428:18434 anubis_proofs.theories.crypto_model Zeroization zeroize defax
+R18436:18438 anubis_proofs.theories.crypto_model <> loc:302 var
+R18443:18450 anubis_proofs.theories.crypto_model Zeroization all_zero defax
+R18452:18454 anubis_proofs.theories.crypto_model <> loc:302 var
+ax 18598:18613 Zeroization volatile_zeroize
+R18624:18627 Corelib.Init.Logic <> ::type_scope:x_'->'_x not
+R18617:18623 anubis_proofs.theories.crypto_model Zeroization mem_loc defax
+ax 18643:18673 Zeroization volatile_zeroize_not_eliminated
+R18695:18701 anubis_proofs.theories.crypto_model Zeroization mem_loc defax
+binder 18689:18691 <> loc:307
+R18731:18734 Corelib.Init.Logic <> ::type_scope:x_'->'_x not
+R18711:18726 anubis_proofs.theories.crypto_model Zeroization volatile_zeroize defax
+R18728:18730 anubis_proofs.theories.crypto_model <> loc:307 var
+R18735:18741 anubis_proofs.theories.crypto_model Zeroization zeroize defax
+R18743:18745 anubis_proofs.theories.crypto_model <> loc:307 var
+R18752:18762 anubis_proofs.theories.crypto_model Zeroization <> mod
+mod 18801:18815 <> NonceManagement
+def 18831:18840 NonceManagement nonce_size
+R18844:18846 Corelib.Init.Datatypes <> nat ind
+ind 18908:18919 NonceManagement nonce_source
+constr 18930:18936 NonceManagement Counter
+constr 18964:18969 NonceManagement Random
+R18941:18944 Corelib.Init.Logic <> ::type_scope:x_'->'_x not
+R18940:18940 Corelib.Numbers.BinNums <> Z ind
+R18945:18956 anubis_proofs.theories.crypto_model <> nonce_source:310 ind
+R18973:18984 anubis_proofs.theories.crypto_model <> nonce_source:310 ind
+scheme 18908:18919 NonceManagement nonce_source_rect
+scheme 18908:18919 NonceManagement nonce_source_ind
+scheme 18908:18919 NonceManagement nonce_source_rec
+scheme 18908:18919 NonceManagement nonce_source_sind
+def 19030:19039 NonceManagement next_nonce
+R19048:19059 anubis_proofs.theories.crypto_model NonceManagement nonce_source ind
+binder 19042:19044 <> src:312
+R19069:19071 Corelib.Init.Datatypes <> ::type_scope:x_'*'_x not
+R19064:19068 anubis_proofs.theories.crypto_model <> bytes def
+R19072:19083 anubis_proofs.theories.crypto_model NonceManagement nonce_source ind
+R19098:19100 anubis_proofs.theories.crypto_model <> src:312 var
+R19113:19119 anubis_proofs.theories.crypto_model NonceManagement Counter constr
+R19126:19126 Corelib.Init.Datatypes <> ::core_scope:'('_x_','_x_','_'..'_','_x_')' not
+R19130:19131 Corelib.Init.Datatypes <> ::core_scope:'('_x_','_x_','_'..'_','_x_')' not
+R19147:19147 Corelib.Init.Datatypes <> ::core_scope:'('_x_','_x_','_'..'_','_x_')' not
+R19127:19129 Corelib.Init.Datatypes <> nil constr
+R19132:19138 anubis_proofs.theories.crypto_model NonceManagement Counter constr
+R19142:19144 Stdlib.ZArith.BinInt <> ::Z_scope:x_'+'_x not
+R19174:19179 anubis_proofs.theories.crypto_model NonceManagement Random constr
+R19184:19184 Corelib.Init.Datatypes <> ::core_scope:'('_x_','_x_','_'..'_','_x_')' not
+R19188:19189 Corelib.Init.Datatypes <> ::core_scope:'('_x_','_x_','_'..'_','_x_')' not
+R19196:19196 Corelib.Init.Datatypes <> ::core_scope:'('_x_','_x_','_'..'_','_x_')' not
+R19185:19187 Corelib.Init.Datatypes <> nil constr
+R19190:19195 anubis_proofs.theories.crypto_model NonceManagement Random constr
+prf 19418:19438 NonceManagement counter_nonces_unique
+R19462:19462 Corelib.Numbers.BinNums <> Z ind
+binder 19454:19455 <> n1:314
+binder 19457:19458 <> n2:315
+R19480:19624 Corelib.Init.Logic <> ::type_scope:x_'->'_x not
+R19474:19477 Corelib.Init.Logic <> ::type_scope:x_'<>'_x not
+R19472:19473 anubis_proofs.theories.crypto_model <> n1:314 var
+R19478:19479 anubis_proofs.theories.crypto_model <> n2:315 var
+R19625:19628 Corelib.Init.Logic <> True ind
+R19930:19930 Corelib.Init.Logic <> I constr
+R19930:19930 Corelib.Init.Logic <> I constr
+R19944:19958 anubis_proofs.theories.crypto_model NonceManagement <> mod
+mod 20023:20038 <> NotaryOperations
+R20050:20056 anubis_proofs.theories.crypto_model MLDSA87 <> mod
+R20068:20075 anubis_proofs.theories.crypto_model SHA3_256 <> mod
+R20087:20102 anubis_proofs.theories.crypto_model DomainSeparation <> mod
+def 20179:20187 NotaryOperations sign_file
+R20195:20204 anubis_proofs.theories.crypto_model MLDSA87 secret_key def
+binder 20190:20191 <> sk:316
+R20220:20224 anubis_proofs.theories.crypto_model <> bytes def
+binder 20208:20216 <> file_data:317
+R20229:20237 anubis_proofs.theories.crypto_model MLDSA87 signature def
+R20263:20270 anubis_proofs.theories.crypto_model SHA3_256 sha3_256 def
+R20272:20280 anubis_proofs.theories.crypto_model <> file_data:317 var
+binder 20250:20258 <> file_hash:318
+R20300:20310 anubis_proofs.theories.crypto_model DomainSeparation with_domain def
+R20312:20322 anubis_proofs.theories.crypto_model DomainSeparation sign_domain def
+R20324:20332 anubis_proofs.theories.crypto_model <> file_hash:318 var
+binder 20293:20295 <> msg:319
+R20341:20344 anubis_proofs.theories.crypto_model MLDSA87 sign defax
+R20346:20347 anubis_proofs.theories.crypto_model <> sk:316 var
+R20349:20351 anubis_proofs.theories.crypto_model <> msg:319 var
+def 20401:20411 NotaryOperations verify_file
+R20419:20428 anubis_proofs.theories.crypto_model MLDSA87 public_key def
+binder 20414:20415 <> pk:320
+R20444:20448 anubis_proofs.theories.crypto_model <> bytes def
+binder 20432:20440 <> file_data:321
+R20458:20466 anubis_proofs.theories.crypto_model MLDSA87 signature def
+binder 20452:20454 <> sig:322
+R20471:20474 Corelib.Init.Datatypes <> bool ind
+R20500:20507 anubis_proofs.theories.crypto_model SHA3_256 sha3_256 def
+R20509:20517 anubis_proofs.theories.crypto_model <> file_data:321 var
+binder 20487:20495 <> file_hash:323
+R20537:20547 anubis_proofs.theories.crypto_model DomainSeparation with_domain def
+R20549:20559 anubis_proofs.theories.crypto_model DomainSeparation sign_domain def
+R20561:20569 anubis_proofs.theories.crypto_model <> file_hash:323 var
+binder 20530:20532 <> msg:324
+R20578:20583 anubis_proofs.theories.crypto_model MLDSA87 verify defax
+R20585:20586 anubis_proofs.theories.crypto_model <> pk:320 var
+R20588:20590 anubis_proofs.theories.crypto_model <> msg:324 var
+R20592:20594 anubis_proofs.theories.crypto_model <> sig:322 var
+prf 20659:20682 NotaryOperations sign_verify_file_correct
+R20715:20719 anubis_proofs.theories.crypto_model <> bytes def
+binder 20698:20701 <> seed:325
+binder 20703:20711 <> file_data:326
+R20745:20750 anubis_proofs.theories.crypto_model MLDSA87 keygen defax
+R20752:20755 anubis_proofs.theories.crypto_model <> seed:325 var
+binder 20734:20735 <> sk:327
+binder 20738:20739 <> pk:328
+R20815:20817 Corelib.Init.Logic <> ::type_scope:x_'='_x not
+R20766:20776 anubis_proofs.theories.crypto_model NotaryOperations verify_file def
+R20778:20779 anubis_proofs.theories.crypto_model <> pk:328 var
+R20781:20789 anubis_proofs.theories.crypto_model <> file_data:326 var
+R20792:20800 anubis_proofs.theories.crypto_model NotaryOperations sign_file def
+R20802:20803 anubis_proofs.theories.crypto_model <> sk:327 var
+R20805:20813 anubis_proofs.theories.crypto_model <> file_data:326 var
+R20818:20821 Corelib.Init.Datatypes <> true constr
+R20871:20879 anubis_proofs.theories.crypto_model NotaryOperations sign_file def
+R20882:20892 anubis_proofs.theories.crypto_model NotaryOperations verify_file def
+R20911:20929 anubis_proofs.theories.crypto_model MLDSA87 sign_verify_correct prfax
+R20937:20947 anubis_proofs.theories.crypto_model DomainSeparation with_domain def
+R20949:20959 anubis_proofs.theories.crypto_model DomainSeparation sign_domain def
+R20962:20969 anubis_proofs.theories.crypto_model SHA3_256 sha3_256 def
+R20911:20929 anubis_proofs.theories.crypto_model MLDSA87 sign_verify_correct prfax
+R20937:20947 anubis_proofs.theories.crypto_model DomainSeparation with_domain def
+R20949:20959 anubis_proofs.theories.crypto_model DomainSeparation sign_domain def
+R20962:20969 anubis_proofs.theories.crypto_model SHA3_256 sha3_256 def
+R21004:21009 anubis_proofs.theories.crypto_model MLDSA87 keygen defax
+R21004:21009 anubis_proofs.theories.crypto_model MLDSA87 keygen defax
+def 21099:21112 NotaryOperations create_receipt
+R21120:21129 anubis_proofs.theories.crypto_model MLDSA87 secret_key def
+binder 21115:21116 <> sk:329
+R21140:21144 anubis_proofs.theories.crypto_model <> bytes def
+binder 21133:21136 <> data:330
+R21160:21160 Corelib.Numbers.BinNums <> Z ind
+binder 21148:21156 <> timestamp:331
+R21165:21173 anubis_proofs.theories.crypto_model MLDSA87 signature def
+R21196:21203 anubis_proofs.theories.crypto_model SHA3_256 sha3_256 def
+R21205:21208 anubis_proofs.theories.crypto_model <> data:330 var
+binder 21186:21191 <> digest:332
+R21285:21290 anubis_proofs.theories.crypto_model <> digest:332 var
+binder 21269:21280 <> receipt_data:333
+R21328:21338 anubis_proofs.theories.crypto_model DomainSeparation with_domain def
+R21340:21352 anubis_proofs.theories.crypto_model DomainSeparation attest_domain def
+R21354:21365 anubis_proofs.theories.crypto_model <> receipt_data:333 var
+binder 21321:21323 <> msg:334
+R21374:21377 anubis_proofs.theories.crypto_model MLDSA87 sign defax
+R21379:21380 anubis_proofs.theories.crypto_model <> sk:329 var
+R21382:21384 anubis_proofs.theories.crypto_model <> msg:334 var
+def 21426:21438 NotaryOperations issue_license
+R21446:21455 anubis_proofs.theories.crypto_model MLDSA87 secret_key def
+binder 21441:21442 <> sk:335
+R21474:21478 anubis_proofs.theories.crypto_model <> bytes def
+binder 21459:21462 <> user:336
+binder 21464:21470 <> product:337
+R21491:21491 Corelib.Numbers.BinNums <> Z ind
+binder 21482:21487 <> expiry:338
+R21496:21504 anubis_proofs.theories.crypto_model MLDSA87 signature def
+R21537:21540 Corelib.Init.Datatypes <> ::list_scope:x_'++'_x not
+R21533:21536 anubis_proofs.theories.crypto_model <> user:336 var
+R21541:21547 anubis_proofs.theories.crypto_model <> product:337 var
+binder 21517:21528 <> license_data:339
+R21585:21595 anubis_proofs.theories.crypto_model DomainSeparation with_domain def
+R21597:21610 anubis_proofs.theories.crypto_model DomainSeparation license_domain def
+R21612:21623 anubis_proofs.theories.crypto_model <> license_data:339 var
+binder 21578:21580 <> msg:340
+R21632:21635 anubis_proofs.theories.crypto_model MLDSA87 sign defax
+R21637:21638 anubis_proofs.theories.crypto_model <> sk:335 var
+R21640:21642 anubis_proofs.theories.crypto_model <> msg:340 var
+R21650:21665 anubis_proofs.theories.crypto_model NotaryOperations <> mod
+prf 21717:21731 <> system_security
+R21759:21764 Corelib.Init.Logic <> ::type_scope:x_'->'_x not
+R21737:21758 anubis_proofs.theories.crypto_model <> euf_cma_secure defax
+R21796:21801 Corelib.Init.Logic <> ::type_scope:x_'->'_x not
+R21765:21795 anubis_proofs.theories.crypto_model <> ind_cpa_secure defax
+R21834:21839 Corelib.Init.Logic <> ::type_scope:x_'->'_x not
+R21802:21833 anubis_proofs.theories.crypto_model <> int_ctxt_secure defax
+R21868:22081 Corelib.Init.Logic <> ::type_scope:x_'->'_x not
+R21840:21867 anubis_proofs.theories.crypto_model <> collision_resistant defax
+R22082:22085 Corelib.Init.Logic <> True ind
+R22121:22121 Corelib.Init.Logic <> I constr
+R22121:22121 Corelib.Init.Logic <> I constr

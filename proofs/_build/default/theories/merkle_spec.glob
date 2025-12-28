@@ -1,0 +1,2114 @@
+DIGEST 21a10b26c4be10bf877bdbd9220af56e
+Fanubis_proofs.theories.merkle_spec
+R950:952 Stdlib.micromega.Lia <> <> lib
+R954:959 Stdlib.ZArith.ZArith <> <> lib
+R961:964 Stdlib.Lists.List <> <> lib
+R966:979 Stdlib.Strings.String <> <> lib
+R1009:1038 Stdlib.Logic.FunctionalExtensionality <> <> lib
+R1068:1083 Stdlib.Program.Equality <> <> lib
+R1113:1121 Stdlib.Bool.Bool <> <> lib
+R1151:1158 Stdlib.Arith.PeanoNat <> <> lib
+R1188:1201 Stdlib.Arith.PeanoNat <> <> lib
+R1231:1242 Stdlib.Arith.Wf_nat <> <> lib
+R1272:1296 Stdlib.Wellfounded.Inverse_Image <> <> lib
+R1326:1336 Stdlib.Wellfounded.Wellfounded <> <> lib
+R1346:1358 Stdlib.Lists.List ListNotations <> mod
+def 1422:1425 <> byte
+R1430:1430 Corelib.Numbers.BinNums <> Z ind
+def 1444:1448 <> bytes
+R1453:1456 Corelib.Init.Datatypes <> list ind
+R1458:1461 anubis_proofs.theories.merkle_spec <> byte def
+def 1475:1478 <> hash
+R1483:1487 anubis_proofs.theories.merkle_spec <> bytes def
+def 1523:1531 <> hash_size
+R1535:1537 Corelib.Init.Datatypes <> nat ind
+def 1558:1567 <> valid_hash
+R1574:1577 anubis_proofs.theories.merkle_spec <> hash def
+binder 1570:1570 <> h:1
+R1605:1607 Corelib.Init.Logic <> ::type_scope:x_'='_x not
+R1592:1602 Stdlib.Lists.List <> length abbrev
+R1604:1604 anubis_proofs.theories.merkle_spec <> h:1 var
+R1608:1616 anubis_proofs.theories.merkle_spec <> hash_size def
+ax 1718:1725 <> sha3_256
+R1734:1737 Corelib.Init.Logic <> ::type_scope:x_'->'_x not
+R1729:1733 anubis_proofs.theories.merkle_spec <> bytes def
+R1738:1741 anubis_proofs.theories.merkle_spec <> hash def
+ax 1943:1957 <> sha3_256_length
+binder 1970:1974 <> input:4
+R2005:2007 Corelib.Init.Logic <> ::type_scope:x_'='_x not
+R1977:1987 Stdlib.Lists.List <> length abbrev
+R1990:1997 anubis_proofs.theories.merkle_spec <> sha3_256 defax
+R1999:2003 anubis_proofs.theories.merkle_spec <> input:4 var
+R2008:2016 anubis_proofs.theories.merkle_spec <> hash_size def
+prf 2090:2111 <> sha3_256_deterministic
+binder 2124:2128 <> input:7
+R2145:2147 Corelib.Init.Logic <> ::type_scope:x_'='_x not
+R2131:2138 anubis_proofs.theories.merkle_spec <> sha3_256 defax
+R2140:2144 anubis_proofs.theories.merkle_spec <> input:7 var
+R2148:2155 anubis_proofs.theories.merkle_spec <> sha3_256 defax
+R2157:2161 anubis_proofs.theories.merkle_spec <> input:7 var
+ax 2566:2593 <> sha3_256_collision_resistant
+binder 2606:2606 <> x:8
+binder 2608:2608 <> y:9
+R2634:2637 Corelib.Init.Logic <> ::type_scope:x_'->'_x not
+R2621:2623 Corelib.Init.Logic <> ::type_scope:x_'='_x not
+R2611:2618 anubis_proofs.theories.merkle_spec <> sha3_256 defax
+R2620:2620 anubis_proofs.theories.merkle_spec <> x:8 var
+R2624:2631 anubis_proofs.theories.merkle_spec <> sha3_256 defax
+R2633:2633 anubis_proofs.theories.merkle_spec <> y:9 var
+R2639:2641 Corelib.Init.Logic <> ::type_scope:x_'='_x not
+R2638:2638 anubis_proofs.theories.merkle_spec <> x:8 var
+R2642:2642 anubis_proofs.theories.merkle_spec <> y:9 var
+def 2722:2732 <> leaf_prefix
+R2736:2740 anubis_proofs.theories.merkle_spec <> bytes def
+R2745:2745 Stdlib.Lists.List ListNotations ::list_scope:'['_x_']' not
+R2747:2747 Stdlib.Lists.List ListNotations ::list_scope:'['_x_']' not
+def 2807:2821 <> internal_prefix
+R2825:2829 anubis_proofs.theories.merkle_spec <> bytes def
+R2834:2834 Stdlib.Lists.List ListNotations ::list_scope:'['_x_']' not
+R2836:2836 Stdlib.Lists.List ListNotations ::list_scope:'['_x_']' not
+def 2876:2884 <> hash_leaf
+R2894:2898 anubis_proofs.theories.merkle_spec <> bytes def
+binder 2887:2890 <> data:12
+R2903:2906 anubis_proofs.theories.merkle_spec <> hash def
+R2913:2920 anubis_proofs.theories.merkle_spec <> sha3_256 defax
+R2934:2937 Corelib.Init.Datatypes <> ::list_scope:x_'++'_x not
+R2923:2933 anubis_proofs.theories.merkle_spec <> leaf_prefix def
+R2938:2941 anubis_proofs.theories.merkle_spec <> data:12 var
+def 2985:2997 <> hash_internal
+R3013:3016 anubis_proofs.theories.merkle_spec <> hash def
+binder 3000:3003 <> left:13
+binder 3005:3009 <> right:14
+R3021:3024 anubis_proofs.theories.merkle_spec <> hash def
+R3031:3038 anubis_proofs.theories.merkle_spec <> sha3_256 defax
+R3056:3059 Corelib.Init.Datatypes <> ::list_scope:x_'++'_x not
+R3041:3055 anubis_proofs.theories.merkle_spec <> internal_prefix def
+R3064:3067 Corelib.Init.Datatypes <> ::list_scope:x_'++'_x not
+R3060:3063 anubis_proofs.theories.merkle_spec <> left:13 var
+R3068:3072 anubis_proofs.theories.merkle_spec <> right:14 var
+prf 3083:3097 <> hash_leaf_valid
+binder 3110:3113 <> data:15
+R3116:3125 anubis_proofs.theories.merkle_spec <> valid_hash def
+R3128:3136 anubis_proofs.theories.merkle_spec <> hash_leaf def
+R3138:3141 anubis_proofs.theories.merkle_spec <> data:15 var
+R3176:3185 anubis_proofs.theories.merkle_spec <> valid_hash def
+R3188:3196 anubis_proofs.theories.merkle_spec <> hash_leaf def
+R3207:3221 anubis_proofs.theories.merkle_spec <> sha3_256_length prfax
+R3207:3221 anubis_proofs.theories.merkle_spec <> sha3_256_length prfax
+prf 3236:3254 <> hash_internal_valid
+binder 3267:3267 <> l:16
+binder 3269:3269 <> r:17
+R3284:3287 Corelib.Init.Logic <> ::type_scope:x_'->'_x not
+R3272:3281 anubis_proofs.theories.merkle_spec <> valid_hash def
+R3283:3283 anubis_proofs.theories.merkle_spec <> l:16 var
+R3300:3303 Corelib.Init.Logic <> ::type_scope:x_'->'_x not
+R3288:3297 anubis_proofs.theories.merkle_spec <> valid_hash def
+R3299:3299 anubis_proofs.theories.merkle_spec <> r:17 var
+R3304:3313 anubis_proofs.theories.merkle_spec <> valid_hash def
+R3316:3328 anubis_proofs.theories.merkle_spec <> hash_internal def
+R3330:3330 anubis_proofs.theories.merkle_spec <> l:16 var
+R3332:3332 anubis_proofs.theories.merkle_spec <> r:17 var
+R3372:3381 anubis_proofs.theories.merkle_spec <> valid_hash def
+R3384:3396 anubis_proofs.theories.merkle_spec <> hash_internal def
+R3407:3421 anubis_proofs.theories.merkle_spec <> sha3_256_length prfax
+R3407:3421 anubis_proofs.theories.merkle_spec <> sha3_256_length prfax
+prf 3504:3519 <> prefix_injective
+binder 3532:3535 <> data:18
+binder 3537:3537 <> l:19
+binder 3539:3539 <> r:20
+R3565:3568 Corelib.Init.Logic <> ::type_scope:x_'<>'_x not
+R3557:3560 Corelib.Init.Datatypes <> ::list_scope:x_'++'_x not
+R3546:3556 anubis_proofs.theories.merkle_spec <> leaf_prefix def
+R3561:3564 anubis_proofs.theories.merkle_spec <> data:18 var
+R3584:3587 Corelib.Init.Datatypes <> ::list_scope:x_'++'_x not
+R3569:3583 anubis_proofs.theories.merkle_spec <> internal_prefix def
+R3589:3592 Corelib.Init.Datatypes <> ::list_scope:x_'++'_x not
+R3588:3588 anubis_proofs.theories.merkle_spec <> l:19 var
+R3593:3593 anubis_proofs.theories.merkle_spec <> r:20 var
+R3631:3641 anubis_proofs.theories.merkle_spec <> leaf_prefix def
+R3644:3658 anubis_proofs.theories.merkle_spec <> internal_prefix def
+prf 3786:3802 <> domain_separation
+binder 3815:3818 <> data:21
+binder 3820:3820 <> l:22
+binder 3822:3822 <> r:23
+R3839:3842 Corelib.Init.Logic <> ::type_scope:x_'<>'_x not
+R3825:3833 anubis_proofs.theories.merkle_spec <> hash_leaf def
+R3835:3838 anubis_proofs.theories.merkle_spec <> data:21 var
+R3843:3855 anubis_proofs.theories.merkle_spec <> hash_internal def
+R3857:3857 anubis_proofs.theories.merkle_spec <> l:22 var
+R3859:3859 anubis_proofs.theories.merkle_spec <> r:23 var
+R3897:3905 anubis_proofs.theories.merkle_spec <> hash_leaf def
+R3908:3920 anubis_proofs.theories.merkle_spec <> hash_internal def
+R3944:3971 anubis_proofs.theories.merkle_spec <> sha3_256_collision_resistant prfax
+R3944:3971 anubis_proofs.theories.merkle_spec <> sha3_256_collision_resistant prfax
+R3989:4004 anubis_proofs.theories.merkle_spec <> prefix_injective thm
+R3989:4004 anubis_proofs.theories.merkle_spec <> prefix_injective thm
+ind 4103:4113 <> merkle_tree
+constr 4129:4132 <> Leaf
+constr 4161:4164 <> Node
+R4141:4144 Corelib.Init.Logic <> ::type_scope:x_'->'_x not
+R4136:4140 anubis_proofs.theories.merkle_spec <> bytes def
+R4145:4155 anubis_proofs.theories.merkle_spec <> merkle_tree:24 ind
+R4179:4182 Corelib.Init.Logic <> ::type_scope:x_'->'_x not
+R4168:4178 anubis_proofs.theories.merkle_spec <> merkle_tree:24 ind
+R4194:4197 Corelib.Init.Logic <> ::type_scope:x_'->'_x not
+R4183:4193 anubis_proofs.theories.merkle_spec <> merkle_tree:24 ind
+R4198:4208 anubis_proofs.theories.merkle_spec <> merkle_tree:24 ind
+scheme 4103:4113 <> merkle_tree_rect
+scheme 4103:4113 <> merkle_tree_ind
+scheme 4103:4113 <> merkle_tree_rec
+scheme 4103:4113 <> merkle_tree_sind
+def 4260:4271 <> compute_root
+R4278:4288 anubis_proofs.theories.merkle_spec <> merkle_tree ind
+binder 4274:4274 <> t:26
+R4293:4296 anubis_proofs.theories.merkle_spec <> hash def
+R4309:4309 anubis_proofs.theories.merkle_spec <> t:26 var
+R4320:4323 anubis_proofs.theories.merkle_spec <> Leaf constr
+R4333:4341 anubis_proofs.theories.merkle_spec <> hash_leaf def
+R4352:4355 anubis_proofs.theories.merkle_spec <> Node constr
+R4380:4392 anubis_proofs.theories.merkle_spec <> hash_internal def
+R4395:4406 anubis_proofs.theories.merkle_spec <> compute_root:27 def
+R4417:4428 anubis_proofs.theories.merkle_spec <> compute_root:27 def
+prf 4489:4506 <> compute_root_valid
+binder 4519:4519 <> t:29
+R4522:4531 anubis_proofs.theories.merkle_spec <> valid_hash def
+R4534:4545 anubis_proofs.theories.merkle_spec <> compute_root def
+R4547:4547 anubis_proofs.theories.merkle_spec <> t:29 var
+R4595:4609 anubis_proofs.theories.merkle_spec <> hash_leaf_valid thm
+R4595:4609 anubis_proofs.theories.merkle_spec <> hash_leaf_valid thm
+R4622:4640 anubis_proofs.theories.merkle_spec <> hash_internal_valid thm
+R4622:4640 anubis_proofs.theories.merkle_spec <> hash_internal_valid thm
+def 4779:4788 <> max_leaves
+R4792:4794 Corelib.Init.Datatypes <> nat ind
+def 4869:4889 <> pad_to_power_of_2_aux
+R4899:4901 Corelib.Init.Datatypes <> nat ind
+binder 4892:4895 <> fuel:30
+R4914:4917 Corelib.Init.Datatypes <> list ind
+R4919:4922 anubis_proofs.theories.merkle_spec <> hash def
+binder 4905:4910 <> leaves:31
+R4935:4937 Corelib.Init.Datatypes <> nat ind
+binder 4926:4931 <> target:32
+R4942:4945 Corelib.Init.Datatypes <> list ind
+R4947:4950 anubis_proofs.theories.merkle_spec <> hash def
+R4963:4966 anubis_proofs.theories.merkle_spec <> fuel:30 var
+R4977:4977 Corelib.Init.Datatypes <> O constr
+R4982:4987 anubis_proofs.theories.merkle_spec <> leaves:31 var
+R4993:4993 Corelib.Init.Datatypes <> S constr
+R5013:5019 Stdlib.Arith.PeanoNat Nat leb def
+R5021:5026 anubis_proofs.theories.merkle_spec <> target:32 var
+R5029:5039 Stdlib.Lists.List <> length abbrev
+R5041:5046 anubis_proofs.theories.merkle_spec <> leaves:31 var
+R5102:5122 anubis_proofs.theories.merkle_spec <> pad_to_power_of_2_aux:33 def
+R5156:5161 anubis_proofs.theories.merkle_spec <> target:32 var
+R5137:5140 Corelib.Init.Datatypes <> ::list_scope:x_'++'_x not
+R5131:5136 anubis_proofs.theories.merkle_spec <> leaves:31 var
+R5141:5141 Stdlib.Lists.List ListNotations ::list_scope:'['_x_']' not
+R5153:5153 Stdlib.Lists.List ListNotations ::list_scope:'['_x_']' not
+R5142:5149 anubis_proofs.theories.merkle_spec <> sha3_256 defax
+R5151:5152 Stdlib.Lists.List ListNotations ::list_scope:'['_']' not
+R5062:5067 Corelib.Lists.ListDef <> firstn def
+R5076:5081 anubis_proofs.theories.merkle_spec <> leaves:31 var
+R5069:5074 anubis_proofs.theories.merkle_spec <> target:32 var
+def 5182:5198 <> pad_to_power_of_2
+R5210:5213 Corelib.Init.Datatypes <> list ind
+R5215:5218 anubis_proofs.theories.merkle_spec <> hash def
+binder 5201:5206 <> leaves:35
+R5231:5233 Corelib.Init.Datatypes <> nat ind
+binder 5222:5227 <> target:36
+R5238:5241 Corelib.Init.Datatypes <> list ind
+R5243:5246 anubis_proofs.theories.merkle_spec <> hash def
+R5253:5273 anubis_proofs.theories.merkle_spec <> pad_to_power_of_2_aux def
+R5275:5280 anubis_proofs.theories.merkle_spec <> target:36 var
+R5282:5287 anubis_proofs.theories.merkle_spec <> leaves:35 var
+R5289:5294 anubis_proofs.theories.merkle_spec <> target:36 var
+def 5366:5376 <> build_level
+R5388:5391 Corelib.Init.Datatypes <> list ind
+R5393:5396 anubis_proofs.theories.merkle_spec <> hash def
+binder 5379:5384 <> hashes:37
+R5401:5404 Corelib.Init.Datatypes <> list ind
+R5406:5409 anubis_proofs.theories.merkle_spec <> hash def
+R5422:5427 anubis_proofs.theories.merkle_spec <> hashes:37 var
+R5438:5439 Stdlib.Lists.List ListNotations ::list_scope:'['_']' not
+R5444:5445 Stdlib.Lists.List ListNotations ::list_scope:'['_']' not
+R5451:5451 Stdlib.Lists.List ListNotations ::list_scope:'['_x_']' not
+R5453:5453 Stdlib.Lists.List ListNotations ::list_scope:'['_x_']' not
+R5458:5458 Stdlib.Lists.List ListNotations ::list_scope:'['_x_']' not
+R5460:5460 Stdlib.Lists.List ListNotations ::list_scope:'['_x_']' not
+R5468:5471 Corelib.Init.Datatypes <> ::list_scope:x_'::'_x not
+R5474:5477 Corelib.Init.Datatypes <> ::list_scope:x_'::'_x not
+R5505:5508 Corelib.Init.Datatypes <> ::list_scope:x_'::'_x not
+R5486:5498 anubis_proofs.theories.merkle_spec <> hash_internal def
+R5509:5519 anubis_proofs.theories.merkle_spec <> build_level:38 def
+def 5592:5605 <> build_tree_aux
+R5615:5617 Corelib.Init.Datatypes <> nat ind
+binder 5608:5611 <> fuel:40
+R5630:5633 Corelib.Init.Datatypes <> list ind
+R5635:5638 anubis_proofs.theories.merkle_spec <> hash def
+binder 5621:5626 <> hashes:41
+R5643:5646 anubis_proofs.theories.merkle_spec <> hash def
+R5659:5662 anubis_proofs.theories.merkle_spec <> fuel:40 var
+R5673:5673 Corelib.Init.Datatypes <> O constr
+R5678:5685 anubis_proofs.theories.merkle_spec <> sha3_256 defax
+R5687:5688 Stdlib.Lists.List ListNotations ::list_scope:'['_']' not
+R5720:5720 Corelib.Init.Datatypes <> S constr
+R5743:5748 anubis_proofs.theories.merkle_spec <> hashes:41 var
+R5763:5764 Stdlib.Lists.List ListNotations ::list_scope:'['_']' not
+R5769:5776 anubis_proofs.theories.merkle_spec <> sha3_256 defax
+R5778:5779 Stdlib.Lists.List ListNotations ::list_scope:'['_']' not
+R5789:5789 Stdlib.Lists.List ListNotations ::list_scope:'['_x_']' not
+R5791:5791 Stdlib.Lists.List ListNotations ::list_scope:'['_x_']' not
+R5811:5824 anubis_proofs.theories.merkle_spec <> build_tree_aux:42 def
+R5833:5843 anubis_proofs.theories.merkle_spec <> build_level def
+R5845:5850 anubis_proofs.theories.merkle_spec <> hashes:41 var
+def 5930:5939 <> build_tree
+R5951:5954 Corelib.Init.Datatypes <> list ind
+R5956:5960 anubis_proofs.theories.merkle_spec <> bytes def
+binder 5942:5947 <> leaves:45
+R5965:5968 anubis_proofs.theories.merkle_spec <> hash def
+R5994:5996 Corelib.Lists.ListDef <> map def
+R6008:6013 anubis_proofs.theories.merkle_spec <> leaves:45 var
+R5998:6006 anubis_proofs.theories.merkle_spec <> hash_leaf def
+binder 5979:5989 <> leaf_hashes:46
+R6020:6033 anubis_proofs.theories.merkle_spec <> build_tree_aux def
+R6054:6056 Corelib.Init.Peano <> ::nat_scope:x_'+'_x not
+R6036:6046 Stdlib.Lists.List <> length abbrev
+R6048:6053 anubis_proofs.theories.merkle_spec <> leaves:45 var
+R6060:6070 anubis_proofs.theories.merkle_spec <> leaf_hashes:46 var
+ind 6140:6148 <> direction
+constr 6153:6156 <> Left
+constr 6160:6164 <> Right
+scheme 6140:6148 <> direction_rect
+scheme 6140:6148 <> direction_ind
+scheme 6140:6148 <> direction_rec
+scheme 6140:6148 <> direction_sind
+def 6223:6234 <> merkle_proof
+R6239:6242 Corelib.Init.Datatypes <> list ind
+R6254:6256 Corelib.Init.Datatypes <> ::type_scope:x_'*'_x not
+R6245:6253 anubis_proofs.theories.merkle_spec <> direction ind
+R6257:6260 anubis_proofs.theories.merkle_spec <> hash def
+def 6303:6314 <> verify_proof
+R6329:6332 anubis_proofs.theories.merkle_spec <> hash def
+binder 6317:6325 <> leaf_hash:49
+R6344:6355 anubis_proofs.theories.merkle_spec <> merkle_proof def
+binder 6336:6340 <> proof:50
+R6360:6363 anubis_proofs.theories.merkle_spec <> hash def
+R6376:6380 anubis_proofs.theories.merkle_spec <> proof:50 var
+R6391:6392 Stdlib.Lists.List ListNotations ::list_scope:'['_']' not
+R6397:6405 anubis_proofs.theories.merkle_spec <> leaf_hash:49 var
+R6425:6428 Corelib.Init.Datatypes <> ::list_scope:x_'::'_x not
+R6411:6411 Corelib.Init.Datatypes <> ::core_scope:'('_x_','_x_','_'..'_','_x_')' not
+R6415:6416 Corelib.Init.Datatypes <> ::core_scope:'('_x_','_x_','_'..'_','_x_')' not
+R6424:6424 Corelib.Init.Datatypes <> ::core_scope:'('_x_','_x_','_'..'_','_x_')' not
+R6482:6485 anubis_proofs.theories.merkle_spec <> Left constr
+R6490:6502 anubis_proofs.theories.merkle_spec <> hash_internal def
+R6512:6520 anubis_proofs.theories.merkle_spec <> leaf_hash:49 var
+R6532:6536 anubis_proofs.theories.merkle_spec <> Right constr
+R6541:6553 anubis_proofs.theories.merkle_spec <> hash_internal def
+R6555:6563 anubis_proofs.theories.merkle_spec <> leaf_hash:49 var
+binder 6447:6452 <> parent:54
+R6594:6605 anubis_proofs.theories.merkle_spec <> verify_proof:51 def
+R6607:6612 anubis_proofs.theories.merkle_spec <> parent:54 var
+prf 6681:6698 <> verify_proof_valid
+binder 6711:6715 <> proof:55
+binder 6717:6725 <> leaf_hash:56
+R6752:6759 Corelib.Init.Logic <> ::type_scope:x_'->'_x not
+R6732:6741 anubis_proofs.theories.merkle_spec <> valid_hash def
+R6743:6751 anubis_proofs.theories.merkle_spec <> leaf_hash:56 var
+R6802:6809 Corelib.Init.Logic <> ::type_scope:x_'->'_x not
+R6760:6765 Corelib.Lists.ListDef <> Forall ind
+R6797:6801 anubis_proofs.theories.merkle_spec <> proof:55 var
+binder 6772:6772 <> p:57
+R6777:6786 anubis_proofs.theories.merkle_spec <> valid_hash def
+R6789:6791 Corelib.Init.Datatypes <> snd def
+R6793:6793 anubis_proofs.theories.merkle_spec <> p:57 var
+R6810:6819 anubis_proofs.theories.merkle_spec <> valid_hash def
+R6822:6833 anubis_proofs.theories.merkle_spec <> verify_proof def
+R6835:6843 anubis_proofs.theories.merkle_spec <> leaf_hash:56 var
+R6845:6849 anubis_proofs.theories.merkle_spec <> proof:55 var
+R7039:7057 anubis_proofs.theories.merkle_spec <> hash_internal_valid thm
+R7039:7057 anubis_proofs.theories.merkle_spec <> hash_internal_valid thm
+R7039:7057 anubis_proofs.theories.merkle_spec <> hash_internal_valid thm
+def 7319:7331 <> leaf_position
+R7336:7338 Corelib.Init.Datatypes <> nat ind
+def 7400:7417 <> generate_proof_aux
+R7429:7432 Corelib.Init.Datatypes <> list ind
+R7434:7437 anubis_proofs.theories.merkle_spec <> hash def
+binder 7420:7425 <> leaves:58
+R7447:7449 Corelib.Init.Datatypes <> nat ind
+binder 7441:7443 <> pos:59
+R7460:7462 Corelib.Init.Datatypes <> nat ind
+binder 7453:7456 <> fuel:60
+R7472:7483 anubis_proofs.theories.merkle_spec <> merkle_proof def
+binder 7466:7468 <> acc:61
+R7490:7501 anubis_proofs.theories.merkle_spec <> merkle_proof def
+R7514:7517 anubis_proofs.theories.merkle_spec <> fuel:60 var
+R7528:7528 Corelib.Init.Datatypes <> O constr
+R7533:7535 anubis_proofs.theories.merkle_spec <> acc:61 var
+R7541:7541 Corelib.Init.Datatypes <> S constr
+R7564:7569 anubis_proofs.theories.merkle_spec <> leaves:58 var
+R7584:7585 Stdlib.Lists.List ListNotations ::list_scope:'['_']' not
+R7590:7592 anubis_proofs.theories.merkle_spec <> acc:61 var
+R7602:7602 Stdlib.Lists.List ListNotations ::list_scope:'['_x_']' not
+R7604:7604 Stdlib.Lists.List ListNotations ::list_scope:'['_x_']' not
+R7609:7611 anubis_proofs.theories.merkle_spec <> acc:61 var
+R7658:7665 Stdlib.Arith.PeanoNat Nat even def
+R7667:7669 anubis_proofs.theories.merkle_spec <> pos:59 var
+R7699:7701 Corelib.Init.Peano <> ::nat_scope:x_'-'_x not
+R7696:7698 anubis_proofs.theories.merkle_spec <> pos:59 var
+R7680:7682 Corelib.Init.Peano <> ::nat_scope:x_'+'_x not
+R7677:7679 anubis_proofs.theories.merkle_spec <> pos:59 var
+binder 7640:7650 <> sibling_pos:65
+R7737:7739 Corelib.Lists.ListDef <> nth def
+R7761:7768 anubis_proofs.theories.merkle_spec <> sha3_256 defax
+R7770:7771 Stdlib.Lists.List ListNotations ::list_scope:'['_']' not
+R7753:7758 anubis_proofs.theories.merkle_spec <> leaves:58 var
+R7741:7751 anubis_proofs.theories.merkle_spec <> sibling_pos:65 var
+binder 7726:7732 <> sibling:66
+R7801:7808 Stdlib.Arith.PeanoNat Nat even def
+R7810:7812 anubis_proofs.theories.merkle_spec <> pos:59 var
+R7830:7833 anubis_proofs.theories.merkle_spec <> Left constr
+R7819:7823 anubis_proofs.theories.merkle_spec <> Right constr
+binder 7791:7793 <> dir:67
+R7865:7875 anubis_proofs.theories.merkle_spec <> build_level def
+R7877:7882 anubis_proofs.theories.merkle_spec <> leaves:58 var
+binder 7852:7860 <> new_level:68
+R7897:7914 anubis_proofs.theories.merkle_spec <> generate_proof_aux:62 def
+R7963:7966 Corelib.Init.Datatypes <> ::list_scope:x_'::'_x not
+R7949:7949 Corelib.Init.Datatypes <> ::core_scope:'('_x_','_x_','_'..'_','_x_')' not
+R7953:7954 Corelib.Init.Datatypes <> ::core_scope:'('_x_','_x_','_'..'_','_x_')' not
+R7962:7962 Corelib.Init.Datatypes <> ::core_scope:'('_x_','_x_','_'..'_','_x_')' not
+R7950:7952 anubis_proofs.theories.merkle_spec <> dir:67 var
+R7955:7961 anubis_proofs.theories.merkle_spec <> sibling:66 var
+R7967:7969 anubis_proofs.theories.merkle_spec <> acc:61 var
+R7927:7933 Stdlib.Arith.PeanoNat Nat div def
+R7935:7937 anubis_proofs.theories.merkle_spec <> pos:59 var
+R7916:7924 anubis_proofs.theories.merkle_spec <> new_level:68 var
+def 8001:8014 <> generate_proof
+R8026:8029 Corelib.Init.Datatypes <> list ind
+R8031:8035 anubis_proofs.theories.merkle_spec <> bytes def
+binder 8017:8022 <> leaves:69
+R8045:8047 Corelib.Init.Datatypes <> nat ind
+binder 8039:8041 <> pos:70
+R8052:8063 anubis_proofs.theories.merkle_spec <> merkle_proof def
+R8089:8091 Corelib.Lists.ListDef <> map def
+R8103:8108 anubis_proofs.theories.merkle_spec <> leaves:69 var
+R8093:8101 anubis_proofs.theories.merkle_spec <> hash_leaf def
+binder 8074:8084 <> leaf_hashes:71
+R8115:8117 Stdlib.Lists.List <> rev def
+R8120:8137 anubis_proofs.theories.merkle_spec <> generate_proof_aux def
+R8139:8149 anubis_proofs.theories.merkle_spec <> leaf_hashes:71 var
+R8151:8153 anubis_proofs.theories.merkle_spec <> pos:70 var
+R8156:8166 Stdlib.Lists.List <> length abbrev
+R8168:8173 anubis_proofs.theories.merkle_spec <> leaves:69 var
+R8176:8177 Stdlib.Lists.List ListNotations ::list_scope:'['_']' not
+prf 8280:8301 <> build_level_length_aux
+binder 8314:8318 <> rest':72
+R8357:8360 Corelib.Init.Peano <> ::nat_scope:x_'<='_x not
+R8326:8336 Stdlib.Lists.List <> length abbrev
+R8339:8349 anubis_proofs.theories.merkle_spec <> build_level def
+R8351:8355 anubis_proofs.theories.merkle_spec <> rest':72 var
+R8361:8371 Stdlib.Lists.List <> length abbrev
+R8373:8377 anubis_proofs.theories.merkle_spec <> rest':72 var
+prf 8641:8658 <> build_level_length
+binder 8671:8676 <> hashes:73
+R8712:8719 Corelib.Init.Logic <> ::type_scope:x_'->'_x not
+R8702:8705 Corelib.Init.Peano <> ::nat_scope:x_'>='_x not
+R8684:8694 Stdlib.Lists.List <> length abbrev
+R8696:8701 anubis_proofs.theories.merkle_spec <> hashes:73 var
+R8753:8755 Corelib.Init.Peano <> ::nat_scope:x_'<'_x not
+R8721:8731 Stdlib.Lists.List <> length abbrev
+R8734:8744 anubis_proofs.theories.merkle_spec <> build_level def
+R8746:8751 anubis_proofs.theories.merkle_spec <> hashes:73 var
+R8756:8766 Stdlib.Lists.List <> length abbrev
+R8768:8773 anubis_proofs.theories.merkle_spec <> hashes:73 var
+R8990:8993 Corelib.Init.Peano <> ::nat_scope:x_'<='_x not
+R8959:8969 Stdlib.Lists.List <> length abbrev
+R8972:8982 anubis_proofs.theories.merkle_spec <> build_level def
+R8994:9004 Stdlib.Lists.List <> length abbrev
+R8990:8993 Corelib.Init.Peano <> ::nat_scope:x_'<='_x not
+R8959:8969 Stdlib.Lists.List <> length abbrev
+R8972:8982 anubis_proofs.theories.merkle_spec <> build_level def
+R8994:9004 Stdlib.Lists.List <> length abbrev
+R9033:9054 anubis_proofs.theories.merkle_spec <> build_level_length_aux thm
+R9033:9054 anubis_proofs.theories.merkle_spec <> build_level_length_aux thm
+prf 9121:9140 <> build_level_nonempty
+binder 9153:9158 <> hashes:74
+R9177:9184 Corelib.Init.Logic <> ::type_scope:x_'->'_x not
+R9171:9174 Corelib.Init.Logic <> ::type_scope:x_'<>'_x not
+R9165:9170 anubis_proofs.theories.merkle_spec <> hashes:74 var
+R9175:9176 Stdlib.Lists.List ListNotations ::list_scope:'['_']' not
+R9203:9206 Corelib.Init.Logic <> ::type_scope:x_'<>'_x not
+R9185:9195 anubis_proofs.theories.merkle_spec <> build_level def
+R9197:9202 anubis_proofs.theories.merkle_spec <> hashes:74 var
+R9207:9208 Stdlib.Lists.List ListNotations ::list_scope:'['_']' not
+prf 9449:9465 <> build_level_valid
+binder 9478:9483 <> hashes:75
+R9514:9521 Corelib.Init.Logic <> ::type_scope:x_'->'_x not
+R9490:9495 Corelib.Lists.ListDef <> Forall ind
+R9508:9513 anubis_proofs.theories.merkle_spec <> hashes:75 var
+R9497:9506 anubis_proofs.theories.merkle_spec <> valid_hash def
+R9522:9527 Corelib.Lists.ListDef <> Forall ind
+R9541:9551 anubis_proofs.theories.merkle_spec <> build_level def
+R9553:9558 anubis_proofs.theories.merkle_spec <> hashes:75 var
+R9529:9538 anubis_proofs.theories.merkle_spec <> valid_hash def
+R9770:9788 anubis_proofs.theories.merkle_spec <> hash_internal_valid thm
+R9770:9788 anubis_proofs.theories.merkle_spec <> hash_internal_valid thm
+prf 10051:10070 <> build_tree_aux_valid
+binder 10083:10086 <> fuel:76
+binder 10088:10093 <> hashes:77
+R10124:10131 Corelib.Init.Logic <> ::type_scope:x_'->'_x not
+R10100:10105 Corelib.Lists.ListDef <> Forall ind
+R10118:10123 anubis_proofs.theories.merkle_spec <> hashes:77 var
+R10107:10116 anubis_proofs.theories.merkle_spec <> valid_hash def
+R10144:10151 Corelib.Init.Logic <> ::type_scope:x_'->'_x not
+R10138:10141 Corelib.Init.Logic <> ::type_scope:x_'<>'_x not
+R10132:10137 anubis_proofs.theories.merkle_spec <> hashes:77 var
+R10142:10143 Stdlib.Lists.List ListNotations ::list_scope:'['_']' not
+R10152:10161 anubis_proofs.theories.merkle_spec <> valid_hash def
+R10164:10177 anubis_proofs.theories.merkle_spec <> build_tree_aux def
+R10179:10182 anubis_proofs.theories.merkle_spec <> fuel:76 var
+R10184:10189 anubis_proofs.theories.merkle_spec <> hashes:77 var
+R10292:10306 anubis_proofs.theories.merkle_spec <> sha3_256_length prfax
+R10292:10306 anubis_proofs.theories.merkle_spec <> sha3_256_length prfax
+R10517:10533 anubis_proofs.theories.merkle_spec <> build_level_valid thm
+R10517:10533 anubis_proofs.theories.merkle_spec <> build_level_valid thm
+R10565:10584 anubis_proofs.theories.merkle_spec <> build_level_nonempty thm
+R10565:10584 anubis_proofs.theories.merkle_spec <> build_level_nonempty thm
+prf 10734:10757 <> proof_correctness_single
+binder 10770:10773 <> data:78
+R10797:10805 anubis_proofs.theories.merkle_spec <> hash_leaf def
+R10807:10810 anubis_proofs.theories.merkle_spec <> data:78 var
+binder 10784:10792 <> leaf_hash:79
+R10832:10845 anubis_proofs.theories.merkle_spec <> generate_proof def
+R10847:10847 Stdlib.Lists.List ListNotations ::list_scope:'['_x_']' not
+R10852:10852 Stdlib.Lists.List ListNotations ::list_scope:'['_x_']' not
+R10848:10851 anubis_proofs.theories.merkle_spec <> data:78 var
+binder 10823:10827 <> proof:80
+R10875:10884 anubis_proofs.theories.merkle_spec <> build_tree def
+R10886:10886 Stdlib.Lists.List ListNotations ::list_scope:'['_x_']' not
+R10891:10891 Stdlib.Lists.List ListNotations ::list_scope:'['_x_']' not
+R10887:10890 anubis_proofs.theories.merkle_spec <> data:78 var
+binder 10867:10870 <> root:81
+R10928:10930 Corelib.Init.Logic <> ::type_scope:x_'='_x not
+R10900:10911 anubis_proofs.theories.merkle_spec <> verify_proof def
+R10913:10921 anubis_proofs.theories.merkle_spec <> leaf_hash:79 var
+R10923:10927 anubis_proofs.theories.merkle_spec <> proof:80 var
+R10931:10934 anubis_proofs.theories.merkle_spec <> root:81 var
+R10968:10981 anubis_proofs.theories.merkle_spec <> generate_proof def
+R10984:10993 anubis_proofs.theories.merkle_spec <> build_tree def
+R11014:11027 anubis_proofs.theories.merkle_spec <> build_tree_aux def
+R11030:11047 anubis_proofs.theories.merkle_spec <> generate_proof_aux def
+prf 11110:11135 <> proof_correctness_two_left
+binder 11148:11149 <> d1:82
+binder 11151:11152 <> d2:83
+R11176:11184 anubis_proofs.theories.merkle_spec <> hash_leaf def
+R11186:11187 anubis_proofs.theories.merkle_spec <> d1:82 var
+binder 11163:11171 <> leaf_hash:84
+R11209:11222 anubis_proofs.theories.merkle_spec <> generate_proof def
+R11224:11224 Stdlib.Lists.List ListNotations ::list_scope:'['_x_';'_x_';'_'..'_';'_x_']' not
+R11227:11228 Stdlib.Lists.List ListNotations ::list_scope:'['_x_';'_x_';'_'..'_';'_x_']' not
+R11231:11231 Stdlib.Lists.List ListNotations ::list_scope:'['_x_';'_x_';'_'..'_';'_x_']' not
+R11225:11226 anubis_proofs.theories.merkle_spec <> d1:82 var
+R11229:11230 anubis_proofs.theories.merkle_spec <> d2:83 var
+binder 11200:11204 <> proof:85
+R11254:11263 anubis_proofs.theories.merkle_spec <> build_tree def
+R11265:11265 Stdlib.Lists.List ListNotations ::list_scope:'['_x_';'_x_';'_'..'_';'_x_']' not
+R11268:11269 Stdlib.Lists.List ListNotations ::list_scope:'['_x_';'_x_';'_'..'_';'_x_']' not
+R11272:11272 Stdlib.Lists.List ListNotations ::list_scope:'['_x_';'_x_';'_'..'_';'_x_']' not
+R11266:11267 anubis_proofs.theories.merkle_spec <> d1:82 var
+R11270:11271 anubis_proofs.theories.merkle_spec <> d2:83 var
+binder 11246:11249 <> root:86
+R11309:11311 Corelib.Init.Logic <> ::type_scope:x_'='_x not
+R11281:11292 anubis_proofs.theories.merkle_spec <> verify_proof def
+R11294:11302 anubis_proofs.theories.merkle_spec <> leaf_hash:84 var
+R11304:11308 anubis_proofs.theories.merkle_spec <> proof:85 var
+R11312:11315 anubis_proofs.theories.merkle_spec <> root:86 var
+R11350:11363 anubis_proofs.theories.merkle_spec <> generate_proof def
+R11366:11375 anubis_proofs.theories.merkle_spec <> build_tree def
+prf 11414:11440 <> proof_correctness_two_right
+binder 11453:11454 <> d1:87
+binder 11456:11457 <> d2:88
+R11481:11489 anubis_proofs.theories.merkle_spec <> hash_leaf def
+R11491:11492 anubis_proofs.theories.merkle_spec <> d2:88 var
+binder 11468:11476 <> leaf_hash:89
+R11514:11527 anubis_proofs.theories.merkle_spec <> generate_proof def
+R11529:11529 Stdlib.Lists.List ListNotations ::list_scope:'['_x_';'_x_';'_'..'_';'_x_']' not
+R11532:11533 Stdlib.Lists.List ListNotations ::list_scope:'['_x_';'_x_';'_'..'_';'_x_']' not
+R11536:11536 Stdlib.Lists.List ListNotations ::list_scope:'['_x_';'_x_';'_'..'_';'_x_']' not
+R11530:11531 anubis_proofs.theories.merkle_spec <> d1:87 var
+R11534:11535 anubis_proofs.theories.merkle_spec <> d2:88 var
+binder 11505:11509 <> proof:90
+R11559:11568 anubis_proofs.theories.merkle_spec <> build_tree def
+R11570:11570 Stdlib.Lists.List ListNotations ::list_scope:'['_x_';'_x_';'_'..'_';'_x_']' not
+R11573:11574 Stdlib.Lists.List ListNotations ::list_scope:'['_x_';'_x_';'_'..'_';'_x_']' not
+R11577:11577 Stdlib.Lists.List ListNotations ::list_scope:'['_x_';'_x_';'_'..'_';'_x_']' not
+R11571:11572 anubis_proofs.theories.merkle_spec <> d1:87 var
+R11575:11576 anubis_proofs.theories.merkle_spec <> d2:88 var
+binder 11551:11554 <> root:91
+R11614:11616 Corelib.Init.Logic <> ::type_scope:x_'='_x not
+R11586:11597 anubis_proofs.theories.merkle_spec <> verify_proof def
+R11599:11607 anubis_proofs.theories.merkle_spec <> leaf_hash:89 var
+R11609:11613 anubis_proofs.theories.merkle_spec <> proof:90 var
+R11617:11620 anubis_proofs.theories.merkle_spec <> root:91 var
+R11655:11668 anubis_proofs.theories.merkle_spec <> generate_proof def
+R11671:11680 anubis_proofs.theories.merkle_spec <> build_tree def
+prf 11830:11848 <> hash_leaf_injective
+binder 11861:11862 <> d1:92
+binder 11864:11865 <> d2:93
+R11895:11898 Corelib.Init.Logic <> ::type_scope:x_'->'_x not
+R11880:11882 Corelib.Init.Logic <> ::type_scope:x_'='_x not
+R11868:11876 anubis_proofs.theories.merkle_spec <> hash_leaf def
+R11878:11879 anubis_proofs.theories.merkle_spec <> d1:92 var
+R11883:11891 anubis_proofs.theories.merkle_spec <> hash_leaf def
+R11893:11894 anubis_proofs.theories.merkle_spec <> d2:93 var
+R11901:11903 Corelib.Init.Logic <> ::type_scope:x_'='_x not
+R11899:11900 anubis_proofs.theories.merkle_spec <> d1:92 var
+R11904:11905 anubis_proofs.theories.merkle_spec <> d2:93 var
+R11942:11950 anubis_proofs.theories.merkle_spec <> hash_leaf def
+R11966:11993 anubis_proofs.theories.merkle_spec <> sha3_256_collision_resistant prfax
+R11966:11993 anubis_proofs.theories.merkle_spec <> sha3_256_collision_resistant prfax
+R12010:12020 anubis_proofs.theories.merkle_spec <> leaf_prefix def
+prf 12116:12140 <> app_injective_same_length
+binder 12154:12154 <> A:94
+R12179:12182 Corelib.Init.Datatypes <> list ind
+R12184:12184 anubis_proofs.theories.merkle_spec <> A:94 var
+binder 12165:12166 <> l1:95
+binder 12168:12169 <> l2:96
+binder 12171:12172 <> r1:97
+binder 12174:12175 <> r2:98
+R12223:12230 Corelib.Init.Logic <> ::type_scope:x_'->'_x not
+R12206:12208 Corelib.Init.Logic <> ::type_scope:x_'='_x not
+R12192:12202 Stdlib.Lists.List <> length abbrev
+R12204:12205 anubis_proofs.theories.merkle_spec <> l1:95 var
+R12209:12219 Stdlib.Lists.List <> length abbrev
+R12221:12222 anubis_proofs.theories.merkle_spec <> l2:96 var
+R12250:12257 Corelib.Init.Logic <> ::type_scope:x_'->'_x not
+R12239:12241 Corelib.Init.Logic <> ::type_scope:x_'='_x not
+R12233:12236 Corelib.Init.Datatypes <> ::list_scope:x_'++'_x not
+R12231:12232 anubis_proofs.theories.merkle_spec <> l1:95 var
+R12237:12238 anubis_proofs.theories.merkle_spec <> r1:97 var
+R12244:12247 Corelib.Init.Datatypes <> ::list_scope:x_'++'_x not
+R12242:12243 anubis_proofs.theories.merkle_spec <> l2:96 var
+R12248:12249 anubis_proofs.theories.merkle_spec <> r2:98 var
+R12265:12268 Corelib.Init.Logic <> ::type_scope:x_'/\'_x not
+R12260:12262 Corelib.Init.Logic <> ::type_scope:x_'='_x not
+R12258:12259 anubis_proofs.theories.merkle_spec <> l1:95 var
+R12263:12264 anubis_proofs.theories.merkle_spec <> l2:96 var
+R12271:12273 Corelib.Init.Logic <> ::type_scope:x_'='_x not
+R12269:12270 anubis_proofs.theories.merkle_spec <> r1:97 var
+R12274:12275 anubis_proofs.theories.merkle_spec <> r2:98 var
+prf 12898:12920 <> hash_internal_injective
+binder 12933:12934 <> l1:99
+binder 12936:12937 <> r1:100
+binder 12939:12940 <> l2:101
+binder 12942:12943 <> r2:102
+R12963:12966 Corelib.Init.Logic <> ::type_scope:x_'->'_x not
+R12950:12959 anubis_proofs.theories.merkle_spec <> valid_hash def
+R12961:12962 anubis_proofs.theories.merkle_spec <> l1:99 var
+R12980:12987 Corelib.Init.Logic <> ::type_scope:x_'->'_x not
+R12967:12976 anubis_proofs.theories.merkle_spec <> valid_hash def
+R12978:12979 anubis_proofs.theories.merkle_spec <> r1:100 var
+R13001:13004 Corelib.Init.Logic <> ::type_scope:x_'->'_x not
+R12988:12997 anubis_proofs.theories.merkle_spec <> valid_hash def
+R12999:13000 anubis_proofs.theories.merkle_spec <> l2:101 var
+R13018:13025 Corelib.Init.Logic <> ::type_scope:x_'->'_x not
+R13005:13014 anubis_proofs.theories.merkle_spec <> valid_hash def
+R13016:13017 anubis_proofs.theories.merkle_spec <> r2:102 var
+R13067:13074 Corelib.Init.Logic <> ::type_scope:x_'->'_x not
+R13045:13047 Corelib.Init.Logic <> ::type_scope:x_'='_x not
+R13026:13038 anubis_proofs.theories.merkle_spec <> hash_internal def
+R13040:13041 anubis_proofs.theories.merkle_spec <> l1:99 var
+R13043:13044 anubis_proofs.theories.merkle_spec <> r1:100 var
+R13048:13060 anubis_proofs.theories.merkle_spec <> hash_internal def
+R13062:13063 anubis_proofs.theories.merkle_spec <> l2:101 var
+R13065:13066 anubis_proofs.theories.merkle_spec <> r2:102 var
+R13082:13085 Corelib.Init.Logic <> ::type_scope:x_'/\'_x not
+R13077:13079 Corelib.Init.Logic <> ::type_scope:x_'='_x not
+R13075:13076 anubis_proofs.theories.merkle_spec <> l1:99 var
+R13080:13081 anubis_proofs.theories.merkle_spec <> l2:101 var
+R13088:13090 Corelib.Init.Logic <> ::type_scope:x_'='_x not
+R13086:13087 anubis_proofs.theories.merkle_spec <> r1:100 var
+R13091:13092 anubis_proofs.theories.merkle_spec <> r2:102 var
+R13155:13167 anubis_proofs.theories.merkle_spec <> hash_internal def
+R13183:13210 anubis_proofs.theories.merkle_spec <> sha3_256_collision_resistant prfax
+R13183:13210 anubis_proofs.theories.merkle_spec <> sha3_256_collision_resistant prfax
+R13227:13241 anubis_proofs.theories.merkle_spec <> internal_prefix def
+R13282:13291 anubis_proofs.theories.merkle_spec <> valid_hash def
+R13307:13331 anubis_proofs.theories.merkle_spec <> app_injective_same_length thm
+R13307:13331 anubis_proofs.theories.merkle_spec <> app_injective_same_length thm
+prf 13448:13469 <> map_eq_implies_list_eq
+binder 13483:13483 <> A:103
+binder 13485:13485 <> B:104
+R13501:13504 Corelib.Init.Logic <> ::type_scope:x_'->'_x not
+R13500:13500 anubis_proofs.theories.merkle_spec <> A:103 var
+R13505:13505 anubis_proofs.theories.merkle_spec <> B:104 var
+binder 13496:13496 <> f:105
+R13517:13520 Corelib.Init.Datatypes <> list ind
+R13522:13522 anubis_proofs.theories.merkle_spec <> A:103 var
+binder 13509:13510 <> l1:106
+binder 13512:13513 <> l2:107
+R13530:13530 Corelib.Init.Logic <> ::type_scope:x_'->'_x not
+R13561:13569 Corelib.Init.Logic <> ::type_scope:x_'->'_x not
+binder 13538:13538 <> x:108
+binder 13540:13540 <> y:109
+R13552:13555 Corelib.Init.Logic <> ::type_scope:x_'->'_x not
+R13546:13548 Corelib.Init.Logic <> ::type_scope:x_'='_x not
+R13543:13543 anubis_proofs.theories.merkle_spec <> f:105 var
+R13545:13545 anubis_proofs.theories.merkle_spec <> x:108 var
+R13549:13549 anubis_proofs.theories.merkle_spec <> f:105 var
+R13551:13551 anubis_proofs.theories.merkle_spec <> y:109 var
+R13557:13559 Corelib.Init.Logic <> ::type_scope:x_'='_x not
+R13556:13556 anubis_proofs.theories.merkle_spec <> x:108 var
+R13560:13560 anubis_proofs.theories.merkle_spec <> y:109 var
+R13589:13596 Corelib.Init.Logic <> ::type_scope:x_'->'_x not
+R13578:13580 Corelib.Init.Logic <> ::type_scope:x_'='_x not
+R13570:13572 Corelib.Lists.ListDef <> map def
+R13576:13577 anubis_proofs.theories.merkle_spec <> l1:106 var
+R13574:13574 anubis_proofs.theories.merkle_spec <> f:105 var
+R13581:13583 Corelib.Lists.ListDef <> map def
+R13587:13588 anubis_proofs.theories.merkle_spec <> l2:107 var
+R13585:13585 anubis_proofs.theories.merkle_spec <> f:105 var
+R13599:13601 Corelib.Init.Logic <> ::type_scope:x_'='_x not
+R13597:13598 anubis_proofs.theories.merkle_spec <> l1:106 var
+R13602:13603 anubis_proofs.theories.merkle_spec <> l2:107 var
+prf 14010:14016 <> nth_map
+binder 14030:14030 <> A:110
+binder 14032:14032 <> B:111
+R14048:14051 Corelib.Init.Logic <> ::type_scope:x_'->'_x not
+R14047:14047 anubis_proofs.theories.merkle_spec <> A:110 var
+R14052:14052 anubis_proofs.theories.merkle_spec <> B:111 var
+binder 14043:14043 <> f:112
+R14060:14063 Corelib.Init.Datatypes <> list ind
+R14065:14065 anubis_proofs.theories.merkle_spec <> A:110 var
+binder 14056:14056 <> l:113
+R14073:14075 Corelib.Init.Datatypes <> nat ind
+binder 14069:14069 <> n:114
+R14083:14083 anubis_proofs.theories.merkle_spec <> A:110 var
+binder 14079:14079 <> d:115
+R14092:14092 anubis_proofs.theories.merkle_spec <> B:111 var
+binder 14087:14088 <> d':116
+R14123:14130 Corelib.Init.Logic <> ::type_scope:x_'->'_x not
+R14102:14104 Corelib.Init.Peano <> ::nat_scope:x_'<'_x not
+R14101:14101 anubis_proofs.theories.merkle_spec <> n:114 var
+R14105:14115 Stdlib.Lists.List <> length abbrev
+R14117:14117 anubis_proofs.theories.merkle_spec <> l:113 var
+R14149:14151 Corelib.Init.Logic <> ::type_scope:x_'='_x not
+R14131:14133 Corelib.Lists.ListDef <> nth def
+R14147:14148 anubis_proofs.theories.merkle_spec <> d':116 var
+R14138:14140 Corelib.Lists.ListDef <> map def
+R14144:14144 anubis_proofs.theories.merkle_spec <> l:113 var
+R14142:14142 anubis_proofs.theories.merkle_spec <> f:112 var
+R14135:14135 anubis_proofs.theories.merkle_spec <> n:114 var
+R14152:14152 anubis_proofs.theories.merkle_spec <> f:112 var
+R14155:14157 Corelib.Lists.ListDef <> nth def
+R14163:14163 anubis_proofs.theories.merkle_spec <> d:115 var
+R14161:14161 anubis_proofs.theories.merkle_spec <> l:113 var
+R14159:14159 anubis_proofs.theories.merkle_spec <> n:114 var
+def 14477:14485 <> length_lt
+binder 14488:14488 <> A:117
+R14507:14510 Corelib.Init.Datatypes <> list ind
+R14512:14512 anubis_proofs.theories.merkle_spec <> A:117 var
+binder 14499:14500 <> l1:118
+binder 14502:14503 <> l2:119
+R14542:14544 Corelib.Init.Peano <> ::nat_scope:x_'<'_x not
+R14528:14538 Stdlib.Lists.List <> length abbrev
+R14540:14541 anubis_proofs.theories.merkle_spec <> l1:118 var
+R14545:14555 Stdlib.Lists.List <> length abbrev
+R14557:14558 anubis_proofs.theories.merkle_spec <> l2:119 var
+prf 14573:14584 <> length_lt_wf
+binder 14595:14595 <> A:120
+R14598:14609 Corelib.Init.Wf <> well_founded def
+R14613:14621 anubis_proofs.theories.merkle_spec <> length_lt def
+R14623:14623 anubis_proofs.theories.merkle_spec <> A:120 var
+R14654:14662 anubis_proofs.theories.merkle_spec <> length_lt def
+R14673:14688 Stdlib.Wellfounded.Inverse_Image <> wf_inverse_image thm
+R14673:14688 Stdlib.Wellfounded.Inverse_Image <> wf_inverse_image thm
+R14699:14703 Stdlib.Arith.Wf_nat <> lt_wf thm
+R14699:14703 Stdlib.Arith.Wf_nat <> lt_wf thm
+prf 14722:14742 <> build_level_injective
+binder 14755:14761 <> hashes1:121
+binder 14763:14769 <> hashes2:122
+R14817:14824 Corelib.Init.Logic <> ::type_scope:x_'->'_x not
+R14795:14797 Corelib.Init.Logic <> ::type_scope:x_'='_x not
+R14776:14786 Stdlib.Lists.List <> length abbrev
+R14788:14794 anubis_proofs.theories.merkle_spec <> hashes1:121 var
+R14798:14808 Stdlib.Lists.List <> length abbrev
+R14810:14816 anubis_proofs.theories.merkle_spec <> hashes2:122 var
+R14855:14862 Corelib.Init.Logic <> ::type_scope:x_'->'_x not
+R14845:14848 Corelib.Init.Peano <> ::nat_scope:x_'>='_x not
+R14826:14836 Stdlib.Lists.List <> length abbrev
+R14838:14844 anubis_proofs.theories.merkle_spec <> hashes1:121 var
+R14888:14895 Corelib.Init.Logic <> ::type_scope:x_'->'_x not
+R14863:14868 Corelib.Lists.ListDef <> Forall ind
+R14881:14887 anubis_proofs.theories.merkle_spec <> hashes1:121 var
+R14870:14879 anubis_proofs.theories.merkle_spec <> valid_hash def
+R14921:14928 Corelib.Init.Logic <> ::type_scope:x_'->'_x not
+R14896:14901 Corelib.Lists.ListDef <> Forall ind
+R14914:14920 anubis_proofs.theories.merkle_spec <> hashes2:122 var
+R14903:14912 anubis_proofs.theories.merkle_spec <> valid_hash def
+R14970:14977 Corelib.Init.Logic <> ::type_scope:x_'->'_x not
+R14948:14950 Corelib.Init.Logic <> ::type_scope:x_'='_x not
+R14929:14939 anubis_proofs.theories.merkle_spec <> build_level def
+R14941:14947 anubis_proofs.theories.merkle_spec <> hashes1:121 var
+R14951:14961 anubis_proofs.theories.merkle_spec <> build_level def
+R14963:14969 anubis_proofs.theories.merkle_spec <> hashes2:122 var
+R14985:14987 Corelib.Init.Logic <> ::type_scope:x_'='_x not
+R14978:14984 anubis_proofs.theories.merkle_spec <> hashes1:121 var
+R14988:14994 anubis_proofs.theories.merkle_spec <> hashes2:122 var
+R15064:15085 Corelib.Init.Wf <> well_founded_induction thm
+R15088:15099 anubis_proofs.theories.merkle_spec <> length_lt_wf thm
+R15101:15104 anubis_proofs.theories.merkle_spec <> hash def
+R15064:15085 Corelib.Init.Wf <> well_founded_induction thm
+R15088:15099 anubis_proofs.theories.merkle_spec <> length_lt_wf thm
+R15101:15104 anubis_proofs.theories.merkle_spec <> hash def
+R15838:15860 anubis_proofs.theories.merkle_spec <> hash_internal_injective thm
+R15838:15860 anubis_proofs.theories.merkle_spec <> hash_internal_injective thm
+R17134:17142 anubis_proofs.theories.merkle_spec <> length_lt def
+R17175:17178 Corelib.Init.Datatypes <> ::list_scope:x_'::'_x not
+R17182:17185 Corelib.Init.Datatypes <> ::list_scope:x_'::'_x not
+R17190:17193 Corelib.Init.Datatypes <> ::list_scope:x_'::'_x not
+R17199:17202 Corelib.Init.Datatypes <> ::list_scope:x_'::'_x not
+R17149:17152 Corelib.Init.Datatypes <> ::list_scope:x_'::'_x not
+R17158:17161 Corelib.Init.Datatypes <> ::list_scope:x_'::'_x not
+R17134:17142 anubis_proofs.theories.merkle_spec <> length_lt def
+R17175:17178 Corelib.Init.Datatypes <> ::list_scope:x_'::'_x not
+R17182:17185 Corelib.Init.Datatypes <> ::list_scope:x_'::'_x not
+R17190:17193 Corelib.Init.Datatypes <> ::list_scope:x_'::'_x not
+R17199:17202 Corelib.Init.Datatypes <> ::list_scope:x_'::'_x not
+R17149:17152 Corelib.Init.Datatypes <> ::list_scope:x_'::'_x not
+R17158:17161 Corelib.Init.Datatypes <> ::list_scope:x_'::'_x not
+R17249:17257 anubis_proofs.theories.merkle_spec <> length_lt def
+R17353:17395 Corelib.Init.Logic <> ::type_scope:x_'='_x not
+R17314:17324 Stdlib.Lists.List <> length abbrev
+R17331:17334 Corelib.Init.Datatypes <> ::list_scope:x_'::'_x not
+R17340:17343 Corelib.Init.Datatypes <> ::list_scope:x_'::'_x not
+R17396:17406 Stdlib.Lists.List <> length abbrev
+R17413:17416 Corelib.Init.Datatypes <> ::list_scope:x_'::'_x not
+R17422:17425 Corelib.Init.Datatypes <> ::list_scope:x_'::'_x not
+R17353:17395 Corelib.Init.Logic <> ::type_scope:x_'='_x not
+R17314:17324 Stdlib.Lists.List <> length abbrev
+R17331:17334 Corelib.Init.Datatypes <> ::list_scope:x_'::'_x not
+R17340:17343 Corelib.Init.Datatypes <> ::list_scope:x_'::'_x not
+R17396:17406 Stdlib.Lists.List <> length abbrev
+R17413:17416 Corelib.Init.Datatypes <> ::list_scope:x_'::'_x not
+R17422:17425 Corelib.Init.Datatypes <> ::list_scope:x_'::'_x not
+R17573:17576 Corelib.Init.Peano <> ::nat_scope:x_'>='_x not
+R17534:17544 Stdlib.Lists.List <> length abbrev
+R17551:17554 Corelib.Init.Datatypes <> ::list_scope:x_'::'_x not
+R17560:17563 Corelib.Init.Datatypes <> ::list_scope:x_'::'_x not
+R17573:17576 Corelib.Init.Peano <> ::nat_scope:x_'>='_x not
+R17534:17544 Stdlib.Lists.List <> length abbrev
+R17551:17554 Corelib.Init.Datatypes <> ::list_scope:x_'::'_x not
+R17560:17563 Corelib.Init.Datatypes <> ::list_scope:x_'::'_x not
+R17672:17675 Corelib.Init.Datatypes <> ::list_scope:x_'::'_x not
+R17681:17684 Corelib.Init.Datatypes <> ::list_scope:x_'::'_x not
+R17743:17746 Corelib.Init.Datatypes <> ::list_scope:x_'::'_x not
+R17752:17755 Corelib.Init.Datatypes <> ::list_scope:x_'::'_x not
+R17672:17675 Corelib.Init.Datatypes <> ::list_scope:x_'::'_x not
+R17681:17684 Corelib.Init.Datatypes <> ::list_scope:x_'::'_x not
+R17743:17746 Corelib.Init.Datatypes <> ::list_scope:x_'::'_x not
+R17752:17755 Corelib.Init.Datatypes <> ::list_scope:x_'::'_x not
+prf 17946:17966 <> build_level_length_eq
+binder 17979:17985 <> hashes1:123
+binder 17987:17993 <> hashes2:124
+R18041:18048 Corelib.Init.Logic <> ::type_scope:x_'->'_x not
+R18019:18021 Corelib.Init.Logic <> ::type_scope:x_'='_x not
+R18000:18010 Stdlib.Lists.List <> length abbrev
+R18012:18018 anubis_proofs.theories.merkle_spec <> hashes1:123 var
+R18022:18032 Stdlib.Lists.List <> length abbrev
+R18034:18040 anubis_proofs.theories.merkle_spec <> hashes2:124 var
+R18082:18084 Corelib.Init.Logic <> ::type_scope:x_'='_x not
+R18049:18059 Stdlib.Lists.List <> length abbrev
+R18062:18072 anubis_proofs.theories.merkle_spec <> build_level def
+R18074:18080 anubis_proofs.theories.merkle_spec <> hashes1:123 var
+R18085:18095 Stdlib.Lists.List <> length abbrev
+R18098:18108 anubis_proofs.theories.merkle_spec <> build_level def
+R18110:18116 anubis_proofs.theories.merkle_spec <> hashes2:124 var
+prf 18723:18743 <> build_level_length_lt
+binder 18756:18761 <> hashes:125
+R18797:18804 Corelib.Init.Logic <> ::type_scope:x_'->'_x not
+R18787:18790 Corelib.Init.Peano <> ::nat_scope:x_'>='_x not
+R18769:18779 Stdlib.Lists.List <> length abbrev
+R18781:18786 anubis_proofs.theories.merkle_spec <> hashes:125 var
+R18838:18840 Corelib.Init.Peano <> ::nat_scope:x_'<'_x not
+R18806:18816 Stdlib.Lists.List <> length abbrev
+R18819:18829 anubis_proofs.theories.merkle_spec <> build_level def
+R18831:18836 anubis_proofs.theories.merkle_spec <> hashes:125 var
+R18841:18851 Stdlib.Lists.List <> length abbrev
+R18853:18858 anubis_proofs.theories.merkle_spec <> hashes:125 var
+R19075:19078 Corelib.Init.Peano <> ::nat_scope:x_'<='_x not
+R19044:19054 Stdlib.Lists.List <> length abbrev
+R19057:19067 anubis_proofs.theories.merkle_spec <> build_level def
+R19079:19089 Stdlib.Lists.List <> length abbrev
+R19075:19078 Corelib.Init.Peano <> ::nat_scope:x_'<='_x not
+R19044:19054 Stdlib.Lists.List <> length abbrev
+R19057:19067 anubis_proofs.theories.merkle_spec <> build_level def
+R19079:19089 Stdlib.Lists.List <> length abbrev
+R19118:19139 anubis_proofs.theories.merkle_spec <> build_level_length_aux thm
+R19118:19139 anubis_proofs.theories.merkle_spec <> build_level_length_aux thm
+prf 19352:19375 <> build_tree_aux_injective
+binder 19388:19391 <> fuel:126
+binder 19393:19399 <> hashes1:127
+binder 19401:19407 <> hashes2:128
+R19455:19462 Corelib.Init.Logic <> ::type_scope:x_'->'_x not
+R19433:19435 Corelib.Init.Logic <> ::type_scope:x_'='_x not
+R19414:19424 Stdlib.Lists.List <> length abbrev
+R19426:19432 anubis_proofs.theories.merkle_spec <> hashes1:127 var
+R19436:19446 Stdlib.Lists.List <> length abbrev
+R19448:19454 anubis_proofs.theories.merkle_spec <> hashes2:128 var
+R19492:19499 Corelib.Init.Logic <> ::type_scope:x_'->'_x not
+R19483:19485 Corelib.Init.Peano <> ::nat_scope:x_'>'_x not
+R19464:19474 Stdlib.Lists.List <> length abbrev
+R19476:19482 anubis_proofs.theories.merkle_spec <> hashes1:127 var
+R19533:19540 Corelib.Init.Logic <> ::type_scope:x_'->'_x not
+R19505:19508 Corelib.Init.Peano <> ::nat_scope:x_'>='_x not
+R19501:19504 anubis_proofs.theories.merkle_spec <> fuel:126 var
+R19509:19519 Stdlib.Lists.List <> length abbrev
+R19521:19527 anubis_proofs.theories.merkle_spec <> hashes1:127 var
+R19566:19573 Corelib.Init.Logic <> ::type_scope:x_'->'_x not
+R19541:19546 Corelib.Lists.ListDef <> Forall ind
+R19559:19565 anubis_proofs.theories.merkle_spec <> hashes1:127 var
+R19548:19557 anubis_proofs.theories.merkle_spec <> valid_hash def
+R19599:19606 Corelib.Init.Logic <> ::type_scope:x_'->'_x not
+R19574:19579 Corelib.Lists.ListDef <> Forall ind
+R19592:19598 anubis_proofs.theories.merkle_spec <> hashes2:128 var
+R19581:19590 anubis_proofs.theories.merkle_spec <> valid_hash def
+R19664:19671 Corelib.Init.Logic <> ::type_scope:x_'->'_x not
+R19634:19636 Corelib.Init.Logic <> ::type_scope:x_'='_x not
+R19607:19620 anubis_proofs.theories.merkle_spec <> build_tree_aux def
+R19622:19625 anubis_proofs.theories.merkle_spec <> fuel:126 var
+R19627:19633 anubis_proofs.theories.merkle_spec <> hashes1:127 var
+R19637:19650 anubis_proofs.theories.merkle_spec <> build_tree_aux def
+R19652:19655 anubis_proofs.theories.merkle_spec <> fuel:126 var
+R19657:19663 anubis_proofs.theories.merkle_spec <> hashes2:128 var
+R19679:19681 Corelib.Init.Logic <> ::type_scope:x_'='_x not
+R19672:19678 anubis_proofs.theories.merkle_spec <> hashes1:127 var
+R19682:19688 anubis_proofs.theories.merkle_spec <> hashes2:128 var
+R19749:19770 Corelib.Init.Wf <> well_founded_induction thm
+R19772:19776 Stdlib.Arith.Wf_nat <> lt_wf thm
+R19749:19770 Corelib.Init.Wf <> well_founded_induction thm
+R19772:19776 Stdlib.Arith.Wf_nat <> lt_wf thm
+R20673:20706 Corelib.Init.Logic <> ::type_scope:x_'='_x not
+R20626:20636 Stdlib.Lists.List <> length abbrev
+R20639:20649 anubis_proofs.theories.merkle_spec <> build_level def
+R20654:20657 Corelib.Init.Datatypes <> ::list_scope:x_'::'_x not
+R20661:20664 Corelib.Init.Datatypes <> ::list_scope:x_'::'_x not
+R20707:20717 Stdlib.Lists.List <> length abbrev
+R20720:20730 anubis_proofs.theories.merkle_spec <> build_level def
+R20735:20738 Corelib.Init.Datatypes <> ::list_scope:x_'::'_x not
+R20742:20745 Corelib.Init.Datatypes <> ::list_scope:x_'::'_x not
+R20673:20706 Corelib.Init.Logic <> ::type_scope:x_'='_x not
+R20626:20636 Stdlib.Lists.List <> length abbrev
+R20639:20649 anubis_proofs.theories.merkle_spec <> build_level def
+R20654:20657 Corelib.Init.Datatypes <> ::list_scope:x_'::'_x not
+R20661:20664 Corelib.Init.Datatypes <> ::list_scope:x_'::'_x not
+R20707:20717 Stdlib.Lists.List <> length abbrev
+R20720:20730 anubis_proofs.theories.merkle_spec <> build_level def
+R20735:20738 Corelib.Init.Datatypes <> ::list_scope:x_'::'_x not
+R20742:20745 Corelib.Init.Datatypes <> ::list_scope:x_'::'_x not
+R20779:20799 anubis_proofs.theories.merkle_spec <> build_level_length_eq thm
+R20779:20799 anubis_proofs.theories.merkle_spec <> build_level_length_eq thm
+R20951:20953 Corelib.Init.Peano <> ::nat_scope:x_'>'_x not
+R20904:20914 Stdlib.Lists.List <> length abbrev
+R20917:20927 anubis_proofs.theories.merkle_spec <> build_level def
+R20932:20935 Corelib.Init.Datatypes <> ::list_scope:x_'::'_x not
+R20939:20942 Corelib.Init.Datatypes <> ::list_scope:x_'::'_x not
+R20951:20953 Corelib.Init.Peano <> ::nat_scope:x_'>'_x not
+R20904:20914 Stdlib.Lists.List <> length abbrev
+R20917:20927 anubis_proofs.theories.merkle_spec <> build_level def
+R20932:20935 Corelib.Init.Datatypes <> ::list_scope:x_'::'_x not
+R20939:20942 Corelib.Init.Datatypes <> ::list_scope:x_'::'_x not
+R21092:21095 Corelib.Init.Peano <> ::nat_scope:x_'>='_x not
+R21096:21106 Stdlib.Lists.List <> length abbrev
+R21109:21119 anubis_proofs.theories.merkle_spec <> build_level def
+R21124:21127 Corelib.Init.Datatypes <> ::list_scope:x_'::'_x not
+R21131:21134 Corelib.Init.Datatypes <> ::list_scope:x_'::'_x not
+R21092:21095 Corelib.Init.Peano <> ::nat_scope:x_'>='_x not
+R21096:21106 Stdlib.Lists.List <> length abbrev
+R21109:21119 anubis_proofs.theories.merkle_spec <> build_level def
+R21124:21127 Corelib.Init.Datatypes <> ::list_scope:x_'::'_x not
+R21131:21134 Corelib.Init.Datatypes <> ::list_scope:x_'::'_x not
+R21441:21444 Corelib.Init.Peano <> ::nat_scope:x_'<='_x not
+R21409:21419 Stdlib.Lists.List <> length abbrev
+R21422:21432 anubis_proofs.theories.merkle_spec <> build_level def
+R21445:21455 Stdlib.Lists.List <> length abbrev
+R21441:21444 Corelib.Init.Peano <> ::nat_scope:x_'<='_x not
+R21409:21419 Stdlib.Lists.List <> length abbrev
+R21422:21432 anubis_proofs.theories.merkle_spec <> build_level def
+R21445:21455 Stdlib.Lists.List <> length abbrev
+R21495:21516 anubis_proofs.theories.merkle_spec <> build_level_length_aux thm
+R21495:21516 anubis_proofs.theories.merkle_spec <> build_level_length_aux thm
+R21657:21659 Corelib.Init.Peano <> ::nat_scope:x_'<'_x not
+R21660:21660 Corelib.Init.Datatypes <> S constr
+R21657:21659 Corelib.Init.Peano <> ::nat_scope:x_'<'_x not
+R21660:21660 Corelib.Init.Datatypes <> S constr
+R21755:21765 anubis_proofs.theories.merkle_spec <> build_level def
+R21770:21773 Corelib.Init.Datatypes <> ::list_scope:x_'::'_x not
+R21777:21780 Corelib.Init.Datatypes <> ::list_scope:x_'::'_x not
+R21819:21829 anubis_proofs.theories.merkle_spec <> build_level def
+R21834:21837 Corelib.Init.Datatypes <> ::list_scope:x_'::'_x not
+R21841:21844 Corelib.Init.Datatypes <> ::list_scope:x_'::'_x not
+R21933:21949 anubis_proofs.theories.merkle_spec <> build_level_valid thm
+R21987:22003 anubis_proofs.theories.merkle_spec <> build_level_valid thm
+R21755:21765 anubis_proofs.theories.merkle_spec <> build_level def
+R21770:21773 Corelib.Init.Datatypes <> ::list_scope:x_'::'_x not
+R21777:21780 Corelib.Init.Datatypes <> ::list_scope:x_'::'_x not
+R21819:21829 anubis_proofs.theories.merkle_spec <> build_level def
+R21834:21837 Corelib.Init.Datatypes <> ::list_scope:x_'::'_x not
+R21841:21844 Corelib.Init.Datatypes <> ::list_scope:x_'::'_x not
+R21933:21949 anubis_proofs.theories.merkle_spec <> build_level_valid thm
+R21987:22003 anubis_proofs.theories.merkle_spec <> build_level_valid thm
+R22146:22166 anubis_proofs.theories.merkle_spec <> build_level_injective thm
+R22146:22166 anubis_proofs.theories.merkle_spec <> build_level_injective thm
+prf 22437:22454 <> merkle_binding_two
+binder 22467:22468 <> d1:129
+binder 22470:22471 <> d2:130
+binder 22473:22475 <> d2':131
+R22491:22498 Corelib.Init.Logic <> ::type_scope:x_'->'_x not
+R22484:22487 Corelib.Init.Logic <> ::type_scope:x_'<>'_x not
+R22482:22483 anubis_proofs.theories.merkle_spec <> d2:130 var
+R22488:22490 anubis_proofs.theories.merkle_spec <> d2':131 var
+R22518:22521 Corelib.Init.Logic <> ::type_scope:x_'<>'_x not
+R22499:22508 anubis_proofs.theories.merkle_spec <> build_tree def
+R22510:22510 Stdlib.Lists.List ListNotations ::list_scope:'['_x_';'_x_';'_'..'_';'_x_']' not
+R22513:22514 Stdlib.Lists.List ListNotations ::list_scope:'['_x_';'_x_';'_'..'_';'_x_']' not
+R22517:22517 Stdlib.Lists.List ListNotations ::list_scope:'['_x_';'_x_';'_'..'_';'_x_']' not
+R22511:22512 anubis_proofs.theories.merkle_spec <> d1:129 var
+R22515:22516 anubis_proofs.theories.merkle_spec <> d2:130 var
+R22522:22531 anubis_proofs.theories.merkle_spec <> build_tree def
+R22533:22533 Stdlib.Lists.List ListNotations ::list_scope:'['_x_';'_x_';'_'..'_';'_x_']' not
+R22536:22537 Stdlib.Lists.List ListNotations ::list_scope:'['_x_';'_x_';'_'..'_';'_x_']' not
+R22541:22541 Stdlib.Lists.List ListNotations ::list_scope:'['_x_';'_x_';'_'..'_';'_x_']' not
+R22534:22535 anubis_proofs.theories.merkle_spec <> d1:129 var
+R22538:22540 anubis_proofs.theories.merkle_spec <> d2':131 var
+R22584:22593 anubis_proofs.theories.merkle_spec <> build_tree def
+R22624:22646 anubis_proofs.theories.merkle_spec <> hash_internal_injective thm
+R22624:22646 anubis_proofs.theories.merkle_spec <> hash_internal_injective thm
+R22696:22714 anubis_proofs.theories.merkle_spec <> hash_leaf_injective thm
+R22696:22714 anubis_proofs.theories.merkle_spec <> hash_leaf_injective thm
+R22754:22768 anubis_proofs.theories.merkle_spec <> hash_leaf_valid thm
+R22754:22768 anubis_proofs.theories.merkle_spec <> hash_leaf_valid thm
+R22781:22795 anubis_proofs.theories.merkle_spec <> hash_leaf_valid thm
+R22781:22795 anubis_proofs.theories.merkle_spec <> hash_leaf_valid thm
+R22808:22822 anubis_proofs.theories.merkle_spec <> hash_leaf_valid thm
+R22808:22822 anubis_proofs.theories.merkle_spec <> hash_leaf_valid thm
+R22835:22849 anubis_proofs.theories.merkle_spec <> hash_leaf_valid thm
+R22835:22849 anubis_proofs.theories.merkle_spec <> hash_leaf_valid thm
+prf 22895:22912 <> root_deterministic
+binder 22925:22930 <> leaves:132
+R22954:22956 Corelib.Init.Logic <> ::type_scope:x_'='_x not
+R22937:22946 anubis_proofs.theories.merkle_spec <> build_tree def
+R22948:22953 anubis_proofs.theories.merkle_spec <> leaves:132 var
+R22957:22966 anubis_proofs.theories.merkle_spec <> build_tree def
+R22968:22973 anubis_proofs.theories.merkle_spec <> leaves:132 var
+prf 23047:23061 <> empty_tree_root
+R23080:23082 Corelib.Init.Logic <> ::type_scope:x_'='_x not
+R23067:23076 anubis_proofs.theories.merkle_spec <> build_tree def
+R23078:23079 Stdlib.Lists.List ListNotations ::list_scope:'['_']' not
+R23083:23090 anubis_proofs.theories.merkle_spec <> sha3_256 defax
+R23092:23093 Stdlib.Lists.List ListNotations ::list_scope:'['_']' not
+prf 23156:23171 <> single_leaf_root
+binder 23184:23187 <> data:133
+R23211:23213 Corelib.Init.Logic <> ::type_scope:x_'='_x not
+R23194:23203 anubis_proofs.theories.merkle_spec <> build_tree def
+R23205:23205 Stdlib.Lists.List ListNotations ::list_scope:'['_x_']' not
+R23210:23210 Stdlib.Lists.List ListNotations ::list_scope:'['_x_']' not
+R23206:23209 anubis_proofs.theories.merkle_spec <> data:133 var
+R23214:23222 anubis_proofs.theories.merkle_spec <> hash_leaf def
+R23224:23227 anubis_proofs.theories.merkle_spec <> data:133 var
+R23261:23270 anubis_proofs.theories.merkle_spec <> build_tree def
+R23273:23286 anubis_proofs.theories.merkle_spec <> build_tree_aux def
+prf 23346:23358 <> two_leaf_root
+binder 23371:23372 <> d1:134
+binder 23374:23375 <> d2:135
+R23401:23403 Corelib.Init.Logic <> ::type_scope:x_'='_x not
+R23382:23391 anubis_proofs.theories.merkle_spec <> build_tree def
+R23393:23393 Stdlib.Lists.List ListNotations ::list_scope:'['_x_';'_x_';'_'..'_';'_x_']' not
+R23396:23397 Stdlib.Lists.List ListNotations ::list_scope:'['_x_';'_x_';'_'..'_';'_x_']' not
+R23400:23400 Stdlib.Lists.List ListNotations ::list_scope:'['_x_';'_x_';'_'..'_';'_x_']' not
+R23394:23395 anubis_proofs.theories.merkle_spec <> d1:134 var
+R23398:23399 anubis_proofs.theories.merkle_spec <> d2:135 var
+R23404:23416 anubis_proofs.theories.merkle_spec <> hash_internal def
+R23419:23427 anubis_proofs.theories.merkle_spec <> hash_leaf def
+R23429:23430 anubis_proofs.theories.merkle_spec <> d1:134 var
+R23434:23442 anubis_proofs.theories.merkle_spec <> hash_leaf def
+R23444:23445 anubis_proofs.theories.merkle_spec <> d2:135 var
+R23481:23490 anubis_proofs.theories.merkle_spec <> build_tree def
+R23493:23506 anubis_proofs.theories.merkle_spec <> build_tree_aux def
+prf 23599:23608 <> log2_bound
+binder 23621:23621 <> n:136
+R23635:23638 Corelib.Init.Logic <> ::type_scope:x_'->'_x not
+R23626:23628 Corelib.Init.Peano <> ::nat_scope:x_'>'_x not
+R23625:23625 anubis_proofs.theories.merkle_spec <> n:136 var
+R23650:23653 Corelib.Init.Peano <> ::nat_scope:x_'<='_x not
+R23640:23647 Stdlib.Arith.PeanoNat Nat log2 def
+R23649:23649 anubis_proofs.theories.merkle_spec <> n:136 var
+R23654:23654 anubis_proofs.theories.merkle_spec <> n:136 var
+R23692:23706 Stdlib.Arith.PeanoNat Nat log2_le_lin thm
+R23692:23706 Stdlib.Arith.PeanoNat Nat log2_le_lin thm
+prf 23774:23798 <> generate_proof_aux_length
+binder 23811:23816 <> leaves:137
+binder 23818:23820 <> pos:138
+binder 23822:23825 <> fuel:139
+binder 23827:23829 <> acc:140
+R23889:23892 Corelib.Init.Peano <> ::nat_scope:x_'<='_x not
+R23837:23847 Stdlib.Lists.List <> length abbrev
+R23850:23867 anubis_proofs.theories.merkle_spec <> generate_proof_aux def
+R23869:23874 anubis_proofs.theories.merkle_spec <> leaves:137 var
+R23876:23878 anubis_proofs.theories.merkle_spec <> pos:138 var
+R23880:23883 anubis_proofs.theories.merkle_spec <> fuel:139 var
+R23885:23887 anubis_proofs.theories.merkle_spec <> acc:140 var
+R23897:23899 Corelib.Init.Peano <> ::nat_scope:x_'+'_x not
+R23893:23896 anubis_proofs.theories.merkle_spec <> fuel:139 var
+R23900:23910 Stdlib.Lists.List <> length abbrev
+R23912:23914 anubis_proofs.theories.merkle_spec <> acc:140 var
+R24260:24270 anubis_proofs.theories.merkle_spec <> build_level def
+R24275:24278 Corelib.Init.Datatypes <> ::list_scope:x_'::'_x not
+R24281:24284 Corelib.Init.Datatypes <> ::list_scope:x_'::'_x not
+R24294:24300 Stdlib.Arith.PeanoNat Nat div def
+R24477:24480 Corelib.Init.Datatypes <> ::list_scope:x_'::'_x not
+R24332:24332 Corelib.Init.Datatypes <> ::core_scope:'('_x_','_x_','_'..'_','_x_')' not
+R24369:24394 Corelib.Init.Datatypes <> ::core_scope:'('_x_','_x_','_'..'_','_x_')' not
+R24476:24476 Corelib.Init.Datatypes <> ::core_scope:'('_x_','_x_','_'..'_','_x_')' not
+R24336:24343 Stdlib.Arith.PeanoNat Nat even def
+R24365:24368 anubis_proofs.theories.merkle_spec <> Left constr
+R24354:24358 anubis_proofs.theories.merkle_spec <> Right constr
+R24395:24397 Corelib.Lists.ListDef <> nth def
+R24464:24471 anubis_proofs.theories.merkle_spec <> sha3_256 defax
+R24473:24474 Stdlib.Lists.List ListNotations ::list_scope:'['_']' not
+R24446:24449 Corelib.Init.Datatypes <> ::list_scope:x_'::'_x not
+R24452:24455 Corelib.Init.Datatypes <> ::list_scope:x_'::'_x not
+R24403:24410 Stdlib.Arith.PeanoNat Nat even def
+R24437:24439 Corelib.Init.Peano <> ::nat_scope:x_'-'_x not
+R24424:24426 Corelib.Init.Peano <> ::nat_scope:x_'+'_x not
+R24260:24270 anubis_proofs.theories.merkle_spec <> build_level def
+R24275:24278 Corelib.Init.Datatypes <> ::list_scope:x_'::'_x not
+R24281:24284 Corelib.Init.Datatypes <> ::list_scope:x_'::'_x not
+R24294:24300 Stdlib.Arith.PeanoNat Nat div def
+R24477:24480 Corelib.Init.Datatypes <> ::list_scope:x_'::'_x not
+R24332:24332 Corelib.Init.Datatypes <> ::core_scope:'('_x_','_x_','_'..'_','_x_')' not
+R24369:24394 Corelib.Init.Datatypes <> ::core_scope:'('_x_','_x_','_'..'_','_x_')' not
+R24476:24476 Corelib.Init.Datatypes <> ::core_scope:'('_x_','_x_','_'..'_','_x_')' not
+R24336:24343 Stdlib.Arith.PeanoNat Nat even def
+R24365:24368 anubis_proofs.theories.merkle_spec <> Left constr
+R24354:24358 anubis_proofs.theories.merkle_spec <> Right constr
+R24395:24397 Corelib.Lists.ListDef <> nth def
+R24464:24471 anubis_proofs.theories.merkle_spec <> sha3_256 defax
+R24473:24474 Stdlib.Lists.List ListNotations ::list_scope:'['_']' not
+R24446:24449 Corelib.Init.Datatypes <> ::list_scope:x_'::'_x not
+R24452:24455 Corelib.Init.Datatypes <> ::list_scope:x_'::'_x not
+R24403:24410 Stdlib.Arith.PeanoNat Nat even def
+R24437:24439 Corelib.Init.Peano <> ::nat_scope:x_'-'_x not
+R24424:24426 Corelib.Init.Peano <> ::nat_scope:x_'+'_x not
+R24735:24737 Corelib.Init.Logic <> ::type_scope:x_'='_x not
+R24713:24715 Corelib.Init.Peano <> ::nat_scope:x_'+'_x not
+R24716:24716 Corelib.Init.Datatypes <> S constr
+R24719:24729 Stdlib.Lists.List <> length abbrev
+R24745:24747 Corelib.Init.Peano <> ::nat_scope:x_'+'_x not
+R24738:24738 Corelib.Init.Datatypes <> S constr
+R24748:24758 Stdlib.Lists.List <> length abbrev
+R24735:24737 Corelib.Init.Logic <> ::type_scope:x_'='_x not
+R24713:24715 Corelib.Init.Peano <> ::nat_scope:x_'+'_x not
+R24716:24716 Corelib.Init.Datatypes <> S constr
+R24719:24729 Stdlib.Lists.List <> length abbrev
+R24745:24747 Corelib.Init.Peano <> ::nat_scope:x_'+'_x not
+R24738:24738 Corelib.Init.Datatypes <> S constr
+R24748:24758 Stdlib.Lists.List <> length abbrev
+prf 25109:25126 <> proof_length_bound
+binder 25139:25144 <> leaves:141
+binder 25146:25148 <> pos:142
+R25185:25192 Corelib.Init.Logic <> ::type_scope:x_'->'_x not
+R25159:25161 Corelib.Init.Peano <> ::nat_scope:x_'<'_x not
+R25156:25158 anubis_proofs.theories.merkle_spec <> pos:142 var
+R25162:25172 Stdlib.Lists.List <> length abbrev
+R25174:25179 anubis_proofs.theories.merkle_spec <> leaves:141 var
+R25221:25228 Corelib.Init.Logic <> ::type_scope:x_'->'_x not
+R25212:25214 Corelib.Init.Peano <> ::nat_scope:x_'>'_x not
+R25194:25204 Stdlib.Lists.List <> length abbrev
+R25206:25211 anubis_proofs.theories.merkle_spec <> leaves:141 var
+R25269:25272 Corelib.Init.Peano <> ::nat_scope:x_'<='_x not
+R25230:25240 Stdlib.Lists.List <> length abbrev
+R25243:25256 anubis_proofs.theories.merkle_spec <> generate_proof def
+R25258:25263 anubis_proofs.theories.merkle_spec <> leaves:141 var
+R25265:25267 anubis_proofs.theories.merkle_spec <> pos:142 var
+R25273:25283 Stdlib.Lists.List <> length abbrev
+R25285:25290 anubis_proofs.theories.merkle_spec <> leaves:141 var
+R25344:25357 anubis_proofs.theories.merkle_spec <> generate_proof def
+R25370:25379 Stdlib.Lists.List <> length_rev thm
+R25370:25379 Stdlib.Lists.List <> length_rev thm
+R25370:25379 Stdlib.Lists.List <> length_rev thm
+R25479:25496 Corelib.Init.Peano <> ::nat_scope:x_'<='_x not
+R25396:25406 Stdlib.Lists.List <> length abbrev
+R25409:25426 anubis_proofs.theories.merkle_spec <> generate_proof_aux def
+R25429:25431 Corelib.Lists.ListDef <> map def
+R25433:25441 anubis_proofs.theories.merkle_spec <> hash_leaf def
+R25456:25466 Stdlib.Lists.List <> length abbrev
+R25476:25477 Stdlib.Lists.List ListNotations ::list_scope:'['_']' not
+R25515:25517 Corelib.Init.Peano <> ::nat_scope:x_'+'_x not
+R25497:25507 Stdlib.Lists.List <> length abbrev
+R25479:25496 Corelib.Init.Peano <> ::nat_scope:x_'<='_x not
+R25396:25406 Stdlib.Lists.List <> length abbrev
+R25409:25426 anubis_proofs.theories.merkle_spec <> generate_proof_aux def
+R25429:25431 Corelib.Lists.ListDef <> map def
+R25433:25441 anubis_proofs.theories.merkle_spec <> hash_leaf def
+R25456:25466 Stdlib.Lists.List <> length abbrev
+R25476:25477 Stdlib.Lists.List ListNotations ::list_scope:'['_']' not
+R25515:25517 Corelib.Init.Peano <> ::nat_scope:x_'+'_x not
+R25497:25507 Stdlib.Lists.List <> length abbrev
+R25537:25561 anubis_proofs.theories.merkle_spec <> generate_proof_aux_length thm
+R25537:25561 anubis_proofs.theories.merkle_spec <> generate_proof_aux_length thm
+def 25631:25646 <> proof_size_bytes
+R25657:25668 anubis_proofs.theories.merkle_spec <> merkle_proof def
+binder 25649:25653 <> proof:143
+R25673:25675 Corelib.Init.Datatypes <> nat ind
+R25682:25682 Corelib.Init.Peano <> ::nat_scope:x_'*'_x not
+R25696:25699 Corelib.Init.Peano <> ::nat_scope:x_'*'_x not
+R25684:25686 Corelib.Init.Peano <> ::nat_scope:x_'+'_x not
+R25687:25695 anubis_proofs.theories.merkle_spec <> hash_size def
+R25700:25710 Stdlib.Lists.List <> length abbrev
+R25712:25716 anubis_proofs.theories.merkle_spec <> proof:143 var
+prf 25759:25774 <> proof_size_bound
+binder 25787:25792 <> leaves:144
+binder 25794:25796 <> pos:145
+R25833:25840 Corelib.Init.Logic <> ::type_scope:x_'->'_x not
+R25807:25809 Corelib.Init.Peano <> ::nat_scope:x_'<'_x not
+R25804:25806 anubis_proofs.theories.merkle_spec <> pos:145 var
+R25810:25820 Stdlib.Lists.List <> length abbrev
+R25822:25827 anubis_proofs.theories.merkle_spec <> leaves:144 var
+R25869:25876 Corelib.Init.Logic <> ::type_scope:x_'->'_x not
+R25860:25862 Corelib.Init.Peano <> ::nat_scope:x_'>'_x not
+R25842:25852 Stdlib.Lists.List <> length abbrev
+R25854:25859 anubis_proofs.theories.merkle_spec <> leaves:144 var
+R25915:25922 Corelib.Init.Logic <> ::type_scope:x_'->'_x not
+R25896:25899 Corelib.Init.Peano <> ::nat_scope:x_'<='_x not
+R25878:25888 Stdlib.Lists.List <> length abbrev
+R25890:25895 anubis_proofs.theories.merkle_spec <> leaves:144 var
+R25900:25909 anubis_proofs.theories.merkle_spec <> max_leaves def
+R25968:25971 Corelib.Init.Peano <> ::nat_scope:x_'<='_x not
+R25924:25939 anubis_proofs.theories.merkle_spec <> proof_size_bytes def
+R25942:25955 anubis_proofs.theories.merkle_spec <> generate_proof def
+R25957:25962 anubis_proofs.theories.merkle_spec <> leaves:144 var
+R25964:25966 anubis_proofs.theories.merkle_spec <> pos:145 var
+R25974:25976 Corelib.Init.Peano <> ::nat_scope:x_'*'_x not
+R25977:25986 anubis_proofs.theories.merkle_spec <> max_leaves def
+R26045:26060 anubis_proofs.theories.merkle_spec <> proof_size_bytes def
+R26072:26080 anubis_proofs.theories.merkle_spec <> hash_size def
+R26139:26142 Corelib.Init.Peano <> ::nat_scope:x_'<='_x not
+R26100:26110 Stdlib.Lists.List <> length abbrev
+R26113:26126 anubis_proofs.theories.merkle_spec <> generate_proof def
+R26143:26153 Stdlib.Lists.List <> length abbrev
+R26139:26142 Corelib.Init.Peano <> ::nat_scope:x_'<='_x not
+R26100:26110 Stdlib.Lists.List <> length abbrev
+R26113:26126 anubis_proofs.theories.merkle_spec <> generate_proof def
+R26143:26153 Stdlib.Lists.List <> length abbrev
+R26179:26196 anubis_proofs.theories.merkle_spec <> proof_length_bound thm
+R26179:26196 anubis_proofs.theories.merkle_spec <> proof_length_bound thm
+R26222:26231 anubis_proofs.theories.merkle_spec <> max_leaves def
+R26251:26260 anubis_proofs.theories.merkle_spec <> max_leaves def
+prf 26368:26386 <> map_hash_leaf_valid
+binder 26397:26402 <> leaves:146
+R26407:26412 Corelib.Lists.ListDef <> Forall ind
+R26426:26428 Corelib.Lists.ListDef <> map def
+R26440:26445 anubis_proofs.theories.merkle_spec <> leaves:146 var
+R26430:26438 anubis_proofs.theories.merkle_spec <> hash_leaf def
+R26414:26423 anubis_proofs.theories.merkle_spec <> valid_hash def
+R26558:26572 anubis_proofs.theories.merkle_spec <> hash_leaf_valid thm
+R26558:26572 anubis_proofs.theories.merkle_spec <> hash_leaf_valid thm
+prf 26646:26660 <> root_commitment
+binder 26673:26679 <> leaves1:147
+binder 26681:26687 <> leaves2:148
+R26735:26742 Corelib.Init.Logic <> ::type_scope:x_'->'_x not
+R26713:26715 Corelib.Init.Logic <> ::type_scope:x_'='_x not
+R26694:26704 Stdlib.Lists.List <> length abbrev
+R26706:26712 anubis_proofs.theories.merkle_spec <> leaves1:147 var
+R26716:26726 Stdlib.Lists.List <> length abbrev
+R26728:26734 anubis_proofs.theories.merkle_spec <> leaves2:148 var
+R26772:26779 Corelib.Init.Logic <> ::type_scope:x_'->'_x not
+R26763:26765 Corelib.Init.Peano <> ::nat_scope:x_'>'_x not
+R26744:26754 Stdlib.Lists.List <> length abbrev
+R26756:26762 anubis_proofs.theories.merkle_spec <> leaves1:147 var
+R26819:26826 Corelib.Init.Logic <> ::type_scope:x_'->'_x not
+R26798:26800 Corelib.Init.Logic <> ::type_scope:x_'='_x not
+R26780:26789 anubis_proofs.theories.merkle_spec <> build_tree def
+R26791:26797 anubis_proofs.theories.merkle_spec <> leaves1:147 var
+R26801:26810 anubis_proofs.theories.merkle_spec <> build_tree def
+R26812:26818 anubis_proofs.theories.merkle_spec <> leaves2:148 var
+R26848:26850 Corelib.Init.Logic <> ::type_scope:x_'='_x not
+R26827:26829 Corelib.Lists.ListDef <> map def
+R26841:26847 anubis_proofs.theories.merkle_spec <> leaves1:147 var
+R26831:26839 anubis_proofs.theories.merkle_spec <> hash_leaf def
+R26851:26853 Corelib.Lists.ListDef <> map def
+R26865:26871 anubis_proofs.theories.merkle_spec <> leaves2:148 var
+R26855:26863 anubis_proofs.theories.merkle_spec <> hash_leaf def
+R26929:26938 anubis_proofs.theories.merkle_spec <> build_tree def
+R27053:27055 Corelib.Init.Logic <> ::type_scope:x_'='_x not
+R27049:27051 Corelib.Init.Peano <> ::nat_scope:x_'+'_x not
+R27030:27040 Stdlib.Lists.List <> length abbrev
+R27075:27077 Corelib.Init.Peano <> ::nat_scope:x_'+'_x not
+R27056:27066 Stdlib.Lists.List <> length abbrev
+R27053:27055 Corelib.Init.Logic <> ::type_scope:x_'='_x not
+R27049:27051 Corelib.Init.Peano <> ::nat_scope:x_'+'_x not
+R27030:27040 Stdlib.Lists.List <> length abbrev
+R27075:27077 Corelib.Init.Peano <> ::nat_scope:x_'+'_x not
+R27056:27066 Stdlib.Lists.List <> length abbrev
+R27197:27220 anubis_proofs.theories.merkle_spec <> build_tree_aux_injective thm
+R27254:27256 Corelib.Init.Peano <> ::nat_scope:x_'+'_x not
+R27235:27245 Stdlib.Lists.List <> length abbrev
+R27273:27275 Corelib.Lists.ListDef <> map def
+R27277:27285 anubis_proofs.theories.merkle_spec <> hash_leaf def
+R27309:27311 Corelib.Lists.ListDef <> map def
+R27313:27321 anubis_proofs.theories.merkle_spec <> hash_leaf def
+R27197:27220 anubis_proofs.theories.merkle_spec <> build_tree_aux_injective thm
+R27254:27256 Corelib.Init.Peano <> ::nat_scope:x_'+'_x not
+R27235:27245 Stdlib.Lists.List <> length abbrev
+R27273:27275 Corelib.Lists.ListDef <> map def
+R27277:27285 anubis_proofs.theories.merkle_spec <> hash_leaf def
+R27309:27311 Corelib.Lists.ListDef <> map def
+R27313:27321 anubis_proofs.theories.merkle_spec <> hash_leaf def
+R27353:27362 Stdlib.Lists.List <> length_map thm
+R27353:27362 Stdlib.Lists.List <> length_map thm
+R27353:27362 Stdlib.Lists.List <> length_map thm
+R27353:27362 Stdlib.Lists.List <> length_map thm
+R27353:27362 Stdlib.Lists.List <> length_map thm
+R27353:27362 Stdlib.Lists.List <> length_map thm
+R27389:27398 Stdlib.Lists.List <> length_map thm
+R27389:27398 Stdlib.Lists.List <> length_map thm
+R27389:27398 Stdlib.Lists.List <> length_map thm
+R27424:27433 Stdlib.Lists.List <> length_map thm
+R27424:27433 Stdlib.Lists.List <> length_map thm
+R27424:27433 Stdlib.Lists.List <> length_map thm
+R27451:27469 anubis_proofs.theories.merkle_spec <> map_hash_leaf_valid thm
+R27451:27469 anubis_proofs.theories.merkle_spec <> map_hash_leaf_valid thm
+R27482:27500 anubis_proofs.theories.merkle_spec <> map_hash_leaf_valid thm
+R27482:27500 anubis_proofs.theories.merkle_spec <> map_hash_leaf_valid thm
+prf 27587:27614 <> build_tree_empty_ne_nonempty
+binder 27627:27630 <> data:149
+binder 27632:27635 <> rest:150
+R27655:27658 Corelib.Init.Logic <> ::type_scope:x_'<>'_x not
+R27642:27651 anubis_proofs.theories.merkle_spec <> build_tree def
+R27653:27654 Stdlib.Lists.List ListNotations ::list_scope:'['_']' not
+R27659:27668 anubis_proofs.theories.merkle_spec <> build_tree def
+R27675:27678 Corelib.Init.Datatypes <> ::list_scope:x_'::'_x not
+R27671:27674 anubis_proofs.theories.merkle_spec <> data:149 var
+R27679:27682 anubis_proofs.theories.merkle_spec <> rest:150 var
+R27722:27731 anubis_proofs.theories.merkle_spec <> build_tree def
+R27838:27846 anubis_proofs.theories.merkle_spec <> hash_leaf def
+R27866:27893 anubis_proofs.theories.merkle_spec <> sha3_256_collision_resistant prfax
+R27866:27893 anubis_proofs.theories.merkle_spec <> sha3_256_collision_resistant prfax
+R27914:27924 anubis_proofs.theories.merkle_spec <> leaf_prefix def
+R28376:28385 anubis_proofs.theories.merkle_spec <> valid_hash def
+R28388:28401 anubis_proofs.theories.merkle_spec <> build_tree_aux def
+R28404:28404 Corelib.Init.Datatypes <> S constr
+R28407:28417 Stdlib.Lists.List <> length abbrev
+R28462:28472 anubis_proofs.theories.merkle_spec <> build_level def
+R28489:28492 Corelib.Init.Datatypes <> ::list_scope:x_'::'_x not
+R28475:28483 anubis_proofs.theories.merkle_spec <> hash_leaf def
+R28504:28507 Corelib.Init.Datatypes <> ::list_scope:x_'::'_x not
+R28493:28501 anubis_proofs.theories.merkle_spec <> hash_leaf def
+R28508:28510 Corelib.Lists.ListDef <> map def
+R28512:28520 anubis_proofs.theories.merkle_spec <> hash_leaf def
+R28376:28385 anubis_proofs.theories.merkle_spec <> valid_hash def
+R28388:28401 anubis_proofs.theories.merkle_spec <> build_tree_aux def
+R28404:28404 Corelib.Init.Datatypes <> S constr
+R28407:28417 Stdlib.Lists.List <> length abbrev
+R28462:28472 anubis_proofs.theories.merkle_spec <> build_level def
+R28489:28492 Corelib.Init.Datatypes <> ::list_scope:x_'::'_x not
+R28475:28483 anubis_proofs.theories.merkle_spec <> hash_leaf def
+R28504:28507 Corelib.Init.Datatypes <> ::list_scope:x_'::'_x not
+R28493:28501 anubis_proofs.theories.merkle_spec <> hash_leaf def
+R28508:28510 Corelib.Lists.ListDef <> map def
+R28512:28520 anubis_proofs.theories.merkle_spec <> hash_leaf def
+R28551:28570 anubis_proofs.theories.merkle_spec <> build_tree_aux_valid thm
+R28551:28570 anubis_proofs.theories.merkle_spec <> build_tree_aux_valid thm
+R28587:28603 anubis_proofs.theories.merkle_spec <> build_level_valid thm
+R28587:28603 anubis_proofs.theories.merkle_spec <> build_level_valid thm
+R28643:28657 anubis_proofs.theories.merkle_spec <> hash_leaf_valid thm
+R28643:28657 anubis_proofs.theories.merkle_spec <> hash_leaf_valid thm
+R28701:28715 anubis_proofs.theories.merkle_spec <> hash_leaf_valid thm
+R28701:28715 anubis_proofs.theories.merkle_spec <> hash_leaf_valid thm
+R28854:28868 anubis_proofs.theories.merkle_spec <> hash_leaf_valid thm
+R28854:28868 anubis_proofs.theories.merkle_spec <> hash_leaf_valid thm
+R28895:28914 anubis_proofs.theories.merkle_spec <> build_level_nonempty thm
+R28895:28914 anubis_proofs.theories.merkle_spec <> build_level_nonempty thm
+prf 29578:29607 <> root_commitment_contrapositive
+binder 29620:29626 <> leaves1:151
+binder 29628:29634 <> leaves2:152
+R29687:29694 Corelib.Init.Logic <> ::type_scope:x_'->'_x not
+R29662:29665 Corelib.Init.Logic <> ::type_scope:x_'<>'_x not
+R29641:29643 Corelib.Lists.ListDef <> map def
+R29655:29661 anubis_proofs.theories.merkle_spec <> leaves1:151 var
+R29645:29653 anubis_proofs.theories.merkle_spec <> hash_leaf def
+R29666:29668 Corelib.Lists.ListDef <> map def
+R29680:29686 anubis_proofs.theories.merkle_spec <> leaves2:152 var
+R29670:29678 anubis_proofs.theories.merkle_spec <> hash_leaf def
+R29713:29716 Corelib.Init.Logic <> ::type_scope:x_'<>'_x not
+R29695:29704 anubis_proofs.theories.merkle_spec <> build_tree def
+R29706:29712 anubis_proofs.theories.merkle_spec <> leaves1:151 var
+R29717:29726 anubis_proofs.theories.merkle_spec <> build_tree def
+R29728:29734 anubis_proofs.theories.merkle_spec <> leaves2:152 var
+R29803:29812 Stdlib.Arith.PeanoNat Nat eq_dec thm
+R29815:29825 Stdlib.Lists.List <> length abbrev
+R29837:29847 Stdlib.Lists.List <> length abbrev
+R29803:29812 Stdlib.Arith.PeanoNat Nat eq_dec thm
+R29815:29825 Stdlib.Lists.List <> length abbrev
+R29837:29847 Stdlib.Lists.List <> length abbrev
+R29891:29900 Stdlib.Arith.PeanoNat Nat eq_dec thm
+R29903:29913 Stdlib.Lists.List <> length abbrev
+R29891:29900 Stdlib.Arith.PeanoNat Nat eq_dec thm
+R29903:29913 Stdlib.Lists.List <> length abbrev
+R30077:30091 anubis_proofs.theories.merkle_spec <> root_commitment thm
+R30077:30091 anubis_proofs.theories.merkle_spec <> root_commitment thm
+R30472:30499 anubis_proofs.theories.merkle_spec <> build_tree_empty_ne_nonempty prfax
+R30472:30499 anubis_proofs.theories.merkle_spec <> build_tree_empty_ne_nonempty prfax
+R30645:30672 anubis_proofs.theories.merkle_spec <> build_tree_empty_ne_nonempty prfax
+R30645:30672 anubis_proofs.theories.merkle_spec <> build_tree_empty_ne_nonempty prfax
+prf 31204:31221 <> replace_nth_length
+binder 31232:31232 <> A:153
+R31239:31242 Corelib.Init.Datatypes <> list ind
+R31244:31244 anubis_proofs.theories.merkle_spec <> A:153 var
+binder 31235:31235 <> l:154
+binder 31247:31249 <> pos:155
+binder 31251:31251 <> x:156
+R31281:31286 Corelib.Init.Logic <> ::type_scope:x_'->'_x not
+R31260:31262 Corelib.Init.Peano <> ::nat_scope:x_'<'_x not
+R31257:31259 anubis_proofs.theories.merkle_spec <> pos:155 var
+R31263:31273 Stdlib.Lists.List <> length abbrev
+R31275:31275 anubis_proofs.theories.merkle_spec <> l:154 var
+R31339:31341 Corelib.Init.Logic <> ::type_scope:x_'='_x not
+R31287:31297 Stdlib.Lists.List <> length abbrev
+R31312:31315 Corelib.Init.Datatypes <> ::list_scope:x_'++'_x not
+R31300:31305 Corelib.Lists.ListDef <> firstn def
+R31311:31311 anubis_proofs.theories.merkle_spec <> l:154 var
+R31307:31309 anubis_proofs.theories.merkle_spec <> pos:155 var
+R31319:31322 Corelib.Init.Datatypes <> ::list_scope:x_'++'_x not
+R31316:31316 Stdlib.Lists.List ListNotations ::list_scope:'['_x_']' not
+R31318:31318 Stdlib.Lists.List ListNotations ::list_scope:'['_x_']' not
+R31317:31317 anubis_proofs.theories.merkle_spec <> x:156 var
+R31323:31327 Corelib.Lists.ListDef <> skipn def
+R31337:31337 anubis_proofs.theories.merkle_spec <> l:154 var
+R31330:31330 Corelib.Init.Datatypes <> S constr
+R31332:31334 anubis_proofs.theories.merkle_spec <> pos:155 var
+R31342:31352 Stdlib.Lists.List <> length abbrev
+R31354:31354 anubis_proofs.theories.merkle_spec <> l:154 var
+R31400:31409 Stdlib.Lists.List <> length_app thm
+R31400:31409 Stdlib.Lists.List <> length_app thm
+R31400:31409 Stdlib.Lists.List <> length_app thm
+R31400:31409 Stdlib.Lists.List <> length_app thm
+R31400:31409 Stdlib.Lists.List <> length_app thm
+R31422:31437 Stdlib.Lists.List <> firstn_length_le thm
+R31422:31437 Stdlib.Lists.List <> firstn_length_le thm
+R31422:31437 Stdlib.Lists.List <> firstn_length_le thm
+R31422:31437 Stdlib.Lists.List <> firstn_length_le thm
+R31459:31470 Stdlib.Lists.List <> length_skipn thm
+R31459:31470 Stdlib.Lists.List <> length_skipn thm
+R31459:31470 Stdlib.Lists.List <> length_skipn thm
+prf 31533:31546 <> merkle_binding
+binder 31559:31564 <> leaves:157
+binder 31566:31568 <> pos:158
+binder 31570:31574 <> data1:159
+binder 31576:31580 <> data2:160
+R31617:31624 Corelib.Init.Logic <> ::type_scope:x_'->'_x not
+R31591:31593 Corelib.Init.Peano <> ::nat_scope:x_'<'_x not
+R31588:31590 anubis_proofs.theories.merkle_spec <> pos:158 var
+R31594:31604 Stdlib.Lists.List <> length abbrev
+R31606:31611 anubis_proofs.theories.merkle_spec <> leaves:157 var
+R31639:31646 Corelib.Init.Logic <> ::type_scope:x_'->'_x not
+R31630:31633 Corelib.Init.Logic <> ::type_scope:x_'<>'_x not
+R31625:31629 anubis_proofs.theories.merkle_spec <> data1:159 var
+R31634:31638 anubis_proofs.theories.merkle_spec <> data2:160 var
+R31672:31679 Corelib.Init.Logic <> ::type_scope:x_'->'_x not
+R31664:31666 Corelib.Init.Logic <> ::type_scope:x_'='_x not
+R31647:31649 Corelib.Lists.ListDef <> nth def
+R31662:31663 Stdlib.Lists.List ListNotations ::list_scope:'['_']' not
+R31655:31660 anubis_proofs.theories.merkle_spec <> leaves:157 var
+R31651:31653 anubis_proofs.theories.merkle_spec <> pos:158 var
+R31667:31671 anubis_proofs.theories.merkle_spec <> data1:159 var
+R31712:31715 Corelib.Init.Datatypes <> ::list_scope:x_'++'_x not
+R31695:31700 Corelib.Lists.ListDef <> firstn def
+R31706:31711 anubis_proofs.theories.merkle_spec <> leaves:157 var
+R31702:31704 anubis_proofs.theories.merkle_spec <> pos:158 var
+R31723:31726 Corelib.Init.Datatypes <> ::list_scope:x_'++'_x not
+R31716:31716 Stdlib.Lists.List ListNotations ::list_scope:'['_x_']' not
+R31722:31722 Stdlib.Lists.List ListNotations ::list_scope:'['_x_']' not
+R31717:31721 anubis_proofs.theories.merkle_spec <> data2:160 var
+R31727:31731 Corelib.Lists.ListDef <> skipn def
+R31741:31746 anubis_proofs.theories.merkle_spec <> leaves:157 var
+R31734:31734 Corelib.Init.Datatypes <> S constr
+R31736:31738 anubis_proofs.theories.merkle_spec <> pos:158 var
+binder 31684:31690 <> leaves2:161
+R31772:31775 Corelib.Init.Logic <> ::type_scope:x_'<>'_x not
+R31755:31764 anubis_proofs.theories.merkle_spec <> build_tree def
+R31766:31771 anubis_proofs.theories.merkle_spec <> leaves:157 var
+R31776:31785 anubis_proofs.theories.merkle_spec <> build_tree def
+R31787:31793 anubis_proofs.theories.merkle_spec <> leaves2:161 var
+R31955:31957 Corelib.Init.Logic <> ::type_scope:x_'='_x not
+R31936:31946 Stdlib.Lists.List <> length abbrev
+R31958:31968 Stdlib.Lists.List <> length abbrev
+R31955:31957 Corelib.Init.Logic <> ::type_scope:x_'='_x not
+R31936:31946 Stdlib.Lists.List <> length abbrev
+R31958:31968 Stdlib.Lists.List <> length abbrev
+R32005:32022 anubis_proofs.theories.merkle_spec <> replace_nth_length thm
+R32005:32022 anubis_proofs.theories.merkle_spec <> replace_nth_length thm
+R32047:32061 anubis_proofs.theories.merkle_spec <> root_commitment thm
+R32047:32061 anubis_proofs.theories.merkle_spec <> root_commitment thm
+R32223:32225 Corelib.Init.Logic <> ::type_scope:x_'='_x not
+R32205:32207 Corelib.Lists.ListDef <> nth def
+R32221:32222 Stdlib.Lists.List ListNotations ::list_scope:'['_']' not
+R32223:32225 Corelib.Init.Logic <> ::type_scope:x_'='_x not
+R32205:32207 Corelib.Lists.ListDef <> nth def
+R32221:32222 Stdlib.Lists.List ListNotations ::list_scope:'['_']' not
+R32270:32277 Stdlib.Lists.List <> app_nth2 thm
+R32291:32306 Stdlib.Lists.List <> firstn_length_le thm
+R32270:32277 Stdlib.Lists.List <> app_nth2 thm
+R32270:32277 Stdlib.Lists.List <> app_nth2 thm
+R32270:32277 Stdlib.Lists.List <> app_nth2 thm
+R32291:32306 Stdlib.Lists.List <> firstn_length_le thm
+R32291:32306 Stdlib.Lists.List <> firstn_length_le thm
+R32291:32306 Stdlib.Lists.List <> firstn_length_le thm
+R32329:32344 Stdlib.Lists.List <> firstn_length_le thm
+R32329:32344 Stdlib.Lists.List <> firstn_length_le thm
+R32329:32344 Stdlib.Lists.List <> firstn_length_le thm
+R32329:32344 Stdlib.Lists.List <> firstn_length_le thm
+R32370:32381 Stdlib.Arith.PeanoNat Nat sub_diag thm
+R32370:32381 Stdlib.Arith.PeanoNat Nat sub_diag thm
+R32370:32381 Stdlib.Arith.PeanoNat Nat sub_diag thm
+R32525:32527 Corelib.Init.Logic <> ::type_scope:x_'='_x not
+R32496:32504 anubis_proofs.theories.merkle_spec <> hash_leaf def
+R32507:32509 Corelib.Lists.ListDef <> nth def
+R32522:32523 Stdlib.Lists.List ListNotations ::list_scope:'['_']' not
+R32528:32536 anubis_proofs.theories.merkle_spec <> hash_leaf def
+R32539:32541 Corelib.Lists.ListDef <> nth def
+R32555:32556 Stdlib.Lists.List ListNotations ::list_scope:'['_']' not
+R32525:32527 Corelib.Init.Logic <> ::type_scope:x_'='_x not
+R32496:32504 anubis_proofs.theories.merkle_spec <> hash_leaf def
+R32507:32509 Corelib.Lists.ListDef <> nth def
+R32522:32523 Stdlib.Lists.List ListNotations ::list_scope:'['_']' not
+R32528:32536 anubis_proofs.theories.merkle_spec <> hash_leaf def
+R32539:32541 Corelib.Lists.ListDef <> nth def
+R32555:32556 Stdlib.Lists.List ListNotations ::list_scope:'['_']' not
+R32649:32651 Corelib.Lists.ListDef <> nth def
+R32681:32689 anubis_proofs.theories.merkle_spec <> hash_leaf def
+R32691:32692 Stdlib.Lists.List ListNotations ::list_scope:'['_']' not
+R32658:32660 Corelib.Lists.ListDef <> map def
+R32662:32670 anubis_proofs.theories.merkle_spec <> hash_leaf def
+R32649:32651 Corelib.Lists.ListDef <> nth def
+R32681:32689 anubis_proofs.theories.merkle_spec <> hash_leaf def
+R32691:32692 Stdlib.Lists.List ListNotations ::list_scope:'['_']' not
+R32658:32660 Corelib.Lists.ListDef <> map def
+R32662:32670 anubis_proofs.theories.merkle_spec <> hash_leaf def
+R32721:32727 Stdlib.Lists.List <> map_nth thm
+R32721:32727 Stdlib.Lists.List <> map_nth thm
+R32752:32754 Corelib.Lists.ListDef <> nth def
+R32785:32793 anubis_proofs.theories.merkle_spec <> hash_leaf def
+R32795:32796 Stdlib.Lists.List ListNotations ::list_scope:'['_']' not
+R32761:32763 Corelib.Lists.ListDef <> map def
+R32765:32773 anubis_proofs.theories.merkle_spec <> hash_leaf def
+R32752:32754 Corelib.Lists.ListDef <> nth def
+R32785:32793 anubis_proofs.theories.merkle_spec <> hash_leaf def
+R32795:32796 Stdlib.Lists.List ListNotations ::list_scope:'['_']' not
+R32761:32763 Corelib.Lists.ListDef <> map def
+R32765:32773 anubis_proofs.theories.merkle_spec <> hash_leaf def
+R32849:32855 Stdlib.Lists.List <> map_nth thm
+R32849:32855 Stdlib.Lists.List <> map_nth thm
+R32926:32944 anubis_proofs.theories.merkle_spec <> hash_leaf_injective thm
+R32926:32944 anubis_proofs.theories.merkle_spec <> hash_leaf_injective thm
+R33116:33130 Stdlib.Arith.PeanoNat Nat le_lt_trans thm
+R33116:33130 Stdlib.Arith.PeanoNat Nat le_lt_trans thm
+R33161:33170 Stdlib.Arith.PeanoNat Nat le_0_l thm
+R33161:33170 Stdlib.Arith.PeanoNat Nat le_0_l thm
+prf 33290:33305 <> verify_proof_app
+binder 33318:33323 <> proof1:162
+binder 33325:33330 <> proof2:163
+binder 33332:33332 <> h:164
+R33372:33374 Corelib.Init.Logic <> ::type_scope:x_'='_x not
+R33339:33350 anubis_proofs.theories.merkle_spec <> verify_proof def
+R33352:33352 anubis_proofs.theories.merkle_spec <> h:164 var
+R33361:33364 Corelib.Init.Datatypes <> ::list_scope:x_'++'_x not
+R33355:33360 anubis_proofs.theories.merkle_spec <> proof1:162 var
+R33365:33370 anubis_proofs.theories.merkle_spec <> proof2:163 var
+R33375:33386 anubis_proofs.theories.merkle_spec <> verify_proof def
+R33389:33400 anubis_proofs.theories.merkle_spec <> verify_proof def
+R33402:33402 anubis_proofs.theories.merkle_spec <> h:164 var
+R33404:33409 anubis_proofs.theories.merkle_spec <> proof1:162 var
+R33412:33417 anubis_proofs.theories.merkle_spec <> proof2:163 var
+prf 33628:33649 <> generate_proof_aux_acc
+binder 33662:33667 <> leaves:165
+binder 33669:33671 <> pos:166
+binder 33673:33676 <> fuel:167
+binder 33678:33680 <> acc:168
+R33725:33731 Corelib.Init.Logic <> ::type_scope:x_'='_x not
+R33687:33704 anubis_proofs.theories.merkle_spec <> generate_proof_aux def
+R33706:33711 anubis_proofs.theories.merkle_spec <> leaves:165 var
+R33713:33715 anubis_proofs.theories.merkle_spec <> pos:166 var
+R33717:33720 anubis_proofs.theories.merkle_spec <> fuel:167 var
+R33722:33724 anubis_proofs.theories.merkle_spec <> acc:168 var
+R33769:33772 Corelib.Init.Datatypes <> ::list_scope:x_'++'_x not
+R33732:33749 anubis_proofs.theories.merkle_spec <> generate_proof_aux def
+R33751:33756 anubis_proofs.theories.merkle_spec <> leaves:165 var
+R33758:33760 anubis_proofs.theories.merkle_spec <> pos:166 var
+R33762:33765 anubis_proofs.theories.merkle_spec <> fuel:167 var
+R33767:33768 Stdlib.Lists.List ListNotations ::list_scope:'['_']' not
+R33773:33775 anubis_proofs.theories.merkle_spec <> acc:168 var
+R34153:34153 Stdlib.Lists.List ListNotations ::list_scope:'['_x_']' not
+R34155:34155 Stdlib.Lists.List ListNotations ::list_scope:'['_x_']' not
+R34153:34153 Stdlib.Lists.List ListNotations ::list_scope:'['_x_']' not
+R34155:34155 Stdlib.Lists.List ListNotations ::list_scope:'['_x_']' not
+R34153:34153 Stdlib.Lists.List ListNotations ::list_scope:'['_x_']' not
+R34155:34155 Stdlib.Lists.List ListNotations ::list_scope:'['_x_']' not
+R34178:34186 Stdlib.Lists.List <> app_assoc thm
+R34178:34186 Stdlib.Lists.List <> app_assoc thm
+R34178:34186 Stdlib.Lists.List <> app_assoc thm
+prf 34291:34316 <> build_level_length_formula
+binder 34329:34334 <> hashes:169
+R34373:34379 Corelib.Init.Logic <> ::type_scope:x_'='_x not
+R34341:34351 Stdlib.Lists.List <> length abbrev
+R34354:34364 anubis_proofs.theories.merkle_spec <> build_level def
+R34366:34371 anubis_proofs.theories.merkle_spec <> hashes:169 var
+R34411:34413 Corelib.Init.Peano <> ::nat_scope:x_'+'_x not
+R34381:34387 Stdlib.Arith.PeanoNat Nat div def
+R34390:34400 Stdlib.Lists.List <> length abbrev
+R34402:34407 anubis_proofs.theories.merkle_spec <> hashes:169 var
+R34414:34423 Stdlib.Arith.PeanoNat Nat modulo def
+R34426:34436 Stdlib.Lists.List <> length abbrev
+R34438:34443 anubis_proofs.theories.merkle_spec <> hashes:169 var
+prf 35085:35097 <> pos_div_bound
+binder 35110:35112 <> pos:170
+binder 35114:35116 <> len:171
+R35138:35145 Corelib.Init.Logic <> ::type_scope:x_'->'_x not
+R35127:35129 Corelib.Init.Peano <> ::nat_scope:x_'<'_x not
+R35124:35126 anubis_proofs.theories.merkle_spec <> pos:170 var
+R35130:35132 anubis_proofs.theories.merkle_spec <> len:171 var
+R35160:35167 Corelib.Init.Logic <> ::type_scope:x_'->'_x not
+R35150:35153 Corelib.Init.Peano <> ::nat_scope:x_'>='_x not
+R35147:35149 anubis_proofs.theories.merkle_spec <> len:171 var
+R35182:35184 Corelib.Init.Peano <> ::nat_scope:x_'<'_x not
+R35169:35175 Stdlib.Arith.PeanoNat Nat div def
+R35177:35179 anubis_proofs.theories.merkle_spec <> pos:170 var
+R35198:35200 Corelib.Init.Peano <> ::nat_scope:x_'+'_x not
+R35185:35191 Stdlib.Arith.PeanoNat Nat div def
+R35193:35195 anubis_proofs.theories.merkle_spec <> len:171 var
+R35201:35210 Stdlib.Arith.PeanoNat Nat modulo def
+R35212:35214 anubis_proofs.theories.merkle_spec <> len:171 var
+R35271:35278 Stdlib.Arith.PeanoNat Nat even def
+R35271:35278 Stdlib.Arith.PeanoNat Nat even def
+R35306:35318 Stdlib.Arith.PeanoNat Nat even_spec thm
+R35306:35318 Stdlib.Arith.PeanoNat Nat even_spec thm
+R35379:35390 Stdlib.Arith.PeanoNat Nat mul_comm thm
+R35379:35390 Stdlib.Arith.PeanoNat Nat mul_comm thm
+R35379:35390 Stdlib.Arith.PeanoNat Nat mul_comm thm
+R35406:35415 Stdlib.Arith.PeanoNat Nat modulo def
+R35419:35421 Corelib.Init.Peano <> ::nat_scope:x_'*'_x not
+R35459:35474 Stdlib.Arith.PeanoNat Nat.Div0 mod_mul thm
+R35406:35415 Stdlib.Arith.PeanoNat Nat modulo def
+R35419:35421 Corelib.Init.Peano <> ::nat_scope:x_'*'_x not
+R35459:35474 Stdlib.Arith.PeanoNat Nat.Div0 mod_mul thm
+R35490:35500 Stdlib.Arith.PeanoNat Nat add_0_r thm
+R35490:35500 Stdlib.Arith.PeanoNat Nat add_0_r thm
+R35490:35500 Stdlib.Arith.PeanoNat Nat add_0_r thm
+R35515:35525 Stdlib.Arith.PeanoNat Nat div_mul def
+R35515:35525 Stdlib.Arith.PeanoNat Nat div_mul def
+R35515:35525 Stdlib.Arith.PeanoNat Nat div_mul def
+R35547:35558 Stdlib.Arith.PeanoNat Nat mul_comm thm
+R35547:35558 Stdlib.Arith.PeanoNat Nat mul_comm thm
+R35547:35558 Stdlib.Arith.PeanoNat Nat mul_comm thm
+R35579:35605 Stdlib.Arith.PeanoNat Nat.Div0 div_lt_upper_bound thm
+R35579:35605 Stdlib.Arith.PeanoNat Nat.Div0 div_lt_upper_bound thm
+R35700:35702 Corelib.Init.Logic <> ::type_scope:x_'='_x not
+R35689:35695 Stdlib.Arith.PeanoNat Nat odd def
+R35703:35706 Corelib.Init.Datatypes <> true constr
+R35700:35702 Corelib.Init.Logic <> ::type_scope:x_'='_x not
+R35689:35695 Stdlib.Arith.PeanoNat Nat odd def
+R35703:35706 Corelib.Init.Datatypes <> true constr
+R35727:35739 Stdlib.Arith.PeanoNat Nat negb_even thm
+R35727:35739 Stdlib.Arith.PeanoNat Nat negb_even thm
+R35727:35739 Stdlib.Arith.PeanoNat Nat negb_even thm
+R35782:35793 Stdlib.Arith.PeanoNat Nat odd_spec thm
+R35782:35793 Stdlib.Arith.PeanoNat Nat odd_spec thm
+R35976:35978 Corelib.Init.Logic <> ::type_scope:x_'='_x not
+R35955:35961 Stdlib.Arith.PeanoNat Nat div def
+R35969:35971 Corelib.Init.Peano <> ::nat_scope:x_'+'_x not
+R35965:35967 Corelib.Init.Peano <> ::nat_scope:x_'*'_x not
+R35976:35978 Corelib.Init.Logic <> ::type_scope:x_'='_x not
+R35955:35961 Stdlib.Arith.PeanoNat Nat div def
+R35969:35971 Corelib.Init.Peano <> ::nat_scope:x_'+'_x not
+R35965:35967 Corelib.Init.Peano <> ::nat_scope:x_'*'_x not
+R36003:36005 Corelib.Init.Peano <> ::nat_scope:x_'+'_x not
+R35999:36001 Corelib.Init.Peano <> ::nat_scope:x_'*'_x not
+R36024:36026 Corelib.Init.Peano <> ::nat_scope:x_'+'_x not
+R36020:36022 Corelib.Init.Peano <> ::nat_scope:x_'*'_x not
+R36003:36005 Corelib.Init.Peano <> ::nat_scope:x_'+'_x not
+R35999:36001 Corelib.Init.Peano <> ::nat_scope:x_'*'_x not
+R36024:36026 Corelib.Init.Peano <> ::nat_scope:x_'+'_x not
+R36020:36022 Corelib.Init.Peano <> ::nat_scope:x_'*'_x not
+R36056:36068 Stdlib.Arith.PeanoNat Nat div_add_l def
+R36056:36068 Stdlib.Arith.PeanoNat Nat div_add_l def
+R36056:36068 Stdlib.Arith.PeanoNat Nat div_add_l def
+R36140:36142 Corelib.Init.Logic <> ::type_scope:x_'='_x not
+R36116:36125 Stdlib.Arith.PeanoNat Nat modulo def
+R36133:36135 Corelib.Init.Peano <> ::nat_scope:x_'+'_x not
+R36129:36131 Corelib.Init.Peano <> ::nat_scope:x_'*'_x not
+R36140:36142 Corelib.Init.Logic <> ::type_scope:x_'='_x not
+R36116:36125 Stdlib.Arith.PeanoNat Nat modulo def
+R36133:36135 Corelib.Init.Peano <> ::nat_scope:x_'+'_x not
+R36129:36131 Corelib.Init.Peano <> ::nat_scope:x_'*'_x not
+R36171:36173 Corelib.Init.Peano <> ::nat_scope:x_'+'_x not
+R36167:36169 Corelib.Init.Peano <> ::nat_scope:x_'*'_x not
+R36188:36190 Corelib.Init.Peano <> ::nat_scope:x_'+'_x not
+R36192:36194 Corelib.Init.Peano <> ::nat_scope:x_'*'_x not
+R36171:36173 Corelib.Init.Peano <> ::nat_scope:x_'+'_x not
+R36167:36169 Corelib.Init.Peano <> ::nat_scope:x_'*'_x not
+R36188:36190 Corelib.Init.Peano <> ::nat_scope:x_'+'_x not
+R36192:36194 Corelib.Init.Peano <> ::nat_scope:x_'*'_x not
+R36224:36239 Stdlib.Arith.PeanoNat Nat.Div0 add_mod thm
+R36224:36239 Stdlib.Arith.PeanoNat Nat.Div0 add_mod thm
+R36224:36239 Stdlib.Arith.PeanoNat Nat.Div0 add_mod thm
+R36257:36266 Stdlib.Arith.PeanoNat Nat modulo def
+R36270:36272 Corelib.Init.Peano <> ::nat_scope:x_'*'_x not
+R36310:36325 Stdlib.Arith.PeanoNat Nat.Div0 mod_mul thm
+R36257:36266 Stdlib.Arith.PeanoNat Nat modulo def
+R36270:36272 Corelib.Init.Peano <> ::nat_scope:x_'*'_x not
+R36310:36325 Stdlib.Arith.PeanoNat Nat.Div0 mod_mul thm
+R36399:36425 Stdlib.Arith.PeanoNat Nat.Div0 div_lt_upper_bound thm
+R36399:36425 Stdlib.Arith.PeanoNat Nat.Div0 div_lt_upper_bound thm
+prf 36727:36746 <> nth_build_level_even
+binder 36759:36764 <> hashes:172
+binder 36766:36768 <> pos:173
+binder 36770:36770 <> d:174
+R36815:36822 Corelib.Init.Logic <> ::type_scope:x_'->'_x not
+R36789:36791 Corelib.Init.Peano <> ::nat_scope:x_'<'_x not
+R36785:36787 Corelib.Init.Peano <> ::nat_scope:x_'+'_x not
+R36779:36781 Corelib.Init.Peano <> ::nat_scope:x_'*'_x not
+R36782:36784 anubis_proofs.theories.merkle_spec <> pos:173 var
+R36792:36802 Stdlib.Lists.List <> length abbrev
+R36804:36809 anubis_proofs.theories.merkle_spec <> hashes:172 var
+R36853:36859 Corelib.Init.Logic <> ::type_scope:x_'='_x not
+R36823:36825 Corelib.Lists.ListDef <> nth def
+R36852:36852 anubis_proofs.theories.merkle_spec <> d:174 var
+R36832:36842 anubis_proofs.theories.merkle_spec <> build_level def
+R36844:36849 anubis_proofs.theories.merkle_spec <> hashes:172 var
+R36827:36829 anubis_proofs.theories.merkle_spec <> pos:173 var
+R36860:36872 anubis_proofs.theories.merkle_spec <> hash_internal def
+R36875:36877 Corelib.Lists.ListDef <> nth def
+R36896:36896 anubis_proofs.theories.merkle_spec <> d:174 var
+R36889:36894 anubis_proofs.theories.merkle_spec <> hashes:172 var
+R36881:36883 Corelib.Init.Peano <> ::nat_scope:x_'*'_x not
+R36884:36886 anubis_proofs.theories.merkle_spec <> pos:173 var
+R36900:36902 Corelib.Lists.ListDef <> nth def
+R36925:36925 anubis_proofs.theories.merkle_spec <> d:174 var
+R36918:36923 anubis_proofs.theories.merkle_spec <> hashes:172 var
+R36912:36914 Corelib.Init.Peano <> ::nat_scope:x_'+'_x not
+R36906:36908 Corelib.Init.Peano <> ::nat_scope:x_'*'_x not
+R36909:36911 anubis_proofs.theories.merkle_spec <> pos:173 var
+prf 37264:37276 <> div_mod_bound
+binder 37289:37289 <> n:175
+R37304:37311 Corelib.Init.Logic <> ::type_scope:x_'->'_x not
+R37294:37297 Corelib.Init.Peano <> ::nat_scope:x_'>='_x not
+R37293:37293 anubis_proofs.theories.merkle_spec <> n:175 var
+R37341:37344 Corelib.Init.Peano <> ::nat_scope:x_'<='_x not
+R37324:37326 Corelib.Init.Peano <> ::nat_scope:x_'+'_x not
+R37313:37319 Stdlib.Arith.PeanoNat Nat div def
+R37321:37321 anubis_proofs.theories.merkle_spec <> n:175 var
+R37327:37336 Stdlib.Arith.PeanoNat Nat modulo def
+R37338:37338 anubis_proofs.theories.merkle_spec <> n:175 var
+R37346:37348 Corelib.Init.Peano <> ::nat_scope:x_'-'_x not
+R37345:37345 anubis_proofs.theories.merkle_spec <> n:175 var
+prf 38002:38027 <> generate_verify_structural
+binder 38040:38043 <> fuel:176
+binder 38045:38050 <> hashes:177
+binder 38052:38054 <> pos:178
+R38091:38098 Corelib.Init.Logic <> ::type_scope:x_'->'_x not
+R38065:38067 Corelib.Init.Peano <> ::nat_scope:x_'<'_x not
+R38062:38064 anubis_proofs.theories.merkle_spec <> pos:178 var
+R38068:38078 Stdlib.Lists.List <> length abbrev
+R38080:38085 anubis_proofs.theories.merkle_spec <> hashes:177 var
+R38123:38130 Corelib.Init.Logic <> ::type_scope:x_'->'_x not
+R38099:38104 Corelib.Lists.ListDef <> Forall ind
+R38117:38122 anubis_proofs.theories.merkle_spec <> hashes:177 var
+R38106:38115 anubis_proofs.theories.merkle_spec <> valid_hash def
+R38159:38166 Corelib.Init.Logic <> ::type_scope:x_'->'_x not
+R38150:38152 Corelib.Init.Peano <> ::nat_scope:x_'>'_x not
+R38132:38142 Stdlib.Lists.List <> length abbrev
+R38144:38149 anubis_proofs.theories.merkle_spec <> hashes:177 var
+R38199:38206 Corelib.Init.Logic <> ::type_scope:x_'->'_x not
+R38172:38175 Corelib.Init.Peano <> ::nat_scope:x_'>='_x not
+R38168:38171 anubis_proofs.theories.merkle_spec <> fuel:176 var
+R38176:38186 Stdlib.Lists.List <> length abbrev
+R38188:38193 anubis_proofs.theories.merkle_spec <> hashes:177 var
+R38220:38222 Stdlib.Lists.List <> rev def
+R38225:38242 anubis_proofs.theories.merkle_spec <> generate_proof_aux def
+R38244:38249 anubis_proofs.theories.merkle_spec <> hashes:177 var
+R38251:38253 anubis_proofs.theories.merkle_spec <> pos:178 var
+R38255:38258 anubis_proofs.theories.merkle_spec <> fuel:176 var
+R38260:38261 Stdlib.Lists.List ListNotations ::list_scope:'['_']' not
+binder 38211:38215 <> proof:179
+R38288:38290 Corelib.Lists.ListDef <> nth def
+R38304:38311 anubis_proofs.theories.merkle_spec <> sha3_256 defax
+R38313:38314 Stdlib.Lists.List ListNotations ::list_scope:'['_']' not
+R38296:38301 anubis_proofs.theories.merkle_spec <> hashes:177 var
+R38292:38294 anubis_proofs.theories.merkle_spec <> pos:178 var
+binder 38275:38283 <> leaf_hash:180
+R38352:38354 Corelib.Init.Logic <> ::type_scope:x_'='_x not
+R38324:38335 anubis_proofs.theories.merkle_spec <> verify_proof def
+R38337:38345 anubis_proofs.theories.merkle_spec <> leaf_hash:180 var
+R38347:38351 anubis_proofs.theories.merkle_spec <> proof:179 var
+R38355:38368 anubis_proofs.theories.merkle_spec <> build_tree_aux def
+R38370:38373 anubis_proofs.theories.merkle_spec <> fuel:176 var
+R38375:38380 anubis_proofs.theories.merkle_spec <> hashes:177 var
+prf 39006:39022 <> proof_correctness
+binder 39035:39040 <> leaves:181
+binder 39042:39044 <> pos:182
+R39081:39088 Corelib.Init.Logic <> ::type_scope:x_'->'_x not
+R39055:39057 Corelib.Init.Peano <> ::nat_scope:x_'<'_x not
+R39052:39054 anubis_proofs.theories.merkle_spec <> pos:182 var
+R39058:39068 Stdlib.Lists.List <> length abbrev
+R39070:39075 anubis_proofs.theories.merkle_spec <> leaves:181 var
+R39101:39108 Corelib.Init.Logic <> ::type_scope:x_'->'_x not
+R39095:39098 Corelib.Init.Logic <> ::type_scope:x_'<>'_x not
+R39089:39094 anubis_proofs.theories.merkle_spec <> leaves:181 var
+R39099:39100 Stdlib.Lists.List ListNotations ::list_scope:'['_']' not
+R39126:39134 anubis_proofs.theories.merkle_spec <> hash_leaf def
+R39137:39139 Corelib.Lists.ListDef <> nth def
+R39152:39153 Stdlib.Lists.List ListNotations ::list_scope:'['_']' not
+R39145:39150 anubis_proofs.theories.merkle_spec <> leaves:181 var
+R39141:39143 anubis_proofs.theories.merkle_spec <> pos:182 var
+binder 39113:39121 <> leaf_hash:183
+R39176:39189 anubis_proofs.theories.merkle_spec <> generate_proof def
+R39191:39196 anubis_proofs.theories.merkle_spec <> leaves:181 var
+R39198:39200 anubis_proofs.theories.merkle_spec <> pos:182 var
+binder 39167:39171 <> proof:184
+R39221:39230 anubis_proofs.theories.merkle_spec <> build_tree def
+R39232:39237 anubis_proofs.theories.merkle_spec <> leaves:181 var
+binder 39213:39216 <> root:185
+R39274:39276 Corelib.Init.Logic <> ::type_scope:x_'='_x not
+R39246:39257 anubis_proofs.theories.merkle_spec <> verify_proof def
+R39259:39267 anubis_proofs.theories.merkle_spec <> leaf_hash:183 var
+R39269:39273 anubis_proofs.theories.merkle_spec <> proof:184 var
+R39277:39280 anubis_proofs.theories.merkle_spec <> root:185 var
+mod 39548:39564 <> AnubisIntegration
+def 39620:39633 AnubisIntegration receipt_digest
+R39638:39641 anubis_proofs.theories.merkle_spec <> hash def
+def 39706:39723 AnubisIntegration build_receipt_tree
+R39736:39739 Corelib.Init.Datatypes <> list ind
+R39741:39754 anubis_proofs.theories.merkle_spec AnubisIntegration receipt_digest def
+binder 39726:39732 <> digests:186
+R39759:39762 anubis_proofs.theories.merkle_spec <> hash def
+R39771:39784 anubis_proofs.theories.merkle_spec <> build_tree_aux def
+R39806:39808 Corelib.Init.Peano <> ::nat_scope:x_'+'_x not
+R39787:39797 Stdlib.Lists.List <> length abbrev
+R39799:39805 anubis_proofs.theories.merkle_spec <> digests:186 var
+R39812:39818 anubis_proofs.theories.merkle_spec <> digests:186 var
+def 39878:39891 AnubisIntegration max_batch_size
+R39895:39897 Corelib.Init.Datatypes <> nat ind
+R39902:39911 anubis_proofs.theories.merkle_spec <> max_leaves def
+prf 39954:39969 AnubisIntegration batch_size_valid
+binder 39984:39990 <> digests:187
+R40024:40033 Corelib.Init.Logic <> ::type_scope:x_'->'_x not
+R39999:40004 Corelib.Lists.ListDef <> Forall ind
+R40017:40023 anubis_proofs.theories.merkle_spec <> digests:187 var
+R40006:40015 anubis_proofs.theories.merkle_spec <> valid_hash def
+R40077:40086 Corelib.Init.Logic <> ::type_scope:x_'->'_x not
+R40054:40057 Corelib.Init.Peano <> ::nat_scope:x_'<='_x not
+R40035:40045 Stdlib.Lists.List <> length abbrev
+R40047:40053 anubis_proofs.theories.merkle_spec <> digests:187 var
+R40058:40071 anubis_proofs.theories.merkle_spec AnubisIntegration max_batch_size def
+R40100:40109 Corelib.Init.Logic <> ::type_scope:x_'->'_x not
+R40094:40097 Corelib.Init.Logic <> ::type_scope:x_'<>'_x not
+R40087:40093 anubis_proofs.theories.merkle_spec <> digests:187 var
+R40098:40099 Stdlib.Lists.List ListNotations ::list_scope:'['_']' not
+R40110:40119 anubis_proofs.theories.merkle_spec <> valid_hash def
+R40122:40139 anubis_proofs.theories.merkle_spec AnubisIntegration build_receipt_tree def
+R40141:40147 anubis_proofs.theories.merkle_spec <> digests:187 var
+R40207:40224 anubis_proofs.theories.merkle_spec AnubisIntegration build_receipt_tree def
+R40237:40256 anubis_proofs.theories.merkle_spec <> build_tree_aux_valid thm
+R40237:40256 anubis_proofs.theories.merkle_spec <> build_tree_aux_valid thm
+prf 40337:40352 AnubisIntegration batch_size_empty
+R40360:40369 anubis_proofs.theories.merkle_spec <> valid_hash def
+R40372:40389 anubis_proofs.theories.merkle_spec AnubisIntegration build_receipt_tree def
+R40391:40392 Stdlib.Lists.List ListNotations ::list_scope:'['_']' not
+R40416:40433 anubis_proofs.theories.merkle_spec AnubisIntegration build_receipt_tree def
+R40457:40471 anubis_proofs.theories.merkle_spec <> sha3_256_length prfax
+R40457:40471 anubis_proofs.theories.merkle_spec <> sha3_256_length prfax
+rec 40535:40547 AnubisIntegration anchor_record
+proj 40568:40576 AnubisIntegration anchor_id
+proj 40591:40601 AnubisIntegration merkle_root
+proj 40615:40627 AnubisIntegration receipt_count
+proj 40640:40648 AnubisIntegration timestamp
+R40580:40584 anubis_proofs.theories.merkle_spec <> bytes def
+R40605:40608 anubis_proofs.theories.merkle_spec <> hash def
+R40631:40633 Corelib.Init.Datatypes <> nat ind
+R40652:40652 Corelib.Numbers.BinNums <> Z ind
+def 40724:40739 AnubisIntegration encode_timestamp
+R40747:40747 Corelib.Numbers.BinNums <> Z ind
+binder 40742:40743 <> ts:193
+R40752:40756 anubis_proofs.theories.merkle_spec <> bytes def
+R40765:40765 Stdlib.Lists.List ListNotations ::list_scope:'['_x_';'_x_';'_'..'_';'_x_']' not
+R40776:40782 Stdlib.Lists.List ListNotations ::list_scope:'['_x_';'_x_';'_'..'_';'_x_']' not
+R40801:40807 Stdlib.Lists.List ListNotations ::list_scope:'['_x_';'_x_';'_'..'_';'_x_']' not
+R40828:40834 Stdlib.Lists.List ListNotations ::list_scope:'['_x_';'_x_';'_'..'_';'_x_']' not
+R40858:40864 Stdlib.Lists.List ListNotations ::list_scope:'['_x_';'_x_';'_'..'_';'_x_']' not
+R40890:40896 Stdlib.Lists.List ListNotations ::list_scope:'['_x_';'_x_';'_'..'_';'_x_']' not
+R40925:40931 Stdlib.Lists.List ListNotations ::list_scope:'['_x_';'_x_';'_'..'_';'_x_']' not
+R40962:40968 Stdlib.Lists.List ListNotations ::list_scope:'['_x_';'_x_';'_'..'_';'_x_']' not
+R41001:41001 Stdlib.Lists.List ListNotations ::list_scope:'['_x_';'_x_';'_'..'_';'_x_']' not
+R40768:40772 Stdlib.ZArith.BinInt <> ::Z_scope:x_'mod'_x not
+R40766:40767 anubis_proofs.theories.merkle_spec <> ts:193 var
+R40783:40783 Stdlib.ZArith.BinInt <> ::Z_scope:x_'mod'_x not
+R40792:40797 Stdlib.ZArith.BinInt <> ::Z_scope:x_'mod'_x not
+R40786:40788 Stdlib.ZArith.BinInt <> ::Z_scope:x_'/'_x not
+R40784:40785 anubis_proofs.theories.merkle_spec <> ts:193 var
+R40808:40808 Stdlib.ZArith.BinInt <> ::Z_scope:x_'mod'_x not
+R40819:40824 Stdlib.ZArith.BinInt <> ::Z_scope:x_'mod'_x not
+R40811:40813 Stdlib.ZArith.BinInt <> ::Z_scope:x_'/'_x not
+R40809:40810 anubis_proofs.theories.merkle_spec <> ts:193 var
+R40835:40835 Stdlib.ZArith.BinInt <> ::Z_scope:x_'mod'_x not
+R40849:40854 Stdlib.ZArith.BinInt <> ::Z_scope:x_'mod'_x not
+R40838:40840 Stdlib.ZArith.BinInt <> ::Z_scope:x_'/'_x not
+R40836:40837 anubis_proofs.theories.merkle_spec <> ts:193 var
+R40865:40865 Stdlib.ZArith.BinInt <> ::Z_scope:x_'mod'_x not
+R40881:40886 Stdlib.ZArith.BinInt <> ::Z_scope:x_'mod'_x not
+R40868:40870 Stdlib.ZArith.BinInt <> ::Z_scope:x_'/'_x not
+R40866:40867 anubis_proofs.theories.merkle_spec <> ts:193 var
+R40897:40897 Stdlib.ZArith.BinInt <> ::Z_scope:x_'mod'_x not
+R40916:40921 Stdlib.ZArith.BinInt <> ::Z_scope:x_'mod'_x not
+R40900:40902 Stdlib.ZArith.BinInt <> ::Z_scope:x_'/'_x not
+R40898:40899 anubis_proofs.theories.merkle_spec <> ts:193 var
+R40932:40932 Stdlib.ZArith.BinInt <> ::Z_scope:x_'mod'_x not
+R40953:40958 Stdlib.ZArith.BinInt <> ::Z_scope:x_'mod'_x not
+R40935:40937 Stdlib.ZArith.BinInt <> ::Z_scope:x_'/'_x not
+R40933:40934 anubis_proofs.theories.merkle_spec <> ts:193 var
+R40969:40969 Stdlib.ZArith.BinInt <> ::Z_scope:x_'mod'_x not
+R40992:40997 Stdlib.ZArith.BinInt <> ::Z_scope:x_'mod'_x not
+R40972:40974 Stdlib.ZArith.BinInt <> ::Z_scope:x_'/'_x not
+R40970:40971 anubis_proofs.theories.merkle_spec <> ts:193 var
+def 41055:41067 AnubisIntegration create_anchor
+R41081:41084 Corelib.Init.Datatypes <> list ind
+R41086:41099 anubis_proofs.theories.merkle_spec AnubisIntegration receipt_digest def
+binder 41070:41077 <> receipts:194
+R41108:41108 Corelib.Numbers.BinNums <> Z ind
+binder 41103:41104 <> ts:195
+R41113:41125 anubis_proofs.theories.merkle_spec AnubisIntegration anchor_record rec
+R41146:41163 anubis_proofs.theories.merkle_spec AnubisIntegration build_receipt_tree def
+R41165:41172 anubis_proofs.theories.merkle_spec <> receipts:194 var
+binder 41138:41141 <> root:196
+R41191:41198 anubis_proofs.theories.merkle_spec <> sha3_256 defax
+R41205:41208 Corelib.Init.Datatypes <> ::list_scope:x_'++'_x not
+R41201:41204 anubis_proofs.theories.merkle_spec <> root:196 var
+R41209:41224 anubis_proofs.theories.merkle_spec AnubisIntegration encode_timestamp def
+R41226:41227 anubis_proofs.theories.merkle_spec <> ts:195 var
+binder 41185:41186 <> id:197
+R41237:41245 anubis_proofs.theories.merkle_spec AnubisIntegration mk_anchor constr
+R41247:41248 anubis_proofs.theories.merkle_spec <> id:197 var
+R41250:41253 anubis_proofs.theories.merkle_spec <> root:196 var
+R41256:41266 Stdlib.Lists.List <> length abbrev
+R41268:41275 anubis_proofs.theories.merkle_spec <> receipts:194 var
+R41278:41279 anubis_proofs.theories.merkle_spec <> ts:195 var
+def 41336:41343 AnubisIntegration hash_eqb
+R41354:41357 anubis_proofs.theories.merkle_spec <> hash def
+binder 41346:41347 <> h1:198
+binder 41349:41350 <> h2:199
+R41362:41365 Corelib.Init.Datatypes <> bool ind
+R41384:41385 anubis_proofs.theories.merkle_spec <> h2:199 var
+R41380:41381 anubis_proofs.theories.merkle_spec <> h1:198 var
+R41398:41399 Stdlib.Lists.List ListNotations ::list_scope:'['_']' not
+R41402:41403 Stdlib.Lists.List ListNotations ::list_scope:'['_']' not
+R41408:41411 Corelib.Init.Datatypes <> true constr
+R41420:41421 Corelib.Init.Datatypes <> ::list_scope:x_'::'_x not
+R41427:41428 Corelib.Init.Datatypes <> ::list_scope:x_'::'_x not
+R41444:41447 Corelib.Init.Datatypes <> ::bool_scope:x_'&&'_x not
+R41435:41439 Stdlib.ZArith.BinInt Z eqb def
+R41448:41455 anubis_proofs.theories.merkle_spec <> hash_eqb:200 def
+R41477:41481 Corelib.Init.Datatypes <> false constr
+def 41543:41566 AnubisIntegration verify_receipt_in_anchor
+R41583:41596 anubis_proofs.theories.merkle_spec AnubisIntegration receipt_digest def
+binder 41573:41579 <> receipt:203
+R41612:41623 anubis_proofs.theories.merkle_spec <> merkle_proof def
+binder 41604:41608 <> proof:204
+R41640:41652 anubis_proofs.theories.merkle_spec AnubisIntegration anchor_record rec
+binder 41631:41636 <> anchor:205
+R41657:41660 Corelib.Init.Datatypes <> bool ind
+R41690:41701 anubis_proofs.theories.merkle_spec <> verify_proof def
+R41703:41709 anubis_proofs.theories.merkle_spec <> receipt:203 var
+R41711:41715 anubis_proofs.theories.merkle_spec <> proof:204 var
+binder 41673:41685 <> computed_root:206
+R41724:41731 anubis_proofs.theories.merkle_spec AnubisIntegration hash_eqb def
+R41733:41745 anubis_proofs.theories.merkle_spec <> computed_root:206 var
+R41748:41758 anubis_proofs.theories.merkle_spec AnubisIntegration merkle_root proj
+R41760:41765 anubis_proofs.theories.merkle_spec <> anchor:205 var
+prf 41813:41825 AnubisIntegration hash_eqb_refl
+binder 41836:41836 <> h:207
+R41851:41853 Corelib.Init.Logic <> ::type_scope:x_'='_x not
+R41839:41846 anubis_proofs.theories.merkle_spec AnubisIntegration hash_eqb def
+R41848:41848 anubis_proofs.theories.merkle_spec <> h:207 var
+R41850:41850 anubis_proofs.theories.merkle_spec <> h:207 var
+R41854:41857 Corelib.Init.Datatypes <> true constr
+R41926:41935 Stdlib.ZArith.BinInt Z eqb_refl thm
+R41926:41935 Stdlib.ZArith.BinInt Z eqb_refl thm
+R41926:41935 Stdlib.ZArith.BinInt Z eqb_refl thm
+prf 42007:42017 AnubisIntegration hash_eqb_eq
+binder 42028:42029 <> h1:208
+binder 42031:42032 <> h2:209
+R42056:42060 Corelib.Init.Logic <> ::type_scope:x_'<->'_x not
+R42049:42051 Corelib.Init.Logic <> ::type_scope:x_'='_x not
+R42035:42042 anubis_proofs.theories.merkle_spec AnubisIntegration hash_eqb def
+R42044:42045 anubis_proofs.theories.merkle_spec <> h1:208 var
+R42047:42048 anubis_proofs.theories.merkle_spec <> h2:209 var
+R42052:42055 Corelib.Init.Datatypes <> true constr
+R42063:42065 Corelib.Init.Logic <> ::type_scope:x_'='_x not
+R42061:42062 anubis_proofs.theories.merkle_spec <> h1:208 var
+R42066:42067 anubis_proofs.theories.merkle_spec <> h2:209 var
+R42375:42392 Stdlib.Bool.Bool <> andb_true_iff thm
+R42375:42392 Stdlib.Bool.Bool <> andb_true_iff thm
+R42453:42460 Stdlib.ZArith.BinInt Z eqb_eq thm
+R42453:42460 Stdlib.ZArith.BinInt Z eqb_eq thm
+R42559:42571 anubis_proofs.theories.merkle_spec AnubisIntegration hash_eqb_refl thm
+R42559:42571 anubis_proofs.theories.merkle_spec AnubisIntegration hash_eqb_refl thm
+prf 42632:42653 AnubisIntegration verification_soundness
+binder 42668:42675 <> receipts:210
+binder 42677:42679 <> pos:211
+binder 42681:42682 <> ts:212
+R42723:42732 Corelib.Init.Logic <> ::type_scope:x_'->'_x not
+R42695:42697 Corelib.Init.Peano <> ::nat_scope:x_'<'_x not
+R42692:42694 anubis_proofs.theories.merkle_spec <> pos:211 var
+R42698:42708 Stdlib.Lists.List <> length abbrev
+R42710:42717 anubis_proofs.theories.merkle_spec <> receipts:210 var
+R42747:42756 Corelib.Init.Logic <> ::type_scope:x_'->'_x not
+R42741:42744 Corelib.Init.Logic <> ::type_scope:x_'<>'_x not
+R42733:42740 anubis_proofs.theories.merkle_spec <> receipts:210 var
+R42745:42746 Stdlib.Lists.List ListNotations ::list_scope:'['_']' not
+R42783:42792 Corelib.Init.Logic <> ::type_scope:x_'->'_x not
+R42757:42762 Corelib.Lists.ListDef <> Forall ind
+R42775:42782 anubis_proofs.theories.merkle_spec <> receipts:210 var
+R42764:42773 anubis_proofs.theories.merkle_spec <> valid_hash def
+R42807:42819 anubis_proofs.theories.merkle_spec AnubisIntegration create_anchor def
+R42821:42828 anubis_proofs.theories.merkle_spec <> receipts:210 var
+R42830:42831 anubis_proofs.theories.merkle_spec <> ts:212 var
+binder 42797:42802 <> anchor:213
+R42857:42859 Corelib.Lists.ListDef <> nth def
+R42874:42875 Stdlib.Lists.List ListNotations ::list_scope:'['_']' not
+R42865:42872 anubis_proofs.theories.merkle_spec <> receipts:210 var
+R42861:42863 anubis_proofs.theories.merkle_spec <> pos:211 var
+binder 42846:42852 <> receipt:214
+R42899:42901 Stdlib.Lists.List <> rev def
+R42904:42921 anubis_proofs.theories.merkle_spec <> generate_proof_aux def
+R42923:42930 anubis_proofs.theories.merkle_spec <> receipts:210 var
+R42932:42934 anubis_proofs.theories.merkle_spec <> pos:211 var
+R42937:42947 Stdlib.Lists.List <> length abbrev
+R42949:42956 anubis_proofs.theories.merkle_spec <> receipts:210 var
+R42959:42960 Stdlib.Lists.List ListNotations ::list_scope:'['_']' not
+binder 42890:42894 <> proof:215
+R43017:43019 Corelib.Init.Logic <> ::type_scope:x_'='_x not
+R42972:42995 anubis_proofs.theories.merkle_spec AnubisIntegration verify_receipt_in_anchor def
+R42997:43003 anubis_proofs.theories.merkle_spec <> receipt:214 var
+R43005:43009 anubis_proofs.theories.merkle_spec <> proof:215 var
+R43011:43016 anubis_proofs.theories.merkle_spec <> anchor:213 var
+R43020:43023 Corelib.Init.Datatypes <> true constr
+R43192:43208 anubis_proofs.theories.merkle_spec AnubisIntegration <> mod
+mod 43250:43257 <> Security
+prf 43340:43364 Security second_preimage_resistant
+binder 43379:43383 <> data1:216
+binder 43385:43389 <> data2:217
+R43429:43438 Corelib.Init.Logic <> ::type_scope:x_'->'_x not
+R43412:43414 Corelib.Init.Logic <> ::type_scope:x_'='_x not
+R43398:43405 anubis_proofs.theories.merkle_spec <> sha3_256 defax
+R43407:43411 anubis_proofs.theories.merkle_spec <> data1:216 var
+R43415:43422 anubis_proofs.theories.merkle_spec <> sha3_256 defax
+R43424:43428 anubis_proofs.theories.merkle_spec <> data2:217 var
+R43444:43446 Corelib.Init.Logic <> ::type_scope:x_'='_x not
+R43439:43443 anubis_proofs.theories.merkle_spec <> data1:216 var
+R43447:43451 anubis_proofs.theories.merkle_spec <> data2:217 var
+R43499:43526 anubis_proofs.theories.merkle_spec <> sha3_256_collision_resistant prfax
+R43499:43526 anubis_proofs.theories.merkle_spec <> sha3_256_collision_resistant prfax
+prf 43619:43640 Security verify_proof_injective
+binder 43655:43659 <> proof:218
+binder 43661:43662 <> h1:219
+binder 43664:43665 <> h2:220
+R43687:43690 Corelib.Init.Logic <> ::type_scope:x_'->'_x not
+R43674:43683 anubis_proofs.theories.merkle_spec <> valid_hash def
+R43685:43686 anubis_proofs.theories.merkle_spec <> h1:219 var
+R43704:43713 Corelib.Init.Logic <> ::type_scope:x_'->'_x not
+R43691:43700 anubis_proofs.theories.merkle_spec <> valid_hash def
+R43702:43703 anubis_proofs.theories.merkle_spec <> h2:220 var
+R43756:43765 Corelib.Init.Logic <> ::type_scope:x_'->'_x not
+R43714:43719 Corelib.Lists.ListDef <> Forall ind
+R43751:43755 anubis_proofs.theories.merkle_spec <> proof:218 var
+binder 43726:43726 <> p:221
+R43731:43740 anubis_proofs.theories.merkle_spec <> valid_hash def
+R43743:43745 Corelib.Init.Datatypes <> snd def
+R43747:43747 anubis_proofs.theories.merkle_spec <> p:221 var
+R43811:43820 Corelib.Init.Logic <> ::type_scope:x_'->'_x not
+R43787:43789 Corelib.Init.Logic <> ::type_scope:x_'='_x not
+R43766:43777 anubis_proofs.theories.merkle_spec <> verify_proof def
+R43779:43780 anubis_proofs.theories.merkle_spec <> h1:219 var
+R43782:43786 anubis_proofs.theories.merkle_spec <> proof:218 var
+R43790:43801 anubis_proofs.theories.merkle_spec <> verify_proof def
+R43803:43804 anubis_proofs.theories.merkle_spec <> h2:220 var
+R43806:43810 anubis_proofs.theories.merkle_spec <> proof:218 var
+R43823:43825 Corelib.Init.Logic <> ::type_scope:x_'='_x not
+R43821:43822 anubis_proofs.theories.merkle_spec <> h1:219 var
+R43826:43827 anubis_proofs.theories.merkle_spec <> h2:220 var
+R44143:44165 anubis_proofs.theories.merkle_spec <> hash_internal_injective thm
+R44185:44203 anubis_proofs.theories.merkle_spec <> hash_internal_valid thm
+R44143:44165 anubis_proofs.theories.merkle_spec <> hash_internal_injective thm
+R44185:44203 anubis_proofs.theories.merkle_spec <> hash_internal_valid thm
+R44185:44203 anubis_proofs.theories.merkle_spec <> hash_internal_valid thm
+R44185:44203 anubis_proofs.theories.merkle_spec <> hash_internal_valid thm
+R44185:44203 anubis_proofs.theories.merkle_spec <> hash_internal_valid thm
+R44185:44203 anubis_proofs.theories.merkle_spec <> hash_internal_valid thm
+R44282:44300 anubis_proofs.theories.merkle_spec <> hash_internal_valid thm
+R44282:44300 anubis_proofs.theories.merkle_spec <> hash_internal_valid thm
+R44331:44349 anubis_proofs.theories.merkle_spec <> hash_internal_valid thm
+R44331:44349 anubis_proofs.theories.merkle_spec <> hash_internal_valid thm
+R44456:44478 anubis_proofs.theories.merkle_spec <> hash_internal_injective thm
+R44498:44516 anubis_proofs.theories.merkle_spec <> hash_internal_valid thm
+R44456:44478 anubis_proofs.theories.merkle_spec <> hash_internal_injective thm
+R44498:44516 anubis_proofs.theories.merkle_spec <> hash_internal_valid thm
+R44498:44516 anubis_proofs.theories.merkle_spec <> hash_internal_valid thm
+R44498:44516 anubis_proofs.theories.merkle_spec <> hash_internal_valid thm
+R44498:44516 anubis_proofs.theories.merkle_spec <> hash_internal_valid thm
+R44498:44516 anubis_proofs.theories.merkle_spec <> hash_internal_valid thm
+R44595:44613 anubis_proofs.theories.merkle_spec <> hash_internal_valid thm
+R44595:44613 anubis_proofs.theories.merkle_spec <> hash_internal_valid thm
+R44644:44662 anubis_proofs.theories.merkle_spec <> hash_internal_valid thm
+R44644:44662 anubis_proofs.theories.merkle_spec <> hash_internal_valid thm
+prf 44770:44799 Security inclusion_proof_unforgeability
+binder 44814:44817 <> leaf:222
+binder 44819:44823 <> proof:223
+binder 44825:44828 <> root:224
+binder 44830:44838 <> fake_leaf:225
+R44889:44898 Corelib.Init.Logic <> ::type_scope:x_'->'_x not
+R44847:44852 Corelib.Lists.ListDef <> Forall ind
+R44884:44888 anubis_proofs.theories.merkle_spec <> proof:223 var
+binder 44859:44859 <> p:226
+R44864:44873 anubis_proofs.theories.merkle_spec <> valid_hash def
+R44876:44878 Corelib.Init.Datatypes <> snd def
+R44880:44880 anubis_proofs.theories.merkle_spec <> p:226 var
+R44926:44935 Corelib.Init.Logic <> ::type_scope:x_'->'_x not
+R44899:44908 anubis_proofs.theories.merkle_spec <> valid_hash def
+R44911:44919 anubis_proofs.theories.merkle_spec <> hash_leaf def
+R44921:44924 anubis_proofs.theories.merkle_spec <> leaf:222 var
+R44968:44977 Corelib.Init.Logic <> ::type_scope:x_'->'_x not
+R44936:44945 anubis_proofs.theories.merkle_spec <> valid_hash def
+R44948:44956 anubis_proofs.theories.merkle_spec <> hash_leaf def
+R44958:44966 anubis_proofs.theories.merkle_spec <> fake_leaf:225 var
+R45020:45029 Corelib.Init.Logic <> ::type_scope:x_'->'_x not
+R45013:45015 Corelib.Init.Logic <> ::type_scope:x_'='_x not
+R44978:44989 anubis_proofs.theories.merkle_spec <> verify_proof def
+R44992:45000 anubis_proofs.theories.merkle_spec <> hash_leaf def
+R45002:45005 anubis_proofs.theories.merkle_spec <> leaf:222 var
+R45008:45012 anubis_proofs.theories.merkle_spec <> proof:223 var
+R45016:45019 anubis_proofs.theories.merkle_spec <> root:224 var
+R45047:45056 Corelib.Init.Logic <> ::type_scope:x_'->'_x not
+R45034:45037 Corelib.Init.Logic <> ::type_scope:x_'<>'_x not
+R45030:45033 anubis_proofs.theories.merkle_spec <> leaf:222 var
+R45038:45046 anubis_proofs.theories.merkle_spec <> fake_leaf:225 var
+R45097:45100 Corelib.Init.Logic <> ::type_scope:x_'<>'_x not
+R45057:45068 anubis_proofs.theories.merkle_spec <> verify_proof def
+R45071:45079 anubis_proofs.theories.merkle_spec <> hash_leaf def
+R45081:45089 anubis_proofs.theories.merkle_spec <> fake_leaf:225 var
+R45092:45096 anubis_proofs.theories.merkle_spec <> proof:223 var
+R45101:45104 anubis_proofs.theories.merkle_spec <> root:224 var
+R45245:45266 anubis_proofs.theories.merkle_spec Security verify_proof_injective thm
+R45245:45266 anubis_proofs.theories.merkle_spec Security verify_proof_injective thm
+R45306:45324 anubis_proofs.theories.merkle_spec <> hash_leaf_injective thm
+R45306:45324 anubis_proofs.theories.merkle_spec <> hash_leaf_injective thm
+R45405:45412 anubis_proofs.theories.merkle_spec Security <> mod

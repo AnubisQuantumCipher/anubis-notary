@@ -1,0 +1,6 @@
+(lang dune 3.16)
+(using coq 0.9)
+(name anubis_notary_proofs)
+
+; Anubis Notary Formal Verification
+; Uses Rocq 9.1+ with Iris and RefinedRust

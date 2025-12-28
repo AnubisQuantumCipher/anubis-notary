@@ -1,0 +1,65 @@
+[package]
+name = "anubis-notary-fuzz"
+version = "0.0.0"
+publish = false
+edition = "2021"
+
+[package.metadata]
+cargo-fuzz = true
+
+[dependencies]
+libfuzzer-sys = "0.4"
+arbitrary = { version = "1", features = ["derive"] }
+ciborium = "0.2"
+
+[dependencies.anubis_core]
+path = "../crates/anubis_core"
+
+# Prevent this from interfacing with workspaces
+[workspace]
+members = ["."]
+
+[profile.release]
+debug = 1
+
+[[bin]]
+name = "fuzz_cbor"
+path = "fuzz_targets/fuzz_cbor.rs"
+test = false
+doc = false
+bench = false
+
+[[bin]]
+name = "fuzz_keccak"
+path = "fuzz_targets/fuzz_keccak.rs"
+test = false
+doc = false
+bench = false
+
+[[bin]]
+name = "fuzz_aead"
+path = "fuzz_targets/fuzz_aead.rs"
+test = false
+doc = false
+bench = false
+
+[[bin]]
+name = "fuzz_mldsa"
+path = "fuzz_targets/fuzz_mldsa.rs"
+test = false
+doc = false
+bench = false
+
+[[bin]]
+name = "fuzz_receipt"
+path = "fuzz_targets/fuzz_receipt.rs"
+test = false
+doc = false
+bench = false
+
+[[bin]]
+name = "fuzz_license"
+path = "fuzz_targets/fuzz_license.rs"
+test = false
+doc = false
+bench = false

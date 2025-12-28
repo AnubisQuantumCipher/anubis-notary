@@ -1,0 +1,33 @@
+[package]
+name = "anubis_io"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+rust-version.workspace = true
+description = "I/O layer for Anubis Notary"
+
+[dependencies]
+anubis_core = { path = "../anubis_core" }
+thiserror = { workspace = true }
+hex = { workspace = true }
+zeroize = { workspace = true }
+
+# Argon2id password hashing - RFC 9106, OWASP recommended
+# Part of password-hash ecosystem (audited by Cryptography Services)
+argon2 = { version = "0.5", default-features = false, features = ["alloc"] }
+
+# Secure random number generation for salt
+getrandom = "0.2"
+
+# HTTP client for anchoring services (minimal, blocking, TLS, JSON)
+ureq = { version = "2", default-features = false, features = ["tls", "json"] }
+
+# JSON for API communication
+serde = { workspace = true }
+serde_json = { workspace = true }
+
+# Platform-specific home directory
+dirs = "5"
+
+[dev-dependencies]
+tempfile = "3"

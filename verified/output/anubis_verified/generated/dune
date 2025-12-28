@@ -1,0 +1,4 @@
+(coq.theory
+(flags -w -notation-overridden -w -redundant-canonical-projection)
+(name refinedrust.examples.anubis_verified.generated)
+(theories stdpp iris iris_contrib Ltac2 Equations lrust caesium lithium refinedrust Stdlib ))
