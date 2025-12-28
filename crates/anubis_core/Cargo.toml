@@ -1,0 +1,98 @@
+# anubis_core - Production cryptographic core with formally verified dependencies
+
+[package]
+name = "anubis_core"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+rust-version.workspace = true
+description = "Production cryptographic core for Anubis Notary with formally verified dependencies"
+
+[features]
+default = []
+# Standard library support
+std = []
+
+[dependencies]
+# ============================================================================
+# FORMALLY VERIFIED CRYPTOGRAPHY (Cryspen libcrux)
+# All libcrux crates are verified using hax/F* toolchain
+# https://github.com/cryspen/libcrux
+# ============================================================================
+
+# SHA3/SHAKE256 - Formally verified Keccak
+# Status: Verified for panic freedom, functional correctness
+libcrux-sha3 = "0.0.4"
+
+# ChaCha20Poly1305 AEAD - Formally verified
+# Status: Verified C code from HACL* project, compiled to safe Rust
+libcrux-chacha20poly1305 = "0.0.4"
+
+# HKDF Key Derivation - Formally verified
+# Status: Verified for correctness per RFC 5869
+libcrux-hkdf = "0.0.4"
+
+# Constant-time secret operations - Formally verified
+# Status: Prevents timing leaks via static analysis
+libcrux-secrets = "0.0.4"
+
+# ML-DSA-87 (FIPS 204) - Post-quantum signatures
+# Status: Formally verified for panic freedom, functional correctness
+# IMPORTANT: Exact version pinning - formal verification is version-specific
+libcrux-ml-dsa = { version = "=0.0.4", default-features = false, features = ["mldsa87"] }
+
+# ML-KEM-1024 (FIPS 203) - Post-quantum key encapsulation
+# Status: Formally verified for panic freedom, functional correctness, secret independence
+# IMPORTANT: Exact version pinning - formal verification is version-specific
+libcrux-ml-kem = { version = "=0.0.4", default-features = false, features = ["mlkem1024"] }
+
+# ============================================================================
+# AUDITED DEPENDENCIES
+# ============================================================================
+
+# Secure memory zeroization - Audited by Mozilla, Google, Zcash
+# https://lib.rs/crates/zeroize/audit
+zeroize = { workspace = true }
+
+# Constant-time operations - Quarkslab audited (2019)
+# https://blog.quarkslab.com/security-audit-of-dalek-libraries.html
+subtle = { workspace = true }
+
+# CBOR serialization - Production proven (Google coset, AWS, Android)
+ciborium = "0.2"
+serde = { version = "1.0", features = ["derive"] }
+
+# Cryptographically secure random number generation (OS entropy)
+getrandom = "0.2"
+
+# Hex encoding/decoding for audit logs and key sharing
+hex = "0.4"
+
+# ============================================================================
+# SIGNATURE TRAITS
+# ============================================================================
+
+# Standard signature traits for interoperability
+signature = "2.2"
+
+# Argon2id password hashing (RFC 9106)
+# Memory-hard KDF for password-based key derivation
+argon2 = { version = "0.5", default-features = false, features = ["alloc"] }
+
+# ============================================================================
+# HSM SUPPORT
+# ============================================================================
+
+# PKCS#11 interface for hardware security modules
+# Supports SoftHSM2, YubiHSM, Thales, AWS CloudHSM PKCS#11
+cryptoki = "0.7"
+
+[dev-dependencies]
+hex = "0.4"
+proptest = "1.4"
+criterion = "0.5"
+tempfile = "3.10"
+
+[[bench]]
+name = "crypto_bench"
+harness = false

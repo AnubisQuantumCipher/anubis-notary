@@ -1,0 +1,32 @@
+DIGEST bd67533bd0b9dfa5f462336f97b7e1ae
+FAnubis.test_ct
+R27:32 Stdlib.ZArith.ZArith <> <> lib
+R62:64 Stdlib.micromega.Lia <> <> lib
+def 100:117 <> ct_select_impl_xor
+R129:129 Corelib.Numbers.BinNums <> Z ind
+binder 120:125 <> choice:1
+R139:139 Corelib.Numbers.BinNums <> Z ind
+binder 133:133 <> a:2
+binder 135:135 <> b:3
+R144:144 Corelib.Numbers.BinNums <> Z ind
+R163:168 Stdlib.ZArith.BinInt Z land def
+R172:174 Stdlib.ZArith.BinInt <> ::Z_scope:x_'-'_x not
+R175:180 Anubis.test_ct <> choice:1 var
+binder 155:158 <> mask:4
+R192:197 Stdlib.ZArith.BinInt Z lxor def
+R200:205 Stdlib.ZArith.BinInt Z land def
+R207:210 Anubis.test_ct <> mask:4 var
+R213:218 Stdlib.ZArith.BinInt Z lxor def
+R220:220 Anubis.test_ct <> a:2 var
+R222:222 Anubis.test_ct <> b:3 var
+R226:226 Anubis.test_ct <> b:3 var
+prf 236:248 <> test_choice_0
+R265:265 Corelib.Numbers.BinNums <> Z ind
+binder 259:259 <> a:5
+binder 261:261 <> b:6
+R292:294 Corelib.Init.Logic <> ::type_scope:x_'='_x not
+R268:285 Anubis.test_ct <> ct_select_impl_xor def
+R289:289 Anubis.test_ct <> a:5 var
+R291:291 Anubis.test_ct <> b:6 var
+R295:295 Anubis.test_ct <> b:6 var
+R328:345 Anubis.test_ct <> ct_select_impl_xor def

@@ -1,0 +1,628 @@
+DIGEST 1921acd58ad25df06dbab8bb4f300998
+FAnubisVerified.ct_verified
+R339:344 Stdlib.ZArith.ZArith <> <> lib
+R374:376 Stdlib.micromega.Lia <> <> lib
+R406:409 Stdlib.Lists.List <> <> lib
+R439:442 Stdlib.Bool.Bool <> <> lib
+R452:464 Stdlib.Lists.List ListNotations <> mod
+def 770:774 <> is_u8
+R781:781 Corelib.Numbers.BinNums <> Z ind
+binder 777:777 <> x:1
+R795:798 Stdlib.ZArith.BinInt <> ::Z_scope:x_'<='_x_'<='_x not
+R800:803 Stdlib.ZArith.BinInt <> ::Z_scope:x_'<='_x_'<='_x not
+R799:799 AnubisVerified.ct_verified <> x:1 var
+R799:799 AnubisVerified.ct_verified <> x:1 var
+def 853:858 <> is_u64
+R865:865 Corelib.Numbers.BinNums <> Z ind
+binder 861:861 <> x:2
+R879:882 Stdlib.ZArith.BinInt <> ::Z_scope:x_'<='_x_'<'_x not
+R884:886 Stdlib.ZArith.BinInt <> ::Z_scope:x_'<='_x_'<'_x not
+R883:883 AnubisVerified.ct_verified <> x:2 var
+R883:883 AnubisVerified.ct_verified <> x:2 var
+R888:888 Stdlib.ZArith.BinInt <> ::Z_scope:x_'^'_x not
+def 937:948 <> bool_to_mask
+R955:958 Corelib.Init.Datatypes <> bool ind
+binder 951:951 <> b:3
+R963:963 Corelib.Numbers.BinNums <> Z ind
+R973:973 AnubisVerified.ct_verified <> b:3 var
+prf 1049:1060 <> xor_u8_bound
+R1077:1077 Corelib.Numbers.BinNums <> Z ind
+binder 1071:1071 <> a:4
+binder 1073:1073 <> b:5
+R1095:1098 Corelib.Init.Logic <> ::type_scope:x_'->'_x not
+R1083:1086 Stdlib.ZArith.BinInt <> ::Z_scope:x_'<='_x_'<='_x not
+R1088:1091 Stdlib.ZArith.BinInt <> ::Z_scope:x_'<='_x_'<='_x not
+R1087:1087 AnubisVerified.ct_verified <> a:4 var
+R1087:1087 AnubisVerified.ct_verified <> a:4 var
+R1112:1115 Corelib.Init.Logic <> ::type_scope:x_'->'_x not
+R1100:1103 Stdlib.ZArith.BinInt <> ::Z_scope:x_'<='_x_'<='_x not
+R1105:1108 Stdlib.ZArith.BinInt <> ::Z_scope:x_'<='_x_'<='_x not
+R1104:1104 AnubisVerified.ct_verified <> b:5 var
+R1104:1104 AnubisVerified.ct_verified <> b:5 var
+R1117:1120 Stdlib.ZArith.BinInt <> ::Z_scope:x_'<='_x_'<='_x not
+R1131:1134 Stdlib.ZArith.BinInt <> ::Z_scope:x_'<='_x_'<='_x not
+R1121:1126 Stdlib.ZArith.BinInt Z lxor def
+R1128:1128 AnubisVerified.ct_verified <> a:4 var
+R1130:1130 AnubisVerified.ct_verified <> b:5 var
+R1121:1126 Stdlib.ZArith.BinInt Z lxor def
+R1128:1128 AnubisVerified.ct_verified <> a:4 var
+R1130:1130 AnubisVerified.ct_verified <> b:5 var
+R1186:1198 Stdlib.ZArith.BinInt Z lxor_nonneg thm
+R1186:1198 Stdlib.ZArith.BinInt Z lxor_nonneg thm
+R1346:1348 Stdlib.ZArith.BinInt <> ::Z_scope:x_'<'_x not
+R1350:1350 Stdlib.ZArith.BinInt <> ::Z_scope:x_'^'_x not
+R1346:1348 Stdlib.ZArith.BinInt <> ::Z_scope:x_'<'_x not
+R1350:1350 Stdlib.ZArith.BinInt <> ::Z_scope:x_'^'_x not
+R1380:1382 Stdlib.ZArith.BinInt <> ::Z_scope:x_'<'_x not
+R1384:1384 Stdlib.ZArith.BinInt <> ::Z_scope:x_'^'_x not
+R1380:1382 Stdlib.ZArith.BinInt <> ::Z_scope:x_'<'_x not
+R1384:1384 Stdlib.ZArith.BinInt <> ::Z_scope:x_'^'_x not
+R1512:1519 Stdlib.ZArith.BinInt Z eq_dec def
+R1522:1527 Stdlib.ZArith.BinInt Z lxor def
+R1512:1519 Stdlib.ZArith.BinInt Z eq_dec def
+R1522:1527 Stdlib.ZArith.BinInt Z lxor def
+R1598:1600 Stdlib.ZArith.BinInt <> ::Z_scope:x_'<'_x not
+R1601:1606 Stdlib.ZArith.BinInt Z lxor def
+R1598:1600 Stdlib.ZArith.BinInt <> ::Z_scope:x_'<'_x not
+R1601:1606 Stdlib.ZArith.BinInt Z lxor def
+R1640:1643 Stdlib.ZArith.BinInt <> ::Z_scope:x_'<='_x not
+R1644:1649 Stdlib.ZArith.BinInt Z lxor def
+R1666:1678 Stdlib.ZArith.BinInt Z lxor_nonneg thm
+R1640:1643 Stdlib.ZArith.BinInt <> ::Z_scope:x_'<='_x not
+R1644:1649 Stdlib.ZArith.BinInt Z lxor def
+R1666:1678 Stdlib.ZArith.BinInt Z lxor_nonneg thm
+R1786:1789 Stdlib.ZArith.BinInt <> ::Z_scope:x_'<='_x not
+R1767:1772 Stdlib.ZArith.BinInt Z log2 def
+R1775:1780 Stdlib.ZArith.BinInt Z lxor def
+R1790:1794 Stdlib.ZArith.BinInt Z max def
+R1797:1802 Stdlib.ZArith.BinInt Z log2 def
+R1808:1813 Stdlib.ZArith.BinInt Z log2 def
+R1786:1789 Stdlib.ZArith.BinInt <> ::Z_scope:x_'<='_x not
+R1767:1772 Stdlib.ZArith.BinInt Z log2 def
+R1775:1780 Stdlib.ZArith.BinInt Z lxor def
+R1790:1794 Stdlib.ZArith.BinInt Z max def
+R1797:1802 Stdlib.ZArith.BinInt Z log2 def
+R1808:1813 Stdlib.ZArith.BinInt Z log2 def
+R1834:1844 Stdlib.ZArith.BinInt Z log2_lxor thm
+R1834:1844 Stdlib.ZArith.BinInt Z log2_lxor thm
+R1924:1926 Stdlib.ZArith.BinInt <> ::Z_scope:x_'<'_x not
+R1916:1921 Stdlib.ZArith.BinInt Z log2 def
+R1924:1926 Stdlib.ZArith.BinInt <> ::Z_scope:x_'<'_x not
+R1916:1921 Stdlib.ZArith.BinInt Z log2 def
+R1949:1956 Stdlib.ZArith.BinInt Z eq_dec def
+R1949:1956 Stdlib.ZArith.BinInt Z eq_dec def
+R2026:2028 Stdlib.ZArith.BinInt <> ::Z_scope:x_'<'_x not
+R2026:2028 Stdlib.ZArith.BinInt <> ::Z_scope:x_'<'_x not
+R2056:2069 Stdlib.ZArith.BinInt Z log2_lt_pow2 thm
+R2056:2069 Stdlib.ZArith.BinInt Z log2_lt_pow2 thm
+R2109:2111 Stdlib.ZArith.BinInt <> ::Z_scope:x_'<'_x not
+R2101:2106 Stdlib.ZArith.BinInt Z log2 def
+R2109:2111 Stdlib.ZArith.BinInt <> ::Z_scope:x_'<'_x not
+R2101:2106 Stdlib.ZArith.BinInt Z log2 def
+R2134:2141 Stdlib.ZArith.BinInt Z eq_dec def
+R2134:2141 Stdlib.ZArith.BinInt Z eq_dec def
+R2211:2213 Stdlib.ZArith.BinInt <> ::Z_scope:x_'<'_x not
+R2211:2213 Stdlib.ZArith.BinInt <> ::Z_scope:x_'<'_x not
+R2241:2254 Stdlib.ZArith.BinInt Z log2_lt_pow2 thm
+R2241:2254 Stdlib.ZArith.BinInt Z log2_lt_pow2 thm
+R2352:2354 Stdlib.ZArith.BinInt <> ::Z_scope:x_'<'_x not
+R2333:2338 Stdlib.ZArith.BinInt Z log2 def
+R2341:2346 Stdlib.ZArith.BinInt Z lxor def
+R2352:2354 Stdlib.ZArith.BinInt <> ::Z_scope:x_'<'_x not
+R2333:2338 Stdlib.ZArith.BinInt Z log2 def
+R2341:2346 Stdlib.ZArith.BinInt Z lxor def
+R2378:2391 Stdlib.ZArith.BinInt Z log2_lt_pow2 thm
+R2378:2391 Stdlib.ZArith.BinInt Z log2_lt_pow2 thm
+def 2717:2731 <> ct_select_model
+R2743:2746 Corelib.Init.Datatypes <> bool ind
+binder 2734:2739 <> choice:6
+R2756:2756 Corelib.Numbers.BinNums <> Z ind
+binder 2750:2750 <> a:7
+binder 2752:2752 <> b:8
+R2761:2761 Corelib.Numbers.BinNums <> Z ind
+R2771:2776 AnubisVerified.ct_verified <> choice:6 var
+R2790:2790 AnubisVerified.ct_verified <> b:8 var
+R2783:2783 AnubisVerified.ct_verified <> a:7 var
+def 2873:2890 <> ct_select_impl_xor
+R2902:2902 Corelib.Numbers.BinNums <> Z ind
+binder 2893:2898 <> choice:9
+R2912:2912 Corelib.Numbers.BinNums <> Z ind
+binder 2906:2906 <> a:10
+binder 2908:2908 <> b:11
+R2917:2917 Corelib.Numbers.BinNums <> Z ind
+R2936:2941 Stdlib.ZArith.BinInt Z land def
+R2945:2947 Stdlib.ZArith.BinInt <> ::Z_scope:x_'-'_x not
+R2948:2953 AnubisVerified.ct_verified <> choice:9 var
+binder 2928:2931 <> mask:12
+R2965:2970 Stdlib.ZArith.BinInt Z lxor def
+R2973:2978 Stdlib.ZArith.BinInt Z land def
+R2980:2983 AnubisVerified.ct_verified <> mask:12 var
+R2986:2991 Stdlib.ZArith.BinInt Z lxor def
+R2993:2993 AnubisVerified.ct_verified <> a:10 var
+R2995:2995 AnubisVerified.ct_verified <> b:11 var
+R2999:2999 AnubisVerified.ct_verified <> b:11 var
+prf 3064:3093 <> ct_select_xor_correct_choice_0
+R3112:3112 Corelib.Numbers.BinNums <> Z ind
+binder 3106:3106 <> a:13
+binder 3108:3108 <> b:14
+R3126:3129 Corelib.Init.Logic <> ::type_scope:x_'->'_x not
+R3119:3123 AnubisVerified.ct_verified <> is_u8 def
+R3125:3125 AnubisVerified.ct_verified <> a:13 var
+R3137:3144 Corelib.Init.Logic <> ::type_scope:x_'->'_x not
+R3130:3134 AnubisVerified.ct_verified <> is_u8 def
+R3136:3136 AnubisVerified.ct_verified <> b:14 var
+R3169:3171 Corelib.Init.Logic <> ::type_scope:x_'='_x not
+R3145:3162 AnubisVerified.ct_verified <> ct_select_impl_xor def
+R3166:3166 AnubisVerified.ct_verified <> a:13 var
+R3168:3168 AnubisVerified.ct_verified <> b:14 var
+R3172:3172 AnubisVerified.ct_verified <> b:14 var
+R3211:3228 AnubisVerified.ct_verified <> ct_select_impl_xor def
+prf 3322:3351 <> ct_select_xor_correct_choice_1
+R3370:3370 Corelib.Numbers.BinNums <> Z ind
+binder 3364:3364 <> a:15
+binder 3366:3366 <> b:16
+R3384:3387 Corelib.Init.Logic <> ::type_scope:x_'->'_x not
+R3377:3381 AnubisVerified.ct_verified <> is_u8 def
+R3383:3383 AnubisVerified.ct_verified <> a:15 var
+R3395:3402 Corelib.Init.Logic <> ::type_scope:x_'->'_x not
+R3388:3392 AnubisVerified.ct_verified <> is_u8 def
+R3394:3394 AnubisVerified.ct_verified <> b:16 var
+R3427:3429 Corelib.Init.Logic <> ::type_scope:x_'='_x not
+R3403:3420 AnubisVerified.ct_verified <> ct_select_impl_xor def
+R3424:3424 AnubisVerified.ct_verified <> a:15 var
+R3426:3426 AnubisVerified.ct_verified <> b:16 var
+R3430:3430 AnubisVerified.ct_verified <> a:15 var
+R3469:3486 AnubisVerified.ct_verified <> ct_select_impl_xor def
+R3489:3493 AnubisVerified.ct_verified <> is_u8 def
+R3612:3614 Corelib.Init.Logic <> ::type_scope:x_'='_x not
+R3561:3566 Stdlib.ZArith.BinInt Z lxor def
+R3569:3574 Stdlib.ZArith.BinInt Z land def
+R3577:3582 Stdlib.ZArith.BinInt Z land def
+R3586:3588 Stdlib.ZArith.BinInt <> ::Z_scope:x_'-'_x not
+R3598:3603 Stdlib.ZArith.BinInt Z lxor def
+R3612:3614 Corelib.Init.Logic <> ::type_scope:x_'='_x not
+R3561:3566 Stdlib.ZArith.BinInt Z lxor def
+R3569:3574 Stdlib.ZArith.BinInt Z land def
+R3577:3582 Stdlib.ZArith.BinInt Z land def
+R3586:3588 Stdlib.ZArith.BinInt <> ::Z_scope:x_'-'_x not
+R3598:3603 Stdlib.ZArith.BinInt Z lxor def
+R3659:3661 Stdlib.ZArith.BinInt <> ::Z_scope:x_'-'_x not
+R3659:3661 Stdlib.ZArith.BinInt <> ::Z_scope:x_'-'_x not
+R3762:3767 Stdlib.ZArith.BinInt Z land def
+R3762:3767 Stdlib.ZArith.BinInt Z land def
+R3916:3919 Stdlib.ZArith.BinInt <> ::Z_scope:x_'<='_x_'<='_x not
+R3930:3933 Stdlib.ZArith.BinInt <> ::Z_scope:x_'<='_x_'<='_x not
+R3920:3925 Stdlib.ZArith.BinInt Z lxor def
+R3920:3925 Stdlib.ZArith.BinInt Z lxor def
+R3949:3960 AnubisVerified.ct_verified <> xor_u8_bound thm
+R3916:3919 Stdlib.ZArith.BinInt <> ::Z_scope:x_'<='_x_'<='_x not
+R3930:3933 Stdlib.ZArith.BinInt <> ::Z_scope:x_'<='_x_'<='_x not
+R3920:3925 Stdlib.ZArith.BinInt Z lxor def
+R3920:3925 Stdlib.ZArith.BinInt Z lxor def
+R3949:3960 AnubisVerified.ct_verified <> xor_u8_bound thm
+R4057:4059 Corelib.Init.Logic <> ::type_scope:x_'='_x not
+R4034:4039 Stdlib.ZArith.BinInt Z land def
+R4046:4051 Stdlib.ZArith.BinInt Z lxor def
+R4060:4065 Stdlib.ZArith.BinInt Z lxor def
+R4057:4059 Corelib.Init.Logic <> ::type_scope:x_'='_x not
+R4034:4039 Stdlib.ZArith.BinInt Z land def
+R4046:4051 Stdlib.ZArith.BinInt Z lxor def
+R4060:4065 Stdlib.ZArith.BinInt Z lxor def
+R4085:4095 Stdlib.ZArith.BinInt Z land_comm thm
+R4085:4095 Stdlib.ZArith.BinInt Z land_comm thm
+R4085:4095 Stdlib.ZArith.BinInt Z land_comm thm
+R4120:4125 Stdlib.ZArith.BinInt Z ones def
+R4120:4125 Stdlib.ZArith.BinInt Z ones def
+R4158:4168 Stdlib.ZArith.BinInt Z land_ones thm
+R4158:4168 Stdlib.ZArith.BinInt Z land_ones thm
+R4158:4168 Stdlib.ZArith.BinInt Z land_ones thm
+R4188:4198 Stdlib.ZArith.BinInt Z mod_small thm
+R4188:4198 Stdlib.ZArith.BinInt Z mod_small thm
+R4313:4324 Stdlib.ZArith.BinInt Z lxor_assoc thm
+R4313:4324 Stdlib.ZArith.BinInt Z lxor_assoc thm
+R4313:4324 Stdlib.ZArith.BinInt Z lxor_assoc thm
+R4337:4352 Stdlib.ZArith.BinInt Z lxor_nilpotent thm
+R4337:4352 Stdlib.ZArith.BinInt Z lxor_nilpotent thm
+R4337:4352 Stdlib.ZArith.BinInt Z lxor_nilpotent thm
+R4365:4374 Stdlib.ZArith.BinInt Z lxor_0_r thm
+R4365:4374 Stdlib.ZArith.BinInt Z lxor_0_r thm
+R4365:4374 Stdlib.ZArith.BinInt Z lxor_0_r thm
+prf 4442:4458 <> ct_select_correct
+R4481:4481 Corelib.Numbers.BinNums <> Z ind
+binder 4472:4477 <> choice:17
+R4491:4491 Corelib.Numbers.BinNums <> Z ind
+binder 4485:4485 <> a:18
+binder 4487:4487 <> b:19
+R4506:4509 Corelib.Init.Logic <> ::type_scope:x_'->'_x not
+R4499:4503 AnubisVerified.ct_verified <> is_u8 def
+R4505:4505 AnubisVerified.ct_verified <> a:18 var
+R4517:4524 Corelib.Init.Logic <> ::type_scope:x_'->'_x not
+R4510:4514 AnubisVerified.ct_verified <> is_u8 def
+R4516:4516 AnubisVerified.ct_verified <> b:19 var
+R4525:4525 Corelib.Init.Logic <> ::type_scope:x_'->'_x not
+R4550:4558 Corelib.Init.Logic <> ::type_scope:x_'->'_x not
+R4536:4539 Corelib.Init.Logic <> ::type_scope:x_'\/'_x not
+R4532:4534 Corelib.Init.Logic <> ::type_scope:x_'='_x not
+R4526:4531 AnubisVerified.ct_verified <> choice:17 var
+R4546:4548 Corelib.Init.Logic <> ::type_scope:x_'='_x not
+R4540:4545 AnubisVerified.ct_verified <> choice:17 var
+R4588:4590 Corelib.Init.Logic <> ::type_scope:x_'='_x not
+R4559:4576 AnubisVerified.ct_verified <> ct_select_impl_xor def
+R4578:4583 AnubisVerified.ct_verified <> choice:17 var
+R4585:4585 AnubisVerified.ct_verified <> a:18 var
+R4587:4587 AnubisVerified.ct_verified <> b:19 var
+R4591:4605 AnubisVerified.ct_verified <> ct_select_model def
+R4608:4612 Stdlib.ZArith.BinInt Z eqb def
+R4614:4619 AnubisVerified.ct_verified <> choice:17 var
+R4624:4624 AnubisVerified.ct_verified <> a:18 var
+R4626:4626 AnubisVerified.ct_verified <> b:19 var
+R4680:4694 AnubisVerified.ct_verified <> ct_select_model def
+R4765:4794 AnubisVerified.ct_verified <> ct_select_xor_correct_choice_0 thm
+R4765:4794 AnubisVerified.ct_verified <> ct_select_xor_correct_choice_0 thm
+R4844:4873 AnubisVerified.ct_verified <> ct_select_xor_correct_choice_1 thm
+R4844:4873 AnubisVerified.ct_verified <> ct_select_xor_correct_choice_1 thm
+def 5196:5209 <> xor_accumulate
+R5218:5218 Corelib.Numbers.BinNums <> Z ind
+binder 5212:5214 <> acc:20
+R5230:5233 Corelib.Init.Datatypes <> list ind
+R5237:5239 Corelib.Init.Datatypes <> ::type_scope:x_'*'_x not
+R5236:5236 Corelib.Numbers.BinNums <> Z ind
+R5240:5240 Corelib.Numbers.BinNums <> Z ind
+binder 5222:5226 <> pairs:21
+R5246:5246 Corelib.Numbers.BinNums <> Z ind
+R5259:5263 AnubisVerified.ct_verified <> pairs:21 var
+R5274:5275 Stdlib.Lists.List ListNotations ::list_scope:'['_']' not
+R5280:5282 AnubisVerified.ct_verified <> acc:20 var
+R5294:5297 Corelib.Init.Datatypes <> ::list_scope:x_'::'_x not
+R5288:5288 Corelib.Init.Datatypes <> ::core_scope:'('_x_','_x_','_'..'_','_x_')' not
+R5290:5291 Corelib.Init.Datatypes <> ::core_scope:'('_x_','_x_','_'..'_','_x_')' not
+R5293:5293 Corelib.Init.Datatypes <> ::core_scope:'('_x_','_x_','_'..'_','_x_')' not
+R5306:5319 AnubisVerified.ct_verified <> xor_accumulate:22 def
+R5322:5326 Stdlib.ZArith.BinInt Z lor def
+R5328:5330 AnubisVerified.ct_verified <> acc:20 var
+R5333:5338 Stdlib.ZArith.BinInt Z lxor def
+def 5370:5380 <> ct_eq_model
+R5389:5392 Corelib.Init.Datatypes <> list ind
+R5394:5394 Corelib.Numbers.BinNums <> Z ind
+binder 5383:5383 <> a:24
+binder 5385:5385 <> b:25
+R5399:5402 Corelib.Init.Datatypes <> bool ind
+R5435:5439 Corelib.Init.Datatypes <> ::bool_scope:x_'&&'_x not
+R5475:5475 Corelib.Init.Datatypes <> ::bool_scope:x_'&&'_x not
+R5418:5421 Stdlib.Arith.PeanoNat <> ::nat_scope:x_'=?'_x not
+R5410:5415 Corelib.Init.Datatypes <> length def
+R5417:5417 AnubisVerified.ct_verified <> a:24 var
+R5422:5427 Corelib.Init.Datatypes <> length def
+R5429:5429 AnubisVerified.ct_verified <> b:25 var
+R5470:5473 Stdlib.ZArith.BinInt <> ::Z_scope:x_'=?'_x not
+R5440:5453 AnubisVerified.ct_verified <> xor_accumulate def
+R5458:5464 Stdlib.Lists.List <> combine def
+R5468:5468 AnubisVerified.ct_verified <> b:25 var
+R5466:5466 AnubisVerified.ct_verified <> a:24 var
+prf 5542:5558 <> ct_eq_equal_lists
+R5577:5580 Corelib.Init.Datatypes <> list ind
+R5582:5582 Corelib.Numbers.BinNums <> Z ind
+binder 5572:5573 <> xs:26
+R5607:5609 Corelib.Init.Logic <> ::type_scope:x_'='_x not
+R5590:5600 AnubisVerified.ct_verified <> ct_eq_model def
+R5602:5603 AnubisVerified.ct_verified <> xs:26 var
+R5605:5606 AnubisVerified.ct_verified <> xs:26 var
+R5610:5613 Corelib.Init.Datatypes <> true constr
+R5645:5655 AnubisVerified.ct_verified <> ct_eq_model def
+R5668:5679 Stdlib.Arith.PeanoNat Nat eqb_refl thm
+R5668:5679 Stdlib.Arith.PeanoNat Nat eqb_refl thm
+R5668:5679 Stdlib.Arith.PeanoNat Nat eqb_refl thm
+R5736:5738 Corelib.Init.Logic <> ::type_scope:x_'='_x not
+R5704:5717 AnubisVerified.ct_verified <> xor_accumulate def
+R5722:5728 Stdlib.Lists.List <> combine def
+R5736:5738 Corelib.Init.Logic <> ::type_scope:x_'='_x not
+R5704:5717 AnubisVerified.ct_verified <> xor_accumulate def
+R5722:5728 Stdlib.Lists.List <> combine def
+R5823:5838 Stdlib.ZArith.BinInt Z lxor_nilpotent thm
+R5823:5838 Stdlib.ZArith.BinInt Z lxor_nilpotent thm
+R5823:5838 Stdlib.ZArith.BinInt Z lxor_nilpotent thm
+def 6247:6261 <> ct_lt_u64_model
+R6270:6270 Corelib.Numbers.BinNums <> Z ind
+binder 6264:6264 <> a:27
+binder 6266:6266 <> b:28
+R6275:6275 Corelib.Numbers.BinNums <> Z ind
+R6286:6289 Stdlib.ZArith.BinInt <> ::Z_scope:x_'<?'_x not
+R6285:6285 AnubisVerified.ct_verified <> a:27 var
+R6290:6290 AnubisVerified.ct_verified <> b:28 var
+prf 6355:6371 <> ct_lt_u64_correct
+R6390:6390 Corelib.Numbers.BinNums <> Z ind
+binder 6384:6384 <> a:29
+binder 6386:6386 <> b:30
+R6405:6408 Corelib.Init.Logic <> ::type_scope:x_'->'_x not
+R6397:6402 AnubisVerified.ct_verified <> is_u64 def
+R6404:6404 AnubisVerified.ct_verified <> a:29 var
+R6417:6424 Corelib.Init.Logic <> ::type_scope:x_'->'_x not
+R6409:6414 AnubisVerified.ct_verified <> is_u64 def
+R6416:6416 AnubisVerified.ct_verified <> b:30 var
+R6444:6447 Corelib.Init.Logic <> ::type_scope:x_'='_x not
+R6471:6471 Corelib.Init.Logic <> ::type_scope:x_'='_x not
+R6425:6439 AnubisVerified.ct_verified <> ct_lt_u64_model def
+R6441:6441 AnubisVerified.ct_verified <> a:29 var
+R6443:6443 AnubisVerified.ct_verified <> b:30 var
+R6452:6455 Stdlib.ZArith.BinInt <> ::Z_scope:x_'<?'_x not
+R6451:6451 AnubisVerified.ct_verified <> a:29 var
+R6456:6456 AnubisVerified.ct_verified <> b:30 var
+R6510:6524 AnubisVerified.ct_verified <> ct_lt_u64_model def
+prf 6598:6611 <> ct_lt_u64_spec
+R6630:6630 Corelib.Numbers.BinNums <> Z ind
+binder 6624:6624 <> a:31
+binder 6626:6626 <> b:32
+R6645:6648 Corelib.Init.Logic <> ::type_scope:x_'->'_x not
+R6637:6642 AnubisVerified.ct_verified <> is_u64 def
+R6644:6644 AnubisVerified.ct_verified <> a:31 var
+R6657:6665 Corelib.Init.Logic <> ::type_scope:x_'->'_x not
+R6699:6699 Corelib.Init.Logic <> ::type_scope:x_'->'_x not
+R6649:6654 AnubisVerified.ct_verified <> is_u64 def
+R6656:6656 AnubisVerified.ct_verified <> b:32 var
+R6689:6693 Corelib.Init.Logic <> ::type_scope:x_'<->'_x not
+R6685:6687 Corelib.Init.Logic <> ::type_scope:x_'='_x not
+R6666:6680 AnubisVerified.ct_verified <> ct_lt_u64_model def
+R6682:6682 AnubisVerified.ct_verified <> a:31 var
+R6684:6684 AnubisVerified.ct_verified <> b:32 var
+R6695:6697 Stdlib.ZArith.BinInt <> ::Z_scope:x_'<'_x not
+R6694:6694 AnubisVerified.ct_verified <> a:31 var
+R6698:6698 AnubisVerified.ct_verified <> b:32 var
+R6738:6752 AnubisVerified.ct_verified <> ct_lt_u64_model def
+R6768:6771 Stdlib.ZArith.BinInt <> ::Z_scope:x_'<?'_x not
+R6768:6771 Stdlib.ZArith.BinInt <> ::Z_scope:x_'<?'_x not
+R6810:6817 Stdlib.ZArith.BinInt Z ltb_lt thm
+R6810:6817 Stdlib.ZArith.BinInt Z ltb_lt thm
+R6899:6906 Stdlib.ZArith.BinInt Z ltb_ge thm
+R6899:6906 Stdlib.ZArith.BinInt Z ltb_ge thm
+def 7209:7224 <> ct_ne_byte_model
+R7233:7233 Corelib.Numbers.BinNums <> Z ind
+binder 7227:7227 <> a:33
+binder 7229:7229 <> b:34
+R7238:7238 Corelib.Numbers.BinNums <> Z ind
+R7249:7252 Stdlib.ZArith.BinInt <> ::Z_scope:x_'=?'_x not
+R7248:7248 AnubisVerified.ct_verified <> a:33 var
+R7253:7253 AnubisVerified.ct_verified <> b:34 var
+prf 7326:7340 <> ct_ne_byte_spec
+R7359:7359 Corelib.Numbers.BinNums <> Z ind
+binder 7353:7353 <> a:35
+binder 7355:7355 <> b:36
+R7373:7376 Corelib.Init.Logic <> ::type_scope:x_'->'_x not
+R7366:7370 AnubisVerified.ct_verified <> is_u8 def
+R7372:7372 AnubisVerified.ct_verified <> a:35 var
+R7384:7392 Corelib.Init.Logic <> ::type_scope:x_'->'_x not
+R7427:7427 Corelib.Init.Logic <> ::type_scope:x_'->'_x not
+R7377:7381 AnubisVerified.ct_verified <> is_u8 def
+R7383:7383 AnubisVerified.ct_verified <> b:36 var
+R7417:7421 Corelib.Init.Logic <> ::type_scope:x_'<->'_x not
+R7413:7415 Corelib.Init.Logic <> ::type_scope:x_'='_x not
+R7393:7408 AnubisVerified.ct_verified <> ct_ne_byte_model def
+R7410:7410 AnubisVerified.ct_verified <> a:35 var
+R7412:7412 AnubisVerified.ct_verified <> b:36 var
+R7423:7425 Corelib.Init.Logic <> ::type_scope:x_'='_x not
+R7422:7422 AnubisVerified.ct_verified <> a:35 var
+R7426:7426 AnubisVerified.ct_verified <> b:36 var
+R7466:7481 AnubisVerified.ct_verified <> ct_ne_byte_model def
+R7497:7500 Stdlib.ZArith.BinInt <> ::Z_scope:x_'=?'_x not
+R7497:7500 Stdlib.ZArith.BinInt <> ::Z_scope:x_'=?'_x not
+R7543:7550 Stdlib.ZArith.BinInt Z eqb_eq thm
+R7543:7550 Stdlib.ZArith.BinInt Z eqb_eq thm
+R7644:7653 Stdlib.ZArith.BinInt Z eqb_refl thm
+R7644:7653 Stdlib.ZArith.BinInt Z eqb_refl thm
+R7644:7653 Stdlib.ZArith.BinInt Z eqb_refl thm
+def 7982:7994 <> ct_cmov_model
+binder 7997:7997 <> A:37
+R8017:8020 Corelib.Init.Datatypes <> bool ind
+binder 8008:8013 <> choice:38
+R8034:8037 Corelib.Init.Datatypes <> list ind
+R8039:8039 AnubisVerified.ct_verified <> A:37 var
+binder 8024:8026 <> src:39
+binder 8028:8030 <> dst:40
+R8044:8047 Corelib.Init.Datatypes <> list ind
+R8049:8049 AnubisVerified.ct_verified <> A:37 var
+R8059:8064 AnubisVerified.ct_verified <> choice:38 var
+R8080:8082 AnubisVerified.ct_verified <> dst:40 var
+R8071:8073 AnubisVerified.ct_verified <> src:39 var
+prf 8143:8156 <> ct_cmov_length
+binder 8170:8170 <> A:41
+R8190:8193 Corelib.Init.Datatypes <> bool ind
+binder 8181:8186 <> choice:42
+R8207:8210 Corelib.Init.Datatypes <> list ind
+R8212:8212 AnubisVerified.ct_verified <> A:41 var
+binder 8197:8199 <> src:43
+binder 8201:8203 <> dst:44
+R8243:8250 Corelib.Init.Logic <> ::type_scope:x_'->'_x not
+R8230:8232 Corelib.Init.Logic <> ::type_scope:x_'='_x not
+R8220:8225 Corelib.Init.Datatypes <> length def
+R8227:8229 AnubisVerified.ct_verified <> src:43 var
+R8233:8238 Corelib.Init.Datatypes <> length def
+R8240:8242 AnubisVerified.ct_verified <> dst:44 var
+R8288:8290 Corelib.Init.Logic <> ::type_scope:x_'='_x not
+R8251:8256 Corelib.Init.Datatypes <> length def
+R8259:8271 AnubisVerified.ct_verified <> ct_cmov_model def
+R8284:8286 AnubisVerified.ct_verified <> dst:44 var
+R8280:8282 AnubisVerified.ct_verified <> src:43 var
+R8273:8278 AnubisVerified.ct_verified <> choice:42 var
+R8291:8296 Corelib.Init.Datatypes <> length def
+R8298:8300 AnubisVerified.ct_verified <> src:43 var
+R8351:8363 AnubisVerified.ct_verified <> ct_cmov_model def
+prf 8474:8488 <> ct_cmov_correct
+binder 8502:8502 <> A:45
+R8522:8525 Corelib.Init.Datatypes <> bool ind
+binder 8513:8518 <> choice:46
+R8539:8542 Corelib.Init.Datatypes <> list ind
+R8544:8544 AnubisVerified.ct_verified <> A:45 var
+binder 8529:8531 <> src:47
+binder 8533:8535 <> dst:48
+R8580:8582 Corelib.Init.Logic <> ::type_scope:x_'='_x not
+R8552:8564 AnubisVerified.ct_verified <> ct_cmov_model def
+R8577:8579 AnubisVerified.ct_verified <> dst:48 var
+R8573:8575 AnubisVerified.ct_verified <> src:47 var
+R8566:8571 AnubisVerified.ct_verified <> choice:46 var
+R8586:8591 AnubisVerified.ct_verified <> choice:46 var
+R8607:8609 AnubisVerified.ct_verified <> dst:48 var
+R8598:8600 AnubisVerified.ct_verified <> src:47 var
+R8636:8648 AnubisVerified.ct_verified <> ct_cmov_model def
+def 8994:9007 <> ct_lookup_impl
+binder 9010:9010 <> A:49
+R9031:9031 AnubisVerified.ct_verified <> A:49 var
+binder 9021:9027 <> default:50
+R9043:9046 Corelib.Init.Datatypes <> list ind
+R9048:9048 AnubisVerified.ct_verified <> A:49 var
+binder 9035:9039 <> table:51
+R9085:9087 Corelib.Init.Datatypes <> nat ind
+binder 9076:9081 <> target:52
+R9101:9103 Corelib.Init.Datatypes <> nat ind
+binder 9091:9097 <> current:53
+R9113:9113 AnubisVerified.ct_verified <> A:49 var
+binder 9107:9109 <> acc:54
+R9118:9118 AnubisVerified.ct_verified <> A:49 var
+R9131:9135 AnubisVerified.ct_verified <> table:51 var
+R9146:9147 Stdlib.Lists.List ListNotations ::list_scope:'['_']' not
+R9152:9154 AnubisVerified.ct_verified <> acc:54 var
+R9165:9168 Corelib.Init.Datatypes <> ::list_scope:x_'::'_x not
+R9199:9205 Stdlib.Arith.PeanoNat Nat eqb def
+R9207:9213 AnubisVerified.ct_verified <> current:53 var
+R9215:9220 AnubisVerified.ct_verified <> target:52 var
+binder 9187:9194 <> is_match:57
+R9249:9256 AnubisVerified.ct_verified <> is_match:57 var
+R9274:9276 AnubisVerified.ct_verified <> acc:54 var
+binder 9235:9241 <> new_acc:58
+R9287:9300 AnubisVerified.ct_verified <> ct_lookup_impl:55 def
+R9334:9340 AnubisVerified.ct_verified <> new_acc:58 var
+R9323:9323 Corelib.Init.Datatypes <> S constr
+R9325:9331 AnubisVerified.ct_verified <> current:53 var
+R9315:9320 AnubisVerified.ct_verified <> target:52 var
+R9302:9308 AnubisVerified.ct_verified <> default:50 var
+def 9361:9369 <> ct_lookup
+binder 9372:9372 <> A:59
+R9393:9393 AnubisVerified.ct_verified <> A:59 var
+binder 9383:9389 <> default:60
+R9405:9408 Corelib.Init.Datatypes <> list ind
+R9410:9410 AnubisVerified.ct_verified <> A:59 var
+binder 9397:9401 <> table:61
+R9420:9422 Corelib.Init.Datatypes <> nat ind
+binder 9414:9416 <> idx:62
+R9427:9427 AnubisVerified.ct_verified <> A:59 var
+R9434:9447 AnubisVerified.ct_verified <> ct_lookup_impl def
+R9469:9475 AnubisVerified.ct_verified <> default:60 var
+R9463:9465 AnubisVerified.ct_verified <> idx:62 var
+R9457:9461 AnubisVerified.ct_verified <> table:61 var
+R9449:9455 AnubisVerified.ct_verified <> default:60 var
+prf 9634:9653 <> ct_lookup_impl_found
+binder 9667:9667 <> A:63
+R9688:9688 AnubisVerified.ct_verified <> A:63 var
+binder 9678:9684 <> default:64
+R9700:9703 Corelib.Init.Datatypes <> list ind
+R9705:9705 AnubisVerified.ct_verified <> A:63 var
+binder 9692:9696 <> table:65
+R9726:9728 Corelib.Init.Datatypes <> nat ind
+binder 9709:9714 <> target:66
+binder 9716:9722 <> current:67
+R9740:9740 AnubisVerified.ct_verified <> A:63 var
+binder 9732:9736 <> found:68
+R9764:9771 Corelib.Init.Logic <> ::type_scope:x_'->'_x not
+R9754:9756 Corelib.Init.Peano <> ::nat_scope:x_'<'_x not
+R9748:9753 AnubisVerified.ct_verified <> target:66 var
+R9757:9763 AnubisVerified.ct_verified <> current:67 var
+R9821:9823 Corelib.Init.Logic <> ::type_scope:x_'='_x not
+R9772:9785 AnubisVerified.ct_verified <> ct_lookup_impl def
+R9816:9820 AnubisVerified.ct_verified <> found:68 var
+R9808:9814 AnubisVerified.ct_verified <> current:67 var
+R9801:9806 AnubisVerified.ct_verified <> target:66 var
+R9795:9799 AnubisVerified.ct_verified <> table:65 var
+R9787:9793 AnubisVerified.ct_verified <> default:64 var
+R9824:9828 AnubisVerified.ct_verified <> found:68 var
+R9973:9979 Stdlib.Arith.PeanoNat Nat eqb def
+R9973:9979 Stdlib.Arith.PeanoNat Nat eqb def
+R10018:10027 Stdlib.Arith.PeanoNat Nat eqb_eq thm
+R10018:10027 Stdlib.Arith.PeanoNat Nat eqb_eq thm
+prf 10124:10145 <> ct_lookup_impl_correct
+binder 10159:10159 <> A:69
+R10180:10180 AnubisVerified.ct_verified <> A:69 var
+binder 10170:10176 <> default:70
+R10192:10195 Corelib.Init.Datatypes <> list ind
+R10197:10197 AnubisVerified.ct_verified <> A:69 var
+binder 10184:10188 <> table:71
+R10218:10220 Corelib.Init.Datatypes <> nat ind
+binder 10201:10206 <> target:72
+binder 10208:10214 <> current:73
+R10230:10230 AnubisVerified.ct_verified <> A:69 var
+binder 10224:10226 <> acc:74
+R10255:10262 Corelib.Init.Logic <> ::type_scope:x_'->'_x not
+R10245:10248 Corelib.Init.Peano <> ::nat_scope:x_'<='_x not
+R10238:10244 AnubisVerified.ct_verified <> current:73 var
+R10249:10254 AnubisVerified.ct_verified <> target:72 var
+R10294:10301 Corelib.Init.Logic <> ::type_scope:x_'->'_x not
+R10269:10271 Corelib.Init.Peano <> ::nat_scope:x_'<'_x not
+R10263:10268 AnubisVerified.ct_verified <> target:72 var
+R10279:10281 Corelib.Init.Peano <> ::nat_scope:x_'+'_x not
+R10272:10278 AnubisVerified.ct_verified <> current:73 var
+R10282:10287 Corelib.Init.Datatypes <> length def
+R10289:10293 AnubisVerified.ct_verified <> table:71 var
+R10349:10351 Corelib.Init.Logic <> ::type_scope:x_'='_x not
+R10302:10315 AnubisVerified.ct_verified <> ct_lookup_impl def
+R10346:10348 AnubisVerified.ct_verified <> acc:74 var
+R10338:10344 AnubisVerified.ct_verified <> current:73 var
+R10331:10336 AnubisVerified.ct_verified <> target:72 var
+R10325:10329 AnubisVerified.ct_verified <> table:71 var
+R10317:10323 AnubisVerified.ct_verified <> default:70 var
+R10352:10354 Corelib.Lists.ListDef <> nth def
+R10381:10387 AnubisVerified.ct_verified <> default:70 var
+R10375:10379 AnubisVerified.ct_verified <> table:71 var
+R10363:10365 Corelib.Init.Peano <> ::nat_scope:x_'-'_x not
+R10357:10362 AnubisVerified.ct_verified <> target:72 var
+R10366:10372 AnubisVerified.ct_verified <> current:73 var
+R10545:10551 Stdlib.Arith.PeanoNat Nat eqb def
+R10545:10551 Stdlib.Arith.PeanoNat Nat eqb def
+R10590:10599 Stdlib.Arith.PeanoNat Nat eqb_eq thm
+R10590:10599 Stdlib.Arith.PeanoNat Nat eqb_eq thm
+R10645:10647 Corelib.Init.Peano <> ::nat_scope:x_'-'_x not
+R10645:10647 Corelib.Init.Peano <> ::nat_scope:x_'-'_x not
+R10690:10709 AnubisVerified.ct_verified <> ct_lookup_impl_found thm
+R10690:10709 AnubisVerified.ct_verified <> ct_lookup_impl_found thm
+R10729:10739 Stdlib.Arith.PeanoNat Nat eqb_neq thm
+R10729:10739 Stdlib.Arith.PeanoNat Nat eqb_neq thm
+R10770:10772 Corelib.Init.Peano <> ::nat_scope:x_'<'_x not
+R10770:10772 Corelib.Init.Peano <> ::nat_scope:x_'<'_x not
+R10835:10837 Corelib.Init.Peano <> ::nat_scope:x_'-'_x not
+R10853:10853 Corelib.Init.Datatypes <> S constr
+R10862:10864 Corelib.Init.Peano <> ::nat_scope:x_'-'_x not
+R10865:10865 Corelib.Init.Datatypes <> S constr
+R10835:10837 Corelib.Init.Peano <> ::nat_scope:x_'-'_x not
+R10853:10853 Corelib.Init.Datatypes <> S constr
+R10862:10864 Corelib.Init.Peano <> ::nat_scope:x_'-'_x not
+R10865:10865 Corelib.Init.Datatypes <> S constr
+prf 10992:11008 <> ct_lookup_correct
+binder 11022:11022 <> A:75
+R11043:11043 AnubisVerified.ct_verified <> A:75 var
+binder 11033:11039 <> default:76
+R11055:11058 Corelib.Init.Datatypes <> list ind
+R11060:11060 AnubisVerified.ct_verified <> A:75 var
+binder 11047:11051 <> table:77
+R11070:11072 Corelib.Init.Datatypes <> nat ind
+binder 11064:11066 <> idx:78
+R11098:11105 Corelib.Init.Logic <> ::type_scope:x_'->'_x not
+R11083:11085 Corelib.Init.Peano <> ::nat_scope:x_'<'_x not
+R11080:11082 AnubisVerified.ct_verified <> idx:78 var
+R11086:11091 Corelib.Init.Datatypes <> length def
+R11093:11097 AnubisVerified.ct_verified <> table:77 var
+R11133:11135 Corelib.Init.Logic <> ::type_scope:x_'='_x not
+R11106:11114 AnubisVerified.ct_verified <> ct_lookup def
+R11130:11132 AnubisVerified.ct_verified <> idx:78 var
+R11124:11128 AnubisVerified.ct_verified <> table:77 var
+R11116:11122 AnubisVerified.ct_verified <> default:76 var
+R11136:11138 Corelib.Lists.ListDef <> nth def
+R11150:11156 AnubisVerified.ct_verified <> default:76 var
+R11144:11148 AnubisVerified.ct_verified <> table:77 var
+R11140:11142 AnubisVerified.ct_verified <> idx:78 var
+R11210:11218 AnubisVerified.ct_verified <> ct_lookup def
+R11231:11252 AnubisVerified.ct_verified <> ct_lookup_impl_correct thm
+R11231:11252 AnubisVerified.ct_verified <> ct_lookup_impl_correct thm
+R11231:11252 AnubisVerified.ct_verified <> ct_lookup_impl_correct thm
+R11276:11278 Corelib.Init.Peano <> ::nat_scope:x_'-'_x not
+R11276:11278 Corelib.Init.Peano <> ::nat_scope:x_'-'_x not
+R12023:12039 AnubisVerified.ct_verified <> ct_select_correct thm
+R12048:12064 AnubisVerified.ct_verified <> ct_eq_equal_lists thm
+R12073:12086 AnubisVerified.ct_verified <> ct_lt_u64_spec thm
+R12095:12109 AnubisVerified.ct_verified <> ct_ne_byte_spec thm
+R12118:12134 AnubisVerified.ct_verified <> ct_lookup_correct thm

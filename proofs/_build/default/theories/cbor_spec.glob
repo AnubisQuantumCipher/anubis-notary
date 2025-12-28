@@ -1,0 +1,167 @@
+DIGEST db9f00e16c5d8deb96f4c4884cbde03e
+Fanubis_proofs.theories.cbor_spec
+R649:651 Stdlib.micromega.Lia <> <> lib
+R653:658 Stdlib.ZArith.ZArith <> <> lib
+R660:663 Stdlib.Lists.List <> <> lib
+R665:678 Stdlib.Strings.String <> <> lib
+R708:737 Stdlib.Logic.FunctionalExtensionality <> <> lib
+R767:782 Stdlib.Program.Equality <> <> lib
+R812:820 Stdlib.Bool.Bool <> <> lib
+R850:854 Stdlib.Strings.Ascii <> <> lib
+R884:897 Stdlib.Sorting.Sorted <> <> lib
+R927:945 Stdlib.Sorting.Permutation <> <> lib
+R955:967 Stdlib.Lists.List ListNotations <> mod
+def 1034:1037 <> byte
+R1042:1042 Corelib.Numbers.BinNums <> Z ind
+def 1056:1060 <> bytes
+R1065:1068 Corelib.Init.Datatypes <> list ind
+R1070:1073 anubis_proofs.theories.cbor_spec <> byte def
+def 1088:1097 <> byte_valid
+R1104:1107 anubis_proofs.theories.cbor_spec <> byte def
+binder 1100:1100 <> b:1
+R1121:1124 Stdlib.ZArith.BinInt <> ::Z_scope:x_'<='_x_'<'_x not
+R1126:1128 Stdlib.ZArith.BinInt <> ::Z_scope:x_'<='_x_'<'_x not
+R1125:1125 anubis_proofs.theories.cbor_spec <> b:1 var
+R1125:1125 anubis_proofs.theories.cbor_spec <> b:1 var
+def 1146:1156 <> bytes_valid
+R1164:1168 anubis_proofs.theories.cbor_spec <> bytes def
+binder 1159:1160 <> bs:2
+R1183:1188 Corelib.Lists.ListDef <> Forall ind
+R1201:1202 anubis_proofs.theories.cbor_spec <> bs:2 var
+R1190:1199 anubis_proofs.theories.cbor_spec <> byte_valid def
+ind 1305:1314 <> major_type
+constr 1330:1340 <> MT_Unsigned
+constr 1375:1385 <> MT_Negative
+constr 1420:1432 <> MT_ByteString
+constr 1460:1472 <> MT_TextString
+constr 1500:1507 <> MT_Array
+constr 1534:1539 <> MT_Map
+constr 1566:1571 <> MT_Tag
+constr 1607:1615 <> MT_Simple
+scheme 1305:1314 <> major_type_rect
+scheme 1305:1314 <> major_type_ind
+scheme 1305:1314 <> major_type_rec
+scheme 1305:1314 <> major_type_sind
+def 1668:1684 <> major_type_to_nat
+R1692:1701 anubis_proofs.theories.cbor_spec <> major_type ind
+binder 1687:1688 <> mt:5
+R1706:1708 Corelib.Init.Datatypes <> nat ind
+R1721:1722 anubis_proofs.theories.cbor_spec <> mt:5 var
+R1733:1743 anubis_proofs.theories.cbor_spec <> MT_Unsigned constr
+R1754:1764 anubis_proofs.theories.cbor_spec <> MT_Negative constr
+R1775:1787 anubis_proofs.theories.cbor_spec <> MT_ByteString constr
+R1798:1810 anubis_proofs.theories.cbor_spec <> MT_TextString constr
+R1821:1828 anubis_proofs.theories.cbor_spec <> MT_Array constr
+R1839:1844 anubis_proofs.theories.cbor_spec <> MT_Map constr
+R1855:1860 anubis_proofs.theories.cbor_spec <> MT_Tag constr
+R1871:1879 anubis_proofs.theories.cbor_spec <> MT_Simple constr
+ind 1959:1968 <> cbor_value
+constr 1984:1991 <> CborUint
+constr 2063:2072 <> CborNegint
+constr 2150:2158 <> CborBytes
+constr 2224:2231 <> CborText
+constr 2304:2312 <> CborArray
+constr 2382:2388 <> CborMap
+constr 2471:2477 <> CborTag
+constr 2546:2555 <> CborSimple
+constr 2621:2631 <> CborFloat16
+constr 2704:2714 <> CborFloat32
+constr 2789:2799 <> CborFloat64
+constr 2874:2881 <> CborTrue
+constr 2949:2957 <> CborFalse
+constr 3025:3032 <> CborNull
+constr 3098:3110 <> CborUndefined
+R1996:1999 Corelib.Init.Logic <> ::type_scope:x_'->'_x not
+R1995:1995 Corelib.Numbers.BinNums <> Z ind
+R2000:2009 anubis_proofs.theories.cbor_spec <> cbor_value:7 ind
+R2077:2080 Corelib.Init.Logic <> ::type_scope:x_'->'_x not
+R2076:2076 Corelib.Numbers.BinNums <> Z ind
+R2081:2090 anubis_proofs.theories.cbor_spec <> cbor_value:7 ind
+R2167:2170 Corelib.Init.Logic <> ::type_scope:x_'->'_x not
+R2162:2166 anubis_proofs.theories.cbor_spec <> bytes def
+R2171:2180 anubis_proofs.theories.cbor_spec <> cbor_value:7 ind
+R2241:2244 Corelib.Init.Logic <> ::type_scope:x_'->'_x not
+R2235:2240 Stdlib.Strings.String <> string ind
+R2245:2254 anubis_proofs.theories.cbor_spec <> cbor_value:7 ind
+R2331:2334 Corelib.Init.Logic <> ::type_scope:x_'->'_x not
+R2316:2319 Corelib.Init.Datatypes <> list ind
+R2321:2330 anubis_proofs.theories.cbor_spec <> cbor_value:7 ind
+R2335:2344 anubis_proofs.theories.cbor_spec <> cbor_value:7 ind
+R2422:2425 Corelib.Init.Logic <> ::type_scope:x_'->'_x not
+R2392:2395 Corelib.Init.Datatypes <> list ind
+R2408:2410 Corelib.Init.Datatypes <> ::type_scope:x_'*'_x not
+R2398:2407 anubis_proofs.theories.cbor_spec <> cbor_value:7 ind
+R2411:2420 anubis_proofs.theories.cbor_spec <> cbor_value:7 ind
+R2426:2435 anubis_proofs.theories.cbor_spec <> cbor_value:7 ind
+R2482:2485 Corelib.Init.Logic <> ::type_scope:x_'->'_x not
+R2481:2481 Corelib.Numbers.BinNums <> Z ind
+R2496:2499 Corelib.Init.Logic <> ::type_scope:x_'->'_x not
+R2486:2495 anubis_proofs.theories.cbor_spec <> cbor_value:7 ind
+R2500:2509 anubis_proofs.theories.cbor_spec <> cbor_value:7 ind
+R2560:2563 Corelib.Init.Logic <> ::type_scope:x_'->'_x not
+R2559:2559 Corelib.Numbers.BinNums <> Z ind
+R2564:2573 anubis_proofs.theories.cbor_spec <> cbor_value:7 ind
+R2636:2639 Corelib.Init.Logic <> ::type_scope:x_'->'_x not
+R2635:2635 Corelib.Numbers.BinNums <> Z ind
+R2640:2649 anubis_proofs.theories.cbor_spec <> cbor_value:7 ind
+R2719:2722 Corelib.Init.Logic <> ::type_scope:x_'->'_x not
+R2718:2718 Corelib.Numbers.BinNums <> Z ind
+R2723:2732 anubis_proofs.theories.cbor_spec <> cbor_value:7 ind
+R2804:2807 Corelib.Init.Logic <> ::type_scope:x_'->'_x not
+R2803:2803 Corelib.Numbers.BinNums <> Z ind
+R2808:2817 anubis_proofs.theories.cbor_spec <> cbor_value:7 ind
+R2885:2894 anubis_proofs.theories.cbor_spec <> cbor_value:7 ind
+R2961:2970 anubis_proofs.theories.cbor_spec <> cbor_value:7 ind
+R3036:3045 anubis_proofs.theories.cbor_spec <> cbor_value:7 ind
+R3114:3123 anubis_proofs.theories.cbor_spec <> cbor_value:7 ind
+scheme 1959:1968 <> cbor_value_rect
+scheme 1959:1968 <> cbor_value_ind
+scheme 1959:1968 <> cbor_value_rec
+scheme 1959:1968 <> cbor_value_sind
+def 3231:3237 <> cbor_wf
+R3244:3253 anubis_proofs.theories.cbor_spec <> cbor_value ind
+binder 3240:3240 <> v:9
+R3274:3274 anubis_proofs.theories.cbor_spec <> v:9 var
+R3285:3292 anubis_proofs.theories.cbor_spec <> CborUint constr
+R3300:3303 Stdlib.ZArith.BinInt <> ::Z_scope:x_'<='_x not
+R3310:3319 anubis_proofs.theories.cbor_spec <> CborNegint constr
+R3327:3330 Stdlib.ZArith.BinInt <> ::Z_scope:x_'<='_x not
+R3362:3370 anubis_proofs.theories.cbor_spec <> CborBytes constr
+R3378:3388 anubis_proofs.theories.cbor_spec <> bytes_valid def
+R3397:3404 anubis_proofs.theories.cbor_spec <> CborText constr
+R3411:3414 Corelib.Init.Logic <> True ind
+R3459:3467 anubis_proofs.theories.cbor_spec <> CborArray constr
+R3475:3480 Corelib.Lists.ListDef <> Forall ind
+R3482:3488 anubis_proofs.theories.cbor_spec <> cbor_wf:10 def
+R3497:3503 anubis_proofs.theories.cbor_spec <> CborMap constr
+R3520:3525 Corelib.Lists.ListDef <> Forall ind
+binder 3532:3532 <> p:12
+R3552:3555 Corelib.Init.Logic <> ::type_scope:x_'/\'_x not
+R3537:3543 anubis_proofs.theories.cbor_spec <> cbor_wf:10 def
+R3546:3548 Corelib.Init.Datatypes <> fst def
+R3550:3550 anubis_proofs.theories.cbor_spec <> p:12 var
+R3556:3562 anubis_proofs.theories.cbor_spec <> cbor_wf:10 def
+R3565:3567 Corelib.Init.Datatypes <> snd def
+R3569:3569 anubis_proofs.theories.cbor_spec <> p:12 var
+R3583:3589 anubis_proofs.theories.cbor_spec <> CborTag constr
+R3604:3607 Corelib.Init.Logic <> ::type_scope:x_'/\'_x not
+R3599:3602 Stdlib.ZArith.BinInt <> ::Z_scope:x_'<='_x not
+R3608:3614 anubis_proofs.theories.cbor_spec <> cbor_wf:10 def
+R3616:3616 anubis_proofs.theories.cbor_spec <> v:9 var
+R3622:3631 anubis_proofs.theories.cbor_spec <> CborSimple constr
+R3639:3642 Stdlib.ZArith.BinInt <> ::Z_scope:x_'<='_x_'<'_x not
+R3644:3646 Stdlib.ZArith.BinInt <> ::Z_scope:x_'<='_x_'<'_x not
+R3655:3665 anubis_proofs.theories.cbor_spec <> CborFloat16 constr
+R3672:3675 Corelib.Init.Logic <> True ind
+R3681:3691 anubis_proofs.theories.cbor_spec <> CborFloat32 constr
+R3698:3701 Corelib.Init.Logic <> True ind
+R3707:3717 anubis_proofs.theories.cbor_spec <> CborFloat64 constr
+R3724:3727 Corelib.Init.Logic <> True ind
+R3733:3740 anubis_proofs.theories.cbor_spec <> CborTrue constr
+R3745:3748 Corelib.Init.Logic <> True ind
+R3754:3762 anubis_proofs.theories.cbor_spec <> CborFalse constr
+R3767:3770 Corelib.Init.Logic <> True ind
+R3776:3783 anubis_proofs.theories.cbor_spec <> CborNull constr
+R3788:3791 Corelib.Init.Logic <> True ind
+R3797:3809 anubis_proofs.theories.cbor_spec <> CborUndefined constr
+R3814:3817 Corelib.Init.Logic <> True ind

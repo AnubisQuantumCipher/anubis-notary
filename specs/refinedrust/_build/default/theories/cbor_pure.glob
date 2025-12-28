@@ -1,0 +1,1089 @@
+DIGEST f3f5e626422d559c4283c2fbce5e368d
+Fanubis_notary.cbor_pure
+R378:383 Stdlib.ZArith.ZArith <> <> lib
+R385:388 Stdlib.Lists.List <> <> lib
+R390:392 Stdlib.micromega.Lia <> <> lib
+R394:397 Stdlib.Bool.Bool <> <> lib
+R407:419 Stdlib.Lists.List ListNotations <> mod
+ind 677:686 <> cbor_major
+constr 700:713 <> Major_Unsigned
+constr 744:757 <> Major_Negative
+constr 788:798 <> Major_Bytes
+constr 827:836 <> Major_Text
+constr 866:876 <> Major_Array
+constr 899:907 <> Major_Map
+constr 930:938 <> Major_Tag
+constr 961:972 <> Major_Simple
+scheme 677:686 <> cbor_major_rect
+scheme 677:686 <> cbor_major_ind
+scheme 677:686 <> cbor_major_rec
+scheme 677:686 <> cbor_major_sind
+def 1011:1020 <> major_to_Z
+R1027:1036 anubis_notary.cbor_pure <> cbor_major ind
+binder 1023:1023 <> m:3
+R1041:1041 Corelib.Numbers.BinNums <> Z ind
+R1054:1054 anubis_notary.cbor_pure <> m:3 var
+R1065:1078 anubis_notary.cbor_pure <> Major_Unsigned constr
+R1089:1102 anubis_notary.cbor_pure <> Major_Negative constr
+R1113:1123 anubis_notary.cbor_pure <> Major_Bytes constr
+R1134:1143 anubis_notary.cbor_pure <> Major_Text constr
+R1154:1164 anubis_notary.cbor_pure <> Major_Array constr
+R1175:1183 anubis_notary.cbor_pure <> Major_Map constr
+R1194:1202 anubis_notary.cbor_pure <> Major_Tag constr
+R1213:1224 anubis_notary.cbor_pure <> Major_Simple constr
+def 1250:1259 <> Z_to_major
+R1266:1266 Corelib.Numbers.BinNums <> Z ind
+binder 1262:1262 <> z:5
+R1271:1276 Corelib.Init.Datatypes <> option ind
+R1278:1287 anubis_notary.cbor_pure <> cbor_major ind
+R1300:1300 anubis_notary.cbor_pure <> z:5 var
+R1316:1319 Corelib.Init.Datatypes <> Some constr
+R1321:1334 anubis_notary.cbor_pure <> Major_Unsigned constr
+R1345:1348 Corelib.Init.Datatypes <> Some constr
+R1350:1363 anubis_notary.cbor_pure <> Major_Negative constr
+R1374:1377 Corelib.Init.Datatypes <> Some constr
+R1379:1389 anubis_notary.cbor_pure <> Major_Bytes constr
+R1400:1403 Corelib.Init.Datatypes <> Some constr
+R1405:1414 anubis_notary.cbor_pure <> Major_Text constr
+R1425:1428 Corelib.Init.Datatypes <> Some constr
+R1430:1440 anubis_notary.cbor_pure <> Major_Array constr
+R1451:1454 Corelib.Init.Datatypes <> Some constr
+R1456:1464 anubis_notary.cbor_pure <> Major_Map constr
+R1475:1478 Corelib.Init.Datatypes <> Some constr
+R1480:1488 anubis_notary.cbor_pure <> Major_Tag constr
+R1499:1502 Corelib.Init.Datatypes <> Some constr
+R1504:1515 anubis_notary.cbor_pure <> Major_Simple constr
+R1526:1529 Corelib.Init.Datatypes <> None constr
+ind 1772:1781 <> cbor_value
+constr 1795:1803 <> CBOR_UInt
+constr 1815:1823 <> CBOR_NInt
+constr 1866:1875 <> CBOR_Bytes
+constr 1892:1900 <> CBOR_Text
+constr 1939:1948 <> CBOR_Array
+constr 1978:1985 <> CBOR_Map
+constr 2030:2038 <> CBOR_Bool
+constr 2053:2061 <> CBOR_Null
+R1810:1810 Corelib.Numbers.BinNums <> Z ind
+binder 1806:1806 <> n:9
+R1830:1830 Corelib.Numbers.BinNums <> Z ind
+binder 1826:1826 <> n:10
+R1882:1885 Corelib.Init.Datatypes <> list ind
+R1887:1887 Corelib.Numbers.BinNums <> Z ind
+binder 1878:1878 <> b:11
+R1907:1910 Corelib.Init.Datatypes <> list ind
+R1912:1912 Corelib.Numbers.BinNums <> Z ind
+binder 1903:1903 <> s:12
+R1959:1962 Corelib.Init.Datatypes <> list ind
+R1964:1973 anubis_notary.cbor_pure <> cbor_value:7 ind
+binder 1951:1955 <> items:13
+R1996:1999 Corelib.Init.Datatypes <> list ind
+R2012:2014 Corelib.Init.Datatypes <> ::type_scope:x_'*'_x not
+R2002:2011 anubis_notary.cbor_pure <> cbor_value:7 ind
+R2015:2024 anubis_notary.cbor_pure <> cbor_value:7 ind
+binder 1988:1992 <> pairs:14
+R2045:2048 Corelib.Init.Datatypes <> bool ind
+binder 2041:2041 <> b:15
+scheme 1772:1781 <> cbor_value_rect
+scheme 1772:1781 <> cbor_value_ind
+scheme 1772:1781 <> cbor_value_rec
+scheme 1772:1781 <> cbor_value_sind
+def 2334:2346 <> encode_header
+R2357:2366 anubis_notary.cbor_pure <> cbor_major ind
+binder 2349:2353 <> major:16
+R2376:2376 Corelib.Numbers.BinNums <> Z ind
+binder 2370:2372 <> arg:17
+R2381:2384 Corelib.Init.Datatypes <> list ind
+R2386:2386 Corelib.Numbers.BinNums <> Z ind
+R2403:2410 Stdlib.ZArith.BinInt Z shiftl def
+R2413:2422 anubis_notary.cbor_pure <> major_to_Z def
+R2424:2428 anubis_notary.cbor_pure <> major:16 var
+binder 2397:2398 <> mt:18
+R2445:2448 Stdlib.ZArith.BinInt <> ::Z_scope:x_'<?'_x not
+R2442:2444 anubis_notary.cbor_pure <> arg:17 var
+R2493:2497 Stdlib.ZArith.BinInt <> ::Z_scope:x_'<=?'_x not
+R2490:2492 anubis_notary.cbor_pure <> arg:17 var
+R2547:2551 Stdlib.ZArith.BinInt <> ::Z_scope:x_'<=?'_x not
+R2544:2546 anubis_notary.cbor_pure <> arg:17 var
+R2630:2634 Stdlib.ZArith.BinInt <> ::Z_scope:x_'<=?'_x not
+R2627:2629 anubis_notary.cbor_pure <> arg:17 var
+R2785:2785 Stdlib.Lists.List ListNotations ::list_scope:'['_x_';'_x_';'_'..'_';'_x_']' not
+R2797:2803 Stdlib.Lists.List ListNotations ::list_scope:'['_x_';'_x_';'_'..'_';'_x_']' not
+R2819:2820 Stdlib.Lists.List ListNotations ::list_scope:'['_x_';'_x_';'_'..'_';'_x_']' not
+R2849:2855 Stdlib.Lists.List ListNotations ::list_scope:'['_x_';'_x_';'_'..'_';'_x_']' not
+R2884:2885 Stdlib.Lists.List ListNotations ::list_scope:'['_x_';'_x_';'_'..'_';'_x_']' not
+R2914:2920 Stdlib.Lists.List ListNotations ::list_scope:'['_x_';'_x_';'_'..'_';'_x_']' not
+R2949:2950 Stdlib.Lists.List ListNotations ::list_scope:'['_x_';'_x_';'_'..'_';'_x_']' not
+R2979:2985 Stdlib.Lists.List ListNotations ::list_scope:'['_x_';'_x_';'_'..'_';'_x_']' not
+R3013:3014 Stdlib.Lists.List ListNotations ::list_scope:'['_x_';'_x_';'_'..'_';'_x_']' not
+R3029:3029 Stdlib.Lists.List ListNotations ::list_scope:'['_x_';'_x_';'_'..'_';'_x_']' not
+R2786:2790 Stdlib.ZArith.BinInt Z lor def
+R2792:2793 anubis_notary.cbor_pure <> mt:18 var
+R2804:2811 Stdlib.ZArith.BinInt Z shiftr def
+R2813:2815 anubis_notary.cbor_pure <> arg:17 var
+R2821:2826 Stdlib.ZArith.BinInt Z land def
+R2829:2836 Stdlib.ZArith.BinInt Z shiftr def
+R2838:2840 anubis_notary.cbor_pure <> arg:17 var
+R2856:2861 Stdlib.ZArith.BinInt Z land def
+R2864:2871 Stdlib.ZArith.BinInt Z shiftr def
+R2873:2875 anubis_notary.cbor_pure <> arg:17 var
+R2886:2891 Stdlib.ZArith.BinInt Z land def
+R2894:2901 Stdlib.ZArith.BinInt Z shiftr def
+R2903:2905 anubis_notary.cbor_pure <> arg:17 var
+R2921:2926 Stdlib.ZArith.BinInt Z land def
+R2929:2936 Stdlib.ZArith.BinInt Z shiftr def
+R2938:2940 anubis_notary.cbor_pure <> arg:17 var
+R2951:2956 Stdlib.ZArith.BinInt Z land def
+R2959:2966 Stdlib.ZArith.BinInt Z shiftr def
+R2968:2970 anubis_notary.cbor_pure <> arg:17 var
+R2986:2991 Stdlib.ZArith.BinInt Z land def
+R2994:3001 Stdlib.ZArith.BinInt Z shiftr def
+R3003:3005 anubis_notary.cbor_pure <> arg:17 var
+R3015:3020 Stdlib.ZArith.BinInt Z land def
+R3022:3024 anubis_notary.cbor_pure <> arg:17 var
+R2658:2658 Stdlib.Lists.List ListNotations ::list_scope:'['_x_';'_x_';'_'..'_';'_x_']' not
+R2670:2676 Stdlib.Lists.List ListNotations ::list_scope:'['_x_';'_x_';'_'..'_';'_x_']' not
+R2692:2693 Stdlib.Lists.List ListNotations ::list_scope:'['_x_';'_x_';'_'..'_';'_x_']' not
+R2722:2728 Stdlib.Lists.List ListNotations ::list_scope:'['_x_';'_x_';'_'..'_';'_x_']' not
+R2756:2757 Stdlib.Lists.List ListNotations ::list_scope:'['_x_';'_x_';'_'..'_';'_x_']' not
+R2772:2772 Stdlib.Lists.List ListNotations ::list_scope:'['_x_';'_x_';'_'..'_';'_x_']' not
+R2659:2663 Stdlib.ZArith.BinInt Z lor def
+R2665:2666 anubis_notary.cbor_pure <> mt:18 var
+R2677:2684 Stdlib.ZArith.BinInt Z shiftr def
+R2686:2688 anubis_notary.cbor_pure <> arg:17 var
+R2694:2699 Stdlib.ZArith.BinInt Z land def
+R2702:2709 Stdlib.ZArith.BinInt Z shiftr def
+R2711:2713 anubis_notary.cbor_pure <> arg:17 var
+R2729:2734 Stdlib.ZArith.BinInt Z land def
+R2737:2744 Stdlib.ZArith.BinInt Z shiftr def
+R2746:2748 anubis_notary.cbor_pure <> arg:17 var
+R2758:2763 Stdlib.ZArith.BinInt Z land def
+R2765:2767 anubis_notary.cbor_pure <> arg:17 var
+R2570:2570 Stdlib.Lists.List ListNotations ::list_scope:'['_x_';'_x_';'_'..'_';'_x_']' not
+R2582:2583 Stdlib.Lists.List ListNotations ::list_scope:'['_x_';'_x_';'_'..'_';'_x_']' not
+R2598:2599 Stdlib.Lists.List ListNotations ::list_scope:'['_x_';'_x_';'_'..'_';'_x_']' not
+R2614:2614 Stdlib.Lists.List ListNotations ::list_scope:'['_x_';'_x_';'_'..'_';'_x_']' not
+R2571:2575 Stdlib.ZArith.BinInt Z lor def
+R2577:2578 anubis_notary.cbor_pure <> mt:18 var
+R2584:2591 Stdlib.ZArith.BinInt Z shiftr def
+R2593:2595 anubis_notary.cbor_pure <> arg:17 var
+R2600:2605 Stdlib.ZArith.BinInt Z land def
+R2607:2609 anubis_notary.cbor_pure <> arg:17 var
+R2514:2514 Stdlib.Lists.List ListNotations ::list_scope:'['_x_';'_x_';'_'..'_';'_x_']' not
+R2526:2527 Stdlib.Lists.List ListNotations ::list_scope:'['_x_';'_x_';'_'..'_';'_x_']' not
+R2531:2531 Stdlib.Lists.List ListNotations ::list_scope:'['_x_';'_x_';'_'..'_';'_x_']' not
+R2515:2519 Stdlib.ZArith.BinInt Z lor def
+R2521:2522 anubis_notary.cbor_pure <> mt:18 var
+R2528:2530 anubis_notary.cbor_pure <> arg:17 var
+R2464:2464 Stdlib.Lists.List ListNotations ::list_scope:'['_x_']' not
+R2477:2477 Stdlib.Lists.List ListNotations ::list_scope:'['_x_']' not
+R2465:2469 Stdlib.ZArith.BinInt Z lor def
+R2471:2472 anubis_notary.cbor_pure <> mt:18 var
+R2474:2476 anubis_notary.cbor_pure <> arg:17 var
+def 3069:3074 <> encode
+R3081:3090 anubis_notary.cbor_pure <> cbor_value ind
+binder 3077:3077 <> v:19
+R3095:3098 Corelib.Init.Datatypes <> list ind
+R3100:3100 Corelib.Numbers.BinNums <> Z ind
+R3113:3113 anubis_notary.cbor_pure <> v:19 var
+R3124:3132 anubis_notary.cbor_pure <> CBOR_UInt constr
+R3139:3151 anubis_notary.cbor_pure <> encode_header def
+R3153:3166 anubis_notary.cbor_pure <> Major_Unsigned constr
+R3174:3182 anubis_notary.cbor_pure <> CBOR_NInt constr
+R3189:3201 anubis_notary.cbor_pure <> encode_header def
+R3203:3216 anubis_notary.cbor_pure <> Major_Negative constr
+R3224:3233 anubis_notary.cbor_pure <> CBOR_Bytes constr
+R3287:3290 Corelib.Init.Datatypes <> ::list_scope:x_'++'_x not
+R3240:3252 anubis_notary.cbor_pure <> encode_header def
+R3254:3264 anubis_notary.cbor_pure <> Major_Bytes constr
+R3267:3274 Stdlib.ZArith.BinInt Z of_nat def
+R3277:3282 Corelib.Init.Datatypes <> length def
+R3297:3305 anubis_notary.cbor_pure <> CBOR_Text constr
+R3358:3361 Corelib.Init.Datatypes <> ::list_scope:x_'++'_x not
+R3312:3324 anubis_notary.cbor_pure <> encode_header def
+R3326:3335 anubis_notary.cbor_pure <> Major_Text constr
+R3338:3345 Stdlib.ZArith.BinInt Z of_nat def
+R3348:3353 Corelib.Init.Datatypes <> length def
+R3368:3377 anubis_notary.cbor_pure <> CBOR_Array constr
+R3445:3454 Corelib.Init.Datatypes <> ::list_scope:x_'++'_x not
+R3394:3406 anubis_notary.cbor_pure <> encode_header def
+R3408:3418 anubis_notary.cbor_pure <> Major_Array constr
+R3421:3428 Stdlib.ZArith.BinInt Z of_nat def
+R3431:3436 Corelib.Init.Datatypes <> length def
+R3455:3462 Stdlib.Lists.List <> flat_map def
+R3464:3469 anubis_notary.cbor_pure <> encode:20 def
+R3481:3488 anubis_notary.cbor_pure <> CBOR_Map constr
+R3554:3563 Corelib.Init.Datatypes <> ::list_scope:x_'++'_x not
+R3505:3517 anubis_notary.cbor_pure <> encode_header def
+R3519:3527 anubis_notary.cbor_pure <> Major_Map constr
+R3530:3537 Stdlib.ZArith.BinInt Z of_nat def
+R3540:3545 Corelib.Init.Datatypes <> length def
+R3564:3571 Stdlib.Lists.List <> flat_map def
+R3579:3579 Corelib.Init.Datatypes <> ::core_scope:'('_x_','_x_','_'..'_','_x_')' not
+R3581:3582 Corelib.Init.Datatypes <> ::core_scope:'('_x_','_x_','_'..'_','_x_')' not
+R3584:3584 Corelib.Init.Datatypes <> ::core_scope:'('_x_','_x_','_'..'_','_x_')' not
+binder 3583:3583 <> v:22
+binder 3580:3580 <> k:23
+binder 3579:3584 <> pat:24
+R3597:3600 Corelib.Init.Datatypes <> ::list_scope:x_'++'_x not
+R3589:3594 anubis_notary.cbor_pure <> encode:20 def
+R3596:3596 anubis_notary.cbor_pure <> k:23 var
+R3601:3606 anubis_notary.cbor_pure <> encode:20 def
+R3608:3608 anubis_notary.cbor_pure <> v:22 var
+R3621:3629 anubis_notary.cbor_pure <> CBOR_Bool constr
+R3631:3634 Corelib.Init.Datatypes <> true constr
+R3639:3639 Stdlib.Lists.List ListNotations ::list_scope:'['_x_']' not
+R3644:3644 Stdlib.Lists.List ListNotations ::list_scope:'['_x_']' not
+R3650:3658 anubis_notary.cbor_pure <> CBOR_Bool constr
+R3660:3664 Corelib.Init.Datatypes <> false constr
+R3669:3669 Stdlib.Lists.List ListNotations ::list_scope:'['_x_']' not
+R3674:3674 Stdlib.Lists.List ListNotations ::list_scope:'['_x_']' not
+R3680:3688 anubis_notary.cbor_pure <> CBOR_Null constr
+R3693:3693 Stdlib.Lists.List ListNotations ::list_scope:'['_x_']' not
+R3698:3698 Stdlib.Lists.List ListNotations ::list_scope:'['_x_']' not
+ind 4013:4025 <> decode_result
+constr 4050:4055 <> Dec_Ok
+constr 4092:4098 <> Dec_Err
+binder 4028:4028 <> A:25
+R4066:4066 anubis_notary.cbor_pure <> A:25 var
+binder 4058:4062 <> value:28
+R4082:4085 Corelib.Init.Datatypes <> list ind
+R4087:4087 Corelib.Numbers.BinNums <> Z ind
+binder 4070:4078 <> remaining:29
+scheme 4013:4025 <> decode_result_rect
+scheme 4013:4025 <> decode_result_ind
+scheme 4013:4025 <> decode_result_rec
+scheme 4013:4025 <> decode_result_sind
+R4112:4117 anubis_notary.cbor_pure <> Dec_Ok constr
+R4112:4117 anubis_notary.cbor_pure <> Dec_Ok constr
+R4134:4140 anubis_notary.cbor_pure <> Dec_Err constr
+R4134:4140 anubis_notary.cbor_pure <> Dec_Err constr
+def 4225:4239 <> decode_argument
+R4249:4249 Corelib.Numbers.BinNums <> Z ind
+binder 4242:4245 <> info:30
+R4261:4264 Corelib.Init.Datatypes <> list ind
+R4266:4266 Corelib.Numbers.BinNums <> Z ind
+binder 4253:4257 <> bytes:31
+R4271:4283 anubis_notary.cbor_pure <> decode_result ind
+R4285:4285 Corelib.Numbers.BinNums <> Z ind
+R4300:4304 Stdlib.ZArith.BinInt <> ::Z_scope:x_'<=?'_x not
+R4296:4299 anubis_notary.cbor_pure <> info:30 var
+R4353:4356 Stdlib.ZArith.BinInt <> ::Z_scope:x_'=?'_x not
+R4349:4352 anubis_notary.cbor_pure <> info:30 var
+R4467:4470 Stdlib.ZArith.BinInt <> ::Z_scope:x_'=?'_x not
+R4463:4466 anubis_notary.cbor_pure <> info:30 var
+R4610:4613 Stdlib.ZArith.BinInt <> ::Z_scope:x_'=?'_x not
+R4606:4609 anubis_notary.cbor_pure <> info:30 var
+R4859:4862 Stdlib.ZArith.BinInt <> ::Z_scope:x_'=?'_x not
+R4855:4858 anubis_notary.cbor_pure <> info:30 var
+R5320:5326 anubis_notary.cbor_pure <> Dec_Err constr
+R4884:4888 anubis_notary.cbor_pure <> bytes:31 var
+R4903:4906 Corelib.Init.Datatypes <> ::list_scope:x_'::'_x not
+R4909:4912 Corelib.Init.Datatypes <> ::list_scope:x_'::'_x not
+R4915:4918 Corelib.Init.Datatypes <> ::list_scope:x_'::'_x not
+R4921:4924 Corelib.Init.Datatypes <> ::list_scope:x_'::'_x not
+R4927:4930 Corelib.Init.Datatypes <> ::list_scope:x_'::'_x not
+R4933:4936 Corelib.Init.Datatypes <> ::list_scope:x_'::'_x not
+R4939:4942 Corelib.Init.Datatypes <> ::list_scope:x_'::'_x not
+R4945:4948 Corelib.Init.Datatypes <> ::list_scope:x_'::'_x not
+R4965:4970 anubis_notary.cbor_pure <> Dec_Ok constr
+R4973:4977 Stdlib.ZArith.BinInt Z lor def
+R4980:4987 Stdlib.ZArith.BinInt Z shiftl def
+R5014:5018 Stdlib.ZArith.BinInt Z lor def
+R5021:5028 Stdlib.ZArith.BinInt Z shiftl def
+R5057:5061 Stdlib.ZArith.BinInt Z lor def
+R5064:5071 Stdlib.ZArith.BinInt Z shiftl def
+R5102:5106 Stdlib.ZArith.BinInt Z lor def
+R5109:5116 Stdlib.ZArith.BinInt Z shiftl def
+R5149:5153 Stdlib.ZArith.BinInt Z lor def
+R5156:5163 Stdlib.ZArith.BinInt Z shiftl def
+R5198:5202 Stdlib.ZArith.BinInt Z lor def
+R5205:5212 Stdlib.ZArith.BinInt Z shiftl def
+R5249:5253 Stdlib.ZArith.BinInt Z lor def
+R5256:5263 Stdlib.ZArith.BinInt Z shiftl def
+R5297:5303 anubis_notary.cbor_pure <> Dec_Err constr
+R4635:4639 anubis_notary.cbor_pure <> bytes:31 var
+R4654:4657 Corelib.Init.Datatypes <> ::list_scope:x_'::'_x not
+R4660:4663 Corelib.Init.Datatypes <> ::list_scope:x_'::'_x not
+R4666:4669 Corelib.Init.Datatypes <> ::list_scope:x_'::'_x not
+R4672:4675 Corelib.Init.Datatypes <> ::list_scope:x_'::'_x not
+R4692:4697 anubis_notary.cbor_pure <> Dec_Ok constr
+R4700:4704 Stdlib.ZArith.BinInt Z lor def
+R4707:4714 Stdlib.ZArith.BinInt Z shiftl def
+R4741:4745 Stdlib.ZArith.BinInt Z lor def
+R4748:4755 Stdlib.ZArith.BinInt Z shiftl def
+R4784:4788 Stdlib.ZArith.BinInt Z lor def
+R4791:4798 Stdlib.ZArith.BinInt Z shiftl def
+R4828:4834 anubis_notary.cbor_pure <> Dec_Err constr
+R4492:4496 anubis_notary.cbor_pure <> bytes:31 var
+R4511:4514 Corelib.Init.Datatypes <> ::list_scope:x_'::'_x not
+R4517:4520 Corelib.Init.Datatypes <> ::list_scope:x_'::'_x not
+R4529:4534 anubis_notary.cbor_pure <> Dec_Ok constr
+R4537:4541 Stdlib.ZArith.BinInt Z lor def
+R4544:4551 Stdlib.ZArith.BinInt Z shiftl def
+R4579:4585 anubis_notary.cbor_pure <> Dec_Err constr
+R4378:4382 anubis_notary.cbor_pure <> bytes:31 var
+R4397:4400 Corelib.Init.Datatypes <> ::list_scope:x_'::'_x not
+R4409:4414 anubis_notary.cbor_pure <> Dec_Ok constr
+R4430:4431 Stdlib.Lists.List ListNotations ::list_scope:'['_']' not
+R4436:4442 anubis_notary.cbor_pure <> Dec_Err constr
+R4320:4325 anubis_notary.cbor_pure <> Dec_Ok constr
+R4332:4336 anubis_notary.cbor_pure <> bytes:31 var
+R4327:4330 anubis_notary.cbor_pure <> info:30 var
+def 5371:5382 <> take_n_bytes
+R5389:5391 Corelib.Init.Datatypes <> nat ind
+binder 5385:5385 <> n:36
+R5403:5406 Corelib.Init.Datatypes <> list ind
+R5408:5408 Corelib.Numbers.BinNums <> Z ind
+binder 5395:5399 <> bytes:37
+R5413:5418 Corelib.Init.Datatypes <> option ind
+R5427:5429 Corelib.Init.Datatypes <> ::type_scope:x_'*'_x not
+R5421:5424 Corelib.Init.Datatypes <> list ind
+R5426:5426 Corelib.Numbers.BinNums <> Z ind
+R5430:5433 Corelib.Init.Datatypes <> list ind
+R5435:5435 Corelib.Numbers.BinNums <> Z ind
+R5449:5449 anubis_notary.cbor_pure <> n:36 var
+R5460:5460 Corelib.Init.Datatypes <> O constr
+R5465:5468 Corelib.Init.Datatypes <> Some constr
+R5470:5470 Corelib.Init.Datatypes <> ::core_scope:'('_x_','_x_','_'..'_','_x_')' not
+R5473:5474 Corelib.Init.Datatypes <> ::core_scope:'('_x_','_x_','_'..'_','_x_')' not
+R5480:5480 Corelib.Init.Datatypes <> ::core_scope:'('_x_','_x_','_'..'_','_x_')' not
+R5471:5472 Stdlib.Lists.List ListNotations ::list_scope:'['_']' not
+R5475:5479 anubis_notary.cbor_pure <> bytes:37 var
+R5486:5486 Corelib.Init.Datatypes <> S constr
+R5506:5510 anubis_notary.cbor_pure <> bytes:37 var
+R5525:5526 Stdlib.Lists.List ListNotations ::list_scope:'['_']' not
+R5531:5534 Corelib.Init.Datatypes <> None constr
+R5545:5548 Corelib.Init.Datatypes <> ::list_scope:x_'::'_x not
+R5573:5584 anubis_notary.cbor_pure <> take_n_bytes:38 def
+R5611:5614 Corelib.Init.Datatypes <> Some constr
+R5616:5616 Corelib.Init.Datatypes <> ::core_scope:'('_x_','_x_','_'..'_','_x_')' not
+R5622:5623 Corelib.Init.Datatypes <> ::core_scope:'('_x_','_x_','_'..'_','_x_')' not
+R5633:5633 Corelib.Init.Datatypes <> ::core_scope:'('_x_','_x_','_'..'_','_x_')' not
+R5638:5641 Corelib.Init.Datatypes <> Some constr
+R5643:5643 Corelib.Init.Datatypes <> ::core_scope:'('_x_','_x_','_'..'_','_x_')' not
+R5654:5655 Corelib.Init.Datatypes <> ::core_scope:'('_x_','_x_','_'..'_','_x_')' not
+R5665:5665 Corelib.Init.Datatypes <> ::core_scope:'('_x_','_x_','_'..'_','_x_')' not
+R5645:5648 Corelib.Init.Datatypes <> ::list_scope:x_'::'_x not
+R5679:5682 Corelib.Init.Datatypes <> None constr
+R5687:5690 Corelib.Init.Datatypes <> None constr
+def 5765:5775 <> decode_bind
+binder 5778:5778 <> A:41
+binder 5780:5780 <> B:42
+R5795:5807 anubis_notary.cbor_pure <> decode_result ind
+R5809:5809 anubis_notary.cbor_pure <> A:41 var
+binder 5791:5791 <> r:43
+R5818:5821 Corelib.Init.Logic <> ::type_scope:x_'->'_x not
+R5817:5817 anubis_notary.cbor_pure <> A:41 var
+R5828:5831 Corelib.Init.Logic <> ::type_scope:x_'->'_x not
+R5822:5825 Corelib.Init.Datatypes <> list ind
+R5827:5827 Corelib.Numbers.BinNums <> Z ind
+R5832:5844 anubis_notary.cbor_pure <> decode_result ind
+R5846:5846 anubis_notary.cbor_pure <> B:42 var
+binder 5813:5813 <> f:44
+R5851:5863 anubis_notary.cbor_pure <> decode_result ind
+R5865:5865 anubis_notary.cbor_pure <> B:42 var
+R5878:5878 anubis_notary.cbor_pure <> r:43 var
+R5889:5894 anubis_notary.cbor_pure <> Dec_Ok constr
+R5906:5906 anubis_notary.cbor_pure <> f:44 var
+R5919:5925 anubis_notary.cbor_pure <> Dec_Err constr
+R5930:5936 anubis_notary.cbor_pure <> Dec_Err constr
+R5979:5989 anubis_notary.cbor_pure <> decode_bind def
+binder 5999:5999 <> x:46
+binder 6001:6004 <> rest:47
+R6022:6025 anubis_notary.cbor_pure <> rest:47 var
+binder 6013:6017 <> bytes:48
+not 5955:5955 <> :::'do'_x_'<-'_x_';'_x
+def 6163:6174 <> decode_value
+def 7848:7859 <> decode_array
+def 8290:8299 <> decode_map
+R6184:6186 Corelib.Init.Datatypes <> nat ind
+binder 6177:6180 <> fuel:49
+R6198:6201 Corelib.Init.Datatypes <> list ind
+R6203:6203 Corelib.Numbers.BinNums <> Z ind
+binder 6190:6194 <> bytes:50
+R7869:7871 Corelib.Init.Datatypes <> nat ind
+binder 7862:7865 <> fuel:51
+R7883:7885 Corelib.Init.Datatypes <> nat ind
+binder 7875:7879 <> count:52
+R7897:7900 Corelib.Init.Datatypes <> list ind
+R7902:7902 Corelib.Numbers.BinNums <> Z ind
+binder 7889:7893 <> bytes:53
+R7912:7915 Corelib.Init.Datatypes <> list ind
+R7917:7926 anubis_notary.cbor_pure <> cbor_value ind
+binder 7906:7908 <> acc:54
+R8309:8311 Corelib.Init.Datatypes <> nat ind
+binder 8302:8305 <> fuel:55
+R8323:8325 Corelib.Init.Datatypes <> nat ind
+binder 8315:8319 <> count:56
+R8337:8340 Corelib.Init.Datatypes <> list ind
+R8342:8342 Corelib.Numbers.BinNums <> Z ind
+binder 8329:8333 <> bytes:57
+R8352:8355 Corelib.Init.Datatypes <> list ind
+R8368:8370 Corelib.Init.Datatypes <> ::type_scope:x_'*'_x not
+R8358:8367 anubis_notary.cbor_pure <> cbor_value ind
+R8371:8380 anubis_notary.cbor_pure <> cbor_value ind
+binder 8346:8348 <> acc:58
+R6208:6220 anubis_notary.cbor_pure <> decode_result ind
+R6222:6231 anubis_notary.cbor_pure <> cbor_value ind
+R7931:7943 anubis_notary.cbor_pure <> decode_result ind
+R7945:7954 anubis_notary.cbor_pure <> cbor_value ind
+R8386:8398 anubis_notary.cbor_pure <> decode_result ind
+R8400:8409 anubis_notary.cbor_pure <> cbor_value ind
+R6244:6247 anubis_notary.cbor_pure <> fuel:49 var
+R6258:6258 Corelib.Init.Datatypes <> O constr
+R6263:6269 anubis_notary.cbor_pure <> Dec_Err constr
+R6275:6275 Corelib.Init.Datatypes <> S constr
+R6298:6302 anubis_notary.cbor_pure <> bytes:50 var
+R6317:6318 Stdlib.Lists.List ListNotations ::list_scope:'['_']' not
+R6323:6329 anubis_notary.cbor_pure <> Dec_Err constr
+R6345:6348 Corelib.Init.Datatypes <> ::list_scope:x_'::'_x not
+R6380:6387 Stdlib.ZArith.BinInt Z shiftr def
+binder 6371:6375 <> major:64
+R6423:6428 Stdlib.ZArith.BinInt Z land def
+binder 6415:6418 <> info:65
+R6459:6473 anubis_notary.cbor_pure <> decode_argument def
+R6475:6478 anubis_notary.cbor_pure <> info:65 var
+R6502:6508 anubis_notary.cbor_pure <> Dec_Err constr
+R6513:6519 anubis_notary.cbor_pure <> Dec_Err constr
+R6533:6538 anubis_notary.cbor_pure <> Dec_Ok constr
+R6577:6581 anubis_notary.cbor_pure <> major:64 var
+R6650:6655 anubis_notary.cbor_pure <> Dec_Ok constr
+R6658:6666 anubis_notary.cbor_pure <> CBOR_UInt constr
+R6755:6760 anubis_notary.cbor_pure <> Dec_Ok constr
+R6763:6771 anubis_notary.cbor_pure <> CBOR_NInt constr
+R6851:6862 anubis_notary.cbor_pure <> take_n_bytes def
+R6865:6872 Stdlib.ZArith.BinInt Z to_nat def
+R6914:6917 Corelib.Init.Datatypes <> Some constr
+R6919:6919 Corelib.Init.Datatypes <> ::core_scope:'('_x_','_x_','_'..'_','_x_')' not
+R6924:6925 Corelib.Init.Datatypes <> ::core_scope:'('_x_','_x_','_'..'_','_x_')' not
+R6931:6931 Corelib.Init.Datatypes <> ::core_scope:'('_x_','_x_','_'..'_','_x_')' not
+R6936:6941 anubis_notary.cbor_pure <> Dec_Ok constr
+R6944:6953 anubis_notary.cbor_pure <> CBOR_Bytes constr
+R6987:6990 Corelib.Init.Datatypes <> None constr
+R6995:7001 anubis_notary.cbor_pure <> Dec_Err constr
+R7088:7099 anubis_notary.cbor_pure <> take_n_bytes def
+R7102:7109 Stdlib.ZArith.BinInt Z to_nat def
+R7151:7154 Corelib.Init.Datatypes <> Some constr
+R7156:7156 Corelib.Init.Datatypes <> ::core_scope:'('_x_','_x_','_'..'_','_x_')' not
+R7161:7162 Corelib.Init.Datatypes <> ::core_scope:'('_x_','_x_','_'..'_','_x_')' not
+R7168:7168 Corelib.Init.Datatypes <> ::core_scope:'('_x_','_x_','_'..'_','_x_')' not
+R7173:7178 anubis_notary.cbor_pure <> Dec_Ok constr
+R7181:7189 anubis_notary.cbor_pure <> CBOR_Text constr
+R7223:7226 Corelib.Init.Datatypes <> None constr
+R7231:7237 anubis_notary.cbor_pure <> Dec_Err constr
+R7312:7323 anubis_notary.cbor_pure <> decode_array:60 def
+R7356:7357 Stdlib.Lists.List ListNotations ::list_scope:'['_']' not
+R7332:7339 Stdlib.ZArith.BinInt Z to_nat def
+R7408:7417 anubis_notary.cbor_pure <> decode_map:61 def
+R7450:7451 Stdlib.Lists.List ListNotations ::list_scope:'['_']' not
+R7426:7433 Stdlib.ZArith.BinInt Z to_nat def
+R7522:7525 Stdlib.ZArith.BinInt <> ::Z_scope:x_'=?'_x not
+R7607:7610 Stdlib.ZArith.BinInt <> ::Z_scope:x_'=?'_x not
+R7691:7694 Stdlib.ZArith.BinInt <> ::Z_scope:x_'=?'_x not
+R7758:7764 anubis_notary.cbor_pure <> Dec_Err constr
+R7708:7713 anubis_notary.cbor_pure <> Dec_Ok constr
+R7715:7723 anubis_notary.cbor_pure <> CBOR_Null constr
+R7624:7629 anubis_notary.cbor_pure <> Dec_Ok constr
+R7632:7640 anubis_notary.cbor_pure <> CBOR_Bool constr
+R7642:7645 Corelib.Init.Datatypes <> true constr
+R7539:7544 anubis_notary.cbor_pure <> Dec_Ok constr
+R7547:7555 anubis_notary.cbor_pure <> CBOR_Bool constr
+R7557:7561 Corelib.Init.Datatypes <> false constr
+R7787:7793 anubis_notary.cbor_pure <> Dec_Err constr
+R7967:7970 anubis_notary.cbor_pure <> fuel:51 var
+R7981:7981 Corelib.Init.Datatypes <> O constr
+R7986:7992 anubis_notary.cbor_pure <> Dec_Err constr
+R7998:7998 Corelib.Init.Datatypes <> S constr
+R8021:8025 anubis_notary.cbor_pure <> count:52 var
+R8040:8040 Corelib.Init.Datatypes <> O constr
+R8045:8050 anubis_notary.cbor_pure <> Dec_Ok constr
+R8075:8079 anubis_notary.cbor_pure <> bytes:53 var
+R8053:8062 anubis_notary.cbor_pure <> CBOR_Array constr
+R8065:8067 Stdlib.Lists.List <> rev def
+R8069:8071 anubis_notary.cbor_pure <> acc:54 var
+R8089:8089 Corelib.Init.Datatypes <> S constr
+R8117:8128 anubis_notary.cbor_pure <> decode_value:59 def
+R8136:8140 anubis_notary.cbor_pure <> bytes:53 var
+R8159:8165 anubis_notary.cbor_pure <> Dec_Err constr
+R8170:8176 anubis_notary.cbor_pure <> Dec_Err constr
+R8190:8195 anubis_notary.cbor_pure <> Dec_Ok constr
+R8210:8221 anubis_notary.cbor_pure <> decode_array:60 def
+R8246:8249 Corelib.Init.Datatypes <> ::list_scope:x_'::'_x not
+R8250:8252 anubis_notary.cbor_pure <> acc:54 var
+R8422:8425 anubis_notary.cbor_pure <> fuel:55 var
+R8436:8436 Corelib.Init.Datatypes <> O constr
+R8441:8447 anubis_notary.cbor_pure <> Dec_Err constr
+R8453:8453 Corelib.Init.Datatypes <> S constr
+R8476:8480 anubis_notary.cbor_pure <> count:56 var
+R8495:8495 Corelib.Init.Datatypes <> O constr
+R8500:8505 anubis_notary.cbor_pure <> Dec_Ok constr
+R8528:8532 anubis_notary.cbor_pure <> bytes:57 var
+R8508:8515 anubis_notary.cbor_pure <> CBOR_Map constr
+R8518:8520 Stdlib.Lists.List <> rev def
+R8522:8524 anubis_notary.cbor_pure <> acc:58 var
+R8542:8542 Corelib.Init.Datatypes <> S constr
+R8570:8581 anubis_notary.cbor_pure <> decode_value:59 def
+R8589:8593 anubis_notary.cbor_pure <> bytes:57 var
+R8612:8618 anubis_notary.cbor_pure <> Dec_Err constr
+R8623:8629 anubis_notary.cbor_pure <> Dec_Err constr
+R8643:8648 anubis_notary.cbor_pure <> Dec_Ok constr
+R8683:8694 anubis_notary.cbor_pure <> decode_value:59 def
+R8729:8735 anubis_notary.cbor_pure <> Dec_Err constr
+R8740:8746 anubis_notary.cbor_pure <> Dec_Err constr
+R8764:8769 anubis_notary.cbor_pure <> Dec_Ok constr
+R8786:8795 anubis_notary.cbor_pure <> decode_map:61 def
+R8829:8832 Corelib.Init.Datatypes <> ::list_scope:x_'::'_x not
+R8817:8817 Corelib.Init.Datatypes <> ::core_scope:'('_x_','_x_','_'..'_','_x_')' not
+R8821:8822 Corelib.Init.Datatypes <> ::core_scope:'('_x_','_x_','_'..'_','_x_')' not
+R8828:8828 Corelib.Init.Datatypes <> ::core_scope:'('_x_','_x_','_'..'_','_x_')' not
+R8833:8835 anubis_notary.cbor_pure <> acc:58 var
+def 8944:8949 <> decode
+R8960:8963 Corelib.Init.Datatypes <> list ind
+R8965:8965 Corelib.Numbers.BinNums <> Z ind
+binder 8952:8956 <> bytes:71
+R8970:8982 anubis_notary.cbor_pure <> decode_result ind
+R8984:8993 anubis_notary.cbor_pure <> cbor_value ind
+R9000:9011 anubis_notary.cbor_pure <> decode_value def
+R9018:9022 anubis_notary.cbor_pure <> bytes:71 var
+def 9308:9318 <> valid_bytes
+R9325:9328 Corelib.Init.Datatypes <> list ind
+R9330:9330 Corelib.Numbers.BinNums <> Z ind
+binder 9321:9321 <> l:72
+R9345:9350 Corelib.Lists.ListDef <> Forall ind
+R9376:9376 anubis_notary.cbor_pure <> l:72 var
+binder 9357:9357 <> x:73
+R9363:9366 Stdlib.ZArith.BinInt <> ::Z_scope:x_'<='_x_'<'_x not
+R9368:9370 Stdlib.ZArith.BinInt <> ::Z_scope:x_'<='_x_'<'_x not
+R9367:9367 anubis_notary.cbor_pure <> x:73 var
+R9367:9367 anubis_notary.cbor_pure <> x:73 var
+ind 9445:9455 <> well_formed
+constr 9483:9489 <> WF_UInt
+constr 9553:9559 <> WF_NInt
+constr 9623:9630 <> WF_Bytes
+constr 9690:9696 <> WF_Text
+constr 9755:9762 <> WF_Array
+constr 9839:9844 <> WF_Map
+constr 9920:9926 <> WF_Bool
+constr 9968:9974 <> WF_Null
+ind 10005:10020 <> well_formed_list
+constr 10053:10058 <> WF_nil
+constr 10084:10090 <> WF_cons
+ind 10179:10195 <> well_formed_pairs
+constr 10243:10254 <> WF_pairs_nil
+constr 10281:10293 <> WF_pairs_cons
+R9469:9472 Corelib.Init.Logic <> ::type_scope:x_'->'_x not
+R9459:9468 anubis_notary.cbor_pure <> cbor_value ind
+R10039:10042 Corelib.Init.Logic <> ::type_scope:x_'->'_x not
+R10024:10027 Corelib.Init.Datatypes <> list ind
+R10029:10038 anubis_notary.cbor_pure <> cbor_value ind
+R10229:10232 Corelib.Init.Logic <> ::type_scope:x_'->'_x not
+R10199:10202 Corelib.Init.Datatypes <> list ind
+R10215:10217 Corelib.Init.Datatypes <> ::type_scope:x_'*'_x not
+R10205:10214 anubis_notary.cbor_pure <> cbor_value ind
+R10218:10227 anubis_notary.cbor_pure <> cbor_value ind
+binder 9500:9500 <> n:80
+R9509:9512 Corelib.Init.Logic <> ::type_scope:x_'->'_x not
+R9504:9507 Stdlib.ZArith.BinInt <> ::Z_scope:x_'<='_x not
+R9508:9508 anubis_notary.cbor_pure <> n:80 var
+R9521:9524 Corelib.Init.Logic <> ::type_scope:x_'->'_x not
+R9514:9516 Stdlib.ZArith.BinInt <> ::Z_scope:x_'<'_x not
+R9513:9513 anubis_notary.cbor_pure <> n:80 var
+R9518:9518 Stdlib.ZArith.BinInt <> ::Z_scope:x_'^'_x not
+R9525:9535 anubis_notary.cbor_pure <> well_formed:74 ind
+R9538:9546 anubis_notary.cbor_pure <> CBOR_UInt constr
+R9548:9548 anubis_notary.cbor_pure <> n:80 var
+binder 9570:9570 <> n:81
+R9579:9582 Corelib.Init.Logic <> ::type_scope:x_'->'_x not
+R9574:9577 Stdlib.ZArith.BinInt <> ::Z_scope:x_'<='_x not
+R9578:9578 anubis_notary.cbor_pure <> n:81 var
+R9591:9594 Corelib.Init.Logic <> ::type_scope:x_'->'_x not
+R9584:9586 Stdlib.ZArith.BinInt <> ::Z_scope:x_'<'_x not
+R9583:9583 anubis_notary.cbor_pure <> n:81 var
+R9588:9588 Stdlib.ZArith.BinInt <> ::Z_scope:x_'^'_x not
+R9595:9605 anubis_notary.cbor_pure <> well_formed:74 ind
+R9608:9616 anubis_notary.cbor_pure <> CBOR_NInt constr
+R9618:9618 anubis_notary.cbor_pure <> n:81 var
+binder 9641:9641 <> b:82
+R9657:9660 Corelib.Init.Logic <> ::type_scope:x_'->'_x not
+R9644:9654 anubis_notary.cbor_pure <> valid_bytes def
+R9656:9656 anubis_notary.cbor_pure <> b:82 var
+R9661:9671 anubis_notary.cbor_pure <> well_formed:74 ind
+R9674:9683 anubis_notary.cbor_pure <> CBOR_Bytes constr
+R9685:9685 anubis_notary.cbor_pure <> b:82 var
+binder 9707:9707 <> s:83
+R9723:9726 Corelib.Init.Logic <> ::type_scope:x_'->'_x not
+R9710:9720 anubis_notary.cbor_pure <> valid_bytes def
+R9722:9722 anubis_notary.cbor_pure <> s:83 var
+R9727:9737 anubis_notary.cbor_pure <> well_formed:74 ind
+R9740:9748 anubis_notary.cbor_pure <> CBOR_Text constr
+R9750:9750 anubis_notary.cbor_pure <> s:83 var
+binder 9773:9777 <> items:84
+R9802:9805 Corelib.Init.Logic <> ::type_scope:x_'->'_x not
+R9780:9795 anubis_notary.cbor_pure <> well_formed_list:75 ind
+R9797:9801 anubis_notary.cbor_pure <> items:84 var
+R9806:9816 anubis_notary.cbor_pure <> well_formed:74 ind
+R9819:9828 anubis_notary.cbor_pure <> CBOR_Array constr
+R9830:9834 anubis_notary.cbor_pure <> items:84 var
+binder 9855:9859 <> pairs:85
+R9885:9888 Corelib.Init.Logic <> ::type_scope:x_'->'_x not
+R9862:9878 anubis_notary.cbor_pure <> well_formed_pairs:76 ind
+R9880:9884 anubis_notary.cbor_pure <> pairs:85 var
+R9889:9899 anubis_notary.cbor_pure <> well_formed:74 ind
+R9902:9909 anubis_notary.cbor_pure <> CBOR_Map constr
+R9911:9915 anubis_notary.cbor_pure <> pairs:85 var
+binder 9937:9937 <> b:86
+R9940:9950 anubis_notary.cbor_pure <> well_formed:74 ind
+R9953:9961 anubis_notary.cbor_pure <> CBOR_Bool constr
+R9963:9963 anubis_notary.cbor_pure <> b:86 var
+R9978:9988 anubis_notary.cbor_pure <> well_formed:74 ind
+R9990:9998 anubis_notary.cbor_pure <> CBOR_Null constr
+R10062:10077 anubis_notary.cbor_pure <> well_formed_list:75 ind
+R10079:10080 Stdlib.Lists.List ListNotations ::list_scope:'['_']' not
+binder 10101:10101 <> v:87
+binder 10103:10104 <> vs:88
+R10120:10123 Corelib.Init.Logic <> ::type_scope:x_'->'_x not
+R10107:10117 anubis_notary.cbor_pure <> well_formed:74 ind
+R10119:10119 anubis_notary.cbor_pure <> v:87 var
+R10143:10146 Corelib.Init.Logic <> ::type_scope:x_'->'_x not
+R10124:10139 anubis_notary.cbor_pure <> well_formed_list:75 ind
+R10141:10142 anubis_notary.cbor_pure <> vs:88 var
+R10147:10162 anubis_notary.cbor_pure <> well_formed_list:75 ind
+R10166:10169 Corelib.Init.Datatypes <> ::list_scope:x_'::'_x not
+R10165:10165 anubis_notary.cbor_pure <> v:87 var
+R10170:10171 anubis_notary.cbor_pure <> vs:88 var
+R10258:10274 anubis_notary.cbor_pure <> well_formed_pairs:76 ind
+R10276:10277 Stdlib.Lists.List ListNotations ::list_scope:'['_']' not
+binder 10304:10304 <> k:89
+binder 10306:10306 <> v:90
+binder 10308:10309 <> ps:91
+R10329:10332 Corelib.Init.Logic <> ::type_scope:x_'->'_x not
+R10316:10326 anubis_notary.cbor_pure <> well_formed:74 ind
+R10328:10328 anubis_notary.cbor_pure <> k:89 var
+R10346:10349 Corelib.Init.Logic <> ::type_scope:x_'->'_x not
+R10333:10343 anubis_notary.cbor_pure <> well_formed:74 ind
+R10345:10345 anubis_notary.cbor_pure <> v:90 var
+R10370:10377 Corelib.Init.Logic <> ::type_scope:x_'->'_x not
+R10350:10366 anubis_notary.cbor_pure <> well_formed_pairs:76 ind
+R10368:10369 anubis_notary.cbor_pure <> ps:91 var
+R10378:10394 anubis_notary.cbor_pure <> well_formed_pairs:76 ind
+R10403:10406 Corelib.Init.Datatypes <> ::list_scope:x_'::'_x not
+R10397:10397 Corelib.Init.Datatypes <> ::core_scope:'('_x_','_x_','_'..'_','_x_')' not
+R10399:10400 Corelib.Init.Datatypes <> ::core_scope:'('_x_','_x_','_'..'_','_x_')' not
+R10402:10402 Corelib.Init.Datatypes <> ::core_scope:'('_x_','_x_','_'..'_','_x_')' not
+R10398:10398 anubis_notary.cbor_pure <> k:89 var
+R10401:10401 anubis_notary.cbor_pure <> v:90 var
+R10407:10408 anubis_notary.cbor_pure <> ps:91 var
+scheme 9445:9455 <> well_formed_ind
+scheme 9445:9455 <> well_formed_sind
+scheme 10005:10020 <> well_formed_list_ind
+scheme 10005:10020 <> well_formed_list_sind
+scheme 10179:10195 <> well_formed_pairs_ind
+scheme 10179:10195 <> well_formed_pairs_sind
+prf 10678:10689 <> shiftr_small
+binder 10700:10700 <> x:92
+binder 10702:10702 <> n:93
+R10719:10724 Corelib.Init.Logic <> ::type_scope:x_'->'_x not
+R10708:10711 Stdlib.ZArith.BinInt <> ::Z_scope:x_'<='_x_'<'_x not
+R10713:10715 Stdlib.ZArith.BinInt <> ::Z_scope:x_'<='_x_'<'_x not
+R10712:10712 anubis_notary.cbor_pure <> x:92 var
+R10712:10712 anubis_notary.cbor_pure <> x:92 var
+R10717:10717 Stdlib.ZArith.BinInt <> ::Z_scope:x_'^'_x not
+R10718:10718 anubis_notary.cbor_pure <> n:93 var
+R10731:10736 Corelib.Init.Logic <> ::type_scope:x_'->'_x not
+R10726:10729 Stdlib.ZArith.BinInt <> ::Z_scope:x_'<='_x not
+R10730:10730 anubis_notary.cbor_pure <> n:93 var
+R10749:10751 Corelib.Init.Logic <> ::type_scope:x_'='_x not
+R10737:10744 Stdlib.ZArith.BinInt Z shiftr def
+R10746:10746 anubis_notary.cbor_pure <> x:92 var
+R10748:10748 anubis_notary.cbor_pure <> n:93 var
+R10792:10808 Stdlib.ZArith.BinInt Z shiftr_div_pow2 thm
+R10792:10808 Stdlib.ZArith.BinInt Z shiftr_div_pow2 thm
+R10792:10808 Stdlib.ZArith.BinInt Z shiftr_div_pow2 thm
+R10826:10836 Stdlib.ZArith.BinInt Z div_small thm
+R10826:10836 Stdlib.ZArith.BinInt Z div_small thm
+prf 11079:11100 <> encode_header_nonempty
+binder 11113:11117 <> major:94
+binder 11119:11121 <> arg:95
+R11136:11143 Corelib.Init.Logic <> ::type_scope:x_'->'_x not
+R11129:11132 Stdlib.ZArith.BinInt <> ::Z_scope:x_'<='_x not
+R11133:11135 anubis_notary.cbor_pure <> arg:95 var
+R11167:11170 Corelib.Init.Logic <> ::type_scope:x_'<>'_x not
+R11144:11156 anubis_notary.cbor_pure <> encode_header def
+R11158:11162 anubis_notary.cbor_pure <> major:94 var
+R11164:11166 anubis_notary.cbor_pure <> arg:95 var
+R11171:11172 Stdlib.Lists.List ListNotations ::list_scope:'['_']' not
+R11216:11228 anubis_notary.cbor_pure <> encode_header def
+R11246:11249 Stdlib.ZArith.BinInt <> ::Z_scope:x_'<?'_x not
+R11246:11249 Stdlib.ZArith.BinInt <> ::Z_scope:x_'<?'_x not
+R11288:11292 Stdlib.ZArith.BinInt <> ::Z_scope:x_'<=?'_x not
+R11288:11292 Stdlib.ZArith.BinInt <> ::Z_scope:x_'<=?'_x not
+R11332:11336 Stdlib.ZArith.BinInt <> ::Z_scope:x_'<=?'_x not
+R11332:11336 Stdlib.ZArith.BinInt <> ::Z_scope:x_'<=?'_x not
+R11378:11382 Stdlib.ZArith.BinInt <> ::Z_scope:x_'<=?'_x not
+R11378:11382 Stdlib.ZArith.BinInt <> ::Z_scope:x_'<=?'_x not
+prf 11422:11451 <> encode_header_first_byte_major
+binder 11464:11468 <> major:96
+binder 11470:11472 <> arg:97
+R11487:11494 Corelib.Init.Logic <> ::type_scope:x_'->'_x not
+R11480:11483 Stdlib.ZArith.BinInt <> ::Z_scope:x_'<='_x not
+R11484:11486 anubis_notary.cbor_pure <> arg:97 var
+R11495:11501 Corelib.Init.Logic <> ::type_scope:'exists'_x_'..'_x_','_x not
+R11512:11519 Corelib.Init.Logic <> ::type_scope:'exists'_x_'..'_x_','_x not
+binder 11502:11506 <> first:98
+binder 11508:11511 <> rest:99
+R11559:11568 Corelib.Init.Logic <> ::type_scope:x_'/\'_x not
+R11543:11545 Corelib.Init.Logic <> ::type_scope:x_'='_x not
+R11520:11532 anubis_notary.cbor_pure <> encode_header def
+R11534:11538 anubis_notary.cbor_pure <> major:96 var
+R11540:11542 anubis_notary.cbor_pure <> arg:97 var
+R11551:11554 Corelib.Init.Datatypes <> ::list_scope:x_'::'_x not
+R11546:11550 anubis_notary.cbor_pure <> first:98 var
+R11555:11558 anubis_notary.cbor_pure <> rest:99 var
+R11585:11587 Corelib.Init.Logic <> ::type_scope:x_'='_x not
+R11569:11576 Stdlib.ZArith.BinInt Z shiftr def
+R11578:11582 anubis_notary.cbor_pure <> first:98 var
+R11588:11597 anubis_notary.cbor_pure <> major_to_Z def
+R11599:11603 anubis_notary.cbor_pure <> major:96 var
+R11647:11659 anubis_notary.cbor_pure <> encode_header def
+R11677:11680 Stdlib.ZArith.BinInt <> ::Z_scope:x_'<?'_x not
+R11677:11680 Stdlib.ZArith.BinInt <> ::Z_scope:x_'<?'_x not
+R11705:11709 Stdlib.ZArith.BinInt Z lor def
+R11712:11719 Stdlib.ZArith.BinInt Z shiftl def
+R11722:11731 anubis_notary.cbor_pure <> major_to_Z def
+R11749:11750 Stdlib.Lists.List ListNotations ::list_scope:'['_']' not
+R11705:11709 Stdlib.ZArith.BinInt Z lor def
+R11712:11719 Stdlib.ZArith.BinInt Z shiftl def
+R11722:11731 anubis_notary.cbor_pure <> major_to_Z def
+R11749:11750 Stdlib.Lists.List ListNotations ::list_scope:'['_']' not
+R11793:11804 Stdlib.ZArith.BinInt Z shiftr_lor thm
+R11793:11804 Stdlib.ZArith.BinInt Z shiftr_lor thm
+R11793:11804 Stdlib.ZArith.BinInt Z shiftr_lor thm
+R11819:11835 Stdlib.ZArith.BinInt Z shiftr_shiftl_l thm
+R11819:11835 Stdlib.ZArith.BinInt Z shiftr_shiftl_l thm
+R11819:11835 Stdlib.ZArith.BinInt Z shiftr_shiftl_l thm
+R11859:11861 Stdlib.ZArith.BinInt <> ::Z_scope:x_'-'_x not
+R11859:11861 Stdlib.ZArith.BinInt <> ::Z_scope:x_'-'_x not
+R11892:11903 Stdlib.ZArith.BinInt Z shiftl_0_r thm
+R11892:11903 Stdlib.ZArith.BinInt Z shiftl_0_r thm
+R11892:11903 Stdlib.ZArith.BinInt Z shiftl_0_r thm
+R11928:11931 Stdlib.ZArith.BinInt <> ::Z_scope:x_'<='_x_'<'_x not
+R11935:11937 Stdlib.ZArith.BinInt <> ::Z_scope:x_'<='_x_'<'_x not
+R11952:11959 Stdlib.ZArith.BinInt Z ltb_lt thm
+R11928:11931 Stdlib.ZArith.BinInt <> ::Z_scope:x_'<='_x_'<'_x not
+R11935:11937 Stdlib.ZArith.BinInt <> ::Z_scope:x_'<='_x_'<'_x not
+R11952:11959 Stdlib.ZArith.BinInt Z ltb_lt thm
+R11986:11997 anubis_notary.cbor_pure <> shiftr_small thm
+R11986:11997 anubis_notary.cbor_pure <> shiftr_small thm
+R11986:11997 anubis_notary.cbor_pure <> shiftr_small thm
+R12019:12027 Stdlib.ZArith.BinInt Z lor_0_r thm
+R12019:12027 Stdlib.ZArith.BinInt Z lor_0_r thm
+R12019:12027 Stdlib.ZArith.BinInt Z lor_0_r thm
+R12060:12064 Stdlib.ZArith.BinInt <> ::Z_scope:x_'<=?'_x not
+R12060:12064 Stdlib.ZArith.BinInt <> ::Z_scope:x_'<=?'_x not
+R12092:12096 Stdlib.ZArith.BinInt Z lor def
+R12099:12106 Stdlib.ZArith.BinInt Z shiftl def
+R12109:12118 anubis_notary.cbor_pure <> major_to_Z def
+R12135:12135 Stdlib.Lists.List ListNotations ::list_scope:'['_x_']' not
+R12139:12139 Stdlib.Lists.List ListNotations ::list_scope:'['_x_']' not
+R12092:12096 Stdlib.ZArith.BinInt Z lor def
+R12099:12106 Stdlib.ZArith.BinInt Z shiftl def
+R12109:12118 anubis_notary.cbor_pure <> major_to_Z def
+R12135:12135 Stdlib.Lists.List ListNotations ::list_scope:'['_x_']' not
+R12139:12139 Stdlib.Lists.List ListNotations ::list_scope:'['_x_']' not
+R12186:12197 Stdlib.ZArith.BinInt Z shiftr_lor thm
+R12186:12197 Stdlib.ZArith.BinInt Z shiftr_lor thm
+R12186:12197 Stdlib.ZArith.BinInt Z shiftr_lor thm
+R12214:12230 Stdlib.ZArith.BinInt Z shiftr_shiftl_l thm
+R12214:12230 Stdlib.ZArith.BinInt Z shiftr_shiftl_l thm
+R12214:12230 Stdlib.ZArith.BinInt Z shiftr_shiftl_l thm
+R12256:12258 Stdlib.ZArith.BinInt <> ::Z_scope:x_'-'_x not
+R12256:12258 Stdlib.ZArith.BinInt <> ::Z_scope:x_'-'_x not
+R12291:12302 Stdlib.ZArith.BinInt Z shiftl_0_r thm
+R12291:12302 Stdlib.ZArith.BinInt Z shiftl_0_r thm
+R12291:12302 Stdlib.ZArith.BinInt Z shiftl_0_r thm
+R12319:12330 anubis_notary.cbor_pure <> shiftr_small thm
+R12319:12330 anubis_notary.cbor_pure <> shiftr_small thm
+R12319:12330 anubis_notary.cbor_pure <> shiftr_small thm
+R12354:12362 Stdlib.ZArith.BinInt Z lor_0_r thm
+R12354:12362 Stdlib.ZArith.BinInt Z lor_0_r thm
+R12354:12362 Stdlib.ZArith.BinInt Z lor_0_r thm
+R12397:12401 Stdlib.ZArith.BinInt <> ::Z_scope:x_'<=?'_x not
+R12397:12401 Stdlib.ZArith.BinInt <> ::Z_scope:x_'<=?'_x not
+R12433:12437 Stdlib.ZArith.BinInt Z lor def
+R12440:12447 Stdlib.ZArith.BinInt Z shiftl def
+R12450:12459 anubis_notary.cbor_pure <> major_to_Z def
+R12491:12491 Stdlib.Lists.List ListNotations ::list_scope:'['_x_';'_x_';'_'..'_';'_x_']' not
+R12506:12507 Stdlib.Lists.List ListNotations ::list_scope:'['_x_';'_x_';'_'..'_';'_x_']' not
+R12522:12522 Stdlib.Lists.List ListNotations ::list_scope:'['_x_';'_x_';'_'..'_';'_x_']' not
+R12492:12499 Stdlib.ZArith.BinInt Z shiftr def
+R12508:12513 Stdlib.ZArith.BinInt Z land def
+R12433:12437 Stdlib.ZArith.BinInt Z lor def
+R12440:12447 Stdlib.ZArith.BinInt Z shiftl def
+R12450:12459 anubis_notary.cbor_pure <> major_to_Z def
+R12491:12491 Stdlib.Lists.List ListNotations ::list_scope:'['_x_';'_x_';'_'..'_';'_x_']' not
+R12506:12507 Stdlib.Lists.List ListNotations ::list_scope:'['_x_';'_x_';'_'..'_';'_x_']' not
+R12522:12522 Stdlib.Lists.List ListNotations ::list_scope:'['_x_';'_x_';'_'..'_';'_x_']' not
+R12492:12499 Stdlib.ZArith.BinInt Z shiftr def
+R12508:12513 Stdlib.ZArith.BinInt Z land def
+R12573:12584 Stdlib.ZArith.BinInt Z shiftr_lor thm
+R12573:12584 Stdlib.ZArith.BinInt Z shiftr_lor thm
+R12573:12584 Stdlib.ZArith.BinInt Z shiftr_lor thm
+R12603:12619 Stdlib.ZArith.BinInt Z shiftr_shiftl_l thm
+R12603:12619 Stdlib.ZArith.BinInt Z shiftr_shiftl_l thm
+R12603:12619 Stdlib.ZArith.BinInt Z shiftr_shiftl_l thm
+R12647:12649 Stdlib.ZArith.BinInt <> ::Z_scope:x_'-'_x not
+R12647:12649 Stdlib.ZArith.BinInt <> ::Z_scope:x_'-'_x not
+R12684:12695 Stdlib.ZArith.BinInt Z shiftl_0_r thm
+R12684:12695 Stdlib.ZArith.BinInt Z shiftl_0_r thm
+R12684:12695 Stdlib.ZArith.BinInt Z shiftl_0_r thm
+R12714:12725 anubis_notary.cbor_pure <> shiftr_small thm
+R12714:12725 anubis_notary.cbor_pure <> shiftr_small thm
+R12714:12725 anubis_notary.cbor_pure <> shiftr_small thm
+R12751:12759 Stdlib.ZArith.BinInt Z lor_0_r thm
+R12751:12759 Stdlib.ZArith.BinInt Z lor_0_r thm
+R12751:12759 Stdlib.ZArith.BinInt Z lor_0_r thm
+R12796:12800 Stdlib.ZArith.BinInt <> ::Z_scope:x_'<=?'_x not
+R12796:12800 Stdlib.ZArith.BinInt <> ::Z_scope:x_'<=?'_x not
+R12840:12844 Stdlib.ZArith.BinInt Z lor def
+R12847:12854 Stdlib.ZArith.BinInt Z shiftl def
+R12857:12866 anubis_notary.cbor_pure <> major_to_Z def
+R12901:12901 Stdlib.Lists.List ListNotations ::list_scope:'['_x_';'_x_';'_'..'_';'_x_']' not
+R12917:12918 Stdlib.Lists.List ListNotations ::list_scope:'['_x_';'_x_';'_'..'_';'_x_']' not
+R12947:12967 Stdlib.Lists.List ListNotations ::list_scope:'['_x_';'_x_';'_'..'_';'_x_']' not
+R12995:12996 Stdlib.Lists.List ListNotations ::list_scope:'['_x_';'_x_';'_'..'_';'_x_']' not
+R13011:13011 Stdlib.Lists.List ListNotations ::list_scope:'['_x_';'_x_';'_'..'_';'_x_']' not
+R12902:12909 Stdlib.ZArith.BinInt Z shiftr def
+R12919:12924 Stdlib.ZArith.BinInt Z land def
+R12927:12934 Stdlib.ZArith.BinInt Z shiftr def
+R12968:12973 Stdlib.ZArith.BinInt Z land def
+R12976:12983 Stdlib.ZArith.BinInt Z shiftr def
+R12997:13002 Stdlib.ZArith.BinInt Z land def
+R12840:12844 Stdlib.ZArith.BinInt Z lor def
+R12847:12854 Stdlib.ZArith.BinInt Z shiftl def
+R12857:12866 anubis_notary.cbor_pure <> major_to_Z def
+R12901:12901 Stdlib.Lists.List ListNotations ::list_scope:'['_x_';'_x_';'_'..'_';'_x_']' not
+R12917:12918 Stdlib.Lists.List ListNotations ::list_scope:'['_x_';'_x_';'_'..'_';'_x_']' not
+R12947:12967 Stdlib.Lists.List ListNotations ::list_scope:'['_x_';'_x_';'_'..'_';'_x_']' not
+R12995:12996 Stdlib.Lists.List ListNotations ::list_scope:'['_x_';'_x_';'_'..'_';'_x_']' not
+R13011:13011 Stdlib.Lists.List ListNotations ::list_scope:'['_x_';'_x_';'_'..'_';'_x_']' not
+R12902:12909 Stdlib.ZArith.BinInt Z shiftr def
+R12919:12924 Stdlib.ZArith.BinInt Z land def
+R12927:12934 Stdlib.ZArith.BinInt Z shiftr def
+R12968:12973 Stdlib.ZArith.BinInt Z land def
+R12976:12983 Stdlib.ZArith.BinInt Z shiftr def
+R12997:13002 Stdlib.ZArith.BinInt Z land def
+R13068:13079 Stdlib.ZArith.BinInt Z shiftr_lor thm
+R13068:13079 Stdlib.ZArith.BinInt Z shiftr_lor thm
+R13068:13079 Stdlib.ZArith.BinInt Z shiftr_lor thm
+R13101:13117 Stdlib.ZArith.BinInt Z shiftr_shiftl_l thm
+R13101:13117 Stdlib.ZArith.BinInt Z shiftr_shiftl_l thm
+R13101:13117 Stdlib.ZArith.BinInt Z shiftr_shiftl_l thm
+R13148:13150 Stdlib.ZArith.BinInt <> ::Z_scope:x_'-'_x not
+R13148:13150 Stdlib.ZArith.BinInt <> ::Z_scope:x_'-'_x not
+R13188:13199 Stdlib.ZArith.BinInt Z shiftl_0_r thm
+R13188:13199 Stdlib.ZArith.BinInt Z shiftl_0_r thm
+R13188:13199 Stdlib.ZArith.BinInt Z shiftl_0_r thm
+R13221:13232 anubis_notary.cbor_pure <> shiftr_small thm
+R13221:13232 anubis_notary.cbor_pure <> shiftr_small thm
+R13221:13232 anubis_notary.cbor_pure <> shiftr_small thm
+R13261:13269 Stdlib.ZArith.BinInt Z lor_0_r thm
+R13261:13269 Stdlib.ZArith.BinInt Z lor_0_r thm
+R13261:13269 Stdlib.ZArith.BinInt Z lor_0_r thm
+R13304:13308 Stdlib.ZArith.BinInt Z lor def
+R13311:13318 Stdlib.ZArith.BinInt Z shiftl def
+R13321:13330 anubis_notary.cbor_pure <> major_to_Z def
+R13365:13365 Stdlib.Lists.List ListNotations ::list_scope:'['_x_';'_x_';'_'..'_';'_x_']' not
+R13381:13382 Stdlib.Lists.List ListNotations ::list_scope:'['_x_';'_x_';'_'..'_';'_x_']' not
+R13411:13431 Stdlib.Lists.List ListNotations ::list_scope:'['_x_';'_x_';'_'..'_';'_x_']' not
+R13460:13461 Stdlib.Lists.List ListNotations ::list_scope:'['_x_';'_x_';'_'..'_';'_x_']' not
+R13490:13510 Stdlib.Lists.List ListNotations ::list_scope:'['_x_';'_x_';'_'..'_';'_x_']' not
+R13539:13540 Stdlib.Lists.List ListNotations ::list_scope:'['_x_';'_x_';'_'..'_';'_x_']' not
+R13569:13589 Stdlib.Lists.List ListNotations ::list_scope:'['_x_';'_x_';'_'..'_';'_x_']' not
+R13617:13618 Stdlib.Lists.List ListNotations ::list_scope:'['_x_';'_x_';'_'..'_';'_x_']' not
+R13633:13633 Stdlib.Lists.List ListNotations ::list_scope:'['_x_';'_x_';'_'..'_';'_x_']' not
+R13366:13373 Stdlib.ZArith.BinInt Z shiftr def
+R13383:13388 Stdlib.ZArith.BinInt Z land def
+R13391:13398 Stdlib.ZArith.BinInt Z shiftr def
+R13432:13437 Stdlib.ZArith.BinInt Z land def
+R13440:13447 Stdlib.ZArith.BinInt Z shiftr def
+R13462:13467 Stdlib.ZArith.BinInt Z land def
+R13470:13477 Stdlib.ZArith.BinInt Z shiftr def
+R13511:13516 Stdlib.ZArith.BinInt Z land def
+R13519:13526 Stdlib.ZArith.BinInt Z shiftr def
+R13541:13546 Stdlib.ZArith.BinInt Z land def
+R13549:13556 Stdlib.ZArith.BinInt Z shiftr def
+R13590:13595 Stdlib.ZArith.BinInt Z land def
+R13598:13605 Stdlib.ZArith.BinInt Z shiftr def
+R13619:13624 Stdlib.ZArith.BinInt Z land def
+R13304:13308 Stdlib.ZArith.BinInt Z lor def
+R13311:13318 Stdlib.ZArith.BinInt Z shiftl def
+R13321:13330 anubis_notary.cbor_pure <> major_to_Z def
+R13365:13365 Stdlib.Lists.List ListNotations ::list_scope:'['_x_';'_x_';'_'..'_';'_x_']' not
+R13381:13382 Stdlib.Lists.List ListNotations ::list_scope:'['_x_';'_x_';'_'..'_';'_x_']' not
+R13411:13431 Stdlib.Lists.List ListNotations ::list_scope:'['_x_';'_x_';'_'..'_';'_x_']' not
+R13460:13461 Stdlib.Lists.List ListNotations ::list_scope:'['_x_';'_x_';'_'..'_';'_x_']' not
+R13490:13510 Stdlib.Lists.List ListNotations ::list_scope:'['_x_';'_x_';'_'..'_';'_x_']' not
+R13539:13540 Stdlib.Lists.List ListNotations ::list_scope:'['_x_';'_x_';'_'..'_';'_x_']' not
+R13569:13589 Stdlib.Lists.List ListNotations ::list_scope:'['_x_';'_x_';'_'..'_';'_x_']' not
+R13617:13618 Stdlib.Lists.List ListNotations ::list_scope:'['_x_';'_x_';'_'..'_';'_x_']' not
+R13633:13633 Stdlib.Lists.List ListNotations ::list_scope:'['_x_';'_x_';'_'..'_';'_x_']' not
+R13366:13373 Stdlib.ZArith.BinInt Z shiftr def
+R13383:13388 Stdlib.ZArith.BinInt Z land def
+R13391:13398 Stdlib.ZArith.BinInt Z shiftr def
+R13432:13437 Stdlib.ZArith.BinInt Z land def
+R13440:13447 Stdlib.ZArith.BinInt Z shiftr def
+R13462:13467 Stdlib.ZArith.BinInt Z land def
+R13470:13477 Stdlib.ZArith.BinInt Z shiftr def
+R13511:13516 Stdlib.ZArith.BinInt Z land def
+R13519:13526 Stdlib.ZArith.BinInt Z shiftr def
+R13541:13546 Stdlib.ZArith.BinInt Z land def
+R13549:13556 Stdlib.ZArith.BinInt Z shiftr def
+R13590:13595 Stdlib.ZArith.BinInt Z land def
+R13598:13605 Stdlib.ZArith.BinInt Z shiftr def
+R13619:13624 Stdlib.ZArith.BinInt Z land def
+R13690:13701 Stdlib.ZArith.BinInt Z shiftr_lor thm
+R13690:13701 Stdlib.ZArith.BinInt Z shiftr_lor thm
+R13690:13701 Stdlib.ZArith.BinInt Z shiftr_lor thm
+R13723:13739 Stdlib.ZArith.BinInt Z shiftr_shiftl_l thm
+R13723:13739 Stdlib.ZArith.BinInt Z shiftr_shiftl_l thm
+R13723:13739 Stdlib.ZArith.BinInt Z shiftr_shiftl_l thm
+R13770:13772 Stdlib.ZArith.BinInt <> ::Z_scope:x_'-'_x not
+R13770:13772 Stdlib.ZArith.BinInt <> ::Z_scope:x_'-'_x not
+R13810:13821 Stdlib.ZArith.BinInt Z shiftl_0_r thm
+R13810:13821 Stdlib.ZArith.BinInt Z shiftl_0_r thm
+R13810:13821 Stdlib.ZArith.BinInt Z shiftl_0_r thm
+R13843:13854 anubis_notary.cbor_pure <> shiftr_small thm
+R13843:13854 anubis_notary.cbor_pure <> shiftr_small thm
+R13843:13854 anubis_notary.cbor_pure <> shiftr_small thm
+R13883:13891 Stdlib.ZArith.BinInt Z lor_0_r thm
+R13883:13891 Stdlib.ZArith.BinInt Z lor_0_r thm
+R13883:13891 Stdlib.ZArith.BinInt Z lor_0_r thm
+prf 14212:14240 <> encode_header_major_injective
+binder 14253:14254 <> m1:100
+binder 14256:14257 <> m2:101
+binder 14259:14262 <> arg1:102
+binder 14264:14267 <> arg2:103
+R14283:14286 Corelib.Init.Logic <> ::type_scope:x_'->'_x not
+R14275:14278 Stdlib.ZArith.BinInt <> ::Z_scope:x_'<='_x not
+R14279:14282 anubis_notary.cbor_pure <> arg1:102 var
+R14296:14303 Corelib.Init.Logic <> ::type_scope:x_'->'_x not
+R14288:14291 Stdlib.ZArith.BinInt <> ::Z_scope:x_'<='_x not
+R14292:14295 anubis_notary.cbor_pure <> arg2:103 var
+R14349:14356 Corelib.Init.Logic <> ::type_scope:x_'->'_x not
+R14325:14327 Corelib.Init.Logic <> ::type_scope:x_'='_x not
+R14304:14316 anubis_notary.cbor_pure <> encode_header def
+R14318:14319 anubis_notary.cbor_pure <> m1:100 var
+R14321:14324 anubis_notary.cbor_pure <> arg1:102 var
+R14328:14340 anubis_notary.cbor_pure <> encode_header def
+R14342:14343 anubis_notary.cbor_pure <> m2:101 var
+R14345:14348 anubis_notary.cbor_pure <> arg2:103 var
+R14359:14361 Corelib.Init.Logic <> ::type_scope:x_'='_x not
+R14357:14358 anubis_notary.cbor_pure <> m1:100 var
+R14362:14363 anubis_notary.cbor_pure <> m2:101 var
+R14427:14456 anubis_notary.cbor_pure <> encode_header_first_byte_major thm
+R14427:14456 anubis_notary.cbor_pure <> encode_header_first_byte_major thm
+R14509:14538 anubis_notary.cbor_pure <> encode_header_first_byte_major thm
+R14509:14538 anubis_notary.cbor_pure <> encode_header_first_byte_major thm
+prf 14802:14823 <> encode_header_arg_info
+binder 14836:14840 <> major:104
+binder 14842:14844 <> arg:105
+R14864:14871 Corelib.Init.Logic <> ::type_scope:x_'->'_x not
+R14852:14855 Stdlib.ZArith.BinInt <> ::Z_scope:x_'<='_x_'<'_x not
+R14859:14861 Stdlib.ZArith.BinInt <> ::Z_scope:x_'<='_x_'<'_x not
+R14856:14858 anubis_notary.cbor_pure <> arg:105 var
+R14856:14858 anubis_notary.cbor_pure <> arg:105 var
+R14872:14878 Corelib.Init.Logic <> ::type_scope:'exists'_x_'..'_x_','_x not
+R14889:14896 Corelib.Init.Logic <> ::type_scope:'exists'_x_'..'_x_','_x not
+binder 14879:14883 <> first:106
+binder 14885:14888 <> rest:107
+R14936:14945 Corelib.Init.Logic <> ::type_scope:x_'/\'_x not
+R14920:14922 Corelib.Init.Logic <> ::type_scope:x_'='_x not
+R14897:14909 anubis_notary.cbor_pure <> encode_header def
+R14911:14915 anubis_notary.cbor_pure <> major:104 var
+R14917:14919 anubis_notary.cbor_pure <> arg:105 var
+R14928:14931 Corelib.Init.Datatypes <> ::list_scope:x_'::'_x not
+R14923:14927 anubis_notary.cbor_pure <> first:106 var
+R14932:14935 anubis_notary.cbor_pure <> rest:107 var
+R14961:14963 Corelib.Init.Logic <> ::type_scope:x_'='_x not
+R14946:14951 Stdlib.ZArith.BinInt Z land def
+R14953:14957 anubis_notary.cbor_pure <> first:106 var
+R14964:14966 anubis_notary.cbor_pure <> arg:105 var
+R15010:15022 anubis_notary.cbor_pure <> encode_header def
+R15040:15043 Stdlib.ZArith.BinInt <> ::Z_scope:x_'<?'_x not
+R15040:15043 Stdlib.ZArith.BinInt <> ::Z_scope:x_'<?'_x not
+R15075:15079 Stdlib.ZArith.BinInt Z lor def
+R15082:15089 Stdlib.ZArith.BinInt Z shiftl def
+R15092:15101 anubis_notary.cbor_pure <> major_to_Z def
+R15119:15120 Stdlib.Lists.List ListNotations ::list_scope:'['_']' not
+R15075:15079 Stdlib.ZArith.BinInt Z lor def
+R15082:15089 Stdlib.ZArith.BinInt Z shiftl def
+R15092:15101 anubis_notary.cbor_pure <> major_to_Z def
+R15119:15120 Stdlib.Lists.List ListNotations ::list_scope:'['_']' not
+R15159:15176 Stdlib.ZArith.BinInt Z land_lor_distr_l thm
+R15159:15176 Stdlib.ZArith.BinInt Z land_lor_distr_l thm
+R15159:15176 Stdlib.ZArith.BinInt Z land_lor_distr_l thm
+R15230:15232 Corelib.Init.Logic <> ::type_scope:x_'='_x not
+R15189:15194 Stdlib.ZArith.BinInt Z land def
+R15197:15204 Stdlib.ZArith.BinInt Z shiftl def
+R15207:15216 anubis_notary.cbor_pure <> major_to_Z def
+R15230:15232 Corelib.Init.Logic <> ::type_scope:x_'='_x not
+R15189:15194 Stdlib.ZArith.BinInt Z land def
+R15197:15204 Stdlib.ZArith.BinInt Z shiftl def
+R15207:15216 anubis_notary.cbor_pure <> major_to_Z def
+R15336:15352 Stdlib.ZArith.BinInt Z shiftl_mul_pow2 thm
+R15336:15352 Stdlib.ZArith.BinInt Z shiftl_mul_pow2 thm
+R15336:15352 Stdlib.ZArith.BinInt Z shiftl_mul_pow2 thm
+R15384:15389 Stdlib.ZArith.BinInt Z ones def
+R15384:15389 Stdlib.ZArith.BinInt Z ones def
+R15407:15417 Stdlib.ZArith.BinInt Z land_ones thm
+R15407:15417 Stdlib.ZArith.BinInt Z land_ones thm
+R15407:15417 Stdlib.ZArith.BinInt Z land_ones thm
+R15439:15447 Stdlib.ZArith.BinInt Z mod_mul thm
+R15439:15447 Stdlib.ZArith.BinInt Z mod_mul thm
+R15439:15447 Stdlib.ZArith.BinInt Z mod_mul thm
+R15439:15447 Stdlib.ZArith.BinInt Z mod_mul thm
+R15471:15479 Stdlib.ZArith.BinInt Z lor_0_l thm
+R15471:15479 Stdlib.ZArith.BinInt Z lor_0_l thm
+R15471:15479 Stdlib.ZArith.BinInt Z lor_0_l thm
+R15502:15507 Stdlib.ZArith.BinInt Z ones def
+R15502:15507 Stdlib.ZArith.BinInt Z ones def
+R15523:15533 Stdlib.ZArith.BinInt Z land_ones thm
+R15523:15533 Stdlib.ZArith.BinInt Z land_ones thm
+R15523:15533 Stdlib.ZArith.BinInt Z land_ones thm
+R15551:15561 Stdlib.ZArith.BinInt Z mod_small thm
+R15551:15561 Stdlib.ZArith.BinInt Z mod_small thm
+prf 16163:16178 <> encode_injective
+binder 16191:16192 <> v1:108
+binder 16194:16195 <> v2:109
+R16216:16223 Corelib.Init.Logic <> ::type_scope:x_'->'_x not
+R16202:16212 anubis_notary.cbor_pure <> well_formed ind
+R16214:16215 anubis_notary.cbor_pure <> v1:108 var
+R16238:16245 Corelib.Init.Logic <> ::type_scope:x_'->'_x not
+R16224:16234 anubis_notary.cbor_pure <> well_formed ind
+R16236:16237 anubis_notary.cbor_pure <> v2:109 var
+R16267:16274 Corelib.Init.Logic <> ::type_scope:x_'->'_x not
+R16255:16257 Corelib.Init.Logic <> ::type_scope:x_'='_x not
+R16246:16251 anubis_notary.cbor_pure <> encode def
+R16253:16254 anubis_notary.cbor_pure <> v1:108 var
+R16258:16263 anubis_notary.cbor_pure <> encode def
+R16265:16266 anubis_notary.cbor_pure <> v2:109 var
+R16277:16279 Corelib.Init.Logic <> ::type_scope:x_'='_x not
+R16275:16276 anubis_notary.cbor_pure <> v1:108 var
+R16280:16281 anubis_notary.cbor_pure <> v2:109 var
+R16984:16996 anubis_notary.cbor_pure <> encode_header def
+R17021:17024 Stdlib.ZArith.BinInt <> ::Z_scope:x_'<?'_x not
+R17041:17044 Stdlib.ZArith.BinInt <> ::Z_scope:x_'<?'_x not
+R17021:17024 Stdlib.ZArith.BinInt <> ::Z_scope:x_'<?'_x not
+R17041:17044 Stdlib.ZArith.BinInt <> ::Z_scope:x_'<?'_x not
+R17041:17044 Stdlib.ZArith.BinInt <> ::Z_scope:x_'<?'_x not
+R17158:17165 Stdlib.ZArith.BinInt Z ltb_lt thm
+R17158:17165 Stdlib.ZArith.BinInt Z ltb_lt thm
+R17181:17188 Stdlib.ZArith.BinInt Z ltb_lt thm
+R17181:17188 Stdlib.ZArith.BinInt Z ltb_lt thm
+R17351:17360 anubis_notary.cbor_pure <> major_to_Z def
+R17362:17375 anubis_notary.cbor_pure <> Major_Unsigned constr
+R17351:17360 anubis_notary.cbor_pure <> major_to_Z def
+R17362:17375 anubis_notary.cbor_pure <> Major_Unsigned constr
+R17410:17421 Stdlib.ZArith.BinInt Z shiftl_0_l thm
+R17425:17433 Stdlib.ZArith.BinInt Z lor_0_l thm
+R17410:17421 Stdlib.ZArith.BinInt Z shiftl_0_l thm

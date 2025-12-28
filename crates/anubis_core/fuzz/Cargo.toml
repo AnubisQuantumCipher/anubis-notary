@@ -1,0 +1,67 @@
+# Fuzzing configuration for anubis_core
+
+[package]
+name = "anubis_core-fuzz"
+version = "0.0.0"
+authors = ["Automatically generated"]
+publish = false
+edition = "2021"
+
+[package.metadata]
+cargo-fuzz = true
+
+[dependencies]
+libfuzzer-sys = "0.4"
+arbitrary = { version = "1", features = ["derive"] }
+
+[dependencies.anubis_core]
+path = ".."
+
+# Prevent this from interfering with workspaces
+[workspace]
+members = ["."]
+
+[profile.release]
+debug = 1
+
+[[bin]]
+name = "fuzz_cbor"
+path = "fuzz_targets/fuzz_cbor.rs"
+test = false
+doc = false
+bench = false
+
+[[bin]]
+name = "fuzz_aead"
+path = "fuzz_targets/fuzz_aead.rs"
+test = false
+doc = false
+bench = false
+
+[[bin]]
+name = "fuzz_keccak"
+path = "fuzz_targets/fuzz_keccak.rs"
+test = false
+doc = false
+bench = false
+
+[[bin]]
+name = "fuzz_merkle"
+path = "fuzz_targets/fuzz_merkle.rs"
+test = false
+doc = false
+bench = false
+
+[[bin]]
+name = "fuzz_receipt"
+path = "fuzz_targets/fuzz_receipt.rs"
+test = false
+doc = false
+bench = false
+
+[[bin]]
+name = "fuzz_license"
+path = "fuzz_targets/fuzz_license.rs"
+test = false
+doc = false
+bench = false

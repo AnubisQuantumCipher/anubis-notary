@@ -1,0 +1,87 @@
+# RocqWorkers Configuration for Anubis Notary Proofs
+#
+# This configuration enables parallel proof checking with distributed
+# workers. Use `rocqworkers prove` to run all proofs.
+
+[project]
+name = "anubis_notary"
+version = "0.1.0"
+description = "Formal verification of Anubis Notary cryptographic operations"
+
+[build]
+# Use dune for building
+build_system = "dune"
+dune_project = "."
+
+# Parallel compilation settings
+jobs = 0  # Use all available cores
+
+# Timeout per file (seconds)
+timeout = 300
+
+[theories]
+# Main theory path
+path = "theories"
+
+# Dependencies (from opam switches)
+dependencies = [
+  "coq-stdpp",
+  "coq-iris",
+  "coq-iris-contrib",
+  "coq-lrust",
+  "coq-caesium",
+  "coq-lithium",
+  "coq-refinedrust",
+  "coq-equations"
+]
+
+[workers]
+# Number of parallel worker processes
+count = 4
+
+# Memory limit per worker (MB)
+memory_limit = 4096
+
+# Enable proof caching
+cache = true
+cache_dir = "_build/proof_cache"
+
+[proofs]
+# Proof files to process (glob patterns)
+files = [
+  "theories/*.v",
+  "../verified/output/anubis_verified/proofs/*.v"
+]
+
+# Files to skip (already proven or generated)
+skip = [
+  "theories/extraction.v",  # Extraction only
+  "**/generated_*.v"        # Generated code, not proofs
+]
+
+# Proof checking mode
+mode = "full"  # Options: "full", "quick", "admitted"
+
+[tactics]
+# Default automation tactics
+auto_tactics = ["lia", "auto", "eauto"]
+
+# Timeout for individual tactics (ms)
+tactic_timeout = 10000
+
+[reporting]
+# Output format
+format = "summary"  # Options: "summary", "detailed", "json"
+
+# Generate proof graph
+generate_graph = true
+graph_output = "_build/proof_graph.dot"
+
+# Generate timing report
+timing = true
+timing_output = "_build/proof_timing.csv"
+
+[ci]
+# CI-specific settings
+fail_fast = false
+retry_count = 2

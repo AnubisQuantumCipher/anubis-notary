@@ -1,0 +1,511 @@
+DIGEST c44143a8fdecff86baaf075e920f95b1
+Fanubis_proofs.memory_tier_spec
+R559:561 Stdlib.micromega.Lia <> <> lib
+R563:568 Stdlib.ZArith.ZArith <> <> lib
+R570:573 Stdlib.Lists.List <> <> lib
+R575:578 Stdlib.Bool.Bool <> <> lib
+R580:587 Stdlib.Arith.PeanoNat <> <> lib
+R597:609 Stdlib.Lists.List ListNotations <> mod
+ind 970:980 <> memory_tier
+constr 996:1003 <> TierHigh
+constr 1060:1069 <> TierMedium
+constr 1123:1129 <> TierLow
+scheme 970:980 <> memory_tier_rect
+scheme 970:980 <> memory_tier_ind
+scheme 970:980 <> memory_tier_rec
+scheme 970:980 <> memory_tier_sind
+def 1237:1247 <> tier_m_cost
+R1254:1264 anubis_proofs.memory_tier_spec <> memory_tier ind
+binder 1250:1250 <> t:3
+R1269:1269 Corelib.Numbers.BinNums <> Z ind
+R1282:1282 anubis_proofs.memory_tier_spec <> t:3 var
+R1293:1300 anubis_proofs.memory_tier_spec <> TierHigh constr
+R1354:1363 anubis_proofs.memory_tier_spec <> TierMedium constr
+R1411:1417 anubis_proofs.memory_tier_spec <> TierLow constr
+def 1559:1569 <> tier_t_cost
+R1576:1586 anubis_proofs.memory_tier_spec <> memory_tier ind
+binder 1572:1572 <> t:5
+R1591:1593 Corelib.Init.Datatypes <> nat ind
+R1606:1606 anubis_proofs.memory_tier_spec <> t:5 var
+R1617:1624 anubis_proofs.memory_tier_spec <> TierHigh constr
+R1685:1694 anubis_proofs.memory_tier_spec <> TierMedium constr
+R1756:1762 anubis_proofs.memory_tier_spec <> TierLow constr
+def 1888:1901 <> high_threshold
+R1905:1905 Corelib.Numbers.BinNums <> Z ind
+def 1962:1977 <> medium_threshold
+R1981:1981 Corelib.Numbers.BinNums <> Z ind
+def 2092:2102 <> detect_tier
+R2121:2121 Corelib.Numbers.BinNums <> Z ind
+binder 2105:2117 <> available_kib:7
+R2126:2136 anubis_proofs.memory_tier_spec <> memory_tier ind
+R2159:2163 Stdlib.ZArith.BinInt <> ::Z_scope:x_'>=?'_x not
+R2146:2158 anubis_proofs.memory_tier_spec <> available_kib:7 var
+R2164:2177 anubis_proofs.memory_tier_spec <> high_threshold def
+R2216:2220 Stdlib.ZArith.BinInt <> ::Z_scope:x_'>=?'_x not
+R2203:2215 anubis_proofs.memory_tier_spec <> available_kib:7 var
+R2221:2236 anubis_proofs.memory_tier_spec <> medium_threshold def
+R2261:2267 anubis_proofs.memory_tier_spec <> TierLow constr
+R2243:2252 anubis_proofs.memory_tier_spec <> TierMedium constr
+R2184:2191 anubis_proofs.memory_tier_spec <> TierHigh constr
+prf 2562:2573 <> geb_false_lt
+binder 2584:2584 <> n:8
+binder 2586:2586 <> m:9
+R2606:2609 Corelib.Init.Logic <> ::type_scope:x_'->'_x not
+R2589:2589 Corelib.Init.Logic <> ::type_scope:x_'='_x not
+R2597:2600 Corelib.Init.Logic <> ::type_scope:x_'='_x not
+R2591:2595 Stdlib.ZArith.BinInt <> ::Z_scope:x_'>=?'_x not
+R2590:2590 anubis_proofs.memory_tier_spec <> n:8 var
+R2596:2596 anubis_proofs.memory_tier_spec <> m:9 var
+R2601:2605 Corelib.Init.Datatypes <> false constr
+R2611:2613 Stdlib.ZArith.BinInt <> ::Z_scope:x_'<'_x not
+R2610:2610 anubis_proofs.memory_tier_spec <> n:8 var
+R2614:2614 anubis_proofs.memory_tier_spec <> m:9 var
+R2642:2651 Stdlib.ZArith.BinInt Z geb_spec thm
+R2642:2651 Stdlib.ZArith.BinInt Z geb_spec thm
+prf 2741:2765 <> detect_tier_deterministic
+binder 2778:2781 <> mem1:10
+binder 2783:2786 <> mem2:11
+R2804:2811 Corelib.Init.Logic <> ::type_scope:x_'->'_x not
+R2797:2799 Corelib.Init.Logic <> ::type_scope:x_'='_x not
+R2793:2796 anubis_proofs.memory_tier_spec <> mem1:10 var
+R2800:2803 anubis_proofs.memory_tier_spec <> mem2:11 var
+R2828:2830 Corelib.Init.Logic <> ::type_scope:x_'='_x not
+R2812:2822 anubis_proofs.memory_tier_spec <> detect_tier def
+R2824:2827 anubis_proofs.memory_tier_spec <> mem1:10 var
+R2831:2841 anubis_proofs.memory_tier_spec <> detect_tier def
+R2843:2846 anubis_proofs.memory_tier_spec <> mem2:11 var
+prf 2935:2950 <> detect_tier_high
+binder 2963:2965 <> mem:12
+R2993:3000 Corelib.Init.Logic <> ::type_scope:x_'->'_x not
+R2975:2978 Stdlib.ZArith.BinInt <> ::Z_scope:x_'>='_x not
+R2972:2974 anubis_proofs.memory_tier_spec <> mem:12 var
+R2979:2992 anubis_proofs.memory_tier_spec <> high_threshold def
+R3016:3018 Corelib.Init.Logic <> ::type_scope:x_'='_x not
+R3001:3011 anubis_proofs.memory_tier_spec <> detect_tier def
+R3013:3015 anubis_proofs.memory_tier_spec <> mem:12 var
+R3019:3026 anubis_proofs.memory_tier_spec <> TierHigh constr
+R3064:3074 anubis_proofs.memory_tier_spec <> detect_tier def
+R3092:3096 Stdlib.ZArith.BinInt <> ::Z_scope:x_'>=?'_x not
+R3097:3110 anubis_proofs.memory_tier_spec <> high_threshold def
+R3092:3096 Stdlib.ZArith.BinInt <> ::Z_scope:x_'>=?'_x not
+R3097:3110 anubis_proofs.memory_tier_spec <> high_threshold def
+R3150:3161 anubis_proofs.memory_tier_spec <> geb_false_lt thm
+R3150:3161 anubis_proofs.memory_tier_spec <> geb_false_lt thm
+R3179:3192 anubis_proofs.memory_tier_spec <> high_threshold def
+prf 3256:3273 <> detect_tier_medium
+binder 3286:3288 <> mem:13
+R3318:3325 Corelib.Init.Logic <> ::type_scope:x_'->'_x not
+R3298:3301 Stdlib.ZArith.BinInt <> ::Z_scope:x_'>='_x not
+R3295:3297 anubis_proofs.memory_tier_spec <> mem:13 var
+R3302:3317 anubis_proofs.memory_tier_spec <> medium_threshold def
+R3346:3353 Corelib.Init.Logic <> ::type_scope:x_'->'_x not
+R3329:3331 Stdlib.ZArith.BinInt <> ::Z_scope:x_'<'_x not
+R3326:3328 anubis_proofs.memory_tier_spec <> mem:13 var
+R3332:3345 anubis_proofs.memory_tier_spec <> high_threshold def
+R3369:3371 Corelib.Init.Logic <> ::type_scope:x_'='_x not
+R3354:3364 anubis_proofs.memory_tier_spec <> detect_tier def
+R3366:3368 anubis_proofs.memory_tier_spec <> mem:13 var
+R3372:3381 anubis_proofs.memory_tier_spec <> TierMedium constr
+R3425:3435 anubis_proofs.memory_tier_spec <> detect_tier def
+R3453:3457 Stdlib.ZArith.BinInt <> ::Z_scope:x_'>=?'_x not
+R3458:3471 anubis_proofs.memory_tier_spec <> high_threshold def
+R3453:3457 Stdlib.ZArith.BinInt <> ::Z_scope:x_'>=?'_x not
+R3458:3471 anubis_proofs.memory_tier_spec <> high_threshold def
+R3495:3502 Stdlib.ZArith.BinInt Z geb_ge thm
+R3495:3502 Stdlib.ZArith.BinInt Z geb_ge thm
+R3521:3534 anubis_proofs.memory_tier_spec <> high_threshold def
+R3564:3568 Stdlib.ZArith.BinInt <> ::Z_scope:x_'>=?'_x not
+R3569:3584 anubis_proofs.memory_tier_spec <> medium_threshold def
+R3564:3568 Stdlib.ZArith.BinInt <> ::Z_scope:x_'>=?'_x not
+R3569:3584 anubis_proofs.memory_tier_spec <> medium_threshold def
+R3629:3640 anubis_proofs.memory_tier_spec <> geb_false_lt thm
+R3629:3640 anubis_proofs.memory_tier_spec <> geb_false_lt thm
+R3659:3674 anubis_proofs.memory_tier_spec <> medium_threshold def
+prf 3735:3749 <> detect_tier_low
+binder 3762:3764 <> mem:14
+R3793:3800 Corelib.Init.Logic <> ::type_scope:x_'->'_x not
+R3774:3776 Stdlib.ZArith.BinInt <> ::Z_scope:x_'<'_x not
+R3771:3773 anubis_proofs.memory_tier_spec <> mem:14 var
+R3777:3792 anubis_proofs.memory_tier_spec <> medium_threshold def
+R3816:3818 Corelib.Init.Logic <> ::type_scope:x_'='_x not
+R3801:3811 anubis_proofs.memory_tier_spec <> detect_tier def
+R3813:3815 anubis_proofs.memory_tier_spec <> mem:14 var
+R3819:3825 anubis_proofs.memory_tier_spec <> TierLow constr
+R3863:3873 anubis_proofs.memory_tier_spec <> detect_tier def
+R3891:3895 Stdlib.ZArith.BinInt <> ::Z_scope:x_'>=?'_x not
+R3896:3909 anubis_proofs.memory_tier_spec <> high_threshold def
+R3891:3895 Stdlib.ZArith.BinInt <> ::Z_scope:x_'>=?'_x not
+R3896:3909 anubis_proofs.memory_tier_spec <> high_threshold def
+R3933:3940 Stdlib.ZArith.BinInt Z geb_ge thm
+R3933:3940 Stdlib.ZArith.BinInt Z geb_ge thm
+R3959:3972 anubis_proofs.memory_tier_spec <> high_threshold def
+R3975:3990 anubis_proofs.memory_tier_spec <> medium_threshold def
+R4020:4024 Stdlib.ZArith.BinInt <> ::Z_scope:x_'>=?'_x not
+R4025:4040 anubis_proofs.memory_tier_spec <> medium_threshold def
+R4020:4024 Stdlib.ZArith.BinInt <> ::Z_scope:x_'>=?'_x not
+R4025:4040 anubis_proofs.memory_tier_spec <> medium_threshold def
+R4066:4073 Stdlib.ZArith.BinInt Z geb_ge thm
+R4066:4073 Stdlib.ZArith.BinInt Z geb_ge thm
+R4092:4107 anubis_proofs.memory_tier_spec <> medium_threshold def
+prf 4203:4219 <> detect_tier_total
+binder 4232:4234 <> mem:15
+R4267:4274 Corelib.Init.Logic <> ::type_scope:x_'\/'_x not
+R4256:4258 Corelib.Init.Logic <> ::type_scope:x_'='_x not
+R4241:4251 anubis_proofs.memory_tier_spec <> detect_tier def
+R4253:4255 anubis_proofs.memory_tier_spec <> mem:15 var
+R4259:4266 anubis_proofs.memory_tier_spec <> TierHigh constr
+R4303:4310 Corelib.Init.Logic <> ::type_scope:x_'\/'_x not
+R4290:4292 Corelib.Init.Logic <> ::type_scope:x_'='_x not
+R4275:4285 anubis_proofs.memory_tier_spec <> detect_tier def
+R4287:4289 anubis_proofs.memory_tier_spec <> mem:15 var
+R4293:4302 anubis_proofs.memory_tier_spec <> TierMedium constr
+R4326:4328 Corelib.Init.Logic <> ::type_scope:x_'='_x not
+R4311:4321 anubis_proofs.memory_tier_spec <> detect_tier def
+R4323:4325 anubis_proofs.memory_tier_spec <> mem:15 var
+R4329:4335 anubis_proofs.memory_tier_spec <> TierLow constr
+R4368:4378 anubis_proofs.memory_tier_spec <> detect_tier def
+R4396:4400 Stdlib.ZArith.BinInt <> ::Z_scope:x_'>=?'_x not
+R4401:4414 anubis_proofs.memory_tier_spec <> high_threshold def
+R4433:4437 Stdlib.ZArith.BinInt <> ::Z_scope:x_'>=?'_x not
+R4438:4453 anubis_proofs.memory_tier_spec <> medium_threshold def
+R4396:4400 Stdlib.ZArith.BinInt <> ::Z_scope:x_'>=?'_x not
+R4401:4414 anubis_proofs.memory_tier_spec <> high_threshold def
+R4433:4437 Stdlib.ZArith.BinInt <> ::Z_scope:x_'>=?'_x not
+R4438:4453 anubis_proofs.memory_tier_spec <> medium_threshold def
+R4433:4437 Stdlib.ZArith.BinInt <> ::Z_scope:x_'>=?'_x not
+R4438:4453 anubis_proofs.memory_tier_spec <> medium_threshold def
+def 4768:4777 <> min_m_cost
+R4781:4781 Corelib.Numbers.BinNums <> Z ind
+def 4847:4862 <> owasp_min_m_cost
+R4866:4866 Corelib.Numbers.BinNums <> Z ind
+prf 4935:4952 <> tier_m_cost_ge_min
+binder 4965:4965 <> t:16
+R4981:4984 Stdlib.ZArith.BinInt <> ::Z_scope:x_'>='_x not
+R4968:4978 anubis_proofs.memory_tier_spec <> tier_m_cost def
+R4980:4980 anubis_proofs.memory_tier_spec <> t:16 var
+R4985:4994 anubis_proofs.memory_tier_spec <> min_m_cost def
+R5024:5034 anubis_proofs.memory_tier_spec <> tier_m_cost def
+R5037:5046 anubis_proofs.memory_tier_spec <> min_m_cost def
+prf 5119:5138 <> tier_m_cost_ordering
+R5190:5195 Corelib.Init.Logic <> ::type_scope:x_'/\'_x not
+R5164:5167 Stdlib.ZArith.BinInt <> ::Z_scope:x_'>='_x not
+R5144:5154 anubis_proofs.memory_tier_spec <> tier_m_cost def
+R5156:5163 anubis_proofs.memory_tier_spec <> TierHigh constr
+R5168:5178 anubis_proofs.memory_tier_spec <> tier_m_cost def
+R5180:5189 anubis_proofs.memory_tier_spec <> TierMedium constr
+R5218:5221 Stdlib.ZArith.BinInt <> ::Z_scope:x_'>='_x not
+R5196:5206 anubis_proofs.memory_tier_spec <> tier_m_cost def
+R5208:5217 anubis_proofs.memory_tier_spec <> TierMedium constr
+R5222:5232 anubis_proofs.memory_tier_spec <> tier_m_cost def
+R5234:5240 anubis_proofs.memory_tier_spec <> TierLow constr
+R5259:5269 anubis_proofs.memory_tier_spec <> tier_m_cost def
+prf 5345:5369 <> tier_m_cost_exceeds_owasp
+binder 5382:5382 <> t:17
+R5398:5400 Stdlib.ZArith.BinInt <> ::Z_scope:x_'>'_x not
+R5385:5395 anubis_proofs.memory_tier_spec <> tier_m_cost def
+R5397:5397 anubis_proofs.memory_tier_spec <> t:17 var
+R5401:5416 anubis_proofs.memory_tier_spec <> owasp_min_m_cost def
+R5446:5456 anubis_proofs.memory_tier_spec <> tier_m_cost def
+R5459:5474 anubis_proofs.memory_tier_spec <> owasp_min_m_cost def
+prf 5542:5565 <> tier_m_cost_owasp_margin
+binder 5578:5578 <> t:18
+R5594:5597 Stdlib.ZArith.BinInt <> ::Z_scope:x_'>='_x not
+R5581:5591 anubis_proofs.memory_tier_spec <> tier_m_cost def
+R5593:5593 anubis_proofs.memory_tier_spec <> t:18 var
+R5600:5602 Stdlib.ZArith.BinInt <> ::Z_scope:x_'*'_x not
+R5603:5618 anubis_proofs.memory_tier_spec <> owasp_min_m_cost def
+R5648:5658 anubis_proofs.memory_tier_spec <> tier_m_cost def
+R5661:5676 anubis_proofs.memory_tier_spec <> owasp_min_m_cost def
+def 5976:5985 <> min_t_cost
+R5989:5991 Corelib.Init.Datatypes <> nat ind
+prf 6054:6071 <> tier_t_cost_ge_min
+binder 6084:6084 <> t:19
+R6101:6104 Corelib.Init.Peano <> ::nat_scope:x_'>='_x not
+R6088:6098 anubis_proofs.memory_tier_spec <> tier_t_cost def
+R6100:6100 anubis_proofs.memory_tier_spec <> t:19 var
+R6105:6114 anubis_proofs.memory_tier_spec <> min_t_cost def
+R6149:6159 anubis_proofs.memory_tier_spec <> tier_t_cost def
+R6162:6171 anubis_proofs.memory_tier_spec <> min_t_cost def
+prf 6262:6281 <> tier_t_cost_ordering
+R6338:6343 Corelib.Init.Logic <> ::type_scope:x_'/\'_x not
+R6307:6310 Corelib.Init.Peano <> ::nat_scope:x_'>='_x not
+R6288:6298 anubis_proofs.memory_tier_spec <> tier_t_cost def
+R6300:6306 anubis_proofs.memory_tier_spec <> TierLow constr
+R6311:6321 anubis_proofs.memory_tier_spec <> tier_t_cost def
+R6323:6332 anubis_proofs.memory_tier_spec <> TierMedium constr
+R6367:6370 Corelib.Init.Peano <> ::nat_scope:x_'>='_x not
+R6345:6355 anubis_proofs.memory_tier_spec <> tier_t_cost def
+R6357:6366 anubis_proofs.memory_tier_spec <> TierMedium constr
+R6371:6381 anubis_proofs.memory_tier_spec <> tier_t_cost def
+R6383:6390 anubis_proofs.memory_tier_spec <> TierHigh constr
+R6414:6424 anubis_proofs.memory_tier_spec <> tier_t_cost def
+def 6751:6766 <> tier_work_factor
+R6773:6783 anubis_proofs.memory_tier_spec <> memory_tier ind
+binder 6769:6769 <> t:20
+R6788:6788 Corelib.Numbers.BinNums <> Z ind
+R6808:6810 Stdlib.ZArith.BinInt <> ::Z_scope:x_'*'_x not
+R6795:6805 anubis_proofs.memory_tier_spec <> tier_m_cost def
+R6807:6807 anubis_proofs.memory_tier_spec <> t:20 var
+R6811:6818 Stdlib.ZArith.BinInt Z of_nat def
+R6821:6831 anubis_proofs.memory_tier_spec <> tier_t_cost def
+R6833:6833 anubis_proofs.memory_tier_spec <> t:20 var
+prf 6885:6905 <> tier_work_factor_high
+R6934:6936 Corelib.Init.Logic <> ::type_scope:x_'='_x not
+R6909:6924 anubis_proofs.memory_tier_spec <> tier_work_factor def
+R6926:6933 anubis_proofs.memory_tier_spec <> TierHigh constr
+prf 6981:7003 <> tier_work_factor_medium
+R7034:7036 Corelib.Init.Logic <> ::type_scope:x_'='_x not
+R7007:7022 anubis_proofs.memory_tier_spec <> tier_work_factor def
+R7024:7033 anubis_proofs.memory_tier_spec <> TierMedium constr
+prf 7080:7099 <> tier_work_factor_low
+R7127:7129 Corelib.Init.Logic <> ::type_scope:x_'='_x not
+R7103:7118 anubis_proofs.memory_tier_spec <> tier_work_factor def
+R7120:7126 anubis_proofs.memory_tier_spec <> TierLow constr
+def 7233:7257 <> practical_min_work_factor
+R7261:7261 Corelib.Numbers.BinNums <> Z ind
+prf 7328:7353 <> tier_work_factor_practical
+binder 7366:7366 <> t:21
+R7387:7390 Stdlib.ZArith.BinInt <> ::Z_scope:x_'>='_x not
+R7369:7384 anubis_proofs.memory_tier_spec <> tier_work_factor def
+R7386:7386 anubis_proofs.memory_tier_spec <> t:21 var
+R7391:7415 anubis_proofs.memory_tier_spec <> practical_min_work_factor def
+R7450:7470 anubis_proofs.memory_tier_spec <> tier_work_factor_high thm
+R7450:7470 anubis_proofs.memory_tier_spec <> tier_work_factor_high thm
+R7450:7470 anubis_proofs.memory_tier_spec <> tier_work_factor_high thm
+R7480:7504 anubis_proofs.memory_tier_spec <> practical_min_work_factor def
+R7524:7546 anubis_proofs.memory_tier_spec <> tier_work_factor_medium thm
+R7524:7546 anubis_proofs.memory_tier_spec <> tier_work_factor_medium thm
+R7524:7546 anubis_proofs.memory_tier_spec <> tier_work_factor_medium thm
+R7556:7580 anubis_proofs.memory_tier_spec <> practical_min_work_factor def
+R7600:7619 anubis_proofs.memory_tier_spec <> tier_work_factor_low thm
+R7600:7619 anubis_proofs.memory_tier_spec <> tier_work_factor_low thm
+R7600:7619 anubis_proofs.memory_tier_spec <> tier_work_factor_low thm
+R7629:7653 anubis_proofs.memory_tier_spec <> practical_min_work_factor def
+prf 7995:8021 <> medium_compensates_for_high
+R8076:8081 Corelib.Init.Logic <> ::type_scope:x_'/\'_x not
+R8047:8049 Corelib.Init.Logic <> ::type_scope:x_'='_x not
+R8027:8037 anubis_proofs.memory_tier_spec <> tier_m_cost def
+R8039:8046 anubis_proofs.memory_tier_spec <> TierHigh constr
+R8051:8053 Stdlib.ZArith.BinInt <> ::Z_scope:x_'*'_x not
+R8054:8064 anubis_proofs.memory_tier_spec <> tier_m_cost def
+R8066:8075 anubis_proofs.memory_tier_spec <> TierMedium constr
+R8105:8107 Corelib.Init.Peano <> ::nat_scope:x_'>'_x not
+R8083:8093 anubis_proofs.memory_tier_spec <> tier_t_cost def
+R8095:8104 anubis_proofs.memory_tier_spec <> TierMedium constr
+R8108:8118 anubis_proofs.memory_tier_spec <> tier_t_cost def
+R8120:8127 anubis_proofs.memory_tier_spec <> TierHigh constr
+R8151:8161 anubis_proofs.memory_tier_spec <> tier_m_cost def
+R8164:8174 anubis_proofs.memory_tier_spec <> tier_t_cost def
+prf 8282:8307 <> low_compensates_for_medium
+R8361:8366 Corelib.Init.Logic <> ::type_scope:x_'/\'_x not
+R8335:8337 Corelib.Init.Logic <> ::type_scope:x_'='_x not
+R8313:8323 anubis_proofs.memory_tier_spec <> tier_m_cost def
+R8325:8334 anubis_proofs.memory_tier_spec <> TierMedium constr
+R8339:8341 Stdlib.ZArith.BinInt <> ::Z_scope:x_'*'_x not
+R8342:8352 anubis_proofs.memory_tier_spec <> tier_m_cost def
+R8354:8360 anubis_proofs.memory_tier_spec <> TierLow constr
+R8387:8389 Corelib.Init.Peano <> ::nat_scope:x_'>'_x not
+R8368:8378 anubis_proofs.memory_tier_spec <> tier_t_cost def
+R8380:8386 anubis_proofs.memory_tier_spec <> TierLow constr
+R8390:8400 anubis_proofs.memory_tier_spec <> tier_t_cost def
+R8402:8411 anubis_proofs.memory_tier_spec <> TierMedium constr
+R8435:8445 anubis_proofs.memory_tier_spec <> tier_m_cost def
+R8448:8458 anubis_proofs.memory_tier_spec <> tier_t_cost def
+prf 8568:8588 <> security_compensation
+binder 8601:8601 <> t:22
+R8626:8629 Stdlib.ZArith.BinInt <> ::Z_scope:x_'>='_x not
+R8608:8623 anubis_proofs.memory_tier_spec <> tier_work_factor def
+R8625:8625 anubis_proofs.memory_tier_spec <> t:22 var
+R8630:8654 anubis_proofs.memory_tier_spec <> practical_min_work_factor def
+R8672:8697 anubis_proofs.memory_tier_spec <> tier_work_factor_practical thm
+R8672:8697 anubis_proofs.memory_tier_spec <> tier_work_factor_practical thm
+prf 9038:9051 <> high_tier_safe
+binder 9064:9066 <> mem:23
+R9094:9101 Corelib.Init.Logic <> ::type_scope:x_'->'_x not
+R9076:9079 Stdlib.ZArith.BinInt <> ::Z_scope:x_'>='_x not
+R9073:9075 anubis_proofs.memory_tier_spec <> mem:23 var
+R9080:9093 anubis_proofs.memory_tier_spec <> high_threshold def
+R9131:9134 Stdlib.ZArith.BinInt <> ::Z_scope:x_'<='_x not
+R9102:9112 anubis_proofs.memory_tier_spec <> tier_m_cost def
+R9115:9125 anubis_proofs.memory_tier_spec <> detect_tier def
+R9127:9129 anubis_proofs.memory_tier_spec <> mem:23 var
+R9138:9140 Stdlib.ZArith.BinInt <> ::Z_scope:x_'/'_x not
+R9135:9137 anubis_proofs.memory_tier_spec <> mem:23 var
+R9180:9195 anubis_proofs.memory_tier_spec <> detect_tier_high thm
+R9180:9195 anubis_proofs.memory_tier_spec <> detect_tier_high thm
+R9180:9195 anubis_proofs.memory_tier_spec <> detect_tier_high thm
+R9221:9231 anubis_proofs.memory_tier_spec <> tier_m_cost def
+R9234:9247 anubis_proofs.memory_tier_spec <> high_threshold def
+R9376:9395 Stdlib.ZArith.BinInt Z div_le_lower_bound thm
+R9376:9395 Stdlib.ZArith.BinInt Z div_le_lower_bound thm
+prf 9560:9575 <> medium_tier_safe
+binder 9588:9590 <> mem:24
+R9620:9627 Corelib.Init.Logic <> ::type_scope:x_'->'_x not
+R9600:9603 Stdlib.ZArith.BinInt <> ::Z_scope:x_'>='_x not
+R9597:9599 anubis_proofs.memory_tier_spec <> mem:24 var
+R9604:9619 anubis_proofs.memory_tier_spec <> medium_threshold def
+R9648:9655 Corelib.Init.Logic <> ::type_scope:x_'->'_x not
+R9631:9633 Stdlib.ZArith.BinInt <> ::Z_scope:x_'<'_x not
+R9628:9630 anubis_proofs.memory_tier_spec <> mem:24 var
+R9634:9647 anubis_proofs.memory_tier_spec <> high_threshold def
+R9685:9688 Stdlib.ZArith.BinInt <> ::Z_scope:x_'<='_x not
+R9656:9666 anubis_proofs.memory_tier_spec <> tier_m_cost def
+R9669:9679 anubis_proofs.memory_tier_spec <> detect_tier def
+R9681:9683 anubis_proofs.memory_tier_spec <> mem:24 var
+R9692:9694 Stdlib.ZArith.BinInt <> ::Z_scope:x_'/'_x not
+R9689:9691 anubis_proofs.memory_tier_spec <> mem:24 var
+R9740:9757 anubis_proofs.memory_tier_spec <> detect_tier_medium thm
+R9740:9757 anubis_proofs.memory_tier_spec <> detect_tier_medium thm
+R9740:9757 anubis_proofs.memory_tier_spec <> detect_tier_medium thm
+R9783:9793 anubis_proofs.memory_tier_spec <> tier_m_cost def
+R9796:9811 anubis_proofs.memory_tier_spec <> medium_threshold def
+R9827:9846 Stdlib.ZArith.BinInt Z div_le_lower_bound thm
+R9827:9846 Stdlib.ZArith.BinInt Z div_le_lower_bound thm
+prf 9919:9934 <> low_tier_bounded
+binder 9947:9949 <> mem:25
+R9978:9985 Corelib.Init.Logic <> ::type_scope:x_'->'_x not
+R9959:9961 Stdlib.ZArith.BinInt <> ::Z_scope:x_'<'_x not
+R9956:9958 anubis_proofs.memory_tier_spec <> mem:25 var
+R9962:9977 anubis_proofs.memory_tier_spec <> medium_threshold def
+R10015:10017 Corelib.Init.Logic <> ::type_scope:x_'='_x not
+R9986:9996 anubis_proofs.memory_tier_spec <> tier_m_cost def
+R9999:10009 anubis_proofs.memory_tier_spec <> detect_tier def
+R10011:10013 anubis_proofs.memory_tier_spec <> mem:25 var
+R10062:10076 anubis_proofs.memory_tier_spec <> detect_tier_low thm
+R10062:10076 anubis_proofs.memory_tier_spec <> detect_tier_low thm
+R10062:10076 anubis_proofs.memory_tier_spec <> detect_tier_low thm
+rec 10404:10418 <> argon2id_params
+proj 10437:10444 <> p_m_cost
+proj 10453:10460 <> p_t_cost
+proj 10471:10483 <> p_parallelism
+proj 10494:10502 <> p_tag_len
+R10448:10448 Corelib.Numbers.BinNums <> Z ind
+R10464:10466 Corelib.Init.Datatypes <> nat ind
+R10487:10489 Corelib.Init.Datatypes <> nat ind
+R10506:10508 Corelib.Init.Datatypes <> nat ind
+def 10574:10587 <> tier_to_params
+R10594:10604 anubis_proofs.memory_tier_spec <> memory_tier ind
+binder 10590:10590 <> t:31
+R10609:10623 anubis_proofs.memory_tier_spec <> argon2id_params rec
+R10633:10640 anubis_proofs.memory_tier_spec <> p_m_cost proj
+R10633:10640 anubis_proofs.memory_tier_spec <> p_m_cost proj
+R10633:10640 anubis_proofs.memory_tier_spec <> p_m_cost proj
+R10662:10669 anubis_proofs.memory_tier_spec <> p_t_cost proj
+R10662:10669 anubis_proofs.memory_tier_spec <> p_t_cost proj
+R10691:10703 anubis_proofs.memory_tier_spec <> p_parallelism proj
+R10691:10703 anubis_proofs.memory_tier_spec <> p_parallelism proj
+R10713:10721 anubis_proofs.memory_tier_spec <> p_tag_len proj
+R10713:10721 anubis_proofs.memory_tier_spec <> p_tag_len proj
+R10645:10655 anubis_proofs.memory_tier_spec <> tier_m_cost def
+R10657:10657 anubis_proofs.memory_tier_spec <> t:31 var
+R10674:10684 anubis_proofs.memory_tier_spec <> tier_t_cost def
+R10686:10686 anubis_proofs.memory_tier_spec <> t:31 var
+def 10798:10815 <> auto_select_params
+R10834:10834 Corelib.Numbers.BinNums <> Z ind
+binder 10818:10830 <> available_kib:32
+R10839:10853 anubis_proofs.memory_tier_spec <> argon2id_params rec
+R10860:10873 anubis_proofs.memory_tier_spec <> tier_to_params def
+R10876:10886 anubis_proofs.memory_tier_spec <> detect_tier def
+R10888:10900 anubis_proofs.memory_tier_spec <> available_kib:32 var
+def 10954:10965 <> params_valid
+R10972:10986 anubis_proofs.memory_tier_spec <> argon2id_params rec
+binder 10968:10968 <> p:33
+R11025:11030 Corelib.Init.Logic <> ::type_scope:x_'/\'_x not
+R11011:11014 Stdlib.ZArith.BinInt <> ::Z_scope:x_'>='_x not
+R11001:11008 anubis_proofs.memory_tier_spec <> p_m_cost proj
+R11010:11010 anubis_proofs.memory_tier_spec <> p:33 var
+R11015:11024 anubis_proofs.memory_tier_spec <> min_m_cost def
+R11061:11066 Corelib.Init.Logic <> ::type_scope:x_'/\'_x not
+R11042:11045 Corelib.Init.Peano <> ::nat_scope:x_'>='_x not
+R11032:11039 anubis_proofs.memory_tier_spec <> p_t_cost proj
+R11041:11041 anubis_proofs.memory_tier_spec <> p:33 var
+R11046:11055 anubis_proofs.memory_tier_spec <> min_t_cost def
+R11093:11098 Corelib.Init.Logic <> ::type_scope:x_'/\'_x not
+R11083:11086 Corelib.Init.Peano <> ::nat_scope:x_'>='_x not
+R11068:11080 anubis_proofs.memory_tier_spec <> p_parallelism proj
+R11082:11082 anubis_proofs.memory_tier_spec <> p:33 var
+R11111:11113 Corelib.Init.Peano <> ::nat_scope:x_'>'_x not
+R11100:11108 anubis_proofs.memory_tier_spec <> p_tag_len proj
+R11110:11110 anubis_proofs.memory_tier_spec <> p:33 var
+prf 11178:11194 <> tier_params_valid
+binder 11207:11207 <> t:34
+R11210:11221 anubis_proofs.memory_tier_spec <> params_valid def
+R11224:11237 anubis_proofs.memory_tier_spec <> tier_to_params def
+R11239:11239 anubis_proofs.memory_tier_spec <> t:34 var
+R11271:11282 anubis_proofs.memory_tier_spec <> params_valid def
+R11285:11298 anubis_proofs.memory_tier_spec <> tier_to_params def
+R11334:11351 anubis_proofs.memory_tier_spec <> tier_m_cost_ge_min thm
+R11334:11351 anubis_proofs.memory_tier_spec <> tier_m_cost_ge_min thm
+R11364:11381 anubis_proofs.memory_tier_spec <> tier_t_cost_ge_min thm
+R11364:11381 anubis_proofs.memory_tier_spec <> tier_t_cost_ge_min thm
+prf 11465:11488 <> auto_select_params_valid
+binder 11501:11513 <> available_kib:35
+R11520:11531 anubis_proofs.memory_tier_spec <> params_valid def
+R11534:11551 anubis_proofs.memory_tier_spec <> auto_select_params def
+R11553:11565 anubis_proofs.memory_tier_spec <> available_kib:35 var
+R11599:11616 anubis_proofs.memory_tier_spec <> auto_select_params def
+R11627:11643 anubis_proofs.memory_tier_spec <> tier_params_valid thm
+R11627:11643 anubis_proofs.memory_tier_spec <> tier_params_valid thm
+def 11983:11995 <> fallback_tier
+R11999:12009 anubis_proofs.memory_tier_spec <> memory_tier ind
+R12014:12023 anubis_proofs.memory_tier_spec <> TierMedium constr
+prf 12035:12053 <> fallback_tier_valid
+R12059:12070 anubis_proofs.memory_tier_spec <> params_valid def
+R12073:12086 anubis_proofs.memory_tier_spec <> tier_to_params def
+R12088:12100 anubis_proofs.memory_tier_spec <> fallback_tier def
+R12119:12135 anubis_proofs.memory_tier_spec <> tier_params_valid thm
+R12119:12135 anubis_proofs.memory_tier_spec <> tier_params_valid thm
+prf 12152:12174 <> fallback_tier_practical
+R12210:12213 Stdlib.ZArith.BinInt <> ::Z_scope:x_'>='_x not
+R12180:12195 anubis_proofs.memory_tier_spec <> tier_work_factor def
+R12197:12209 anubis_proofs.memory_tier_spec <> fallback_tier def
+R12214:12238 anubis_proofs.memory_tier_spec <> practical_min_work_factor def
+R12256:12281 anubis_proofs.memory_tier_spec <> tier_work_factor_practical thm
+R12256:12281 anubis_proofs.memory_tier_spec <> tier_work_factor_practical thm
+def 12551:12561 <> tier_eq_dec
+R12572:12582 anubis_proofs.memory_tier_spec <> memory_tier ind
+binder 12564:12565 <> t1:36
+binder 12567:12568 <> t2:37
+R12587:12587 Corelib.Init.Specif <> ::type_scope:'{'_x_'}'_'+'_'{'_x_'}' not
+R12595:12599 Corelib.Init.Specif <> ::type_scope:'{'_x_'}'_'+'_'{'_x_'}' not
+R12608:12608 Corelib.Init.Specif <> ::type_scope:'{'_x_'}'_'+'_'{'_x_'}' not
+R12590:12592 Corelib.Init.Logic <> ::type_scope:x_'='_x not
+R12588:12589 anubis_proofs.memory_tier_spec <> t1:36 var
+R12593:12594 anubis_proofs.memory_tier_spec <> t2:37 var
+R12602:12605 Corelib.Init.Logic <> ::type_scope:x_'<>'_x not
+R12600:12601 anubis_proofs.memory_tier_spec <> t1:36 var
+R12606:12607 anubis_proofs.memory_tier_spec <> t2:37 var
+prf 12967:12984 <> auto_select_safety
+binder 12997:13009 <> available_kib:38
+R13104:13157 Corelib.Init.Logic <> ::type_scope:x_'/\'_x not
+R13057:13068 anubis_proofs.memory_tier_spec <> params_valid def
+R13071:13088 anubis_proofs.memory_tier_spec <> auto_select_params def
+R13090:13102 anubis_proofs.memory_tier_spec <> available_kib:38 var
+R13231:13291 Corelib.Init.Logic <> ::type_scope:x_'/\'_x not
+R13202:13205 Stdlib.ZArith.BinInt <> ::Z_scope:x_'>='_x not
+R13158:13173 anubis_proofs.memory_tier_spec <> tier_work_factor def
+R13176:13186 anubis_proofs.memory_tier_spec <> detect_tier def
+R13188:13200 anubis_proofs.memory_tier_spec <> available_kib:38 var
+R13206:13230 anubis_proofs.memory_tier_spec <> practical_min_work_factor def
+R13335:13338 Stdlib.ZArith.BinInt <> ::Z_scope:x_'<='_x not
+R13292:13299 anubis_proofs.memory_tier_spec <> p_m_cost proj
+R13302:13319 anubis_proofs.memory_tier_spec <> auto_select_params def
+R13321:13333 anubis_proofs.memory_tier_spec <> available_kib:38 var
+R13339:13349 anubis_proofs.memory_tier_spec <> tier_m_cost def
+R13351:13358 anubis_proofs.memory_tier_spec <> TierHigh constr
+R13431:13454 anubis_proofs.memory_tier_spec <> auto_select_params_valid thm
+R13431:13454 anubis_proofs.memory_tier_spec <> auto_select_params_valid thm
+R13489:13514 anubis_proofs.memory_tier_spec <> tier_work_factor_practical thm
+R13489:13514 anubis_proofs.memory_tier_spec <> tier_work_factor_practical thm
+R13551:13568 anubis_proofs.memory_tier_spec <> auto_select_params def
+R13571:13584 anubis_proofs.memory_tier_spec <> tier_to_params def
+R13587:13597 anubis_proofs.memory_tier_spec <> tier_m_cost def
+R13625:13635 anubis_proofs.memory_tier_spec <> detect_tier def
+R13625:13635 anubis_proofs.memory_tier_spec <> detect_tier def
+R13991:14008 anubis_proofs.memory_tier_spec <> auto_select_safety thm
+R14029:14045 anubis_proofs.memory_tier_spec <> tier_params_valid thm
+R14066:14086 anubis_proofs.memory_tier_spec <> security_compensation thm
+R14107:14132 anubis_proofs.memory_tier_spec <> tier_work_factor_practical thm
+R14153:14168 anubis_proofs.memory_tier_spec <> detect_tier_high thm
+R14189:14206 anubis_proofs.memory_tier_spec <> detect_tier_medium thm
+R14227:14241 anubis_proofs.memory_tier_spec <> detect_tier_low thm

@@ -1,0 +1,752 @@
+DIGEST 7acdbccb8dd25e58d90bbb5e909d81a1
+Fanubis_notary.timing_model
+R441:446 Stdlib.ZArith.ZArith <> <> lib
+R448:450 Stdlib.micromega.Lia <> <> lib
+R452:455 Stdlib.Lists.List <> <> lib
+R457:460 Stdlib.Bool.Bool <> <> lib
+R470:482 Stdlib.Lists.List ListNotations <> mod
+sec 899:910 <> timing_model
+ind 978:990 <> secrecy_class
+constr 999:1004 <> Public
+constr 1045:1050 <> Secret
+scheme 978:990 <> secrecy_class_rect
+scheme 978:990 <> secrecy_class_ind
+scheme 978:990 <> secrecy_class_rec
+scheme 978:990 <> secrecy_class_sind
+def 1189:1206 <> timing_independent
+R1214:1217 Corelib.Init.Logic <> ::type_scope:x_'->'_x not
+R1213:1213 Corelib.Numbers.BinNums <> Z ind
+R1219:1222 Corelib.Init.Logic <> ::type_scope:x_'->'_x not
+R1218:1218 Corelib.Numbers.BinNums <> Z ind
+R1223:1223 Corelib.Numbers.BinNums <> Z ind
+binder 1209:1209 <> f:3
+R1420:1423 Corelib.Init.Logic <> True ind
+def 1440:1463 <> timing_independent_unary
+R1471:1474 Corelib.Init.Logic <> ::type_scope:x_'->'_x not
+R1470:1470 Corelib.Numbers.BinNums <> Z ind
+R1475:1475 Corelib.Numbers.BinNums <> Z ind
+binder 1466:1466 <> f:4
+R1492:1495 Corelib.Init.Logic <> True ind
+rec 1546:1559 <> ConstantTimeOp
+proj 1589:1606 <> ct_op_timing_indep
+R1568:1571 Corelib.Init.Logic <> ::type_scope:x_'->'_x not
+R1567:1567 Corelib.Numbers.BinNums <> Z ind
+R1573:1576 Corelib.Init.Logic <> ::type_scope:x_'->'_x not
+R1572:1572 Corelib.Numbers.BinNums <> Z ind
+R1577:1577 Corelib.Numbers.BinNums <> Z ind
+binder 1562:1563 <> op:5
+R1610:1627 anubis_notary.timing_model <> timing_independent def
+R1629:1630 anubis_notary.timing_model <> op:5 var
+rec 1646:1664 <> ConstantTimeUnaryOp
+proj 1689:1712 <> ct_unary_op_timing_indep
+R1673:1676 Corelib.Init.Logic <> ::type_scope:x_'->'_x not
+R1672:1672 Corelib.Numbers.BinNums <> Z ind
+R1677:1677 Corelib.Numbers.BinNums <> Z ind
+binder 1667:1668 <> op:8
+R1716:1739 anubis_notary.timing_model <> timing_independent_unary def
+R1741:1742 anubis_notary.timing_model <> op:8 var
+def 1844:1849 <> ct_xor
+R1858:1858 Corelib.Numbers.BinNums <> Z ind
+binder 1852:1852 <> a:11
+binder 1854:1854 <> b:12
+R1863:1863 Corelib.Numbers.BinNums <> Z ind
+R1868:1873 Stdlib.ZArith.BinInt Z lxor def
+R1875:1875 anubis_notary.timing_model <> a:11 var
+R1877:1877 anubis_notary.timing_model <> b:12 var
+inst 1899:1907 <> xor_is_ct
+R1911:1924 anubis_notary.timing_model <> ConstantTimeOp class
+R1926:1931 anubis_notary.timing_model <> ct_xor def
+R1963:1980 anubis_notary.timing_model <> timing_independent def
+def 2037:2042 <> ct_and
+R2051:2051 Corelib.Numbers.BinNums <> Z ind
+binder 2045:2045 <> a:13
+binder 2047:2047 <> b:14
+R2056:2056 Corelib.Numbers.BinNums <> Z ind
+R2061:2066 Stdlib.ZArith.BinInt Z land def
+R2068:2068 anubis_notary.timing_model <> a:13 var
+R2070:2070 anubis_notary.timing_model <> b:14 var
+inst 2092:2100 <> and_is_ct
+R2104:2117 anubis_notary.timing_model <> ConstantTimeOp class
+R2119:2124 anubis_notary.timing_model <> ct_and def
+R2156:2173 anubis_notary.timing_model <> timing_independent def
+def 2229:2233 <> ct_or
+R2242:2242 Corelib.Numbers.BinNums <> Z ind
+binder 2236:2236 <> a:15
+binder 2238:2238 <> b:16
+R2247:2247 Corelib.Numbers.BinNums <> Z ind
+R2252:2256 Stdlib.ZArith.BinInt Z lor def
+R2258:2258 anubis_notary.timing_model <> a:15 var
+R2260:2260 anubis_notary.timing_model <> b:16 var
+inst 2282:2289 <> or_is_ct
+R2293:2306 anubis_notary.timing_model <> ConstantTimeOp class
+R2308:2312 anubis_notary.timing_model <> ct_or def
+R2344:2361 anubis_notary.timing_model <> timing_independent def
+def 2418:2423 <> ct_not
+R2430:2430 Corelib.Numbers.BinNums <> Z ind
+binder 2426:2426 <> a:17
+R2435:2435 Corelib.Numbers.BinNums <> Z ind
+R2440:2445 Stdlib.ZArith.BinInt Z lnot def
+R2447:2447 anubis_notary.timing_model <> a:17 var
+inst 2469:2477 <> not_is_ct
+R2481:2499 anubis_notary.timing_model <> ConstantTimeUnaryOp class
+R2501:2506 anubis_notary.timing_model <> ct_not def
+R2538:2561 anubis_notary.timing_model <> timing_independent_unary def
+def 2644:2649 <> ct_shl
+R2658:2658 Corelib.Numbers.BinNums <> Z ind
+binder 2652:2652 <> a:18
+binder 2654:2654 <> n:19
+R2663:2663 Corelib.Numbers.BinNums <> Z ind
+R2668:2675 Stdlib.ZArith.BinInt Z shiftl def
+R2677:2677 anubis_notary.timing_model <> a:18 var
+R2679:2679 anubis_notary.timing_model <> n:19 var
+inst 2701:2709 <> shl_is_ct
+R2713:2726 anubis_notary.timing_model <> ConstantTimeOp class
+R2728:2733 anubis_notary.timing_model <> ct_shl def
+R2765:2782 anubis_notary.timing_model <> timing_independent def
+def 2866:2871 <> ct_shr
+R2880:2880 Corelib.Numbers.BinNums <> Z ind
+binder 2874:2874 <> a:20
+binder 2876:2876 <> n:21
+R2885:2885 Corelib.Numbers.BinNums <> Z ind
+R2890:2897 Stdlib.ZArith.BinInt Z shiftr def
+R2899:2899 anubis_notary.timing_model <> a:20 var
+R2901:2901 anubis_notary.timing_model <> n:21 var
+inst 2923:2931 <> shr_is_ct
+R2935:2948 anubis_notary.timing_model <> ConstantTimeOp class
+R2950:2955 anubis_notary.timing_model <> ct_shr def
+R2987:3004 anubis_notary.timing_model <> timing_independent def
+def 3066:3071 <> ct_add
+R3080:3080 Corelib.Numbers.BinNums <> Z ind
+binder 3074:3074 <> a:22
+binder 3076:3076 <> b:23
+R3085:3085 Corelib.Numbers.BinNums <> Z ind
+R3091:3093 Stdlib.ZArith.BinInt <> ::Z_scope:x_'+'_x not
+R3090:3090 anubis_notary.timing_model <> a:22 var
+R3094:3094 anubis_notary.timing_model <> b:23 var
+inst 3116:3124 <> add_is_ct
+R3128:3141 anubis_notary.timing_model <> ConstantTimeOp class
+R3143:3148 anubis_notary.timing_model <> ct_add def
+R3180:3197 anubis_notary.timing_model <> timing_independent def
+def 3262:3267 <> ct_sub
+R3276:3276 Corelib.Numbers.BinNums <> Z ind
+binder 3270:3270 <> a:24
+binder 3272:3272 <> b:25
+R3281:3281 Corelib.Numbers.BinNums <> Z ind
+R3287:3289 Stdlib.ZArith.BinInt <> ::Z_scope:x_'-'_x not
+R3286:3286 anubis_notary.timing_model <> a:24 var
+R3290:3290 anubis_notary.timing_model <> b:25 var
+inst 3312:3320 <> sub_is_ct
+R3324:3337 anubis_notary.timing_model <> ConstantTimeOp class
+R3339:3344 anubis_notary.timing_model <> ct_sub def
+R3376:3393 anubis_notary.timing_model <> timing_independent def
+def 3478:3483 <> ct_mul
+R3492:3492 Corelib.Numbers.BinNums <> Z ind
+binder 3486:3486 <> a:26
+binder 3488:3488 <> b:27
+R3497:3497 Corelib.Numbers.BinNums <> Z ind
+R3503:3505 Stdlib.ZArith.BinInt <> ::Z_scope:x_'*'_x not
+R3502:3502 anubis_notary.timing_model <> a:26 var
+R3506:3506 anubis_notary.timing_model <> b:27 var
+inst 3528:3536 <> mul_is_ct
+R3540:3553 anubis_notary.timing_model <> ConstantTimeOp class
+R3555:3560 anubis_notary.timing_model <> ct_mul def
+R3592:3609 anubis_notary.timing_model <> timing_independent def
+def 3749:3767 <> branch_leaks_secret
+R3777:3780 Corelib.Init.Datatypes <> bool ind
+binder 3770:3773 <> cond:28
+R3790:3790 Corelib.Numbers.BinNums <> Z ind
+binder 3784:3784 <> a:29
+binder 3786:3786 <> b:30
+R3795:3795 Corelib.Numbers.BinNums <> Z ind
+R3807:3810 anubis_notary.timing_model <> cond:28 var
+R3824:3824 anubis_notary.timing_model <> b:30 var
+R3817:3817 anubis_notary.timing_model <> a:29 var
+prf 3900:3928 <> branch_not_timing_independent
+R4059:4062 Corelib.Init.Logic <> True ind
+def 4146:4159 <> ct_select_spec
+R4175:4175 Corelib.Numbers.BinNums <> Z ind
+binder 4162:4167 <> choice:31
+binder 4169:4169 <> a:32
+binder 4171:4171 <> b:33
+R4180:4180 Corelib.Numbers.BinNums <> Z ind
+R4288:4291 Stdlib.ZArith.BinInt <> ::Z_scope:x_'=?'_x not
+R4282:4287 anubis_notary.timing_model <> choice:31 var
+binder 4270:4273 <> mask:34
+R4325:4330 Stdlib.ZArith.BinInt Z lxor def
+R4333:4338 Stdlib.ZArith.BinInt Z land def
+R4340:4343 anubis_notary.timing_model <> mask:34 var
+R4346:4351 Stdlib.ZArith.BinInt Z lxor def
+R4353:4353 anubis_notary.timing_model <> a:32 var
+R4355:4355 anubis_notary.timing_model <> b:33 var
+R4359:4359 anubis_notary.timing_model <> b:33 var
+prf 4435:4462 <> ct_select_timing_independent
+R4487:4487 Corelib.Numbers.BinNums <> Z ind
+binder 4474:4479 <> choice:35
+binder 4481:4481 <> a:36
+binder 4483:4483 <> b:37
+R4515:4859 Corelib.Init.Logic <> ::type_scope:x_'->'_x not
+R4497:4500 Stdlib.ZArith.BinInt <> ::Z_scope:x_'<='_x_'<='_x not
+R4507:4510 Stdlib.ZArith.BinInt <> ::Z_scope:x_'<='_x_'<='_x not
+R4501:4506 anubis_notary.timing_model <> choice:35 var
+R4501:4506 anubis_notary.timing_model <> choice:35 var
+R4860:4877 anubis_notary.timing_model <> timing_independent def
+R4891:4904 anubis_notary.timing_model <> ct_select_spec def
+R4906:4911 anubis_notary.timing_model <> choice:35 var
+R4913:4913 anubis_notary.timing_model <> a:36 var
+R4915:4915 anubis_notary.timing_model <> b:37 var
+R4970:4987 anubis_notary.timing_model <> timing_independent def
+def 5088:5101 <> ct_select_impl
+R5117:5117 Corelib.Numbers.BinNums <> Z ind
+binder 5104:5109 <> choice:38
+binder 5111:5111 <> a:39
+binder 5113:5113 <> b:40
+R5122:5122 Corelib.Numbers.BinNums <> Z ind
+R5215:5219 Stdlib.ZArith.BinInt Z sub def
+R5224:5229 Stdlib.ZArith.BinInt Z land def
+R5231:5236 anubis_notary.timing_model <> choice:38 var
+binder 5207:5210 <> mask:41
+R5263:5268 Stdlib.ZArith.BinInt Z land def
+R5270:5273 anubis_notary.timing_model <> mask:41 var
+binder 5252:5258 <> mask_u8:42
+R5286:5291 Stdlib.ZArith.BinInt Z lxor def
+R5294:5299 Stdlib.ZArith.BinInt Z land def
+R5301:5307 anubis_notary.timing_model <> mask_u8:42 var
+R5310:5315 Stdlib.ZArith.BinInt Z lxor def
+R5317:5317 anubis_notary.timing_model <> a:39 var
+R5319:5319 anubis_notary.timing_model <> b:40 var
+R5323:5323 anubis_notary.timing_model <> b:40 var
+prf 5450:5464 <> land_255_eq_mod
+R5479:5479 Corelib.Numbers.BinNums <> Z ind
+binder 5475:5475 <> x:43
+R5496:5499 Corelib.Init.Logic <> ::type_scope:x_'->'_x not
+R5488:5491 Stdlib.ZArith.BinInt <> ::Z_scope:x_'<='_x not
+R5492:5492 anubis_notary.timing_model <> x:43 var
+R5512:5514 Corelib.Init.Logic <> ::type_scope:x_'='_x not
+R5500:5505 Stdlib.ZArith.BinInt Z land def
+R5511:5511 anubis_notary.timing_model <> x:43 var
+R5516:5520 Stdlib.ZArith.BinInt <> ::Z_scope:x_'mod'_x not
+R5515:5515 anubis_notary.timing_model <> x:43 var
+R5629:5634 Stdlib.ZArith.BinInt Z ones def
+R5629:5634 Stdlib.ZArith.BinInt Z ones def
+R5667:5677 Stdlib.ZArith.BinInt Z land_comm thm
+R5667:5677 Stdlib.ZArith.BinInt Z land_comm thm
+R5667:5677 Stdlib.ZArith.BinInt Z land_comm thm
+R5692:5702 Stdlib.ZArith.BinInt Z land_ones thm
+R5692:5702 Stdlib.ZArith.BinInt Z land_ones thm
+R5692:5702 Stdlib.ZArith.BinInt Z land_ones thm
+prf 5745:5758 <> land_255_small
+R5773:5773 Corelib.Numbers.BinNums <> Z ind
+binder 5769:5769 <> x:44
+R5796:5799 Corelib.Init.Logic <> ::type_scope:x_'->'_x not
+R5782:5785 Stdlib.ZArith.BinInt <> ::Z_scope:x_'<='_x_'<'_x not
+R5787:5789 Stdlib.ZArith.BinInt <> ::Z_scope:x_'<='_x_'<'_x not
+R5786:5786 anubis_notary.timing_model <> x:44 var
+R5786:5786 anubis_notary.timing_model <> x:44 var
+R5812:5814 Corelib.Init.Logic <> ::type_scope:x_'='_x not
+R5800:5805 Stdlib.ZArith.BinInt Z land def
+R5811:5811 anubis_notary.timing_model <> x:44 var
+R5815:5815 anubis_notary.timing_model <> x:44 var
+R5856:5870 anubis_notary.timing_model <> land_255_eq_mod thm
+R5856:5870 anubis_notary.timing_model <> land_255_eq_mod thm
+R5856:5870 anubis_notary.timing_model <> land_255_eq_mod thm
+R5890:5900 Stdlib.ZArith.BinInt Z mod_small thm
+R5890:5900 Stdlib.ZArith.BinInt Z mod_small thm
+prf 6177:6194 <> testbit_high_false
+binder 6205:6205 <> x:45
+binder 6207:6207 <> n:46
+R6230:6233 Corelib.Init.Logic <> ::type_scope:x_'->'_x not
+R6216:6219 Stdlib.ZArith.BinInt <> ::Z_scope:x_'<='_x_'<'_x not
+R6221:6223 Stdlib.ZArith.BinInt <> ::Z_scope:x_'<='_x_'<'_x not
+R6220:6220 anubis_notary.timing_model <> x:45 var
+R6220:6220 anubis_notary.timing_model <> x:45 var
+R6225:6225 Stdlib.ZArith.BinInt <> ::Z_scope:x_'^'_x not
+R6226:6226 anubis_notary.timing_model <> n:46 var
+R6244:6251 Corelib.Init.Logic <> ::type_scope:x_'->'_x not
+R6236:6239 Stdlib.ZArith.BinInt <> ::Z_scope:x_'<='_x not
+R6240:6240 anubis_notary.timing_model <> n:46 var
+binder 6259:6259 <> k:47
+R6272:6275 Corelib.Init.Logic <> ::type_scope:x_'->'_x not
+R6264:6267 Stdlib.ZArith.BinInt <> ::Z_scope:x_'<='_x not
+R6263:6263 anubis_notary.timing_model <> n:46 var
+R6268:6268 anubis_notary.timing_model <> k:47 var
+R6289:6291 Corelib.Init.Logic <> ::type_scope:x_'='_x not
+R6276:6284 Stdlib.ZArith.BinInt Z testbit def
+R6286:6286 anubis_notary.timing_model <> x:45 var
+R6288:6288 anubis_notary.timing_model <> k:47 var
+R6292:6296 Corelib.Init.Datatypes <> false constr
+R6349:6356 Stdlib.ZArith.BinInt Z eq_dec def
+R6349:6356 Stdlib.ZArith.BinInt Z eq_dec def
+R6442:6454 Stdlib.ZArith.BinInt Z testbit_0_l thm
+R6442:6454 Stdlib.ZArith.BinInt Z testbit_0_l thm
+R6508:6524 Stdlib.ZArith.BinInt Z bits_above_log2 thm
+R6508:6524 Stdlib.ZArith.BinInt Z bits_above_log2 thm
+R6554:6566 Stdlib.ZArith.BinInt Z lt_le_trans thm
+R6554:6566 Stdlib.ZArith.BinInt Z lt_le_trans thm
+R6592:6605 Stdlib.ZArith.BinInt Z log2_lt_pow2 thm
+R6592:6605 Stdlib.ZArith.BinInt Z log2_lt_pow2 thm
+prf 6693:6702 <> lxor_small
+R6719:6719 Corelib.Numbers.BinNums <> Z ind
+binder 6713:6713 <> a:48
+binder 6715:6715 <> b:49
+R6742:6745 Corelib.Init.Logic <> ::type_scope:x_'->'_x not
+R6728:6731 Stdlib.ZArith.BinInt <> ::Z_scope:x_'<='_x_'<'_x not
+R6733:6735 Stdlib.ZArith.BinInt <> ::Z_scope:x_'<='_x_'<'_x not
+R6732:6732 anubis_notary.timing_model <> a:48 var
+R6732:6732 anubis_notary.timing_model <> a:48 var
+R6762:6769 Corelib.Init.Logic <> ::type_scope:x_'->'_x not
+R6748:6751 Stdlib.ZArith.BinInt <> ::Z_scope:x_'<='_x_'<'_x not
+R6753:6755 Stdlib.ZArith.BinInt <> ::Z_scope:x_'<='_x_'<'_x not
+R6752:6752 anubis_notary.timing_model <> b:49 var
+R6752:6752 anubis_notary.timing_model <> b:49 var
+R6772:6775 Stdlib.ZArith.BinInt <> ::Z_scope:x_'<='_x_'<'_x not
+R6786:6788 Stdlib.ZArith.BinInt <> ::Z_scope:x_'<='_x_'<'_x not
+R6776:6781 Stdlib.ZArith.BinInt Z lxor def
+R6783:6783 anubis_notary.timing_model <> a:48 var
+R6785:6785 anubis_notary.timing_model <> b:49 var
+R6776:6781 Stdlib.ZArith.BinInt Z lxor def
+R6783:6783 anubis_notary.timing_model <> a:48 var
+R6785:6785 anubis_notary.timing_model <> b:49 var
+R6851:6863 Stdlib.ZArith.BinInt Z lxor_nonneg thm
+R6851:6863 Stdlib.ZArith.BinInt Z lxor_nonneg thm
+binder 7088:7088 <> k:50
+R7101:7104 Corelib.Init.Logic <> ::type_scope:x_'->'_x not
+R7093:7096 Stdlib.ZArith.BinInt <> ::Z_scope:x_'<='_x not
+R7097:7097 anubis_notary.timing_model <> k:50 var
+R7129:7131 Corelib.Init.Logic <> ::type_scope:x_'='_x not
+R7105:7113 Stdlib.ZArith.BinInt Z testbit def
+R7116:7121 Stdlib.ZArith.BinInt Z lxor def
+R7128:7128 anubis_notary.timing_model <> k:50 var
+R7132:7136 Corelib.Init.Datatypes <> false constr
+binder 7088:7088 <> k:51
+R7101:7104 Corelib.Init.Logic <> ::type_scope:x_'->'_x not
+R7093:7096 Stdlib.ZArith.BinInt <> ::Z_scope:x_'<='_x not
+R7097:7097 anubis_notary.timing_model <> k:51 var
+R7129:7131 Corelib.Init.Logic <> ::type_scope:x_'='_x not
+R7105:7113 Stdlib.ZArith.BinInt Z testbit def
+R7116:7121 Stdlib.ZArith.BinInt Z lxor def
+R7128:7128 anubis_notary.timing_model <> k:51 var
+R7132:7136 Corelib.Init.Datatypes <> false constr
+R7177:7187 Stdlib.ZArith.BinInt Z lxor_spec thm
+R7177:7187 Stdlib.ZArith.BinInt Z lxor_spec thm
+R7177:7187 Stdlib.ZArith.BinInt Z lxor_spec thm
+R7207:7224 anubis_notary.timing_model <> testbit_high_false thm
+R7207:7224 anubis_notary.timing_model <> testbit_high_false thm
+R7207:7224 anubis_notary.timing_model <> testbit_high_false thm
+R7256:7273 anubis_notary.timing_model <> testbit_high_false thm
+R7256:7273 anubis_notary.timing_model <> testbit_high_false thm
+R7256:7273 anubis_notary.timing_model <> testbit_high_false thm
+R7533:7536 Stdlib.ZArith.BinInt <> ::Z_scope:x_'<='_x not
+R7537:7542 Stdlib.ZArith.BinInt Z lxor def
+R7559:7571 Stdlib.ZArith.BinInt Z lxor_nonneg thm
+R7533:7536 Stdlib.ZArith.BinInt <> ::Z_scope:x_'<='_x not
+R7537:7542 Stdlib.ZArith.BinInt Z lxor def
+R7559:7571 Stdlib.ZArith.BinInt Z lxor_nonneg thm
+R7596:7603 Stdlib.ZArith.BinInt Z eq_dec def
+R7606:7611 Stdlib.ZArith.BinInt Z lxor def
+R7596:7603 Stdlib.ZArith.BinInt Z eq_dec def
+R7606:7611 Stdlib.ZArith.BinInt Z lxor def
+R7737:7739 Stdlib.ZArith.BinInt <> ::Z_scope:x_'<'_x not
+R7718:7723 Stdlib.ZArith.BinInt Z log2 def
+R7726:7731 Stdlib.ZArith.BinInt Z lxor def
+R7737:7739 Stdlib.ZArith.BinInt <> ::Z_scope:x_'<'_x not
+R7718:7723 Stdlib.ZArith.BinInt Z log2 def
+R7726:7731 Stdlib.ZArith.BinInt Z lxor def
+R7890:7900 Stdlib.ZArith.ZArith_dec <> Z_lt_le_dec thm
+R7903:7908 Stdlib.ZArith.BinInt Z log2 def
+R7911:7916 Stdlib.ZArith.BinInt Z lxor def
+R7890:7900 Stdlib.ZArith.ZArith_dec <> Z_lt_le_dec thm
+R7903:7908 Stdlib.ZArith.BinInt Z log2 def
+R7911:7916 Stdlib.ZArith.BinInt Z lxor def
+R8123:8125 Corelib.Init.Logic <> ::type_scope:x_'='_x not
+R8079:8087 Stdlib.ZArith.BinInt Z testbit def
+R8090:8095 Stdlib.ZArith.BinInt Z lxor def
+R8103:8108 Stdlib.ZArith.BinInt Z log2 def
+R8111:8116 Stdlib.ZArith.BinInt Z lxor def
+R8126:8129 Corelib.Init.Datatypes <> true constr
+R8123:8125 Corelib.Init.Logic <> ::type_scope:x_'='_x not
+R8079:8087 Stdlib.ZArith.BinInt Z testbit def
+R8090:8095 Stdlib.ZArith.BinInt Z lxor def
+R8103:8108 Stdlib.ZArith.BinInt Z log2 def
+R8111:8116 Stdlib.ZArith.BinInt Z lxor def
+R8126:8129 Corelib.Init.Datatypes <> true constr
+R8153:8162 Stdlib.ZArith.BinInt Z bit_log2 thm
+R8153:8162 Stdlib.ZArith.BinInt Z bit_log2 thm
+R8373:8373 Stdlib.ZArith.BinInt <> ::Z_scope:x_'^'_x not
+R8373:8373 Stdlib.ZArith.BinInt <> ::Z_scope:x_'^'_x not
+R8394:8407 Stdlib.ZArith.BinInt Z log2_lt_pow2 thm
+R8394:8407 Stdlib.ZArith.BinInt Z log2_lt_pow2 thm
+prf 8431:8452 <> ct_select_impl_correct
+R8477:8477 Corelib.Numbers.BinNums <> Z ind
+binder 8464:8469 <> choice:52
+binder 8471:8471 <> a:53
+binder 8473:8473 <> b:54
+R8505:8512 Corelib.Init.Logic <> ::type_scope:x_'->'_x not
+R8487:8490 Stdlib.ZArith.BinInt <> ::Z_scope:x_'<='_x_'<='_x not
+R8497:8500 Stdlib.ZArith.BinInt <> ::Z_scope:x_'<='_x_'<='_x not
+R8491:8496 anubis_notary.timing_model <> choice:52 var
+R8491:8496 anubis_notary.timing_model <> choice:52 var
+R8530:8537 Corelib.Init.Logic <> ::type_scope:x_'->'_x not
+R8515:8518 Stdlib.ZArith.BinInt <> ::Z_scope:x_'<='_x_'<='_x not
+R8520:8523 Stdlib.ZArith.BinInt <> ::Z_scope:x_'<='_x_'<='_x not
+R8519:8519 anubis_notary.timing_model <> a:53 var
+R8519:8519 anubis_notary.timing_model <> a:53 var
+R8555:8562 Corelib.Init.Logic <> ::type_scope:x_'->'_x not
+R8540:8543 Stdlib.ZArith.BinInt <> ::Z_scope:x_'<='_x_'<='_x not
+R8545:8548 Stdlib.ZArith.BinInt <> ::Z_scope:x_'<='_x_'<='_x not
+R8544:8544 anubis_notary.timing_model <> b:54 var
+R8544:8544 anubis_notary.timing_model <> b:54 var
+R8588:8590 Corelib.Init.Logic <> ::type_scope:x_'='_x not
+R8563:8576 anubis_notary.timing_model <> ct_select_impl def
+R8578:8583 anubis_notary.timing_model <> choice:52 var
+R8585:8585 anubis_notary.timing_model <> a:53 var
+R8587:8587 anubis_notary.timing_model <> b:54 var
+R8594:8598 Stdlib.ZArith.BinInt Z eqb def
+R8600:8605 anubis_notary.timing_model <> choice:52 var
+R8621:8621 anubis_notary.timing_model <> b:54 var
+R8614:8614 anubis_notary.timing_model <> a:53 var
+R8681:8694 anubis_notary.timing_model <> ct_select_impl def
+R8711:8720 Stdlib.ZArith.BinInt Z eqb_spec thm
+R8711:8720 Stdlib.ZArith.BinInt Z eqb_spec thm
+R8850:8855 Stdlib.ZArith.BinInt Z land def
+R8850:8855 Stdlib.ZArith.BinInt Z land def
+R8887:8889 Stdlib.ZArith.BinInt <> ::Z_scope:x_'-'_x not
+R8887:8889 Stdlib.ZArith.BinInt <> ::Z_scope:x_'-'_x not
+R8922:8927 Stdlib.ZArith.BinInt Z land def
+R8922:8927 Stdlib.ZArith.BinInt Z land def
+R9042:9051 anubis_notary.timing_model <> lxor_small thm
+R9017:9030 anubis_notary.timing_model <> land_255_small thm
+R9017:9030 anubis_notary.timing_model <> land_255_small thm
+R9042:9051 anubis_notary.timing_model <> lxor_small thm
+R9017:9030 anubis_notary.timing_model <> land_255_small thm
+R9074:9085 Stdlib.ZArith.BinInt Z lxor_assoc thm
+R9074:9085 Stdlib.ZArith.BinInt Z lxor_assoc thm
+R9074:9085 Stdlib.ZArith.BinInt Z lxor_assoc thm
+R9102:9117 Stdlib.ZArith.BinInt Z lxor_nilpotent thm
+R9102:9117 Stdlib.ZArith.BinInt Z lxor_nilpotent thm
+R9102:9117 Stdlib.ZArith.BinInt Z lxor_nilpotent thm
+R9134:9143 Stdlib.ZArith.BinInt Z lxor_0_r thm
+R9134:9143 Stdlib.ZArith.BinInt Z lxor_0_r thm
+R9134:9143 Stdlib.ZArith.BinInt Z lxor_0_r thm
+R9208:9210 Corelib.Init.Logic <> ::type_scope:x_'='_x not
+R9208:9210 Corelib.Init.Logic <> ::type_scope:x_'='_x not
+R9245:9250 Stdlib.ZArith.BinInt Z land def
+R9245:9250 Stdlib.ZArith.BinInt Z land def
+R9282:9284 Stdlib.ZArith.BinInt <> ::Z_scope:x_'-'_x not
+R9282:9284 Stdlib.ZArith.BinInt <> ::Z_scope:x_'-'_x not
+R9314:9319 Stdlib.ZArith.BinInt Z land def
+R9314:9319 Stdlib.ZArith.BinInt Z land def
+R9352:9361 Stdlib.ZArith.BinInt Z land_0_l thm
+R9352:9361 Stdlib.ZArith.BinInt Z land_0_l thm
+R9352:9361 Stdlib.ZArith.BinInt Z land_0_l thm
+R9378:9387 Stdlib.ZArith.BinInt Z lxor_0_l thm
+R9378:9387 Stdlib.ZArith.BinInt Z lxor_0_l thm
+R9378:9387 Stdlib.ZArith.BinInt Z lxor_0_l thm
+R9421:9432 anubis_notary.timing_model timing_model <> sec
+sec 9478:9486 <> ct_memory
+def 9575:9591 <> ct_load_predicate
+R9610:9613 Corelib.Init.Datatypes <> bool ind
+binder 9594:9606 <> idx_is_public:55
+R9643:9645 Corelib.Init.Logic <> ::type_scope:x_'='_x not
+R9630:9642 anubis_notary.timing_model <> idx_is_public:55 var
+R9646:9649 Corelib.Init.Datatypes <> true constr
+def 9729:9742 <> ct_lookup_spec
+binder 9745:9745 <> A:56
+R9770:9770 anubis_notary.timing_model <> A:56 var
+binder 9756:9766 <> default_val:57
+R9782:9785 Corelib.Init.Datatypes <> list ind
+R9787:9787 anubis_notary.timing_model <> A:56 var
+binder 9774:9778 <> table:58
+R9797:9799 Corelib.Init.Datatypes <> nat ind
+binder 9791:9793 <> idx:59
+R9804:9804 anubis_notary.timing_model <> A:56 var
+R9873:9875 Corelib.Lists.ListDef <> nth def
+R9887:9897 anubis_notary.timing_model <> default_val:57 var
+R9881:9885 anubis_notary.timing_model <> table:58 var
+R9877:9879 anubis_notary.timing_model <> idx:59 var
+prf 9971:9998 <> ct_lookup_timing_independent
+binder 10010:10010 <> A:60
+R10035:10035 anubis_notary.timing_model <> A:60 var
+binder 10021:10031 <> default_val:61
+R10047:10050 Corelib.Init.Datatypes <> list ind
+R10052:10052 anubis_notary.timing_model <> A:60 var
+binder 10039:10043 <> table:62
+R10068:10070 Corelib.Init.Datatypes <> nat ind
+binder 10056:10059 <> idx1:63
+binder 10061:10064 <> idx2:64
+R10103:10110 Corelib.Init.Logic <> ::type_scope:x_'->'_x not
+R10083:10085 Corelib.Init.Peano <> ::nat_scope:x_'<'_x not
+R10079:10082 anubis_notary.timing_model <> idx1:63 var
+R10086:10091 Corelib.Init.Datatypes <> length def
+R10093:10097 anubis_notary.timing_model <> table:62 var
+R10136:10196 Corelib.Init.Logic <> ::type_scope:x_'->'_x not
+R10116:10118 Corelib.Init.Peano <> ::nat_scope:x_'<'_x not
+R10112:10115 anubis_notary.timing_model <> idx2:64 var
+R10119:10124 Corelib.Init.Datatypes <> length def
+R10126:10130 anubis_notary.timing_model <> table:62 var
+R10197:10200 Corelib.Init.Logic <> True ind
+R10228:10236 anubis_notary.timing_model ct_memory <> sec
+sec 10492:10511 <> timing_formalization
+ind 10799:10812 <> operation_cost
+constr 10821:10830 <> Cost_Const
+constr 10877:10887 <> Cost_Linear
+constr 10936:10950 <> Cost_Secret_Dep
+R10837:10839 Corelib.Init.Datatypes <> nat ind
+binder 10833:10833 <> n:67
+R10894:10896 Corelib.Init.Datatypes <> nat ind
+binder 10890:10890 <> n:68
+scheme 10799:10812 <> operation_cost_rect
+scheme 10799:10812 <> operation_cost_ind
+scheme 10799:10812 <> operation_cost_rec
+scheme 10799:10812 <> operation_cost_sind
+def 11054:11061 <> xor_cost
+R11065:11078 anubis_notary.timing_model <> operation_cost ind
+R11083:11092 anubis_notary.timing_model <> Cost_Const constr
+def 11110:11117 <> and_cost
+R11121:11134 anubis_notary.timing_model <> operation_cost ind
+R11139:11148 anubis_notary.timing_model <> Cost_Const constr
+def 11166:11172 <> or_cost
+R11176:11189 anubis_notary.timing_model <> operation_cost ind
+R11194:11203 anubis_notary.timing_model <> Cost_Const constr
+def 11221:11228 <> not_cost
+R11232:11245 anubis_notary.timing_model <> operation_cost ind
+R11250:11259 anubis_notary.timing_model <> Cost_Const constr
+def 11277:11286 <> shift_cost
+R11290:11303 anubis_notary.timing_model <> operation_cost ind
+R11308:11317 anubis_notary.timing_model <> Cost_Const constr
+def 11335:11345 <> rotate_cost
+R11349:11362 anubis_notary.timing_model <> operation_cost ind
+R11367:11376 anubis_notary.timing_model <> Cost_Const constr
+def 11394:11401 <> add_cost
+R11405:11418 anubis_notary.timing_model <> operation_cost ind
+R11423:11432 anubis_notary.timing_model <> Cost_Const constr
+def 11450:11457 <> sub_cost
+R11461:11474 anubis_notary.timing_model <> operation_cost ind
+R11479:11488 anubis_notary.timing_model <> Cost_Const constr
+def 11506:11513 <> mul_cost
+R11517:11530 anubis_notary.timing_model <> operation_cost ind
+R11535:11544 anubis_notary.timing_model <> Cost_Const constr
+def 11625:11635 <> branch_cost
+R11645:11648 Corelib.Init.Datatypes <> bool ind
+binder 11638:11641 <> cond:69
+R11653:11666 anubis_notary.timing_model <> operation_cost ind
+R11675:11689 anubis_notary.timing_model <> Cost_Secret_Dep constr
+def 11752:11767 <> load_public_cost
+R11771:11784 anubis_notary.timing_model <> operation_cost ind
+R11789:11798 anubis_notary.timing_model <> Cost_Const constr
+def 11888:11909 <> load_secret_index_cost
+R11913:11926 anubis_notary.timing_model <> operation_cost ind
+R11931:11945 anubis_notary.timing_model <> Cost_Secret_Dep constr
+def 12269:12284 <> is_constant_time
+R12294:12307 anubis_notary.timing_model <> operation_cost ind
+binder 12287:12290 <> cost:70
+R12330:12333 anubis_notary.timing_model <> cost:70 var
+R12346:12355 anubis_notary.timing_model <> Cost_Const constr
+R12362:12365 Corelib.Init.Logic <> True ind
+R12373:12383 anubis_notary.timing_model <> Cost_Linear constr
+R12390:12393 Corelib.Init.Logic <> True ind
+R12401:12415 anubis_notary.timing_model <> Cost_Secret_Dep constr
+R12420:12424 Corelib.Init.Logic <> False ind
+prf 12488:12501 <> ct_composition
+R12520:12533 anubis_notary.timing_model <> operation_cost ind
+binder 12512:12513 <> c1:72
+binder 12515:12516 <> c2:73
+R12559:12566 Corelib.Init.Logic <> ::type_scope:x_'->'_x not
+R12540:12555 anubis_notary.timing_model <> is_constant_time def
+R12557:12558 anubis_notary.timing_model <> c1:72 var
+R12586:12593 Corelib.Init.Logic <> ::type_scope:x_'->'_x not
+R12567:12582 anubis_notary.timing_model <> is_constant_time def
+R12584:12585 anubis_notary.timing_model <> c2:73 var
+R12594:12609 anubis_notary.timing_model <> is_constant_time def
+R12612:12621 anubis_notary.timing_model <> Cost_Const constr
+R12641:12642 anubis_notary.timing_model <> c2:73 var
+R12637:12638 anubis_notary.timing_model <> c1:72 var
+R12657:12666 anubis_notary.timing_model <> Cost_Const constr
+R12672:12681 anubis_notary.timing_model <> Cost_Const constr
+R12691:12693 Corelib.Init.Peano <> ::nat_scope:x_'+'_x not
+R12705:12715 anubis_notary.timing_model <> Cost_Linear constr
+R12721:12730 anubis_notary.timing_model <> Cost_Const constr
+R12740:12742 Corelib.Init.Peano <> ::nat_scope:x_'+'_x not
+R12754:12763 anubis_notary.timing_model <> Cost_Const constr
+R12769:12779 anubis_notary.timing_model <> Cost_Linear constr
+R12789:12791 Corelib.Init.Peano <> ::nat_scope:x_'+'_x not
+R12803:12813 anubis_notary.timing_model <> Cost_Linear constr
+R12819:12829 anubis_notary.timing_model <> Cost_Linear constr
+R12839:12841 Corelib.Init.Peano <> ::nat_scope:x_'+'_x not
+R12939:12954 anubis_notary.timing_model <> is_constant_time def
+prf 13248:13269 <> ct_eq_is_constant_time
+R13291:13294 Corelib.Init.Datatypes <> list ind
+R13296:13296 Corelib.Numbers.BinNums <> Z ind
+binder 13285:13285 <> a:76
+binder 13287:13287 <> b:77
+R13306:13308 Corelib.Init.Datatypes <> nat ind
+binder 13300:13302 <> len:78
+R13332:13341 Corelib.Init.Logic <> ::type_scope:x_'->'_x not
+R13326:13328 Corelib.Init.Logic <> ::type_scope:x_'='_x not
+R13318:13323 Corelib.Init.Datatypes <> length def
+R13325:13325 anubis_notary.timing_model <> a:76 var
+R13329:13331 anubis_notary.timing_model <> len:78 var
+R13356:13440 Corelib.Init.Logic <> ::type_scope:x_'->'_x not
+R13350:13352 Corelib.Init.Logic <> ::type_scope:x_'='_x not
+R13342:13347 Corelib.Init.Datatypes <> length def
+R13349:13349 anubis_notary.timing_model <> b:77 var
+R13353:13355 anubis_notary.timing_model <> len:78 var
+R13441:13456 anubis_notary.timing_model <> is_constant_time def
+R13459:13469 anubis_notary.timing_model <> Cost_Linear constr
+R13471:13473 anubis_notary.timing_model <> len:78 var
+R13505:13520 anubis_notary.timing_model <> is_constant_time def
+prf 13589:13614 <> ct_select_is_constant_time
+R13643:13643 Corelib.Numbers.BinNums <> Z ind
+binder 13630:13635 <> choice:79
+binder 13637:13637 <> a:80
+binder 13639:13639 <> b:81
+R13711:13726 anubis_notary.timing_model <> is_constant_time def
+R13729:13738 anubis_notary.timing_model <> Cost_Const constr
+R13797:13812 anubis_notary.timing_model <> is_constant_time def
+prf 13872:13897 <> ct_lookup_is_constant_time
+binder 13913:13913 <> A:82
+R13932:13935 Corelib.Init.Datatypes <> list ind
+R13937:13937 anubis_notary.timing_model <> A:82 var
+binder 13924:13928 <> table:83
+R13947:13949 Corelib.Init.Datatypes <> nat ind
+binder 13941:13943 <> idx:84
+R14009:14024 anubis_notary.timing_model <> is_constant_time def
+R14027:14037 anubis_notary.timing_model <> Cost_Linear constr
+R14040:14045 Corelib.Init.Datatypes <> length def
+R14047:14051 anubis_notary.timing_model <> table:83 var
+R14084:14099 anubis_notary.timing_model <> is_constant_time def
+prf 14172:14195 <> ct_cmov_is_constant_time
+R14217:14219 Corelib.Init.Datatypes <> nat ind
+binder 14211:14213 <> len:85
+R14273:14288 anubis_notary.timing_model <> is_constant_time def
+R14291:14301 anubis_notary.timing_model <> Cost_Linear constr
+R14303:14305 anubis_notary.timing_model <> len:85 var
+R14337:14352 anubis_notary.timing_model <> is_constant_time def
+prf 14654:14666 <> branch_not_ct
+R14696:14699 Corelib.Init.Datatypes <> bool ind
+binder 14682:14692 <> secret_cond:86
+R14709:14710 Corelib.Init.Logic <> ::type_scope:'~'_x not
+R14711:14726 anubis_notary.timing_model <> is_constant_time def
+R14729:14739 anubis_notary.timing_model <> branch_cost def
+R14741:14751 anubis_notary.timing_model <> secret_cond:86 var
+R14783:14798 anubis_notary.timing_model <> is_constant_time def
+R14801:14811 anubis_notary.timing_model <> branch_cost def
+prf 14907:14924 <> secret_load_not_ct
+R14932:14933 Corelib.Init.Logic <> ::type_scope:'~'_x not
+R14934:14949 anubis_notary.timing_model <> is_constant_time def
+R14951:14972 anubis_notary.timing_model <> load_secret_index_cost def
+R14995:15010 anubis_notary.timing_model <> is_constant_time def
+R15013:15034 anubis_notary.timing_model <> load_secret_index_cost def
+prf 15322:15340 <> nonce_derivation_ct
+R15362:15365 Corelib.Init.Datatypes <> list ind
+R15367:15367 Corelib.Numbers.BinNums <> Z ind
+binder 15356:15358 <> key:87
+R15397:15397 Corelib.Numbers.BinNums <> Z ind
+binder 15371:15377 <> counter:88
+binder 15379:15386 <> entry_id:89
+binder 15388:15393 <> domain:90
+R15468:15483 anubis_notary.timing_model <> is_constant_time def
+R15486:15495 anubis_notary.timing_model <> Cost_Const constr
+R15558:15573 anubis_notary.timing_model <> is_constant_time def
+prf 15630:15636 <> aead_ct
+R15658:15661 Corelib.Init.Datatypes <> list ind
+R15663:15663 Corelib.Numbers.BinNums <> Z ind
+binder 15652:15654 <> msg:91
+R15679:15682 Corelib.Init.Datatypes <> list ind
+R15684:15684 Corelib.Numbers.BinNums <> Z ind
+binder 15667:15669 <> key:92
+binder 15671:15675 <> nonce:93
+R15759:15774 anubis_notary.timing_model <> is_constant_time def
+R15777:15787 anubis_notary.timing_model <> Cost_Linear constr
+R15790:15795 Corelib.Init.Datatypes <> length def
+R15797:15799 anubis_notary.timing_model <> msg:91 var
+R15832:15847 anubis_notary.timing_model <> is_constant_time def
+prf 15937:15951 <> mldsa_verify_ct
+R15980:15983 Corelib.Init.Datatypes <> list ind
+R15985:15985 Corelib.Numbers.BinNums <> Z ind
+binder 15967:15968 <> pk:94
+binder 15970:15972 <> msg:95
+binder 15974:15976 <> sig:96
+R16063:16078 anubis_notary.timing_model <> is_constant_time def
+R16081:16090 anubis_notary.timing_model <> Cost_Const constr
+R16159:16174 anubis_notary.timing_model <> is_constant_time def
+prf 16503:16534 <> anubis_notary_timing_independent
+R16585:16585 Corelib.Init.Logic <> ::type_scope:x_'/\'_x not
+R16698:16719 Corelib.Init.Logic <> ::type_scope:x_'/\'_x not
+R16600:16603 Corelib.Init.Datatypes <> list ind
+R16605:16605 Corelib.Numbers.BinNums <> Z ind
+binder 16594:16594 <> a:97
+binder 16596:16596 <> b:98
+R16615:16617 Corelib.Init.Datatypes <> nat ind
+binder 16609:16611 <> len:99
+R16635:16638 Corelib.Init.Logic <> ::type_scope:x_'->'_x not
+R16629:16631 Corelib.Init.Logic <> ::type_scope:x_'='_x not
+R16621:16626 Corelib.Init.Datatypes <> length def
+R16628:16628 anubis_notary.timing_model <> a:97 var
+R16632:16634 anubis_notary.timing_model <> len:99 var
+R16653:16663 Corelib.Init.Logic <> ::type_scope:x_'->'_x not
+R16647:16649 Corelib.Init.Logic <> ::type_scope:x_'='_x not
+R16639:16644 Corelib.Init.Datatypes <> length def
+R16646:16646 anubis_notary.timing_model <> b:98 var
+R16650:16652 anubis_notary.timing_model <> len:99 var
+R16664:16679 anubis_notary.timing_model <> is_constant_time def
+R16682:16692 anubis_notary.timing_model <> Cost_Linear constr
+R16694:16696 anubis_notary.timing_model <> len:99 var
+R16720:16720 Corelib.Init.Logic <> ::type_scope:x_'/\'_x not
+R16777:16802 Corelib.Init.Logic <> ::type_scope:x_'/\'_x not
+R16742:16742 Corelib.Numbers.BinNums <> Z ind
+binder 16729:16734 <> choice:100
+binder 16736:16736 <> a:101
+binder 16738:16738 <> b:102
+R16746:16761 anubis_notary.timing_model <> is_constant_time def
+R16764:16773 anubis_notary.timing_model <> Cost_Const constr
+R16803:16803 Corelib.Init.Logic <> ::type_scope:x_'/\'_x not
+R16889:16914 Corelib.Init.Logic <> ::type_scope:x_'/\'_x not
+binder 16812:16812 <> A:103
+R16827:16830 Corelib.Init.Datatypes <> list ind
+R16832:16832 anubis_notary.timing_model <> A:103 var
+binder 16823:16823 <> t:104
+R16842:16844 Corelib.Init.Datatypes <> nat ind
+binder 16836:16838 <> idx:105
+R16848:16863 anubis_notary.timing_model <> is_constant_time def
+R16866:16876 anubis_notary.timing_model <> Cost_Linear constr
+R16879:16884 Corelib.Init.Datatypes <> length def
+R16886:16886 anubis_notary.timing_model <> t:104 var
+R16915:16915 Corelib.Init.Logic <> ::type_scope:x_'/\'_x not
+R16970:16993 Corelib.Init.Logic <> ::type_scope:x_'/\'_x not
+R16930:16932 Corelib.Init.Datatypes <> nat ind
+binder 16924:16926 <> len:106
+R16936:16951 anubis_notary.timing_model <> is_constant_time def
+R16954:16964 anubis_notary.timing_model <> Cost_Linear constr
+R16966:16968 anubis_notary.timing_model <> len:106 var
+R16994:16994 Corelib.Init.Logic <> ::type_scope:x_'/\'_x not
+R17062:17083 Corelib.Init.Logic <> ::type_scope:x_'/\'_x not
+R17007:17010 Corelib.Init.Datatypes <> list ind
+R17012:17012 Corelib.Numbers.BinNums <> Z ind
+binder 17003:17003 <> k:107
+R17024:17024 Corelib.Numbers.BinNums <> Z ind
+binder 17016:17016 <> c:108
+binder 17018:17018 <> e:109
+binder 17020:17020 <> d:110
+R17028:17043 anubis_notary.timing_model <> is_constant_time def
+R17046:17055 anubis_notary.timing_model <> Cost_Const constr
+R17084:17084 Corelib.Init.Logic <> ::type_scope:x_'/\'_x not
+R17151:17172 Corelib.Init.Logic <> ::type_scope:x_'/\'_x not
+R17235:17235 Corelib.Init.Logic <> ::type_scope:x_'/\'_x not
+R17101:17104 Corelib.Init.Datatypes <> list ind
+R17106:17106 Corelib.Numbers.BinNums <> Z ind
+binder 17093:17093 <> m:111
+binder 17095:17095 <> k:112
+binder 17097:17097 <> n:113
+R17110:17125 anubis_notary.timing_model <> is_constant_time def
+R17128:17138 anubis_notary.timing_model <> Cost_Linear constr
+R17141:17146 Corelib.Init.Datatypes <> length def
+R17148:17148 anubis_notary.timing_model <> m:111 var
+R17190:17193 Corelib.Init.Datatypes <> list ind
+R17195:17195 Corelib.Numbers.BinNums <> Z ind
+binder 17181:17182 <> pk:114
+binder 17184:17184 <> m:115
+binder 17186:17186 <> s:116
+R17199:17214 anubis_notary.timing_model <> is_constant_time def
+R17217:17226 anubis_notary.timing_model <> Cost_Const constr
+R17301:17316 anubis_notary.timing_model <> is_constant_time def
+R17337:17356 anubis_notary.timing_model timing_formalization <> sec

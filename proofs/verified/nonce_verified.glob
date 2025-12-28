@@ -1,0 +1,621 @@
+DIGEST 36eab17bbeb56246fefcdc1024b49984
+FVerified.nonce_verified
+R523:528 Stdlib.ZArith.ZArith <> <> lib
+R558:560 Stdlib.micromega.Lia <> <> lib
+R590:593 Stdlib.Lists.List <> <> lib
+R623:626 Stdlib.Bool.Bool <> <> lib
+R636:648 Stdlib.Lists.List ListNotations <> mod
+def 1040:1050 <> MAX_COUNTER
+R1054:1054 Corelib.Numbers.BinNums <> Z ind
+R1060:1060 Stdlib.ZArith.BinInt <> ::Z_scope:x_'^'_x not
+def 1093:1097 <> is_u8
+R1104:1104 Corelib.Numbers.BinNums <> Z ind
+binder 1100:1100 <> x:1
+R1118:1121 Stdlib.ZArith.BinInt <> ::Z_scope:x_'<='_x_'<='_x not
+R1123:1126 Stdlib.ZArith.BinInt <> ::Z_scope:x_'<='_x_'<='_x not
+R1122:1122 Verified.nonce_verified <> x:1 var
+R1122:1122 Verified.nonce_verified <> x:1 var
+def 1161:1166 <> is_u32
+R1173:1173 Corelib.Numbers.BinNums <> Z ind
+binder 1169:1169 <> x:2
+R1187:1190 Stdlib.ZArith.BinInt <> ::Z_scope:x_'<='_x_'<'_x not
+R1192:1194 Stdlib.ZArith.BinInt <> ::Z_scope:x_'<='_x_'<'_x not
+R1191:1191 Verified.nonce_verified <> x:2 var
+R1191:1191 Verified.nonce_verified <> x:2 var
+R1196:1196 Stdlib.ZArith.BinInt <> ::Z_scope:x_'^'_x not
+def 1230:1235 <> is_u64
+R1242:1242 Corelib.Numbers.BinNums <> Z ind
+binder 1238:1238 <> x:3
+R1256:1259 Stdlib.ZArith.BinInt <> ::Z_scope:x_'<='_x_'<'_x not
+R1261:1263 Stdlib.ZArith.BinInt <> ::Z_scope:x_'<='_x_'<'_x not
+R1260:1260 Verified.nonce_verified <> x:3 var
+R1260:1260 Verified.nonce_verified <> x:3 var
+R1265:1265 Stdlib.ZArith.BinInt <> ::Z_scope:x_'^'_x not
+def 1309:1324 <> is_valid_counter
+R1331:1331 Corelib.Numbers.BinNums <> Z ind
+binder 1327:1327 <> c:4
+R1345:1348 Stdlib.ZArith.BinInt <> ::Z_scope:x_'<='_x_'<'_x not
+R1350:1352 Stdlib.ZArith.BinInt <> ::Z_scope:x_'<='_x_'<'_x not
+R1349:1349 Verified.nonce_verified <> c:4 var
+R1349:1349 Verified.nonce_verified <> c:4 var
+R1353:1363 Verified.nonce_verified <> MAX_COUNTER def
+def 1435:1443 <> le64_byte
+R1453:1453 Corelib.Numbers.BinNums <> Z ind
+binder 1446:1449 <> word:5
+R1461:1463 Corelib.Init.Datatypes <> nat ind
+binder 1457:1457 <> i:6
+R1468:1468 Corelib.Numbers.BinNums <> Z ind
+R1475:1480 Stdlib.ZArith.BinInt Z land def
+R1483:1490 Stdlib.ZArith.BinInt Z shiftr def
+R1492:1495 Verified.nonce_verified <> word:5 var
+R1498:1505 Stdlib.ZArith.BinInt Z of_nat def
+R1509:1511 Corelib.Init.Peano <> ::nat_scope:x_'*'_x not
+R1508:1508 Verified.nonce_verified <> i:6 var
+def 1591:1599 <> le32_byte
+R1609:1609 Corelib.Numbers.BinNums <> Z ind
+binder 1602:1605 <> word:7
+R1617:1619 Corelib.Init.Datatypes <> nat ind
+binder 1613:1613 <> i:8
+R1624:1624 Corelib.Numbers.BinNums <> Z ind
+R1631:1636 Stdlib.ZArith.BinInt Z land def
+R1639:1646 Stdlib.ZArith.BinInt Z shiftr def
+R1648:1651 Verified.nonce_verified <> word:7 var
+R1654:1661 Stdlib.ZArith.BinInt Z of_nat def
+R1665:1667 Corelib.Init.Peano <> ::nat_scope:x_'*'_x not
+R1664:1664 Verified.nonce_verified <> i:8 var
+def 1729:1746 <> encode_nonce_input
+R1759:1759 Corelib.Numbers.BinNums <> Z ind
+binder 1749:1755 <> counter:9
+R1774:1774 Corelib.Numbers.BinNums <> Z ind
+binder 1763:1770 <> entry_id:10
+R1787:1787 Corelib.Numbers.BinNums <> Z ind
+binder 1778:1783 <> domain:11
+R1792:1795 Corelib.Init.Datatypes <> list ind
+R1797:1797 Corelib.Numbers.BinNums <> Z ind
+R2007:2045 Corelib.Init.Datatypes <> ::list_scope:x_'++'_x not
+R1836:1836 Stdlib.Lists.List ListNotations ::list_scope:'['_x_';'_x_';'_'..'_';'_x_']' not
+R1856:1857 Stdlib.Lists.List ListNotations ::list_scope:'['_x_';'_x_';'_'..'_';'_x_']' not
+R1877:1878 Stdlib.Lists.List ListNotations ::list_scope:'['_x_';'_x_';'_'..'_';'_x_']' not
+R1898:1899 Stdlib.Lists.List ListNotations ::list_scope:'['_x_';'_x_';'_'..'_';'_x_']' not
+R1919:1923 Stdlib.Lists.List ListNotations ::list_scope:'['_x_';'_x_';'_'..'_';'_x_']' not
+R1943:1944 Stdlib.Lists.List ListNotations ::list_scope:'['_x_';'_x_';'_'..'_';'_x_']' not
+R1964:1965 Stdlib.Lists.List ListNotations ::list_scope:'['_x_';'_x_';'_'..'_';'_x_']' not
+R1985:1986 Stdlib.Lists.List ListNotations ::list_scope:'['_x_';'_x_';'_'..'_';'_x_']' not
+R2006:2006 Stdlib.Lists.List ListNotations ::list_scope:'['_x_';'_x_';'_'..'_';'_x_']' not
+R1837:1845 Verified.nonce_verified <> le64_byte def
+R1847:1853 Verified.nonce_verified <> counter:9 var
+R1858:1866 Verified.nonce_verified <> le64_byte def
+R1868:1874 Verified.nonce_verified <> counter:9 var
+R1879:1887 Verified.nonce_verified <> le64_byte def
+R1889:1895 Verified.nonce_verified <> counter:9 var
+R1900:1908 Verified.nonce_verified <> le64_byte def
+R1910:1916 Verified.nonce_verified <> counter:9 var
+R1924:1932 Verified.nonce_verified <> le64_byte def
+R1934:1940 Verified.nonce_verified <> counter:9 var
+R1945:1953 Verified.nonce_verified <> le64_byte def
+R1955:1961 Verified.nonce_verified <> counter:9 var
+R1966:1974 Verified.nonce_verified <> le64_byte def
+R1976:1982 Verified.nonce_verified <> counter:9 var
+R1987:1995 Verified.nonce_verified <> le64_byte def
+R1997:2003 Verified.nonce_verified <> counter:9 var
+R2134:2163 Corelib.Init.Datatypes <> ::list_scope:x_'++'_x not
+R2046:2046 Stdlib.Lists.List ListNotations ::list_scope:'['_x_';'_x_';'_'..'_';'_x_']' not
+R2067:2068 Stdlib.Lists.List ListNotations ::list_scope:'['_x_';'_x_';'_'..'_';'_x_']' not
+R2089:2090 Stdlib.Lists.List ListNotations ::list_scope:'['_x_';'_x_';'_'..'_';'_x_']' not
+R2111:2112 Stdlib.Lists.List ListNotations ::list_scope:'['_x_';'_x_';'_'..'_';'_x_']' not
+R2133:2133 Stdlib.Lists.List ListNotations ::list_scope:'['_x_';'_x_';'_'..'_';'_x_']' not
+R2047:2055 Verified.nonce_verified <> le32_byte def
+R2057:2064 Verified.nonce_verified <> entry_id:10 var
+R2069:2077 Verified.nonce_verified <> le32_byte def
+R2079:2086 Verified.nonce_verified <> entry_id:10 var
+R2091:2099 Verified.nonce_verified <> le32_byte def
+R2101:2108 Verified.nonce_verified <> entry_id:10 var
+R2113:2121 Verified.nonce_verified <> le32_byte def
+R2123:2130 Verified.nonce_verified <> entry_id:10 var
+R2164:2164 Stdlib.Lists.List ListNotations ::list_scope:'['_x_']' not
+R2171:2171 Stdlib.Lists.List ListNotations ::list_scope:'['_x_']' not
+R2165:2170 Verified.nonce_verified <> domain:11 var
+def 2482:2492 <> decode_le64
+R2521:2521 Corelib.Numbers.BinNums <> Z ind
+binder 2495:2496 <> b0:12
+binder 2498:2499 <> b1:13
+binder 2501:2502 <> b2:14
+binder 2504:2505 <> b3:15
+binder 2507:2508 <> b4:16
+binder 2510:2511 <> b5:17
+binder 2513:2514 <> b6:18
+binder 2516:2517 <> b7:19
+R2526:2526 Corelib.Numbers.BinNums <> Z ind
+R2608:2610 Stdlib.ZArith.BinInt <> ::Z_scope:x_'+'_x not
+R2596:2598 Stdlib.ZArith.BinInt <> ::Z_scope:x_'+'_x not
+R2584:2586 Stdlib.ZArith.BinInt <> ::Z_scope:x_'+'_x not
+R2570:2574 Stdlib.ZArith.BinInt <> ::Z_scope:x_'+'_x not
+R2558:2560 Stdlib.ZArith.BinInt <> ::Z_scope:x_'+'_x not
+R2546:2548 Stdlib.ZArith.BinInt <> ::Z_scope:x_'+'_x not
+R2535:2537 Stdlib.ZArith.BinInt <> ::Z_scope:x_'+'_x not
+R2533:2534 Verified.nonce_verified <> b0:12 var
+R2540:2542 Stdlib.ZArith.BinInt <> ::Z_scope:x_'*'_x not
+R2538:2539 Verified.nonce_verified <> b1:13 var
+R2544:2544 Stdlib.ZArith.BinInt <> ::Z_scope:x_'^'_x not
+R2551:2553 Stdlib.ZArith.BinInt <> ::Z_scope:x_'*'_x not
+R2549:2550 Verified.nonce_verified <> b2:14 var
+R2555:2555 Stdlib.ZArith.BinInt <> ::Z_scope:x_'^'_x not
+R2563:2565 Stdlib.ZArith.BinInt <> ::Z_scope:x_'*'_x not
+R2561:2562 Verified.nonce_verified <> b3:15 var
+R2567:2567 Stdlib.ZArith.BinInt <> ::Z_scope:x_'^'_x not
+R2577:2579 Stdlib.ZArith.BinInt <> ::Z_scope:x_'*'_x not
+R2575:2576 Verified.nonce_verified <> b4:16 var
+R2581:2581 Stdlib.ZArith.BinInt <> ::Z_scope:x_'^'_x not
+R2589:2591 Stdlib.ZArith.BinInt <> ::Z_scope:x_'*'_x not
+R2587:2588 Verified.nonce_verified <> b5:17 var
+R2593:2593 Stdlib.ZArith.BinInt <> ::Z_scope:x_'^'_x not
+R2601:2603 Stdlib.ZArith.BinInt <> ::Z_scope:x_'*'_x not
+R2599:2600 Verified.nonce_verified <> b6:18 var
+R2605:2605 Stdlib.ZArith.BinInt <> ::Z_scope:x_'^'_x not
+R2613:2615 Stdlib.ZArith.BinInt <> ::Z_scope:x_'*'_x not
+R2611:2612 Verified.nonce_verified <> b7:19 var
+R2617:2617 Stdlib.ZArith.BinInt <> ::Z_scope:x_'^'_x not
+def 2664:2674 <> decode_le32
+R2691:2691 Corelib.Numbers.BinNums <> Z ind
+binder 2677:2678 <> b0:20
+binder 2680:2681 <> b1:21
+binder 2683:2684 <> b2:22
+binder 2686:2687 <> b3:23
+R2696:2696 Corelib.Numbers.BinNums <> Z ind
+R2728:2730 Stdlib.ZArith.BinInt <> ::Z_scope:x_'+'_x not
+R2716:2718 Stdlib.ZArith.BinInt <> ::Z_scope:x_'+'_x not
+R2705:2707 Stdlib.ZArith.BinInt <> ::Z_scope:x_'+'_x not
+R2703:2704 Verified.nonce_verified <> b0:20 var
+R2710:2712 Stdlib.ZArith.BinInt <> ::Z_scope:x_'*'_x not
+R2708:2709 Verified.nonce_verified <> b1:21 var
+R2714:2714 Stdlib.ZArith.BinInt <> ::Z_scope:x_'^'_x not
+R2721:2723 Stdlib.ZArith.BinInt <> ::Z_scope:x_'*'_x not
+R2719:2720 Verified.nonce_verified <> b2:22 var
+R2725:2725 Stdlib.ZArith.BinInt <> ::Z_scope:x_'^'_x not
+R2733:2735 Stdlib.ZArith.BinInt <> ::Z_scope:x_'*'_x not
+R2731:2732 Verified.nonce_verified <> b3:23 var
+R2737:2737 Stdlib.ZArith.BinInt <> ::Z_scope:x_'^'_x not
+prf 2801:2825 <> encode_nonce_input_length
+binder 2838:2844 <> counter:24
+binder 2846:2853 <> entry_id:25
+binder 2855:2860 <> domain:26
+R2918:2920 Corelib.Init.Logic <> ::type_scope:x_'='_x not
+R2867:2872 Corelib.Init.Datatypes <> length def
+R2875:2892 Verified.nonce_verified <> encode_nonce_input def
+R2894:2900 Verified.nonce_verified <> counter:24 var
+R2902:2909 Verified.nonce_verified <> entry_id:25 var
+R2911:2916 Verified.nonce_verified <> domain:26 var
+R2953:2970 Verified.nonce_verified <> encode_nonce_input def
+def 3041:3053 <> decode_le64_z
+R3082:3082 Corelib.Numbers.BinNums <> Z ind
+binder 3056:3057 <> b0:27
+binder 3059:3060 <> b1:28
+binder 3062:3063 <> b2:29
+binder 3065:3066 <> b3:30
+binder 3068:3069 <> b4:31
+binder 3071:3072 <> b5:32
+binder 3074:3075 <> b6:33
+binder 3077:3078 <> b7:34
+R3087:3087 Corelib.Numbers.BinNums <> Z ind
+R3169:3171 Stdlib.ZArith.BinInt <> ::Z_scope:x_'+'_x not
+R3157:3159 Stdlib.ZArith.BinInt <> ::Z_scope:x_'+'_x not
+R3145:3147 Stdlib.ZArith.BinInt <> ::Z_scope:x_'+'_x not
+R3131:3135 Stdlib.ZArith.BinInt <> ::Z_scope:x_'+'_x not
+R3119:3121 Stdlib.ZArith.BinInt <> ::Z_scope:x_'+'_x not
+R3107:3109 Stdlib.ZArith.BinInt <> ::Z_scope:x_'+'_x not
+R3096:3098 Stdlib.ZArith.BinInt <> ::Z_scope:x_'+'_x not
+R3094:3095 Verified.nonce_verified <> b0:27 var
+R3101:3103 Stdlib.ZArith.BinInt <> ::Z_scope:x_'*'_x not
+R3099:3100 Verified.nonce_verified <> b1:28 var
+R3105:3105 Stdlib.ZArith.BinInt <> ::Z_scope:x_'^'_x not
+R3112:3114 Stdlib.ZArith.BinInt <> ::Z_scope:x_'*'_x not
+R3110:3111 Verified.nonce_verified <> b2:29 var
+R3116:3116 Stdlib.ZArith.BinInt <> ::Z_scope:x_'^'_x not
+R3124:3126 Stdlib.ZArith.BinInt <> ::Z_scope:x_'*'_x not
+R3122:3123 Verified.nonce_verified <> b3:30 var
+R3128:3128 Stdlib.ZArith.BinInt <> ::Z_scope:x_'^'_x not
+R3138:3140 Stdlib.ZArith.BinInt <> ::Z_scope:x_'*'_x not
+R3136:3137 Verified.nonce_verified <> b4:31 var
+R3142:3142 Stdlib.ZArith.BinInt <> ::Z_scope:x_'^'_x not
+R3150:3152 Stdlib.ZArith.BinInt <> ::Z_scope:x_'*'_x not
+R3148:3149 Verified.nonce_verified <> b5:32 var
+R3154:3154 Stdlib.ZArith.BinInt <> ::Z_scope:x_'^'_x not
+R3162:3164 Stdlib.ZArith.BinInt <> ::Z_scope:x_'*'_x not
+R3160:3161 Verified.nonce_verified <> b6:33 var
+R3166:3166 Stdlib.ZArith.BinInt <> ::Z_scope:x_'^'_x not
+R3174:3176 Stdlib.ZArith.BinInt <> ::Z_scope:x_'*'_x not
+R3172:3173 Verified.nonce_verified <> b7:34 var
+R3178:3178 Stdlib.ZArith.BinInt <> ::Z_scope:x_'^'_x not
+def 3233:3245 <> decode_le32_z
+R3262:3262 Corelib.Numbers.BinNums <> Z ind
+binder 3248:3249 <> b0:35
+binder 3251:3252 <> b1:36
+binder 3254:3255 <> b2:37
+binder 3257:3258 <> b3:38
+R3267:3267 Corelib.Numbers.BinNums <> Z ind
+R3299:3301 Stdlib.ZArith.BinInt <> ::Z_scope:x_'+'_x not
+R3287:3289 Stdlib.ZArith.BinInt <> ::Z_scope:x_'+'_x not
+R3276:3278 Stdlib.ZArith.BinInt <> ::Z_scope:x_'+'_x not
+R3274:3275 Verified.nonce_verified <> b0:35 var
+R3281:3283 Stdlib.ZArith.BinInt <> ::Z_scope:x_'*'_x not
+R3279:3280 Verified.nonce_verified <> b1:36 var
+R3285:3285 Stdlib.ZArith.BinInt <> ::Z_scope:x_'^'_x not
+R3292:3294 Stdlib.ZArith.BinInt <> ::Z_scope:x_'*'_x not
+R3290:3291 Verified.nonce_verified <> b2:37 var
+R3296:3296 Stdlib.ZArith.BinInt <> ::Z_scope:x_'^'_x not
+R3304:3306 Stdlib.ZArith.BinInt <> ::Z_scope:x_'*'_x not
+R3302:3303 Verified.nonce_verified <> b3:38 var
+R3308:3308 Stdlib.ZArith.BinInt <> ::Z_scope:x_'^'_x not
+ax 3545:3562 <> le64_encode_decode
+binder 3575:3575 <> x:39
+R3595:3602 Corelib.Init.Logic <> ::type_scope:x_'->'_x not
+R3583:3586 Stdlib.ZArith.BinInt <> ::Z_scope:x_'<='_x_'<'_x not
+R3588:3590 Stdlib.ZArith.BinInt <> ::Z_scope:x_'<='_x_'<'_x not
+R3587:3587 Verified.nonce_verified <> x:39 var
+R3587:3587 Verified.nonce_verified <> x:39 var
+R3592:3592 Stdlib.ZArith.BinInt <> ::Z_scope:x_'^'_x not
+R3762:3764 Corelib.Init.Logic <> ::type_scope:x_'='_x not
+R3603:3615 Verified.nonce_verified <> decode_le64_z def
+R3618:3626 Verified.nonce_verified <> le64_byte def
+R3628:3628 Verified.nonce_verified <> x:39 var
+R3634:3642 Verified.nonce_verified <> le64_byte def
+R3644:3644 Verified.nonce_verified <> x:39 var
+R3650:3658 Verified.nonce_verified <> le64_byte def
+R3660:3660 Verified.nonce_verified <> x:39 var
+R3666:3674 Verified.nonce_verified <> le64_byte def
+R3676:3676 Verified.nonce_verified <> x:39 var
+R3700:3708 Verified.nonce_verified <> le64_byte def
+R3710:3710 Verified.nonce_verified <> x:39 var
+R3716:3724 Verified.nonce_verified <> le64_byte def
+R3726:3726 Verified.nonce_verified <> x:39 var
+R3732:3740 Verified.nonce_verified <> le64_byte def
+R3742:3742 Verified.nonce_verified <> x:39 var
+R3748:3756 Verified.nonce_verified <> le64_byte def
+R3758:3758 Verified.nonce_verified <> x:39 var
+R3765:3765 Verified.nonce_verified <> x:39 var
+ax 3863:3880 <> le32_encode_decode
+binder 3893:3893 <> x:42
+R3913:3920 Corelib.Init.Logic <> ::type_scope:x_'->'_x not
+R3901:3904 Stdlib.ZArith.BinInt <> ::Z_scope:x_'<='_x_'<'_x not
+R3906:3908 Stdlib.ZArith.BinInt <> ::Z_scope:x_'<='_x_'<'_x not
+R3905:3905 Verified.nonce_verified <> x:42 var
+R3905:3905 Verified.nonce_verified <> x:42 var
+R3910:3910 Stdlib.ZArith.BinInt <> ::Z_scope:x_'^'_x not
+R3998:4000 Corelib.Init.Logic <> ::type_scope:x_'='_x not
+R3921:3933 Verified.nonce_verified <> decode_le32_z def
+R3936:3944 Verified.nonce_verified <> le32_byte def
+R3946:3946 Verified.nonce_verified <> x:42 var
+R3952:3960 Verified.nonce_verified <> le32_byte def
+R3962:3962 Verified.nonce_verified <> x:42 var
+R3968:3976 Verified.nonce_verified <> le32_byte def
+R3978:3978 Verified.nonce_verified <> x:42 var
+R3984:3992 Verified.nonce_verified <> le32_byte def
+R3994:3994 Verified.nonce_verified <> x:42 var
+R4001:4001 Verified.nonce_verified <> x:42 var
+prf 4079:4098 <> le64_bytes_injective
+R4117:4117 Corelib.Numbers.BinNums <> Z ind
+binder 4111:4111 <> x:45
+binder 4113:4113 <> y:46
+R4137:4144 Corelib.Init.Logic <> ::type_scope:x_'->'_x not
+R4125:4128 Stdlib.ZArith.BinInt <> ::Z_scope:x_'<='_x_'<'_x not
+R4130:4132 Stdlib.ZArith.BinInt <> ::Z_scope:x_'<='_x_'<'_x not
+R4129:4129 Verified.nonce_verified <> x:45 var
+R4129:4129 Verified.nonce_verified <> x:45 var
+R4134:4134 Stdlib.ZArith.BinInt <> ::Z_scope:x_'^'_x not
+R4158:4165 Corelib.Init.Logic <> ::type_scope:x_'->'_x not
+R4146:4149 Stdlib.ZArith.BinInt <> ::Z_scope:x_'<='_x_'<'_x not
+R4151:4153 Stdlib.ZArith.BinInt <> ::Z_scope:x_'<='_x_'<'_x not
+R4150:4150 Verified.nonce_verified <> y:46 var
+R4150:4150 Verified.nonce_verified <> y:46 var
+R4155:4155 Stdlib.ZArith.BinInt <> ::Z_scope:x_'^'_x not
+R4166:4166 Corelib.Init.Logic <> ::type_scope:x_'->'_x not
+R4227:4235 Corelib.Init.Logic <> ::type_scope:x_'->'_x not
+R4178:4180 Corelib.Init.Datatypes <> nat ind
+binder 4174:4174 <> i:47
+R4194:4197 Corelib.Init.Logic <> ::type_scope:x_'->'_x not
+R4185:4187 Corelib.Init.Peano <> ::nat_scope:x_'<'_x not
+R4184:4184 Verified.nonce_verified <> i:47 var
+R4211:4213 Corelib.Init.Logic <> ::type_scope:x_'='_x not
+R4198:4206 Verified.nonce_verified <> le64_byte def
+R4208:4208 Verified.nonce_verified <> x:45 var
+R4210:4210 Verified.nonce_verified <> i:47 var
+R4214:4222 Verified.nonce_verified <> le64_byte def
+R4224:4224 Verified.nonce_verified <> y:46 var
+R4226:4226 Verified.nonce_verified <> i:47 var
+R4237:4239 Corelib.Init.Logic <> ::type_scope:x_'='_x not
+R4236:4236 Verified.nonce_verified <> x:45 var
+R4240:4240 Verified.nonce_verified <> y:46 var
+R4369:4386 Verified.nonce_verified <> le64_encode_decode prfax
+R4369:4386 Verified.nonce_verified <> le64_encode_decode prfax
+R4369:4386 Verified.nonce_verified <> le64_encode_decode prfax
+R4409:4426 Verified.nonce_verified <> le64_encode_decode prfax
+R4409:4426 Verified.nonce_verified <> le64_encode_decode prfax
+R4409:4426 Verified.nonce_verified <> le64_encode_decode prfax
+R4444:4456 Verified.nonce_verified <> decode_le64_z def
+prf 4861:4880 <> le32_bytes_injective
+R4899:4899 Corelib.Numbers.BinNums <> Z ind
+binder 4893:4893 <> x:48
+binder 4895:4895 <> y:49
+R4919:4926 Corelib.Init.Logic <> ::type_scope:x_'->'_x not
+R4907:4910 Stdlib.ZArith.BinInt <> ::Z_scope:x_'<='_x_'<'_x not
+R4912:4914 Stdlib.ZArith.BinInt <> ::Z_scope:x_'<='_x_'<'_x not
+R4911:4911 Verified.nonce_verified <> x:48 var
+R4911:4911 Verified.nonce_verified <> x:48 var
+R4916:4916 Stdlib.ZArith.BinInt <> ::Z_scope:x_'^'_x not
+R4940:4947 Corelib.Init.Logic <> ::type_scope:x_'->'_x not
+R4928:4931 Stdlib.ZArith.BinInt <> ::Z_scope:x_'<='_x_'<'_x not
+R4933:4935 Stdlib.ZArith.BinInt <> ::Z_scope:x_'<='_x_'<'_x not
+R4932:4932 Verified.nonce_verified <> y:49 var
+R4932:4932 Verified.nonce_verified <> y:49 var
+R4937:4937 Stdlib.ZArith.BinInt <> ::Z_scope:x_'^'_x not
+R4948:4948 Corelib.Init.Logic <> ::type_scope:x_'->'_x not
+R5009:5017 Corelib.Init.Logic <> ::type_scope:x_'->'_x not
+R4960:4962 Corelib.Init.Datatypes <> nat ind
+binder 4956:4956 <> i:50
+R4976:4979 Corelib.Init.Logic <> ::type_scope:x_'->'_x not
+R4967:4969 Corelib.Init.Peano <> ::nat_scope:x_'<'_x not
+R4966:4966 Verified.nonce_verified <> i:50 var
+R4993:4995 Corelib.Init.Logic <> ::type_scope:x_'='_x not
+R4980:4988 Verified.nonce_verified <> le32_byte def
+R4990:4990 Verified.nonce_verified <> x:48 var
+R4992:4992 Verified.nonce_verified <> i:50 var
+R4996:5004 Verified.nonce_verified <> le32_byte def
+R5006:5006 Verified.nonce_verified <> y:49 var
+R5008:5008 Verified.nonce_verified <> i:50 var
+R5019:5021 Corelib.Init.Logic <> ::type_scope:x_'='_x not
+R5018:5018 Verified.nonce_verified <> x:48 var
+R5022:5022 Verified.nonce_verified <> y:49 var
+R5073:5090 Verified.nonce_verified <> le32_encode_decode prfax
+R5073:5090 Verified.nonce_verified <> le32_encode_decode prfax
+R5073:5090 Verified.nonce_verified <> le32_encode_decode prfax
+R5113:5130 Verified.nonce_verified <> le32_encode_decode prfax
+R5113:5130 Verified.nonce_verified <> le32_encode_decode prfax
+R5113:5130 Verified.nonce_verified <> le32_encode_decode prfax
+R5148:5160 Verified.nonce_verified <> decode_le32_z def
+prf 5389:5409 <> nonce_input_injective
+binder 5422:5423 <> c1:51
+binder 5425:5426 <> c2:52
+binder 5428:5429 <> e1:53
+binder 5431:5432 <> e2:54
+binder 5434:5435 <> d1:55
+binder 5437:5438 <> d2:56
+R5464:5471 Corelib.Init.Logic <> ::type_scope:x_'->'_x not
+R5445:5460 Verified.nonce_verified <> is_valid_counter def
+R5462:5463 Verified.nonce_verified <> c1:51 var
+R5491:5498 Corelib.Init.Logic <> ::type_scope:x_'->'_x not
+R5472:5487 Verified.nonce_verified <> is_valid_counter def
+R5489:5490 Verified.nonce_verified <> c2:52 var
+R5508:5515 Corelib.Init.Logic <> ::type_scope:x_'->'_x not
+R5499:5504 Verified.nonce_verified <> is_u32 def
+R5506:5507 Verified.nonce_verified <> e1:53 var
+R5525:5532 Corelib.Init.Logic <> ::type_scope:x_'->'_x not
+R5516:5521 Verified.nonce_verified <> is_u32 def
+R5523:5524 Verified.nonce_verified <> e2:54 var
+R5541:5548 Corelib.Init.Logic <> ::type_scope:x_'->'_x not
+R5533:5537 Verified.nonce_verified <> is_u8 def
+R5539:5540 Verified.nonce_verified <> d1:55 var
+R5557:5564 Corelib.Init.Logic <> ::type_scope:x_'->'_x not
+R5549:5553 Verified.nonce_verified <> is_u8 def
+R5555:5556 Verified.nonce_verified <> d2:56 var
+R5622:5629 Corelib.Init.Logic <> ::type_scope:x_'->'_x not
+R5592:5594 Corelib.Init.Logic <> ::type_scope:x_'='_x not
+R5565:5582 Verified.nonce_verified <> encode_nonce_input def
+R5584:5585 Verified.nonce_verified <> c1:51 var
+R5587:5588 Verified.nonce_verified <> e1:53 var
+R5590:5591 Verified.nonce_verified <> d1:55 var
+R5595:5612 Verified.nonce_verified <> encode_nonce_input def
+R5614:5615 Verified.nonce_verified <> c2:52 var
+R5617:5618 Verified.nonce_verified <> e2:54 var
+R5620:5621 Verified.nonce_verified <> d2:56 var
+R5637:5640 Corelib.Init.Logic <> ::type_scope:x_'/\'_x not
+R5632:5634 Corelib.Init.Logic <> ::type_scope:x_'='_x not
+R5630:5631 Verified.nonce_verified <> c1:51 var
+R5635:5636 Verified.nonce_verified <> c2:52 var
+R5648:5651 Corelib.Init.Logic <> ::type_scope:x_'/\'_x not
+R5643:5645 Corelib.Init.Logic <> ::type_scope:x_'='_x not
+R5641:5642 Verified.nonce_verified <> e1:53 var
+R5646:5647 Verified.nonce_verified <> e2:54 var
+R5654:5656 Corelib.Init.Logic <> ::type_scope:x_'='_x not
+R5652:5653 Verified.nonce_verified <> d1:55 var
+R5657:5658 Verified.nonce_verified <> d2:56 var
+R5733:5750 Verified.nonce_verified <> encode_nonce_input def
+R5936:5951 Verified.nonce_verified <> is_valid_counter def
+R5954:5964 Verified.nonce_verified <> MAX_COUNTER def
+R5982:6001 Verified.nonce_verified <> le64_bytes_injective thm
+R5982:6001 Verified.nonce_verified <> le64_bytes_injective thm
+R6039:6041 Stdlib.ZArith.BinInt <> ::Z_scope:x_'<'_x not
+R6036:6036 Stdlib.ZArith.BinInt <> ::Z_scope:x_'^'_x not
+R6043:6043 Stdlib.ZArith.BinInt <> ::Z_scope:x_'^'_x not
+R6039:6041 Stdlib.ZArith.BinInt <> ::Z_scope:x_'<'_x not
+R6036:6036 Stdlib.ZArith.BinInt <> ::Z_scope:x_'^'_x not
+R6043:6043 Stdlib.ZArith.BinInt <> ::Z_scope:x_'^'_x not
+R6105:6107 Stdlib.ZArith.BinInt <> ::Z_scope:x_'<'_x not
+R6102:6102 Stdlib.ZArith.BinInt <> ::Z_scope:x_'^'_x not
+R6109:6109 Stdlib.ZArith.BinInt <> ::Z_scope:x_'^'_x not
+R6105:6107 Stdlib.ZArith.BinInt <> ::Z_scope:x_'<'_x not
+R6102:6102 Stdlib.ZArith.BinInt <> ::Z_scope:x_'^'_x not
+R6109:6109 Stdlib.ZArith.BinInt <> ::Z_scope:x_'^'_x not
+R6223:6231 Verified.nonce_verified <> le64_byte def
+R6297:6302 Verified.nonce_verified <> is_u32 def
+R6320:6339 Verified.nonce_verified <> le32_bytes_injective thm
+R6320:6339 Verified.nonce_verified <> le32_bytes_injective thm
+R6420:6428 Verified.nonce_verified <> le32_byte def
+prf 6812:6832 <> valid_counter_bounded
+binder 6845:6845 <> c:57
+R6866:6869 Corelib.Init.Logic <> ::type_scope:x_'->'_x not
+R6848:6863 Verified.nonce_verified <> is_valid_counter def
+R6865:6865 Verified.nonce_verified <> c:57 var
+R6871:6873 Stdlib.ZArith.BinInt <> ::Z_scope:x_'<'_x not
+R6870:6870 Verified.nonce_verified <> c:57 var
+R6874:6884 Verified.nonce_verified <> MAX_COUNTER def
+R6916:6931 Verified.nonce_verified <> is_valid_counter def
+R6934:6944 Verified.nonce_verified <> MAX_COUNTER def
+prf 7038:7060 <> counter_increment_valid
+binder 7073:7073 <> c:58
+R7098:7105 Corelib.Init.Logic <> ::type_scope:x_'->'_x not
+R7080:7095 Verified.nonce_verified <> is_valid_counter def
+R7097:7097 Verified.nonce_verified <> c:58 var
+R7125:7132 Corelib.Init.Logic <> ::type_scope:x_'->'_x not
+R7111:7113 Stdlib.ZArith.BinInt <> ::Z_scope:x_'<'_x not
+R7107:7109 Stdlib.ZArith.BinInt <> ::Z_scope:x_'+'_x not
+R7106:7106 Verified.nonce_verified <> c:58 var
+R7114:7124 Verified.nonce_verified <> MAX_COUNTER def
+R7133:7148 Verified.nonce_verified <> is_valid_counter def
+R7152:7154 Stdlib.ZArith.BinInt <> ::Z_scope:x_'+'_x not
+R7151:7151 Verified.nonce_verified <> c:58 var
+R7195:7210 Verified.nonce_verified <> is_valid_counter def
+prf 7301:7323 <> counter_overflow_at_max
+binder 7336:7336 <> c:59
+R7359:7366 Corelib.Init.Logic <> ::type_scope:x_'->'_x not
+R7344:7347 Stdlib.ZArith.BinInt <> ::Z_scope:x_'>='_x not
+R7343:7343 Verified.nonce_verified <> c:59 var
+R7348:7358 Verified.nonce_verified <> MAX_COUNTER def
+R7367:7368 Corelib.Init.Logic <> ::type_scope:'~'_x not
+R7369:7384 Verified.nonce_verified <> is_valid_counter def
+R7386:7386 Verified.nonce_verified <> c:59 var
+R7427:7442 Verified.nonce_verified <> is_valid_counter def
+R7464:7474 Verified.nonce_verified <> MAX_COUNTER def
+def 7798:7811 <> DOMAIN_RECEIPT
+R7815:7815 Corelib.Numbers.BinNums <> Z ind
+def 7834:7847 <> DOMAIN_LICENSE
+R7851:7851 Corelib.Numbers.BinNums <> Z ind
+def 7870:7884 <> DOMAIN_KEY_WRAP
+R7888:7888 Corelib.Numbers.BinNums <> Z ind
+def 7907:7922 <> DOMAIN_FILE_SEAL
+R7926:7926 Corelib.Numbers.BinNums <> Z ind
+def 7945:7957 <> DOMAIN_MERKLE
+R7961:7961 Corelib.Numbers.BinNums <> Z ind
+prf 8019:8034 <> domains_distinct
+R8072:8077 Corelib.Init.Logic <> ::type_scope:x_'/\'_x not
+R8054:8057 Corelib.Init.Logic <> ::type_scope:x_'<>'_x not
+R8040:8053 Verified.nonce_verified <> DOMAIN_RECEIPT def
+R8058:8071 Verified.nonce_verified <> DOMAIN_LICENSE def
+R8111:8116 Corelib.Init.Logic <> ::type_scope:x_'/\'_x not
+R8092:8095 Corelib.Init.Logic <> ::type_scope:x_'<>'_x not
+R8078:8091 Verified.nonce_verified <> DOMAIN_RECEIPT def
+R8096:8110 Verified.nonce_verified <> DOMAIN_KEY_WRAP def
+R8151:8156 Corelib.Init.Logic <> ::type_scope:x_'/\'_x not
+R8131:8134 Corelib.Init.Logic <> ::type_scope:x_'<>'_x not
+R8117:8130 Verified.nonce_verified <> DOMAIN_RECEIPT def
+R8135:8150 Verified.nonce_verified <> DOMAIN_FILE_SEAL def
+R8188:8193 Corelib.Init.Logic <> ::type_scope:x_'/\'_x not
+R8171:8174 Corelib.Init.Logic <> ::type_scope:x_'<>'_x not
+R8157:8170 Verified.nonce_verified <> DOMAIN_RECEIPT def
+R8175:8187 Verified.nonce_verified <> DOMAIN_MERKLE def
+R8227:8232 Corelib.Init.Logic <> ::type_scope:x_'/\'_x not
+R8208:8211 Corelib.Init.Logic <> ::type_scope:x_'<>'_x not
+R8194:8207 Verified.nonce_verified <> DOMAIN_LICENSE def
+R8212:8226 Verified.nonce_verified <> DOMAIN_KEY_WRAP def
+R8267:8272 Corelib.Init.Logic <> ::type_scope:x_'/\'_x not
+R8247:8250 Corelib.Init.Logic <> ::type_scope:x_'<>'_x not
+R8233:8246 Verified.nonce_verified <> DOMAIN_LICENSE def
+R8251:8266 Verified.nonce_verified <> DOMAIN_FILE_SEAL def
+R8304:8309 Corelib.Init.Logic <> ::type_scope:x_'/\'_x not
+R8287:8290 Corelib.Init.Logic <> ::type_scope:x_'<>'_x not
+R8273:8286 Verified.nonce_verified <> DOMAIN_LICENSE def
+R8291:8303 Verified.nonce_verified <> DOMAIN_MERKLE def
+R8345:8350 Corelib.Init.Logic <> ::type_scope:x_'/\'_x not
+R8325:8328 Corelib.Init.Logic <> ::type_scope:x_'<>'_x not
+R8310:8324 Verified.nonce_verified <> DOMAIN_KEY_WRAP def
+R8329:8344 Verified.nonce_verified <> DOMAIN_FILE_SEAL def
+R8383:8388 Corelib.Init.Logic <> ::type_scope:x_'/\'_x not
+R8366:8369 Corelib.Init.Logic <> ::type_scope:x_'<>'_x not
+R8351:8365 Verified.nonce_verified <> DOMAIN_KEY_WRAP def
+R8370:8382 Verified.nonce_verified <> DOMAIN_MERKLE def
+R8405:8408 Corelib.Init.Logic <> ::type_scope:x_'<>'_x not
+R8389:8404 Verified.nonce_verified <> DOMAIN_FILE_SEAL def
+R8409:8421 Verified.nonce_verified <> DOMAIN_MERKLE def
+R8440:8453 Verified.nonce_verified <> DOMAIN_RECEIPT def
+R8456:8469 Verified.nonce_verified <> DOMAIN_LICENSE def
+R8472:8486 Verified.nonce_verified <> DOMAIN_KEY_WRAP def
+R8498:8513 Verified.nonce_verified <> DOMAIN_FILE_SEAL def
+R8516:8528 Verified.nonce_verified <> DOMAIN_MERKLE def
+prf 8623:8636 <> domains_are_u8
+R8662:8667 Corelib.Init.Logic <> ::type_scope:x_'/\'_x not
+R8642:8646 Verified.nonce_verified <> is_u8 def
+R8648:8661 Verified.nonce_verified <> DOMAIN_RECEIPT def
+R8688:8693 Corelib.Init.Logic <> ::type_scope:x_'/\'_x not
+R8668:8672 Verified.nonce_verified <> is_u8 def
+R8674:8687 Verified.nonce_verified <> DOMAIN_LICENSE def
+R8715:8720 Corelib.Init.Logic <> ::type_scope:x_'/\'_x not
+R8694:8698 Verified.nonce_verified <> is_u8 def
+R8700:8714 Verified.nonce_verified <> DOMAIN_KEY_WRAP def
+R8743:8748 Corelib.Init.Logic <> ::type_scope:x_'/\'_x not
+R8721:8725 Verified.nonce_verified <> is_u8 def
+R8727:8742 Verified.nonce_verified <> DOMAIN_FILE_SEAL def
+R8749:8753 Verified.nonce_verified <> is_u8 def
+R8755:8767 Verified.nonce_verified <> DOMAIN_MERKLE def
+R8786:8790 Verified.nonce_verified <> is_u8 def
+R8793:8806 Verified.nonce_verified <> DOMAIN_RECEIPT def
+R8809:8822 Verified.nonce_verified <> DOMAIN_LICENSE def
+R8825:8839 Verified.nonce_verified <> DOMAIN_KEY_WRAP def
+R8851:8866 Verified.nonce_verified <> DOMAIN_FILE_SEAL def
+R8869:8881 Verified.nonce_verified <> DOMAIN_MERKLE def
+ax 9429:9454 <> hkdf_preserves_injectivity
+R9474:9477 Corelib.Init.Datatypes <> list ind
+R9479:9479 Corelib.Numbers.BinNums <> Z ind
+binder 9468:9470 <> key:60
+R9497:9500 Corelib.Init.Datatypes <> list ind
+R9502:9502 Corelib.Numbers.BinNums <> Z ind
+binder 9483:9487 <> info1:61
+binder 9489:9493 <> info2:62
+R9524:9608 Corelib.Init.Logic <> ::type_scope:x_'->'_x not
+R9515:9518 Corelib.Init.Logic <> ::type_scope:x_'<>'_x not
+R9510:9514 Verified.nonce_verified <> info1:61 var
+R9519:9523 Verified.nonce_verified <> info2:62 var
+R9609:9612 Corelib.Init.Logic <> True ind
+prf 9756:9770 <> nonces_distinct
+binder 9783:9784 <> c1:65
+binder 9786:9787 <> c2:66
+binder 9789:9790 <> e1:67
+binder 9792:9793 <> e2:68
+binder 9795:9796 <> d1:69
+binder 9798:9799 <> d2:70
+R9825:9832 Corelib.Init.Logic <> ::type_scope:x_'->'_x not
+R9806:9821 Verified.nonce_verified <> is_valid_counter def
+R9823:9824 Verified.nonce_verified <> c1:65 var
+R9852:9859 Corelib.Init.Logic <> ::type_scope:x_'->'_x not
+R9833:9848 Verified.nonce_verified <> is_valid_counter def
+R9850:9851 Verified.nonce_verified <> c2:66 var
+R9869:9876 Corelib.Init.Logic <> ::type_scope:x_'->'_x not
+R9860:9865 Verified.nonce_verified <> is_u32 def
+R9867:9868 Verified.nonce_verified <> e1:67 var
+R9886:9893 Corelib.Init.Logic <> ::type_scope:x_'->'_x not
+R9877:9882 Verified.nonce_verified <> is_u32 def
+R9884:9885 Verified.nonce_verified <> e2:68 var
+R9902:9909 Corelib.Init.Logic <> ::type_scope:x_'->'_x not
+R9894:9898 Verified.nonce_verified <> is_u8 def
+R9900:9901 Verified.nonce_verified <> d1:69 var
+R9918:9925 Corelib.Init.Logic <> ::type_scope:x_'->'_x not
+R9910:9914 Verified.nonce_verified <> is_u8 def
+R9916:9917 Verified.nonce_verified <> d2:70 var
+R9926:9926 Corelib.Init.Logic <> ::type_scope:x_'->'_x not
+R9959:9967 Corelib.Init.Logic <> ::type_scope:x_'->'_x not
+R9935:9938 Corelib.Init.Logic <> ::type_scope:x_'\/'_x not
+R9929:9932 Corelib.Init.Logic <> ::type_scope:x_'<>'_x not
+R9927:9928 Verified.nonce_verified <> c1:65 var
+R9933:9934 Verified.nonce_verified <> c2:66 var
+R9947:9950 Corelib.Init.Logic <> ::type_scope:x_'\/'_x not
+R9941:9944 Corelib.Init.Logic <> ::type_scope:x_'<>'_x not
+R9939:9940 Verified.nonce_verified <> e1:67 var
+R9945:9946 Verified.nonce_verified <> e2:68 var
+R9953:9956 Corelib.Init.Logic <> ::type_scope:x_'<>'_x not
+R9951:9952 Verified.nonce_verified <> d1:69 var
+R9957:9958 Verified.nonce_verified <> d2:70 var
+R9995:9998 Corelib.Init.Logic <> ::type_scope:x_'<>'_x not
+R9968:9985 Verified.nonce_verified <> encode_nonce_input def
+R9987:9988 Verified.nonce_verified <> c1:65 var
+R9990:9991 Verified.nonce_verified <> e1:67 var
+R9993:9994 Verified.nonce_verified <> d1:69 var
+R9999:10016 Verified.nonce_verified <> encode_nonce_input def
+R10018:10019 Verified.nonce_verified <> c2:66 var
+R10021:10022 Verified.nonce_verified <> e2:68 var
+R10024:10025 Verified.nonce_verified <> d2:70 var
+R10184:10204 Verified.nonce_verified <> nonce_input_injective thm
+R10184:10204 Verified.nonce_verified <> nonce_input_injective thm
+R11364:11388 Verified.nonce_verified <> encode_nonce_input_length thm
+R11397:11417 Verified.nonce_verified <> valid_counter_bounded thm
+R11426:11448 Verified.nonce_verified <> counter_increment_valid thm
+R11457:11479 Verified.nonce_verified <> counter_overflow_at_max thm
+R11488:11503 Verified.nonce_verified <> domains_distinct thm
+R11512:11525 Verified.nonce_verified <> domains_are_u8 thm
