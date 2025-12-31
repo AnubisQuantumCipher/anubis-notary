@@ -5,10 +5,10 @@
 FROM coqorg/coq:8.18
 
 # Set maintainer
-LABEL maintainer="AnubisQuantumCipher"
+LABEL maintainer="AnubisQuantumCipher <sic.tau@pm.me>"
 LABEL description="Anubis Notary formal proofs verification environment"
 
-# Install Rocq/Coq dependencies
+# Install system dependencies
 USER root
 RUN apt-get update && apt-get install -y \
     make \
@@ -17,9 +17,9 @@ RUN apt-get update && apt-get install -y \
 
 USER coq
 
-# Install Coq libraries via opam
+# Install Coq libraries and dune via opam
 RUN opam update && \
-    opam install -y coq-stdpp coq-equations && \
+    opam install -y dune coq-stdpp coq-equations && \
     opam clean -a -c -s --logs
 
 # Copy proof files
@@ -34,4 +34,4 @@ WORKDIR /home/coq/anubis-notary/proofs
 # RUN eval $(opam env) && make all
 
 # Default command: interactive shell for proof verification
-CMD ["bash", "-c", "eval $(opam env) && echo 'Anubis Notary Proofs Environment' && echo 'Run: make all    - Build all proofs' && echo 'Run: make prove  - Verify proofs' && echo 'Run: coqide      - Open Coq IDE' && exec bash"]
+CMD ["bash", "-c", "eval $(opam env) && echo 'Anubis Notary Proofs Environment' && echo 'Run: make all    - Build all proofs' && echo 'Run: make prove  - Verify proofs' && echo 'Run: make clean  - Clean artifacts' && exec bash"]

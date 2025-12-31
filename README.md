@@ -27,9 +27,9 @@ Download pre-built binaries from [Releases](https://github.com/AnubisQuantumCiph
 | Platform | Download |
 |----------|----------|
 | Linux (x86_64) | `anubis-notary-linux-x86_64` |
-| macOS (Intel) | `anubis-notary-darwin-x86_64` |
 | macOS (Apple Silicon) | `anubis-notary-darwin-aarch64` |
-| Windows | `anubis-notary-windows-x86_64.exe` |
+
+For other platforms (macOS Intel, Windows), build from source below.
 
 ```bash
 # Make executable (Linux/macOS)
@@ -140,6 +140,31 @@ anubis-notary multisig execute --config multisig.config --proposal proposal.bin
 # Rotate keys (archives old key)
 anubis-notary key rotate
 ```
+
+## Environment Variables
+
+For CI/CD pipelines and automated workflows:
+
+| Variable | Description |
+|----------|-------------|
+| `ANUBIS_HOME` | Keystore directory (default: `~/.anubis`) |
+| `ANUBIS_PASSWORD` | Password for non-interactive operations |
+| `ANUBIS_PASSWORD_FILE` | Path to file containing password |
+
+Example CI/CD usage:
+
+```bash
+export ANUBIS_HOME=/path/to/keystore
+export ANUBIS_PASSWORD="secure-password"
+
+# Non-interactive key initialization
+anubis-notary key init --low-memory
+
+# Sign files in automation
+anubis-notary sign document.pdf -o document.sig
+```
+
+See [docs/MULTISIG.md](docs/MULTISIG.md) for multi-signature governance workflows.
 
 ## Formal Verification
 
