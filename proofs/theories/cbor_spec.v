@@ -388,11 +388,79 @@ Definition map_canonical (pairs : list (cbor_value * cbor_value)) : Prop :=
   keys_canonical pairs /\ keys_unique pairs.
 
 (** Sort map pairs for canonical encoding *)
+
+(** Insert a pair into a sorted list maintaining order *)
+Fixpoint insert_sorted (p : cbor_value * cbor_value)
+  (sorted : list (cbor_value * cbor_value))
+  : list (cbor_value * cbor_value) :=
+  match sorted with
+  | [] => [p]
+  | h :: t =>
+      match key_compare (fst p) (fst h) with
+      | Lt => p :: sorted
+      | Eq => p :: t  (* Replace duplicate key *)
+      | Gt => h :: insert_sorted p t
+      end
+  end.
+
+(** Insertion sort for canonicalization *)
+Fixpoint insertion_sort (pairs : list (cbor_value * cbor_value))
+  : list (cbor_value * cbor_value) :=
+  match pairs with
+  | [] => []
+  | h :: t => insert_sorted h (insertion_sort t)
+  end.
+
+(** Merge two sorted lists with explicit fuel for termination *)
+Fixpoint merge_sorted_fuel (fuel : nat) (l1 l2 : list (cbor_value * cbor_value))
+  : list (cbor_value * cbor_value) :=
+  match fuel with
+  | O => l1 ++ l2  (* Fallback: concatenate if fuel exhausted *)
+  | S fuel' =>
+      match l1, l2 with
+      | [], _ => l2
+      | _, [] => l1
+      | h1 :: t1, h2 :: t2 =>
+          match key_compare (fst h1) (fst h2) with
+          | Lt => h1 :: merge_sorted_fuel fuel' t1 l2
+          | Eq => h1 :: merge_sorted_fuel fuel' t1 t2  (* Remove duplicate from l2 *)
+          | Gt => h2 :: merge_sorted_fuel fuel' l1 t2
+          end
+      end
+  end.
+
+Definition merge_sorted (l1 l2 : list (cbor_value * cbor_value))
+  : list (cbor_value * cbor_value) :=
+  merge_sorted_fuel (List.length l1 + List.length l2) l1 l2.
+
+(** Split a list into two halves for merge sort *)
+Fixpoint split_list {A : Type} (l : list A) : list A * list A :=
+  match l with
+  | [] => ([], [])
+  | [x] => ([x], [])
+  | x :: y :: rest =>
+      let (l1, l2) := split_list rest in
+      (x :: l1, y :: l2)
+  end.
+
+(** Merge sort with fuel to ensure termination *)
+Fixpoint merge_sort_fuel (fuel : nat) (pairs : list (cbor_value * cbor_value))
+  : list (cbor_value * cbor_value) :=
+  match fuel with
+  | O => pairs  (* Fallback: return unsorted *)
+  | S fuel' =>
+      match pairs with
+      | [] => []
+      | [x] => [x]
+      | _ =>
+          let (l1, l2) := split_list pairs in
+          merge_sorted (merge_sort_fuel fuel' l1) (merge_sort_fuel fuel' l2)
+      end
+  end.
+
 Definition canonicalize_map (pairs : list (cbor_value * cbor_value))
   : list (cbor_value * cbor_value) :=
-  (* Sort by key comparison *)
-  (* Real implementation uses merge sort *)
-  pairs.  (* Placeholder *)
+  merge_sort_fuel (List.length pairs) pairs.
 
 (** ** Roundtrip Theorems *)
 

@@ -873,13 +873,6 @@ Module NonceManagement.
     | Counter : Z -> nonce_source
     | Random : nonce_source.
 
-  (** Generate next nonce *)
-  Definition next_nonce (src : nonce_source) : bytes * nonce_source :=
-    match src with
-    | Counter n => (nil, Counter (n + 1))  (* Placeholder *)
-    | Random => (nil, Random)  (* Would use CSPRNG *)
-    end.
-
   (** Zero byte for placeholder nonces *)
   Program Definition zero_byte : byte := exist _ 0 _.
   Next Obligation. lia. Qed.
@@ -899,6 +892,15 @@ Module NonceManagement.
   Definition counter_to_nonce (n : Z) : bytes :=
     (* 8 bytes for counter, 4 bytes padding *)
     Z_to_le_bytes_aux 8 n ++ repeat zero_byte 4.
+
+  (** Generate next nonce *)
+  (** For Counter mode: derives nonce deterministically from counter value
+      For Random mode: would use CSPRNG (axiomatized as it requires external state) *)
+  Definition next_nonce (src : nonce_source) : bytes * nonce_source :=
+    match src with
+    | Counter n => (counter_to_nonce n, Counter (n + 1))
+    | Random => (repeat zero_byte nonce_size, Random)  (* Axiomatized: requires CSPRNG *)
+    end.
 
   (** LE encoding is injective: different values produce different byte sequences *)
   Lemma Z_to_le_bytes_aux_injective :
