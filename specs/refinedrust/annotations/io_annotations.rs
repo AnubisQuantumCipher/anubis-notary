@@ -4,6 +4,29 @@
 //! - SystemClock sentinel value for errors
 //! - rand_hex cryptographic randomness
 //! - Exponential backoff in anchor polling
+//!
+//! NOTE: This is a specification file containing pseudo-code annotations.
+//! The actual implementation is in `anubis_io/src/`.
+
+#![allow(dead_code, unused_variables, unreachable_code)]
+
+use std::time::{Duration, SystemTime, UNIX_EPOCH};
+
+// Placeholder types for annotation purposes
+pub trait TimeSource {
+    fn now(&self) -> i64;
+}
+
+pub enum AnchorStatus {
+    Pending,
+    Confirmed,
+}
+
+pub struct AnchorResponse {
+    pub status: AnchorStatus,
+}
+
+pub struct AnchorError;
 
 // ============================================================================
 // SystemClock Fix: Sentinel Value for Errors
@@ -119,32 +142,52 @@ fn rand_hex(len: usize) -> String {
 /// Poll 4: 40s + jitter
 /// Poll 5+: 60s + jitter (capped)
 /// ```
+/// Anchor client placeholder for annotations
+pub struct AnchorClient;
+
 #[rr::verified]
-pub fn submit_and_wait(
-    &self,
-    merkle_root: &[u8; 32],
-    timestamp: i64,
-    max_wait_secs: u64,
-    base_interval_secs: u64,
-) -> Result<AnchorResponse, AnchorError> {
-    const MAX_BACKOFF_SECS: u64 = 60;
+impl AnchorClient {
+    pub fn submit_and_wait(
+        &self,
+        merkle_root: &[u8; 32],
+        timestamp: i64,
+        max_wait_secs: u64,
+        base_interval_secs: u64,
+    ) -> Result<AnchorResponse, AnchorError> {
+        const MAX_BACKOFF_SECS: u64 = 60;
 
-    // ... implementation ...
+        // Stub implementation for annotation purposes
+        let mut current_interval_secs = base_interval_secs;
+        let start = std::time::Instant::now();
+        let max_duration = Duration::from_secs(max_wait_secs);
 
-    #[rr::loop_inv("current_interval_secs <= MAX_BACKOFF_SECS")]
-    #[rr::loop_inv("start.elapsed() <= max_duration + current_interval_secs")]
-    loop {
-        #[rr::assert("Add jitter: 0-500ms using getrandom")]
-        let jitter_ms = /* ... */;
-
-        std::thread::sleep(sleep_duration);
-
-        match status.status {
-            AnchorStatus::Pending => {
-                #[rr::assert("Exponential backoff: double and cap")]
-                current_interval_secs = (current_interval_secs * 2).min(MAX_BACKOFF_SECS);
+        #[rr::loop_inv("current_interval_secs <= MAX_BACKOFF_SECS")]
+        #[rr::loop_inv("start.elapsed() <= max_duration + current_interval_secs")]
+        loop {
+            // Check timeout
+            if start.elapsed() > max_duration {
+                return Err(AnchorError);
             }
-            // ...
+
+            #[rr::assert("Add jitter: 0-500ms using getrandom")]
+            let jitter_ms: u64 = 0; // Placeholder
+
+            let sleep_duration = Duration::from_secs(current_interval_secs)
+                + Duration::from_millis(jitter_ms);
+            std::thread::sleep(sleep_duration);
+
+            // Placeholder: would poll status here
+            let status = AnchorResponse { status: AnchorStatus::Confirmed };
+
+            match status.status {
+                AnchorStatus::Pending => {
+                    #[rr::assert("Exponential backoff: double and cap")]
+                    current_interval_secs = (current_interval_secs * 2).min(MAX_BACKOFF_SECS);
+                }
+                AnchorStatus::Confirmed => {
+                    return Ok(status);
+                }
+            }
         }
     }
 }

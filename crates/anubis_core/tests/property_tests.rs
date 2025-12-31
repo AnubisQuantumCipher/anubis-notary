@@ -235,7 +235,7 @@ mod keccak_properties {
         #[test]
         fn shake_deterministic(
             data in prop::collection::vec(any::<u8>(), 0..200),
-            output_len in 1usize..256
+            output_len in 1usize..=1024  // Full range up to MAX_SQUEEZE_LEN
         ) {
             let mut shake1 = Shake256::new();
             shake1.absorb(&data);
@@ -254,10 +254,12 @@ mod keccak_properties {
         #[test]
         fn shake_prefix_consistency(
             data in prop::collection::vec(any::<u8>(), 0..100),
-            short_len in 1usize..64,
-            extra_len in 1usize..64
+            short_len in 1usize..512,
+            extra_len in 1usize..513
         ) {
-            let long_len = short_len + extra_len;
+            // Ensure both lengths are within MAX_SQUEEZE_LEN (1024)
+            let short_len = short_len.min(1024);
+            let long_len = (short_len + extra_len).min(1024);
 
             let mut shake1 = Shake256::new();
             shake1.absorb(&data);

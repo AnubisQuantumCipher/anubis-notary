@@ -55,29 +55,72 @@ Proof.
     simpl. reflexivity.
 Qed.
 
+(** Helper: testbit 1 for n > 0 is false, since 1 = 2^0 *)
+Lemma testbit_1_above_0 : forall n, 0 < n -> Z.testbit 1 n = false.
+Proof.
+  intros n Hn.
+  replace 1 with (2^0) by reflexivity.
+  apply Z.pow2_bits_false.
+  lia.
+Qed.
+
+(** Key lemma: XOR with 1 only changes bit 0, so higher bits are preserved *)
+Lemma lxor_1_higher_bits : forall i n, 0 <= i -> 0 < n ->
+  Z.testbit (Z.lxor i 1) n = Z.testbit i n.
+Proof.
+  intros i n Hi Hn.
+  rewrite Z.lxor_spec.
+  rewrite testbit_1_above_0 by lia.
+  rewrite Bool.xorb_false_r.
+  reflexivity.
+Qed.
+
+(** Right shift by 1 is preserved under XOR with 1 *)
+Lemma shiftr_lxor_1 : forall i, 0 <= i ->
+  Z.shiftr (Z.lxor i 1) 1 = Z.shiftr i 1.
+Proof.
+  intros i Hi.
+  apply Z.bits_inj'.
+  intros n Hn.
+  rewrite !Z.shiftr_spec by lia.
+  apply lxor_1_higher_bits; lia.
+Qed.
+
+(** Z.shiftr i 1 = i / 2 for non-negative i *)
+Lemma shiftr_1_div_2 : forall i, 0 <= i -> Z.shiftr i 1 = i / 2.
+Proof.
+  intros i Hi.
+  rewrite Z.shiftr_div_pow2 by lia.
+  replace (2^1) with 2 by reflexivity.
+  reflexivity.
+Qed.
+
+(** XOR with 1 preserves non-negativity *)
+Lemma lxor_1_nonneg : forall i, 0 <= i -> 0 <= Z.lxor i 1.
+Proof.
+  intros i Hi.
+  apply Z.lxor_nonneg; lia.
+Qed.
+
+(** Main theorem: sibling index has the same parent.
+    In Merkle trees, parent(i) = i / 2 = i quot 2.
+    XOR with 1 only changes bit 0, which is discarded by division by 2.
+*)
 Lemma merkle_sibling_same_parent : forall i,
   0 < i -> (Z.lxor i 1) `quot` 2 = i `quot` 2.
 Proof.
   intros i Hi.
-  (* Both i and i^1 have the same bits except bit 0 *)
-  (* Division by 2 (quot) discards bit 0 *)
-  (* So the quotients are equal *)
-  destruct (Z.even i) eqn:He.
-  - (* i even: i^1 = i+1, both have same quot by 2 *)
-    rewrite Z.even_spec in He.
-    destruct He as [k Hk]. subst.
-    rewrite Z.mul_comm.
-    replace (Z.lxor (2 * k) 1) with (2 * k + 1).
-    + rewrite Z.quot_add_l by lia.
-      rewrite Z.quot_small by lia.
-      rewrite Z.add_0_r.
-      rewrite Z.quot_mul by lia.
-      reflexivity.
-    + (* Z.lxor (2*k) 1 = 2*k + 1 when 2*k is even *)
-      admit.
-  - (* i odd: i^1 = i-1 *)
-    admit.
-Admitted.
+  assert (H1: 0 <= i) by lia.
+  assert (H2: 0 <= Z.lxor i 1) by (apply lxor_1_nonneg; lia).
+  (* Convert quot to div for non-negative numbers *)
+  rewrite Z.quot_div_nonneg by lia.
+  rewrite Z.quot_div_nonneg by lia.
+  (* Convert div by 2 to shiftr by 1 *)
+  rewrite <- shiftr_1_div_2 by lia.
+  rewrite <- shiftr_1_div_2 by lia.
+  (* Apply the key lemma *)
+  apply shiftr_lxor_1. lia.
+Qed.
 
 Close Scope Z_scope.
 

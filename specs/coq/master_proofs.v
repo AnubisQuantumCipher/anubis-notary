@@ -61,6 +61,19 @@ Module AxiomFreeProofs.
     length (l1 ++ l2) = length l1 + length l2.
   Proof. induction l1; simpl; auto. Qed.
 
+  (** firstn on repeat: taking n elements from repeat x m gives repeat x (min n m) *)
+  Lemma firstn_repeat : forall {A : Type} (n m : nat) (x : A),
+    firstn n (repeat x m) = repeat x (Nat.min n m).
+  Proof.
+    intros A n m x.
+    generalize dependent n.
+    induction m as [|m' IH]; intros n.
+    - simpl. rewrite firstn_nil. destruct n; reflexivity.
+    - destruct n as [|n'].
+      + simpl. reflexivity.
+      + simpl. f_equal. apply IH.
+  Qed.
+
   (** === XOR LEMMAS === *)
 
   Lemma Z_lxor_0_l : forall a, Z.lxor 0 a = a.
@@ -69,7 +82,7 @@ Module AxiomFreeProofs.
   Lemma Z_lxor_0_r : forall a, Z.lxor a 0 = a.
   Proof. intros. apply Z.lxor_0_r. Qed.
 
-  Lemma Z_lxor_nilpotent : forall a, Z.lxor a a = 0.
+  Lemma Z_lxor_nilpotent : forall a, Z.lxor a a = 0%Z.
   Proof. intros. apply Z.lxor_nilpotent. Qed.
 
   Lemma Z_lxor_assoc : forall a b c, Z.lxor (Z.lxor a b) c = Z.lxor a (Z.lxor b c).
@@ -158,12 +171,11 @@ Module KeccakProofs.
   Proof.
     intros i j Hi Hj Hne.
     unfold PI.
+    (* Enumerate all 25*25 cases and solve each by lia or discriminate *)
     do 25 (destruct i as [|i]; [
-      do 25 (destruct j as [|j]; [
-        contradiction |
-        simpl; try discriminate; try lia
-      ]) |
-    ]); lia.
+      simpl;
+      do 25 (destruct j as [|j]; [try lia | simpl; try discriminate; try lia])
+    |]); lia.
   Qed.
 
   (** RC has exactly 24 entries *)
@@ -225,7 +237,7 @@ Module SHA3Proofs.
 
   (** Rate fits in state *)
   Theorem rate_fits : RATE_256 / 8 <= 25.
-  Proof. unfold RATE_256. lia. Qed.
+  Proof. unfold RATE_256. compute. lia. Qed.
 
   (** Determinism *)
   Theorem sha3_256_deterministic : forall msg,
@@ -245,7 +257,8 @@ Module SHA3Proofs.
   Proof.
     intros msg n m Hnm.
     unfold shake256_output.
-    rewrite firstn_repeat; reflexivity || assumption.
+    rewrite firstn_repeat.
+    rewrite Nat.min_l; [reflexivity | assumption].
   Qed.
 
 End SHA3Proofs.
@@ -394,7 +407,8 @@ Module MerkleProofs.
   Theorem leaf_node_distinct : forall data left right,
     LEAF_DOMAIN :: data <> NODE_DOMAIN :: left ++ right.
   Proof.
-    intros. intro H. injection H as H. lia.
+    intros. intro H. injection H as H.
+    unfold LEAF_DOMAIN, NODE_DOMAIN in H. lia.
   Qed.
 
 End MerkleProofs.
@@ -451,12 +465,12 @@ Module MLDSAProofs.
   Theorem keygen_pk_size : forall seed,
     length seed = SEED_SIZE ->
     length (fst (keygen seed)) = PK_SIZE.
-  Proof. intros. simpl. apply repeat_length. Qed.
+  Proof. intros. unfold keygen, PK_SIZE. apply repeat_length. Qed.
 
   Theorem keygen_sk_size : forall seed,
     length seed = SEED_SIZE ->
     length (snd (keygen seed)) = SK_SIZE.
-  Proof. intros. simpl. apply repeat_length. Qed.
+  Proof. intros. unfold keygen, SK_SIZE. apply repeat_length. Qed.
 
   (** Signing *)
   Definition sign (sk msg : list Z) : list Z := repeat 0%Z SIG_SIZE.
@@ -465,7 +479,14 @@ Module MLDSAProofs.
     length (sign sk msg) = SIG_SIZE.
   Proof. intros. apply repeat_length. Qed.
 
-  (** Verification *)
+  (** Verification - ABSTRACT MODEL ONLY
+
+      WARNING: This is a simplified abstract model that only checks sizes.
+      It does NOT represent actual cryptographic signature verification.
+
+      The actual verification is implemented in:
+      - Rust: crates/anubis_core/src/mldsa/mod.rs (uses libcrux-ml-dsa, formally verified)
+      - Detailed spec: proofs/theories/mldsa_spec.v (full FIPS 204 verification steps) *)
   Definition verify (pk msg sig : list Z) : bool :=
     Nat.eqb (length pk) PK_SIZE && Nat.eqb (length sig) SIG_SIZE.
 
@@ -476,17 +497,14 @@ Module MLDSAProofs.
     verify pk msg (sign sk msg) = true.
   Proof.
     intros seed msg Hseed.
-    simpl.
-    unfold verify.
-    rewrite repeat_length, repeat_length.
-    rewrite Nat.eqb_refl, Nat.eqb_refl.
+    unfold keygen, sign, verify, PK_SIZE, SIG_SIZE.
+    rewrite !repeat_length.
+    rewrite !Nat.eqb_refl.
     reflexivity.
   Qed.
 
-  (** Determinism *)
-  Theorem keygen_deterministic : forall seed,
-    keygen seed = keygen seed.
-  Proof. reflexivity. Qed.
+  (** Note: Determinism is inherent - keygen is a pure Coq function.
+      Same seed always produces same keypair by construction. *)
 
 End MLDSAProofs.
 
@@ -508,11 +526,11 @@ Module MLKEMProofs.
 
   Theorem keygen_pk_size : forall seed,
     length (fst (keygen seed)) = PK_SIZE.
-  Proof. intros. simpl. apply repeat_length. Qed.
+  Proof. intros. unfold keygen, PK_SIZE. apply repeat_length. Qed.
 
   Theorem keygen_sk_size : forall seed,
     length (snd (keygen seed)) = SK_SIZE.
-  Proof. intros. simpl. apply repeat_length. Qed.
+  Proof. intros. unfold keygen, SK_SIZE. apply repeat_length. Qed.
 
   (** Public key validation *)
   Definition validate_pk (pk : list Z) : bool :=
@@ -521,8 +539,8 @@ Module MLKEMProofs.
   Theorem validate_keygen_pk : forall seed,
     validate_pk (fst (keygen seed)) = true.
   Proof.
-    intros. unfold validate_pk. simpl.
-    rewrite repeat_length. apply Nat.eqb_refl.
+    intros. unfold validate_pk, keygen, PK_SIZE.
+    cbn [fst]. rewrite repeat_length. apply Nat.eqb_refl.
   Qed.
 
   (** Encapsulation *)
@@ -531,11 +549,11 @@ Module MLKEMProofs.
 
   Theorem encapsulate_ct_size : forall pk rand,
     length (fst (encapsulate pk rand)) = CT_SIZE.
-  Proof. intros. simpl. apply repeat_length. Qed.
+  Proof. intros. unfold encapsulate, CT_SIZE. apply repeat_length. Qed.
 
   Theorem encapsulate_ss_size : forall pk rand,
     length (snd (encapsulate pk rand)) = SS_SIZE.
-  Proof. intros. simpl. apply repeat_length. Qed.
+  Proof. intros. unfold encapsulate, SS_SIZE. apply repeat_length. Qed.
 
   (** Decapsulation *)
   Definition decapsulate (sk ct : list Z) : list Z :=
@@ -603,7 +621,7 @@ Module AEADProofs.
     rewrite firstn_app.
     rewrite Nat.sub_diag. simpl.
     rewrite app_nil_r.
-    symmetry. apply firstn_all.
+    rewrite firstn_all. reflexivity.
   Qed.
 
 End AEADProofs.
@@ -659,20 +677,20 @@ Module MasterVerification.
       length nonce = AEADProofs.NONCE_SIZE ->
       AEADProofs.open key nonce ad (AEADProofs.seal key nonce ad pt) = Some pt).
   Proof.
-    repeat split.
-    - apply rho_offsets_valid.
-    - apply pi_indices_valid.
-    - apply lane_safe.
-    - apply sha3_256_length.
-    - apply shake256_length.
-    - apply ct_eq_correct.
-    - apply zeroize_all_zero.
-    - apply domain_separation.
-    - apply leaf_hash_length.
-    - apply derive_nonce_length.
-    - apply signature_correctness.
-    - apply encap_decap_correctness.
-    - apply seal_open_inverse.
+    repeat split;
+    first [ apply rho_offsets_valid
+          | apply pi_indices_valid
+          | apply lane_safe
+          | intro; apply sha3_256_length
+          | intros; apply shake256_length
+          | apply ct_eq_correct
+          | apply zeroize_all_zero
+          | apply domain_separation
+          | apply leaf_hash_length
+          | apply derive_nonce_length
+          | apply signature_correctness
+          | apply encap_decap_correctness
+          | apply seal_open_inverse ].
   Qed.
 
   (** Print verification status *)
@@ -705,8 +723,8 @@ End MasterVerification.
       - SHA3-256 collision/preimage resistance
       - ML-DSA-87 EUF-CMA security
       - ML-KEM-1024 IND-CCA2 security
-      - Ascon-128a AE security
-      - External verification references (libcrux hax/F*)
+      - ChaCha20-Poly1305 AE security
+      - External verification references (libcrux hax/F-star)
 
    4. complete_verification.v
       - Full system verification
@@ -764,12 +782,12 @@ End MasterVerification.
 ║  • SHA3-256 preimage resistance (256-bit security)                       ║
 ║  • ML-DSA-87 EUF-CMA security (NIST Level 5)                             ║
 ║  • ML-KEM-1024 IND-CCA2 security (NIST Level 5)                          ║
-║  • Ascon-128a AE security (128-bit)                                      ║
+║  • ChaCha20-Poly1305 AE security (256-bit key)                           ║
 ║                                                                           ║
 ║  EXTERNAL DEPENDENCIES (Independently Verified):                         ║
 ║  ────────────────────────────────────────────────────────────────────────║
-║  • libcrux-ml-dsa (Cryspen, verified via hax/F*)                         ║
-║  • libcrux-ml-kem (Cryspen, verified via hax/F*)                         ║
+║  • libcrux-ml-dsa (Cryspen, verified via hax/F-star)                     ║
+║  • libcrux-ml-kem (Cryspen, verified via hax/F-star)                     ║
 ║                                                                           ║
 ║  VERIFICATION STATISTICS:                                                ║
 ║  ────────────────────────────────────────────────────────────────────────║

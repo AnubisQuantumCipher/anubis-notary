@@ -2,6 +2,24 @@
 //!
 //! This file shows the complete refinement type annotations for the
 //! license token schema with CBOR encoding/decoding.
+//!
+//! NOTE: This is a specification file containing pseudo-code annotations.
+//! The actual implementation is in `anubis_core/src/license/`.
+
+#![allow(dead_code, unused_variables, unreachable_code)]
+
+// Placeholder types for annotation purposes
+#[derive(Default)]
+pub struct License;
+pub struct LicenseError;
+impl LicenseError {
+    pub fn MissingField(_: &str) -> Self { Self }
+}
+pub struct Decoder<'a>(&'a [u8]);
+impl<'a> Decoder<'a> {
+    pub fn new(data: &'a [u8]) -> Self { Self(data) }
+    pub fn decode_map_header(&mut self) -> Result<usize, LicenseError> { Ok(6) }
+}
 
 // ============================================================================
 // Constants
@@ -301,7 +319,9 @@ pub fn decode(data: &[u8]) -> Result<License, LicenseError> {
         return Err(LicenseError::MissingField("expected 6 fields"));
     }
 
-    // ... field decoding with validation ...
+    // Stub: actual implementation decodes all fields
+    // version, subject, product, expiry, features, signature
+    let license = License::default();
 
     Ok(license)
 }

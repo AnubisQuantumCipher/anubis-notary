@@ -83,17 +83,27 @@ fn fuzz_raw_cbor(data: &[u8]) {
 
 /// Fuzz with structured inputs
 fn fuzz_structured(input: &LicenseFuzzInput) {
-    // Truncate strings to valid lengths
+    // Truncate strings to valid lengths, respecting UTF-8 boundaries
     let subject = if input.subject.len() <= MAX_SUBJECT_LEN {
         &input.subject
     } else {
-        &input.subject[..MAX_SUBJECT_LEN.min(input.subject.len())]
+        // Find a valid UTF-8 boundary
+        let mut end = MAX_SUBJECT_LEN;
+        while end > 0 && !input.subject.is_char_boundary(end) {
+            end -= 1;
+        }
+        &input.subject[..end]
     };
 
     let product = if input.product.len() <= MAX_PRODUCT_LEN {
         &input.product
     } else {
-        &input.product[..MAX_PRODUCT_LEN.min(input.product.len())]
+        // Find a valid UTF-8 boundary
+        let mut end = MAX_PRODUCT_LEN;
+        while end > 0 && !input.product.is_char_boundary(end) {
+            end -= 1;
+        }
+        &input.product[..end]
     };
 
     // Create features (limited count and length)

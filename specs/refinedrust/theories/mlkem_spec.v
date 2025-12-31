@@ -251,12 +251,8 @@ Section mlkem_spec.
   (** ** Key Generation Properties                                       *)
   (** ------------------------------------------------------------------ *)
 
-  (** Key generation is deterministic *)
-  Theorem keygen_deterministic : forall seed,
-    ml_kem_keygen seed = ml_kem_keygen seed.
-  Proof.
-    reflexivity.
-  Qed.
+  (** Note: Determinism is inherent - ml_kem_keygen is a pure Coq function.
+      Same seed always produces same keypair by construction. *)
 
   (** Generated public key is valid *)
   Theorem keygen_produces_valid_pk : forall seed,
@@ -305,12 +301,8 @@ Section mlkem_spec.
   (** ** Encapsulation Properties                                        *)
   (** ------------------------------------------------------------------ *)
 
-  (** Encapsulation is deterministic given fixed randomness *)
-  Theorem encapsulate_deterministic : forall pk randomness,
-    ml_kem_encapsulate pk randomness = ml_kem_encapsulate pk randomness.
-  Proof.
-    reflexivity.
-  Qed.
+  (** Note: Encapsulation is deterministic by construction - it's a pure Coq function.
+      Same pk and randomness always produce same ciphertext/shared secret. *)
 
   (** Different randomness produces different ciphertexts (with high prob) *)
   Theorem encapsulate_randomness_matters : forall pk r1 r2,
@@ -432,9 +424,9 @@ End mlkem_spec.
   | PK validation (rejection)   | validate_pk_rejects_bad_length | PROVED  |
   | Encap/Decap correctness     | encap_decap_correctness        | PROVED  |
   | Shared secret match         | shared_secret_matches          | PROVED  |
-  | Keygen determinism          | keygen_deterministic           | PROVED  |
+  | Keygen determinism          | (inherent in functional model) | BY CONSTRUCTION |
   | Keygen produces valid PK    | keygen_produces_valid_pk       | PROVED  |
-  | Encapsulate determinism     | encapsulate_deterministic      | PROVED  |
+  | Encapsulate determinism     | (inherent in functional model) | BY CONSTRUCTION |
   | FIPS 203 sizes              | fips203_mlkem1024_sizes        | PROVED  |
   | Ring parameters             | mlkem1024_ring_params          | PROVED  |
   | Zeroization                 | secret_key_zeroized_after_drop | PROVED  |

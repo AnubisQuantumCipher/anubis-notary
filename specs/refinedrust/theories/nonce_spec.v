@@ -186,6 +186,229 @@ Section nonce_spec.
     intros. unfold build_info. simpl. reflexivity.
   Qed.
 
+  (** ------------------------------------------------------------------ *)
+  (** ** Little-Endian Encoding Injectivity Helpers                      *)
+  (** ------------------------------------------------------------------ *)
+
+  (** Extract byte from list at position *)
+  Definition get_byte (l : list Z) (n : nat) : Z := nth n l 0.
+
+  (** Reconstruct value from LE bytes *)
+  Definition bytes_to_Z_1 (l : list Z) : Z :=
+    get_byte l 0.
+
+  Definition bytes_to_Z_4 (l : list Z) : Z :=
+    get_byte l 0 +
+    Z.shiftl (get_byte l 1) 8 +
+    Z.shiftl (get_byte l 2) 16 +
+    Z.shiftl (get_byte l 3) 24.
+
+  Definition bytes_to_Z_6 (l : list Z) : Z :=
+    get_byte l 0 +
+    Z.shiftl (get_byte l 1) 8 +
+    Z.shiftl (get_byte l 2) 16 +
+    Z.shiftl (get_byte l 3) 24 +
+    Z.shiftl (get_byte l 4) 32 +
+    Z.shiftl (get_byte l 5) 40.
+
+  (** Key lemma: Z.land x 255 extracts low 8 bits
+      For all x (positive or negative), Z.land x 255 is in [0, 256)
+
+      Key insight: Z.land_ones works for ANY a (positive or negative),
+      it only requires n >= 0. So no case split is needed. *)
+  Lemma land_255_bound : forall x, 0 <= Z.land x 255 < 256.
+  Proof.
+    intro x.
+    assert (H255_ones: 255 = Z.ones 8) by reflexivity.
+    assert (H256_pow: 256 = 2^8) by reflexivity.
+    split.
+    - apply Z.land_nonneg. right. lia.
+    - (* Z.land x 255 < 256: use Z.land_ones which works for all x *)
+      rewrite H255_ones.
+      rewrite Z.land_ones by lia.  (* Works for ANY x, only requires 8 >= 0 *)
+      rewrite H256_pow.
+      apply Z.mod_pos_bound. lia.
+  Qed.
+
+  (** For bounded value, land with 255 preserves value *)
+  Lemma land_255_small : forall x, 0 <= x < 256 -> Z.land x 255 = x.
+  Proof.
+    intros x [Hlo Hhi].
+    assert (H255: 255 = Z.ones 8) by reflexivity.
+    rewrite H255.
+    rewrite Z.land_ones by lia.
+    apply Z.mod_small. lia.
+  Qed.
+
+  (** Single byte injectivity *)
+  Lemma byte_injective :
+    forall x y,
+      0 <= x < 256 ->
+      0 <= y < 256 ->
+      Z.land x 255 = Z.land y 255 ->
+      x = y.
+  Proof.
+    intros x y Hx Hy Heq.
+    rewrite land_255_small in Heq by assumption.
+    rewrite land_255_small in Heq by assumption.
+    exact Heq.
+  Qed.
+
+  (** LE32 reconstruction: for 0 <= x < 2^32, we can reconstruct x from its 4 bytes *)
+  Lemma le32_reconstruct :
+    forall x,
+      0 <= x < Z.shiftl 1 32 ->
+      x = Z.land x 255 +
+          Z.shiftl (Z.land (Z.shiftr x 8) 255) 8 +
+          Z.shiftl (Z.land (Z.shiftr x 16) 255) 16 +
+          Z.shiftl (Z.land (Z.shiftr x 24) 255) 24.
+  Proof.
+    intros x [Hlo Hhi].
+    (* First convert 255 to Z.ones 8 so Z.land_ones can match *)
+    assert (H255: 255 = Z.ones 8) by reflexivity.
+    rewrite !H255.
+    rewrite !Z.shiftl_mul_pow2 by lia.
+    rewrite !Z.land_ones by lia.
+    rewrite !Z.shiftr_div_pow2 by lia.
+    (* Goal is now: x = x mod 2^8 + 2^8 * (x/2^8 mod 2^8) + ... *)
+    assert (Hbound: x < 2^32) by (rewrite Z.shiftl_1_l in Hhi; exact Hhi).
+    (* Byte bounds *)
+    assert (Hb0: 0 <= x mod 2^8 < 2^8) by (apply Z.mod_pos_bound; lia).
+    assert (Hb1: 0 <= x / 2^8 mod 2^8 < 2^8) by (apply Z.mod_pos_bound; lia).
+    assert (Hb2: 0 <= x / 2^16 mod 2^8 < 2^8) by (apply Z.mod_pos_bound; lia).
+    assert (Hb3: 0 <= x / 2^24 mod 2^8 < 2^8) by (apply Z.mod_pos_bound; lia).
+    (* Key: x / 2^32 = 0 *)
+    assert (Htop: x / 2^32 = 0) by (apply Z.div_small; lia).
+    (* x / 2^24 < 2^8 and mod is identity *)
+    assert (Hb3_small: x / 2^24 < 2^8) by (apply Z.div_lt_upper_bound; lia).
+    assert (Hb3_mod: x / 2^24 mod 2^8 = x / 2^24).
+    { apply Z.mod_small. split; [apply Z.div_pos|]; lia. }
+    (* Division equations *)
+    pose proof (Z_div_mod_eq_full x (2^8)) as E0.
+    pose proof (Z_div_mod_eq_full (x/2^8) (2^8)) as E1.
+    pose proof (Z_div_mod_eq_full (x/2^16) (2^8)) as E2.
+    pose proof (Z_div_mod_eq_full (x/2^24) (2^8)) as E3.
+    (* Division chain *)
+    assert (D1: x / 2^8 / 2^8 = x / 2^16) by (rewrite Z.div_div; lia || reflexivity).
+    assert (D2: x / 2^16 / 2^8 = x / 2^24) by (rewrite Z.div_div; lia || reflexivity).
+    assert (D3: x / 2^24 / 2^8 = x / 2^32) by (rewrite Z.div_div; lia || reflexivity).
+    lia.
+  Qed.
+
+  (** LE32 injectivity *)
+  Lemma le32_injective :
+    forall x y,
+      0 <= x < Z.shiftl 1 32 ->
+      0 <= y < Z.shiftl 1 32 ->
+      Z.land x 255 = Z.land y 255 ->
+      Z.land (Z.shiftr x 8) 255 = Z.land (Z.shiftr y 8) 255 ->
+      Z.land (Z.shiftr x 16) 255 = Z.land (Z.shiftr y 16) 255 ->
+      Z.land (Z.shiftr x 24) 255 = Z.land (Z.shiftr y 24) 255 ->
+      x = y.
+  Proof.
+    intros x y Hx Hy H0 H1 H2 H3.
+    rewrite (le32_reconstruct x Hx).
+    rewrite (le32_reconstruct y Hy).
+    rewrite H0, H1, H2, H3.
+    reflexivity.
+  Qed.
+
+  (** LE48 (6 bytes) reconstruction: for 0 <= x < 2^48 *)
+  Lemma le48_reconstruct :
+    forall x,
+      0 <= x < Z.shiftl 1 48 ->
+      x = Z.land x 255 +
+          Z.shiftl (Z.land (Z.shiftr x 8) 255) 8 +
+          Z.shiftl (Z.land (Z.shiftr x 16) 255) 16 +
+          Z.shiftl (Z.land (Z.shiftr x 24) 255) 24 +
+          Z.shiftl (Z.land (Z.shiftr x 32) 255) 32 +
+          Z.shiftl (Z.land (Z.shiftr x 40) 255) 40.
+  Proof.
+    intros x [Hlo Hhi].
+    (* First convert 255 to Z.ones 8 so Z.land_ones can match *)
+    assert (H255: 255 = Z.ones 8) by reflexivity.
+    rewrite !H255.
+    rewrite !Z.shiftl_mul_pow2 by lia.
+    rewrite !Z.land_ones by lia.
+    rewrite !Z.shiftr_div_pow2 by lia.
+    (* Goal is now: x = x mod 2^8 + 2^8 * (x/2^8 mod 2^8) + ... *)
+    assert (Hbound: x < 2^48) by (rewrite Z.shiftl_1_l in Hhi; exact Hhi).
+    (* Byte bounds *)
+    assert (Hb0: 0 <= x mod 2^8 < 2^8) by (apply Z.mod_pos_bound; lia).
+    assert (Hb1: 0 <= x / 2^8 mod 2^8 < 2^8) by (apply Z.mod_pos_bound; lia).
+    assert (Hb2: 0 <= x / 2^16 mod 2^8 < 2^8) by (apply Z.mod_pos_bound; lia).
+    assert (Hb3: 0 <= x / 2^24 mod 2^8 < 2^8) by (apply Z.mod_pos_bound; lia).
+    assert (Hb4: 0 <= x / 2^32 mod 2^8 < 2^8) by (apply Z.mod_pos_bound; lia).
+    assert (Hb5: 0 <= x / 2^40 mod 2^8 < 2^8) by (apply Z.mod_pos_bound; lia).
+    (* Key: x / 2^48 = 0 *)
+    assert (Htop: x / 2^48 = 0) by (apply Z.div_small; lia).
+    (* x / 2^40 < 2^8 and mod is identity *)
+    assert (Hb5_small: x / 2^40 < 2^8) by (apply Z.div_lt_upper_bound; lia).
+    assert (Hb5_mod: x / 2^40 mod 2^8 = x / 2^40).
+    { apply Z.mod_small. split; [apply Z.div_pos|]; lia. }
+    (* Division equations *)
+    pose proof (Z_div_mod_eq_full x (2^8)) as E0.
+    pose proof (Z_div_mod_eq_full (x/2^8) (2^8)) as E1.
+    pose proof (Z_div_mod_eq_full (x/2^16) (2^8)) as E2.
+    pose proof (Z_div_mod_eq_full (x/2^24) (2^8)) as E3.
+    pose proof (Z_div_mod_eq_full (x/2^32) (2^8)) as E4.
+    pose proof (Z_div_mod_eq_full (x/2^40) (2^8)) as E5.
+    (* Division chain *)
+    assert (D1: x / 2^8 / 2^8 = x / 2^16) by (rewrite Z.div_div; lia || reflexivity).
+    assert (D2: x / 2^16 / 2^8 = x / 2^24) by (rewrite Z.div_div; lia || reflexivity).
+    assert (D3: x / 2^24 / 2^8 = x / 2^32) by (rewrite Z.div_div; lia || reflexivity).
+    assert (D4: x / 2^32 / 2^8 = x / 2^40) by (rewrite Z.div_div; lia || reflexivity).
+    assert (D5: x / 2^40 / 2^8 = x / 2^48) by (rewrite Z.div_div; lia || reflexivity).
+    lia.
+  Qed.
+
+  (** LE48 injectivity *)
+  Lemma le48_injective :
+    forall x y,
+      0 <= x < Z.shiftl 1 48 ->
+      0 <= y < Z.shiftl 1 48 ->
+      Z.land x 255 = Z.land y 255 ->
+      Z.land (Z.shiftr x 8) 255 = Z.land (Z.shiftr y 8) 255 ->
+      Z.land (Z.shiftr x 16) 255 = Z.land (Z.shiftr y 16) 255 ->
+      Z.land (Z.shiftr x 24) 255 = Z.land (Z.shiftr y 24) 255 ->
+      Z.land (Z.shiftr x 32) 255 = Z.land (Z.shiftr y 32) 255 ->
+      Z.land (Z.shiftr x 40) 255 = Z.land (Z.shiftr y 40) 255 ->
+      x = y.
+  Proof.
+    intros x y Hx Hy H0 H1 H2 H3 H4 H5.
+    rewrite (le48_reconstruct x Hx).
+    rewrite (le48_reconstruct y Hy).
+    rewrite H0, H1, H2, H3, H4, H5.
+    reflexivity.
+  Qed.
+
+  (** For counter < 2^48, bytes 6 and 7 of LE64 encoding are 0 *)
+  Lemma le64_high_bytes_zero :
+    forall x,
+      0 <= x < Z.shiftl 1 48 ->
+      Z.land (Z.shiftr x 48) 255 = 0 /\
+      Z.land (Z.shiftr x 56) 255 = 0.
+  Proof.
+    intros x [Hlo Hhi].
+    assert (H255: 255 = Z.ones 8) by reflexivity.
+    assert (Hbound: x < 2^48) by (rewrite Z.shiftl_1_l in Hhi; exact Hhi).
+    split.
+    - rewrite H255. rewrite Z.land_ones by lia.
+      rewrite Z.shiftr_div_pow2 by lia.
+      assert (Hdiv: x / 2^48 = 0).
+      { apply Z.div_small. lia. }
+      rewrite Hdiv. reflexivity.
+    - rewrite H255. rewrite Z.land_ones by lia.
+      rewrite Z.shiftr_div_pow2 by lia.
+      assert (Hdiv: x / 2^56 = 0).
+      { apply Z.div_small. lia. }
+      rewrite Hdiv. reflexivity.
+  Qed.
+
+  (** ------------------------------------------------------------------ *)
+  (** ** Main Injectivity Proof                                          *)
+  (** ------------------------------------------------------------------ *)
+
   (**
       The key insight: build_info is injective because:
       1. Each byte position is determined by a unique portion of the input
@@ -202,26 +425,20 @@ Section nonce_spec.
       due to large constants), we establish the specification property directly.
   *)
 
-  (** Build info injectivity - stated as a specification property
+  (** Build info injectivity - FULLY PROVEN
 
-      PROOF STATUS: Admitted due to proof performance issues.
-
-      The proof would proceed by:
+      The proof proceeds by:
       1. Extract byte-wise equalities from list equality
       2. Use little-endian injectivity for each component:
-         - LE64 is injective for ctr < 2^48 (bytes 0-7)
+         - LE48 is injective for ctr < 2^48 (bytes 0-5)
          - LE32 is injective for id < 2^32 (bytes 8-11)
          - Single byte is injective for dom < 256 (byte 12)
-
-      The timeout occurs because:
-      - unfold build_info creates a term with 13 Z.land/Z.shiftr expressions
-      - Coq's reduction machinery struggles with the large constants (2^48, 2^64)
-      - lia times out on arithmetic involving these bounds
-
-      Mathematical correctness: The encoding IS injective because each byte
-      position is determined by disjoint bits of the input, and concatenation
-      preserves injectivity when the sub-encodings are injective.
   *)
+  (** Helper: extract nth element equality from list equality *)
+  Lemma list_eq_nth : forall (l1 l2 : list Z) n d,
+    l1 = l2 -> nth n l1 d = nth n l2 d.
+  Proof. intros. subst. reflexivity. Qed.
+
   Lemma build_info_injective :
     forall ctr1 ctr2 id1 id2 dom1 dom2,
       0 <= ctr1 < MAX_COUNTER ->
@@ -233,8 +450,29 @@ Section nonce_spec.
       build_info ctr1 id1 dom1 = build_info ctr2 id2 dom2 ->
       ctr1 = ctr2 /\ id1 = id2 /\ dom1 = dom2.
   Proof.
-    intros. split; [|split]; admit.
-  Admitted.
+    intros ctr1 ctr2 id1 id2 dom1 dom2 Hctr1 Hctr2 Hid1 Hid2 Hdom1 Hdom2 Heq.
+    (* Extract byte equalities using nth - use lazy for faster reduction *)
+    pose proof (list_eq_nth _ _ 0 0 Heq) as Hb0; lazy beta iota delta [nth build_info app] in Hb0.
+    pose proof (list_eq_nth _ _ 1 0 Heq) as Hb1; lazy beta iota delta [nth build_info app] in Hb1.
+    pose proof (list_eq_nth _ _ 2 0 Heq) as Hb2; lazy beta iota delta [nth build_info app] in Hb2.
+    pose proof (list_eq_nth _ _ 3 0 Heq) as Hb3; lazy beta iota delta [nth build_info app] in Hb3.
+    pose proof (list_eq_nth _ _ 4 0 Heq) as Hb4; lazy beta iota delta [nth build_info app] in Hb4.
+    pose proof (list_eq_nth _ _ 5 0 Heq) as Hb5; lazy beta iota delta [nth build_info app] in Hb5.
+    pose proof (list_eq_nth _ _ 8 0 Heq) as Hb8; lazy beta iota delta [nth build_info app] in Hb8.
+    pose proof (list_eq_nth _ _ 9 0 Heq) as Hb9; lazy beta iota delta [nth build_info app] in Hb9.
+    pose proof (list_eq_nth _ _ 10 0 Heq) as Hb10; lazy beta iota delta [nth build_info app] in Hb10.
+    pose proof (list_eq_nth _ _ 11 0 Heq) as Hb11; lazy beta iota delta [nth build_info app] in Hb11.
+    pose proof (list_eq_nth _ _ 12 0 Heq) as Hb12; lazy beta iota delta [nth build_info app] in Hb12.
+    split; [| split].
+    - (* ctr1 = ctr2: Use le48_injective since ctr < 2^48 *)
+      eapply le48_injective; try eassumption.
+      all: eassumption.
+    - (* id1 = id2: Use le32_injective *)
+      eapply le32_injective; try eassumption.
+      all: eassumption.
+    - (* dom1 = dom2: Use byte_injective *)
+      eapply byte_injective; eassumption.
+  Qed.
 
   (** Main injectivity theorem - uses build_info injectivity *)
   Theorem nonce_derivation_injective :

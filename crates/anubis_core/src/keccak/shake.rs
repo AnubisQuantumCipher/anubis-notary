@@ -53,35 +53,67 @@ impl Shake256 {
         libcrux_sha3::shake256(&self.buffer)
     }
 
+    /// Maximum supported output length for dynamic squeeze.
+    ///
+    /// SHAKE256 is an XOF that can produce arbitrary-length output, but the
+    /// libcrux API uses const generics. We support up to 1024 bytes for the
+    /// dynamic API. Use `squeeze_fixed` for compile-time known sizes.
+    pub const MAX_SQUEEZE_LEN: usize = 1024;
+
     /// Finalize and fill output buffer.
+    ///
+    /// # Panics
+    ///
+    /// Panics if `output.len() > MAX_SQUEEZE_LEN` (1024 bytes). For larger
+    /// outputs, use `squeeze_fixed` with a const generic size parameter.
     #[inline]
     pub fn squeeze(&self, output: &mut [u8]) {
+        let len = output.len();
+
+        // SECURITY: Reject requests larger than our maximum to prevent
+        // silent truncation. This is a fail-fast approach.
+        assert!(
+            len <= Self::MAX_SQUEEZE_LEN,
+            "SHAKE256 squeeze: requested {} bytes exceeds maximum {} bytes. \
+             Use squeeze_fixed::<N>() for larger outputs.",
+            len,
+            Self::MAX_SQUEEZE_LEN
+        );
+
         // For dynamic sizes, we need to use the const generic version
         // and copy. This is less efficient but maintains API compatibility.
-        match output.len() {
+        // We use the smallest buffer that fits the requested output.
+        match len {
             0 => {}
-            16 => {
+            1..=16 => {
                 let out: [u8; 16] = libcrux_sha3::shake256(&self.buffer);
-                output.copy_from_slice(&out);
+                output.copy_from_slice(&out[..len]);
             }
-            32 => {
+            17..=32 => {
                 let out: [u8; 32] = libcrux_sha3::shake256(&self.buffer);
-                output.copy_from_slice(&out);
+                output.copy_from_slice(&out[..len]);
             }
-            64 => {
+            33..=64 => {
                 let out: [u8; 64] = libcrux_sha3::shake256(&self.buffer);
-                output.copy_from_slice(&out);
+                output.copy_from_slice(&out[..len]);
             }
-            128 => {
+            65..=128 => {
                 let out: [u8; 128] = libcrux_sha3::shake256(&self.buffer);
-                output.copy_from_slice(&out);
+                output.copy_from_slice(&out[..len]);
             }
-            _ => {
-                // For other sizes, generate max needed and truncate
+            129..=256 => {
                 let out: [u8; 256] = libcrux_sha3::shake256(&self.buffer);
-                let len = output.len().min(256);
-                output[..len].copy_from_slice(&out[..len]);
+                output.copy_from_slice(&out[..len]);
             }
+            257..=512 => {
+                let out: [u8; 512] = libcrux_sha3::shake256(&self.buffer);
+                output.copy_from_slice(&out[..len]);
+            }
+            513..=1024 => {
+                let out: [u8; 1024] = libcrux_sha3::shake256(&self.buffer);
+                output.copy_from_slice(&out[..len]);
+            }
+            _ => unreachable!(), // Covered by assert above
         }
     }
 }
@@ -135,5 +167,56 @@ mod tests {
         // Compare with one-shot (should differ since incremental concatenates)
         let oneshot: [u8; 32] = shake256(b"test input");
         assert_eq!(output, oneshot);
+    }
+
+    #[test]
+    fn test_squeeze_various_sizes() {
+        let hasher = Shake256::new();
+
+        // Test various sizes within range
+        for size in [1, 15, 16, 17, 31, 32, 33, 63, 64, 65, 127, 128, 129, 255, 256, 257, 511, 512, 513, 1023, 1024] {
+            let mut output = vec![0u8; size];
+            hasher.squeeze(&mut output);
+            // Just verify it doesn't panic and produces non-zero output for non-empty input
+        }
+    }
+
+    #[test]
+    fn test_squeeze_max_size() {
+        let mut hasher = Shake256::new();
+        hasher.absorb(b"test");
+
+        // Maximum size should work
+        let mut output = vec![0u8; Shake256::MAX_SQUEEZE_LEN];
+        hasher.squeeze(&mut output);
+
+        // Verify output is valid (first 32 bytes match squeeze_fixed)
+        let fixed: [u8; 32] = hasher.squeeze_fixed();
+        assert_eq!(&output[..32], &fixed[..]);
+    }
+
+    #[test]
+    #[should_panic(expected = "exceeds maximum")]
+    fn test_squeeze_rejects_oversized() {
+        let hasher = Shake256::new();
+
+        // One byte over maximum should panic
+        let mut output = vec![0u8; Shake256::MAX_SQUEEZE_LEN + 1];
+        hasher.squeeze(&mut output);
+    }
+
+    #[test]
+    fn test_squeeze_prefix_consistency() {
+        // Verify that shorter outputs are prefixes of longer ones
+        let mut hasher = Shake256::new();
+        hasher.absorb(b"test data");
+
+        let mut short = vec![0u8; 100];
+        let mut long = vec![0u8; 500];
+
+        hasher.squeeze(&mut short);
+        hasher.squeeze(&mut long);
+
+        assert_eq!(&short[..], &long[..100]);
     }
 }

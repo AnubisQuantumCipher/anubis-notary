@@ -138,7 +138,7 @@ anubis-notary/
 │                                                             │
 │  ┌─────────────┐    ┌──────────────┐    ┌───────────────┐  │
 │  │ OS CSPRNG   │───▶│ ML-DSA-87    │───▶│  Secret Key   │  │
-│  │ (getrandom) │    │ KeyGen       │    │  (4864 bytes) │  │
+│  │ (getrandom) │    │ KeyGen       │    │  (4896 bytes) │  │
 │  └─────────────┘    └──────────────┘    └───────┬───────┘  │
 │                                                  │          │
 │  ┌─────────────┐    ┌──────────────┐            │          │
@@ -578,7 +578,7 @@ Key       │         │     │     Decrypt     │
 
 | Component | Algorithm | Security Level | Key/Output Size |
 |-----------|-----------|---------------|-----------------|
-| Signatures | ML-DSA-87 (FIPS 204) | 192-bit PQ | PK: 2592B, SK: 4864B, Sig: 4627B |
+| Signatures | ML-DSA-87 (FIPS 204) | 192-bit PQ | PK: 2592B, SK: 4896B, Sig: 4627B |
 | KEM | ML-KEM-1024 (FIPS 203) | 192-bit PQ | PK: 1568B, SK: 3168B, CT: 1568B |
 | AEAD | ChaCha20Poly1305 | 256-bit classical | Key: 32B, Nonce: 12B, Tag: 16B |
 | Hash | SHA3-256 | 128-bit classical | 32B |
