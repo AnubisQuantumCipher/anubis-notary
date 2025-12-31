@@ -13,7 +13,7 @@ From Stdlib Require Import ZArith List Lia.
 From caesium Require Import lang notation.
 From refinedrust Require Import typing shims.
 (* Import the abstract specification from local theory *)
-From anubis_notary Require Import merkle_spec.
+From AnubisSpec Require Import merkle_spec.
 Import ListNotations.
 
 Open Scope Z_scope.
