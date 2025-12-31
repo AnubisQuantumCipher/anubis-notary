@@ -136,20 +136,34 @@ pub fn read_file(path: impl AsRef<Path>) -> Result<Vec<u8>> {
 /// * `IoError::NotFound` - File does not exist
 /// * `IoError::FileTooLarge` - File exceeds size limit
 /// * `IoError::Fs` - Other filesystem errors
+///
+/// # Security
+///
+/// This function is TOCTOU-safe: it opens the file first, then checks the size
+/// using the file handle's metadata. This prevents race conditions where an
+/// attacker could swap files between existence check and read.
 pub fn read_file_with_limit(path: impl AsRef<Path>, max_size: u64) -> Result<Vec<u8>> {
     let path = path.as_ref();
-    if !path.exists() {
-        return Err(IoError::NotFound(path.to_path_buf()));
-    }
 
-    // Check file size before reading
-    let metadata = fs::metadata(path)?;
+    // SECURITY: Open file first, then check metadata on the open handle.
+    // This eliminates TOCTOU race conditions where an attacker could swap
+    // the file between our check and read operations.
+    let mut file = match File::open(path) {
+        Ok(f) => f,
+        Err(e) if e.kind() == io::ErrorKind::NotFound => {
+            return Err(IoError::NotFound(path.to_path_buf()));
+        }
+        Err(e) => return Err(IoError::Fs(e)),
+    };
+
+    // Get metadata from the open file handle (not from path)
+    // This ensures we check the same file we're about to read
+    let metadata = file.metadata()?;
     let size = metadata.len();
     if size > max_size {
         return Err(IoError::FileTooLarge { size, limit: max_size });
     }
 
-    let mut file = File::open(path)?;
     let mut contents = Vec::with_capacity(size as usize);
     file.read_to_end(&mut contents)?;
     Ok(contents)

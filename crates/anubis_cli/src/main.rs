@@ -1552,7 +1552,7 @@ fn handle_anchor(action: &AnchorCommands, json: bool) -> Result<(), Box<dyn std:
             }
         },
         AnchorCommands::Submit { provider, url, batch, wait } => {
-            use anubis_io::anchor::{AnchorClient, AnchorStatus};
+            use anubis_io::anchor::AnchorClient;
             use anubis_core::merkle::MAX_LEAVES;
 
             let queued = ks.list_queue()?;
@@ -2680,7 +2680,7 @@ fn handle_stream(action: &StreamCommands, json: bool) -> Result<(), Box<dyn std:
                     hash: hex::encode(hash),
                     file_size,
                     chunk_size: *chunk_size,
-                    chunk_count: ((file_size + *chunk_size as u64 - 1) / *chunk_size as u64) as usize,
+                    chunk_count: file_size.div_ceil(*chunk_size as u64) as usize,
                 });
                 println!("{}", serde_json::to_string_pretty(&output)?);
             } else {

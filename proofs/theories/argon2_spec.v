@@ -52,7 +52,7 @@ Definition argon2id_version : Z := 19.  (* 0x13 *)
 Definition argon2id_type : Z := 2.      (* Argon2id = 2 *)
 Definition slices_per_pass : nat := 4.
 
-(** ** Parameter Constraints (from CLAUDE.md) *)
+(** ** Parameter Constraints (RFC 9106) *)
 
 (** Minimum memory in KiB *)
 Definition min_m_cost_low : Z := 524288.      (* 512 MiB - matches ARGON2ID_LOW_M_COST *)

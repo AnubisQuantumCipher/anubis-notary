@@ -28,6 +28,22 @@ pub struct AnchorResponse {
 
 pub struct AnchorError;
 
+/// Generic error type for I/O operations
+#[derive(Debug)]
+pub struct Error(String);
+
+impl From<String> for Error {
+    fn from(s: String) -> Self {
+        Error(s)
+    }
+}
+
+impl From<&str> for Error {
+    fn from(s: &str) -> Self {
+        Error(s.to_string())
+    }
+}
+
 // ============================================================================
 // SystemClock Fix: Sentinel Value for Errors
 // ============================================================================

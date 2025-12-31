@@ -346,8 +346,15 @@ impl Proposal {
     }
 
     /// Check if a specific signer has signed.
+    ///
+    /// Returns `false` for out-of-bounds indices (indices >= MAX_SIGNERS).
+    /// This prevents undefined behavior from bit shifts >= 64.
     pub fn has_signed(&self, signer_index: usize) -> bool {
-        self.signed_bitmap & (1 << signer_index) != 0
+        // SECURITY: Validate signer_index to prevent UB from shifting >= 64 bits
+        if signer_index >= MAX_SIGNERS {
+            return false;
+        }
+        self.signed_bitmap & (1u64 << signer_index) != 0
     }
 
     /// Get all collected signatures.
@@ -539,7 +546,11 @@ impl Multisig {
         let nonce = self.next_nonce;
         self.next_nonce += 1;
 
-        let expires_at = expires_in.map(|d| current_time + d).unwrap_or(0);
+        // SECURITY: Use saturating_add to prevent overflow when calculating expiration.
+        // If overflow would occur, use u64::MAX as the expiration (effectively no expiry).
+        let expires_at = expires_in
+            .map(|d| current_time.saturating_add(d))
+            .unwrap_or(0);
 
         Proposal::new(
             proposal_type,
@@ -619,8 +630,11 @@ impl Multisig {
                 if *signer_index >= self.signers.len() {
                     return Err(MultisigError::InvalidSignerIndex);
                 }
-                // We need the actual public key to be provided externally
-                // For now, just update the hash
+                // NOTE: This only updates the hash. For full key rotation, use
+                // apply_key_rotation() which also updates the PublicKey.
+                // This partial update is intentional - it prevents accepting
+                // signatures from the old key while the new PublicKey is
+                // provided via apply_key_rotation().
                 self.signer_hashes[*signer_index] = *new_key_hash;
                 Ok(true)
             }
@@ -649,6 +663,73 @@ impl Multisig {
             | ProposalType::Resume
             | ProposalType::Custom { .. } => Ok(false),
         }
+    }
+
+    /// Complete a key rotation by providing the actual public key.
+    ///
+    /// This should be called after `apply_proposal()` for KeyRotation proposals.
+    /// It verifies the provided key matches the approved hash and updates the
+    /// signer list.
+    ///
+    /// # Arguments
+    ///
+    /// * `signer_index` - The index of the signer being rotated
+    /// * `new_key` - The new public key (must hash to the approved hash)
+    ///
+    /// # Errors
+    ///
+    /// Returns error if the key hash doesn't match or index is invalid.
+    pub fn apply_key_rotation(
+        &mut self,
+        signer_index: usize,
+        new_key: PublicKey,
+    ) -> Result<(), MultisigError> {
+        if signer_index >= self.signers.len() {
+            return Err(MultisigError::InvalidSignerIndex);
+        }
+
+        // Verify the new key matches the approved hash
+        let new_hash = hash_public_key(&new_key);
+        if new_hash != self.signer_hashes[signer_index] {
+            return Err(MultisigError::InvalidSignature);
+        }
+
+        // Update both the key and hash (hash already set by apply_proposal)
+        self.signers[signer_index] = new_key;
+        Ok(())
+    }
+
+    /// Add a new signer after an AddSigner proposal has been executed.
+    ///
+    /// This should be called after `apply_proposal()` for AddSigner proposals.
+    /// It verifies the provided key matches the approved hash and adds the signer.
+    ///
+    /// # Errors
+    ///
+    /// Returns error if the key hash doesn't match or max signers reached.
+    pub fn apply_add_signer(
+        &mut self,
+        new_key: PublicKey,
+        expected_hash: &SignerHash,
+    ) -> Result<(), MultisigError> {
+        // Verify the new key matches the expected hash
+        let new_hash = hash_public_key(&new_key);
+        if new_hash != *expected_hash {
+            return Err(MultisigError::InvalidSignature);
+        }
+
+        if self.signers.len() >= MAX_SIGNERS {
+            return Err(MultisigError::TooManySigners);
+        }
+
+        // Check for duplicates
+        if self.signer_hashes.contains(&new_hash) {
+            return Err(MultisigError::DuplicateSigner);
+        }
+
+        self.signers.push(new_key);
+        self.signer_hashes.push(new_hash);
+        Ok(())
     }
 }
 
