@@ -30,6 +30,7 @@
 use zeroize::{Zeroize, ZeroizeOnDrop};
 
 use crate::keccak::sha3::sha3_256;
+use getrandom::getrandom;
 
 /// Maximum number of shares (limited by GF(2^8) field size).
 pub const MAX_SHARES: u8 = 255;
@@ -63,6 +64,8 @@ pub enum ShamirError {
     MismatchedShareLengths,
     /// Checksum verification failed.
     ChecksumMismatch,
+    /// Random number generation failed.
+    RngError,
 }
 
 /// A single share from Shamir's Secret Sharing.
@@ -337,24 +340,27 @@ impl ShamirSharing {
             .map(|i| Share::new(i, vec![0u8; secret.len()], threshold))
             .collect();
 
-        // For each byte of the secret, create a random polynomial and evaluate
-        let mut rng_state = sha3_256(secret);
+        // Pre-allocate random bytes for all coefficients
+        // We need (threshold - 1) random bytes per secret byte
+        let random_bytes_needed = secret.len() * (threshold as usize - 1);
+        let mut random_bytes = vec![0u8; random_bytes_needed];
+
+        // Use OS entropy for cryptographically secure randomness
+        // This ensures each split produces unique shares
+        getrandom(&mut random_bytes).map_err(|_| ShamirError::RngError)?;
+
+        let mut random_idx = 0;
 
         for (byte_idx, &secret_byte) in secret.iter().enumerate() {
             // Generate random coefficients for polynomial of degree threshold-1
-            // coeffs[0] = secret_byte, coeffs[1..threshold] = random
+            // coeffs[0] = secret_byte, coeffs[1..threshold] = truly random from OS
             let mut coeffs = vec![0u8; threshold as usize];
             coeffs[0] = secret_byte;
 
-            #[allow(clippy::needless_range_loop)] // Index needed for both array access and hash input
             for i in 1..threshold as usize {
-                // Use SHAKE-based PRNG for random coefficients
-                let hash_input = [
-                    rng_state.as_slice(),
-                    &[byte_idx as u8, i as u8],
-                ].concat();
-                rng_state = sha3_256(&hash_input);
-                coeffs[i] = rng_state[0];
+                // Use cryptographically secure random bytes from OS entropy
+                coeffs[i] = random_bytes[random_idx];
+                random_idx += 1;
             }
 
             // Evaluate polynomial at each share index
@@ -365,6 +371,9 @@ impl ShamirSharing {
             // Zeroize coefficients
             coeffs.zeroize();
         }
+
+        // Zeroize random bytes buffer
+        random_bytes.zeroize();
 
         Ok(shares)
     }
