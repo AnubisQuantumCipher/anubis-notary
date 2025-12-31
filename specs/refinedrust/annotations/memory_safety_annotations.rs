@@ -295,11 +295,34 @@ pub mod rate_limit_spec {
     /// #[rr::postcondition("panic_free")]
     /// ```
     #[rr::verified]
-    pub fn get_or_create_bucket(_self: &ApiRateLimiter, _endpoint: &str) -> TokenBucket {
-        // Use lock recovery pattern
+    pub fn get_or_create_bucket(_self: &ApiRateLimiter, endpoint: &str) -> TokenBucket {
+        // Use lock recovery pattern: unwrap_or_else with into_inner() recovers from poisoned locks
         let buckets = _self.buckets.read().unwrap_or_else(|e| e.into_inner());
-        // ... bucket lookup/creation logic
-        todo!()
+
+        // Look up existing bucket for this endpoint
+        if let Some(bucket) = buckets.get(endpoint) {
+            return *bucket;
+        }
+        drop(buckets);
+
+        // Need to create new bucket - acquire write lock with poisoning recovery
+        let mut buckets = _self.buckets.write().unwrap_or_else(|e| e.into_inner());
+
+        // Double-check after acquiring write lock (another thread may have created it)
+        if let Some(bucket) = buckets.get(endpoint) {
+            return *bucket;
+        }
+
+        // Create default bucket: 100 tokens, 10 tokens/sec refill rate
+        let new_bucket = TokenBucket {
+            tokens: 100.0,
+            max_tokens: 100.0,
+            refill_rate: 10.0,
+            last_refill: 0, // Will be set on first use
+        };
+
+        buckets.insert(endpoint.to_string(), new_bucket);
+        new_bucket
     }
 }
 

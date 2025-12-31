@@ -425,7 +425,8 @@ fn test_stream_hash_null_bytes() {
 #[test]
 fn test_stream_hash_unicode_path() {
     let temp_dir = TempDir::new().unwrap();
-    let file = create_test_file(&temp_dir, "test_file.txt", b"unicode test");
+    // Use actual Unicode characters to test path handling
+    let file = create_test_file(&temp_dir, "tëst_файл_路径.txt", b"unicode test");
 
     cli()
         .args(["--json", "stream", "hash"])

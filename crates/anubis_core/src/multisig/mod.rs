@@ -289,13 +289,20 @@ impl Proposal {
         public_key: &PublicKey,
         timestamp: u64,
     ) -> Result<bool, MultisigError> {
+        // SECURITY: Validate signer_index to prevent undefined behavior.
+        // The signed_bitmap is u64, so indices >= 64 would cause overflow
+        // in `1 << signer_index`. Also enforce MAX_SIGNERS limit.
+        if signer_index >= MAX_SIGNERS {
+            return Err(MultisigError::InvalidSignerIndex);
+        }
+
         // Check if already executed
         if self.status == ProposalStatus::Executed {
             return Err(MultisigError::AlreadyExecuted);
         }
 
-        // Check for duplicate signature
-        if self.signed_bitmap & (1 << signer_index) != 0 {
+        // Check for duplicate signature (safe now that signer_index < MAX_SIGNERS < 64)
+        if self.signed_bitmap & (1u64 << signer_index) != 0 {
             return Err(MultisigError::DuplicateSignature);
         }
 
@@ -311,7 +318,7 @@ impl Proposal {
             signature: signature.to_bytes(),
             timestamp,
         });
-        self.signed_bitmap |= 1 << signer_index;
+        self.signed_bitmap |= 1u64 << signer_index;
 
         // Check if threshold reached
         if self.signature_count() >= self.threshold as usize {

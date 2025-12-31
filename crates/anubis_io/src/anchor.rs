@@ -313,7 +313,7 @@ impl AnchorClient {
     }
 
     fn parse_response(&self, response: ureq::Response) -> Result<AnchorResponse, AnchorError> {
-        // Check content length
+        // Check content length if present - reject if too large
         if let Some(len) = response.header("Content-Length") {
             if let Ok(len) = len.parse::<u64>() {
                 if len > MAX_RESPONSE_SIZE {
@@ -322,9 +322,20 @@ impl AnchorClient {
             }
         }
 
-        let body = response
-            .into_string()
-            .map_err(|e| AnchorError::Network(e.to_string()))?;
+        // SECURITY: Always limit body read regardless of Content-Length header.
+        // A malicious server could omit the header and send unlimited data.
+        // Use take() to enforce the limit at the read level.
+        use std::io::Read;
+        let mut limited_reader = response.into_reader().take(MAX_RESPONSE_SIZE + 1);
+        let mut body = String::new();
+
+        match limited_reader.read_to_string(&mut body) {
+            Ok(n) if n > MAX_RESPONSE_SIZE as usize => {
+                return Err(AnchorError::ResponseTooLarge);
+            }
+            Ok(_) => {}
+            Err(e) => return Err(AnchorError::Network(e.to_string())),
+        }
 
         serde_json::from_str(&body).map_err(|e| AnchorError::Json(e.to_string()))
     }

@@ -34,7 +34,7 @@
 use std::collections::HashMap;
 use std::sync::{Arc, Mutex, RwLock};
 
-use zeroize::{Zeroize, ZeroizeOnDrop};
+use zeroize::{Zeroize, ZeroizeOnDrop, Zeroizing};
 
 /// HSM operation errors.
 #[derive(Debug, Clone, PartialEq, Eq)]
@@ -167,14 +167,17 @@ impl std::fmt::Display for KeyHandle {
 }
 
 /// HSM provider configuration.
+///
+/// SECURITY: Credentials are wrapped in `Zeroizing` to ensure they are
+/// cleared from memory when dropped.
 #[derive(Debug, Clone)]
 pub struct HsmConfig {
     /// Provider type.
     pub provider: HsmProviderType,
     /// Connection string or path.
     pub connection: String,
-    /// PIN or password (will be zeroized after use).
-    pub credentials: Option<String>,
+    /// PIN or password (zeroized when HsmConfig is dropped).
+    pub credentials: Option<Zeroizing<String>>,
     /// Slot ID (for PKCS#11).
     pub slot_id: Option<u64>,
     /// Maximum operations per minute.
@@ -565,8 +568,8 @@ pub struct Pkcs11Hsm {
     inner: Mutex<Pkcs11HsmInner>,
     /// Library path.
     library_path: String,
-    /// User PIN.
-    pin: Mutex<Option<String>>,
+    // NOTE: PIN is NOT stored - it's only used during login and then discarded.
+    // Storing credentials after authentication is a security anti-pattern.
     /// Key mapping: our handle ID -> (private ObjectHandle, public ObjectHandle, KeyType)
     keys: RwLock<HashMap<String, Pkcs11KeyEntry>>,
     /// Next key ID.
@@ -601,7 +604,6 @@ impl Pkcs11Hsm {
                 slot: None,
             }),
             library_path: library_path.into(),
-            pin: Mutex::new(None),
             keys: RwLock::new(HashMap::new()),
             next_id: Mutex::new(0),
         }
@@ -728,10 +730,13 @@ impl HsmBackend for Pkcs11Hsm {
 
         // Login if credentials provided
         if let Some(ref pin) = config.credentials {
-            let auth_pin = AuthPin::new(pin.clone());
+            // SECURITY: Use the Zeroizing<String> directly - no extra copies
+            let auth_pin = AuthPin::new(pin.as_str().to_string());
             session.login(UserType::User, Some(&auth_pin))
                 .map_err(|_e| HsmError::AuthenticationFailed)?;
-            *self.pin.lock().unwrap() = Some(pin.clone());
+            // NOTE: PIN is NOT stored after login - it's no longer needed.
+            // The session remains authenticated until logout/close.
+            // Storing credentials after use is a security anti-pattern.
         }
 
         let mut inner = self.inner.lock().unwrap();
@@ -969,7 +974,9 @@ impl HsmBackend for Pkcs11Hsm {
                 let wrapped_sk = wrapped_sk.clone();
                 drop(keys);
 
-                let sk_bytes = self.unwrap_data(&wrapped_sk)?;
+                // SECURITY: Wrap secret key bytes in Zeroizing to ensure they
+                // are cleared from memory after use, even on error paths.
+                let sk_bytes = Zeroizing::new(self.unwrap_data(&wrapped_sk)?);
 
                 use crate::mldsa::SecretKey;
                 let sk = SecretKey::from_bytes(&sk_bytes)
@@ -978,6 +985,7 @@ impl HsmBackend for Pkcs11Hsm {
                 let sig = sk.sign(message)
                     .map_err(|e| HsmError::SigningFailed(e.to_string()))?;
 
+                // sk_bytes is automatically zeroized when dropped here
                 Ok(sig.to_bytes().to_vec())
             }
             _ => Err(HsmError::UnsupportedKeyType),
@@ -1065,7 +1073,9 @@ impl HsmBackend for Pkcs11Hsm {
                 let wrapped_sk = wrapped_sk.clone();
                 drop(keys);
 
-                let sk_bytes = self.unwrap_data(&wrapped_sk)?;
+                // SECURITY: Wrap secret key bytes in Zeroizing to ensure they
+                // are cleared from memory after use, even on error paths.
+                let sk_bytes = Zeroizing::new(self.unwrap_data(&wrapped_sk)?);
 
                 use crate::mlkem::MlKemSecretKey;
                 let sk = MlKemSecretKey::from_bytes(&sk_bytes)
@@ -1074,6 +1084,7 @@ impl HsmBackend for Pkcs11Hsm {
                 let shared_secret = sk.decapsulate(ciphertext)
                     .map_err(|e| HsmError::CryptoFailed(e.to_string()))?;
 
+                // sk_bytes is automatically zeroized when dropped here
                 Ok(shared_secret.to_vec())
             }
             _ => Err(HsmError::UnsupportedKeyType),

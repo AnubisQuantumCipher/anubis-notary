@@ -92,10 +92,26 @@ End verification_summary.
 (** ** Build Success Marker                                            *)
 (** ------------------------------------------------------------------ *)
 
-(** If this file compiles, all proofs have been checked successfully. *)
-Definition all_proofs_checked : Prop := True.
+(** If this file compiles, all proofs have been checked successfully.
+    We assert specific properties that have been verified: *)
+Definition all_proofs_checked : Prop :=
+  (* Merkle tree operations are sound *)
+  merkle_spec.merkle_verify_sound /\
+  (* Constant-time operations preserve timing invariants *)
+  ct_spec.ct_select_correct /\
+  (* Nonce derivation is injective *)
+  nonce_spec.nonce_injective.
 
 Lemma verification_complete : all_proofs_checked.
-Proof. exact I. Qed.
+Proof.
+  unfold all_proofs_checked.
+  split; [| split].
+  - (* Merkle verify sound - from merkle_spec *)
+    exact merkle_spec.merkle_verify_sound_proof.
+  - (* CT select correct - from ct_spec *)
+    exact ct_spec.ct_select_correct_proof.
+  - (* Nonce injective - from nonce_spec *)
+    exact nonce_spec.nonce_injective_proof.
+Qed.
 
 Print Assumptions verification_complete.

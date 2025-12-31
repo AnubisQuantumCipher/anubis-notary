@@ -5,6 +5,17 @@
 //! - XDG_DATA_HOME support on Linux
 //! - Signed revocation lists
 //! - Low-memory Argon2id mode (1 GiB)
+//!
+//! NOTE: This is a specification file containing pseudo-code annotations.
+
+#![allow(dead_code, unused_variables, unreachable_code)]
+
+use std::path::PathBuf;
+
+// Placeholder types for annotation purposes
+pub struct KeyPair;
+pub struct IoError;
+pub struct SealError;
 
 // ============================================================================
 // XDG_DATA_HOME Support
@@ -33,7 +44,10 @@
 /// #[rr::ensures("~home_exists ==> result = PathBuf::from(\".\").join(\".anubis\")")]
 /// ```
 #[rr::verified]
-pub fn default_path() -> PathBuf;
+pub fn default_path() -> PathBuf {
+    // Stub: actual implementation in anubis_io
+    PathBuf::from(".")
+}
 
 /// XDG Base Directory Specification compliance proof.
 ///
@@ -97,7 +111,10 @@ mod _xdg_proofs {}
 pub fn sign_revocation_list(
     keypair: &KeyPair,
     revocations: &[(String, i64, String)],
-) -> Result<Vec<u8>, IoError>;
+) -> Result<Vec<u8>, IoError> {
+    // Stub: actual implementation in anubis_io
+    Ok(Vec::new())
+}
 
 /// Verify and parse a signed revocation list.
 ///
@@ -122,7 +139,10 @@ pub fn sign_revocation_list(
 #[rr::verified]
 pub fn verify_signed_revocation_list(
     data: &[u8],
-) -> Result<(String, i64, Vec<(String, i64, String)>), IoError>;
+) -> Result<(String, i64, Vec<(String, i64, String)>), IoError> {
+    // Stub: actual implementation in anubis_io
+    Ok((String::new(), 0, Vec::new()))
+}
 
 /// Signed revocation list security properties.
 ///
@@ -215,7 +235,10 @@ mod _argon2id_constants {}
 /// #[rr::ensures("ARGON2ID_LOW_MEMORY_M_COST >= 47 * 1024")]
 /// ```
 #[rr::verified]
-pub fn seal_key_low_memory(password: &[u8], secret_key: &[u8]) -> Result<Vec<u8>, SealError>;
+pub fn seal_key_low_memory(password: &[u8], secret_key: &[u8]) -> Result<Vec<u8>, SealError> {
+    // Stub: actual implementation in anubis_core
+    Ok(Vec::new())
+}
 
 /// Unseal a key (handles both standard and low-memory modes).
 ///
@@ -237,7 +260,10 @@ pub fn seal_key_low_memory(password: &[u8], secret_key: &[u8]) -> Result<Vec<u8>
 ///     unseal_key(password, sealed) = Ok(key)")]
 /// ```
 #[rr::verified]
-pub fn unseal_key(password: &[u8], sealed: &[u8]) -> Result<Vec<u8>, SealError>;
+pub fn unseal_key(password: &[u8], sealed: &[u8]) -> Result<Vec<u8>, SealError> {
+    // Stub: actual implementation in anubis_core
+    Ok(Vec::new())
+}
 
 /// Low-memory mode security analysis.
 ///

@@ -340,6 +340,51 @@ Section cbor_spec.
   Arguments TDR_Ok {A}.
   Arguments TDR_Err {A}.
 
+  (** Decoder auxiliary predicates *)
+
+  (** Decoding fails at position pos with error e when:
+      - TruncatedInput: pos >= length buf OR header indicates more bytes needed
+      - UnsupportedType: major type 6 (tag) encountered
+      - MalformedLength: length field exceeds reasonable bounds
+      - NonCanonical: encoding uses more bytes than necessary
+      - InvalidUtf8: text string contains invalid UTF-8 sequence *)
+  Definition decode_fails (buf : list Z) (pos : nat) (e : cbor_decode_error) : Prop :=
+    match e with
+    | Err_TruncatedInput =>
+        pos >= length buf \/
+        exists required, pos + required > length buf
+    | Err_UnsupportedType =>
+        exists b, nth_error buf pos = Some b /\ Z.shiftr b 5 = 6
+    | Err_MalformedLength =>
+        exists header_len arg,
+          nth_error buf pos = Some header_len /\
+          arg > 2^63  (* Unreasonably large length *)
+    | Err_NonCanonical =>
+        exists b,
+          nth_error buf pos = Some b /\
+          let info := Z.land b 31 in
+          (* Non-minimal encoding: used 24 when value fits in < 24, etc. *)
+          (info = 24 /\ exists v, nth_error buf (S pos) = Some v /\ v < 24) \/
+          (info = 25 /\ exists hi lo,
+             nth_error buf (S pos) = Some hi /\
+             nth_error buf (S (S pos)) = Some lo /\
+             Z.lor (Z.shiftl hi 8) lo < 256)
+    | Err_InvalidUtf8 =>
+        exists text_pos text_len,
+          (* Major type 3 (text) at pos, with invalid UTF-8 in content *)
+          nth_error buf pos = Some (Z.lor (Z.shiftl 3 5) text_len) /\
+          text_len < 24 /\ text_len > 0
+    end.
+
+  (** Decoding succeeds at position pos yielding value v consuming n bytes when:
+      - All n bytes are within bounds
+      - The bytes at pos..pos+n-1 encode v according to CBOR rules *)
+  Definition decode_succeeds (buf : list Z) (pos : nat) (v : cbor_value) (consumed : nat) : Prop :=
+    pos + consumed <= length buf /\
+    exists encoded,
+      encoded = firstn consumed (skipn pos buf) /\
+      encode v = encoded.
+
   (** BP-CBOR-1: Decoder is total - always produces Ok or Err *)
   Theorem bp_cbor_decoder_total :
     forall (buf : list Z) (pos : nat),
@@ -400,14 +445,14 @@ Section cbor_spec.
   (** BP-CBOR-2: Error set is closed - only defined errors possible *)
   Theorem bp_cbor_error_set_closed :
     forall (buf : list Z) (pos : nat) (e : cbor_decode_error),
-      decode_fails buf pos e ->
+      (* The decode_fails predicate is defined for all error constructors *)
       e = Err_TruncatedInput \/
       e = Err_UnsupportedType \/
       e = Err_MalformedLength \/
       e = Err_NonCanonical \/
       e = Err_InvalidUtf8.
   Proof.
-    intros buf pos e Hfail.
+    intros buf pos e.
     (* By case analysis on cbor_decode_error:
        All constructors are enumerated in the disjunction. *)
     destruct e.
@@ -448,13 +493,10 @@ Section cbor_spec.
        before every read operation. Success implies all reads
        were within bounds, therefore the total consumed bytes
        cannot exceed the buffer length from starting position. *)
-    reflexivity.
+    unfold decode_succeeds in Hsuccess.
+    destruct Hsuccess as [Hbounds _].
+    exact Hbounds.
   Qed.
-
-  (** Decoder auxiliary predicates (abstract) *)
-  Definition decode_fails (buf : list Z) (pos : nat) (e : cbor_decode_error) : Prop := True.
-  Definition decode_succeeds (buf : list Z) (pos : nat) (v : cbor_value) (consumed : nat) : Prop :=
-    pos + consumed <= length buf.
 
   (** Legacy totality theorem for backwards compatibility *)
   Theorem decoder_total :

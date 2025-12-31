@@ -45,20 +45,39 @@ jobs:
             fuzz-corpus-${{ matrix.target }}-
 
       - name: Run fuzzer
+        id: fuzz
+        continue-on-error: true
         run: |
           cd fuzz
+          mkdir -p artifacts/${{ matrix.target }}
           # Run for 60 seconds per target in CI
-          timeout 60s cargo +nightly fuzz run ${{ matrix.target }} -- \
+          # Exit code 0 = clean run, non-zero = crash found or error
+          cargo +nightly fuzz run ${{ matrix.target }} -- \
             -max_total_time=60 \
-            -max_len=65536 \
-            || true
+            -max_len=65536
+
+      - name: Check for crashes
+        id: check_crashes
+        run: |
+          if [ -d "fuzz/artifacts/${{ matrix.target }}" ] && [ "$(ls -A fuzz/artifacts/${{ matrix.target }} 2>/dev/null)" ]; then
+            echo "crashes_found=true" >> $GITHUB_OUTPUT
+            echo "::warning::Fuzzer found crashes in ${{ matrix.target }}"
+          else
+            echo "crashes_found=false" >> $GITHUB_OUTPUT
+          fi
 
       - name: Upload crash artifacts
-        if: failure()
+        if: steps.check_crashes.outputs.crashes_found == 'true'
         uses: actions/upload-artifact@v4
         with:
           name: crash-${{ matrix.target }}
           path: fuzz/artifacts/${{ matrix.target }}
+
+      - name: Fail if crashes found
+        if: steps.check_crashes.outputs.crashes_found == 'true'
+        run: |
+          echo "::error::Fuzzer found crashes in ${{ matrix.target }}"
+          exit 1
 
   coverage:
     name: Fuzz Coverage Report

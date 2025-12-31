@@ -390,8 +390,111 @@ impl AuditLogger {
         Ok(())
     }
 
-    /// Verify the integrity of the entire audit log.
+    /// Verify the integrity of the entire audit log chain.
+    ///
+    /// This verifies ALL log files (including rotated ones) in chronological order,
+    /// ensuring the hash chain is unbroken across file boundaries.
     pub fn verify_integrity(&self) -> std::io::Result<VerifyResult> {
+        // Collect all log files in order (oldest first)
+        let mut log_files = Vec::new();
+
+        // Add rotated logs in reverse order (oldest first: .log.5, .log.4, ..., .log.1)
+        for i in (1..=MAX_ROTATED_LOGS).rev() {
+            let rotated_path = self.log_path.with_extension(format!("log.{}", i));
+            if rotated_path.exists() {
+                log_files.push(rotated_path);
+            }
+        }
+
+        // Add current log file last (newest)
+        if self.log_path.exists() {
+            log_files.push(self.log_path.clone());
+        }
+
+        if log_files.is_empty() {
+            return Ok(VerifyResult {
+                valid: true,
+                entries_checked: 0,
+                first_invalid: None,
+            });
+        }
+
+        // Verify all files in sequence, maintaining hash chain across files
+        let mut prev_hash = [0u8; 32];
+        let mut entries_checked = 0u64;
+        let mut expected_seq = 0u64;
+
+        for log_file in log_files {
+            let file = File::open(&log_file)?;
+            let reader = BufReader::new(file);
+
+            for line in reader.lines() {
+                let line = line?;
+                if line.trim().is_empty() {
+                    continue;
+                }
+
+                let entry = match AuditEntry::from_log_line(&line) {
+                    Some(e) => e,
+                    None => {
+                        return Ok(VerifyResult {
+                            valid: false,
+                            entries_checked,
+                            first_invalid: Some(entries_checked),
+                        });
+                    }
+                };
+
+                // Verify hash chain (continues across file boundaries)
+                if entry.prev_hash != prev_hash {
+                    return Ok(VerifyResult {
+                        valid: false,
+                        entries_checked,
+                        first_invalid: Some(entries_checked),
+                    });
+                }
+
+                // Verify entry hash
+                if !entry.verify() {
+                    return Ok(VerifyResult {
+                        valid: false,
+                        entries_checked,
+                        first_invalid: Some(entries_checked),
+                    });
+                }
+
+                // Verify sequence (continues across file boundaries)
+                if entry.sequence != expected_seq {
+                    return Ok(VerifyResult {
+                        valid: false,
+                        entries_checked,
+                        first_invalid: Some(entries_checked),
+                    });
+                }
+
+                prev_hash = entry.entry_hash;
+                expected_seq += 1;
+                entries_checked += 1;
+            }
+        }
+
+        Ok(VerifyResult {
+            valid: true,
+            entries_checked,
+            first_invalid: None,
+        })
+    }
+
+    /// Verify integrity of just the current log file.
+    ///
+    /// This is a faster check that only verifies the current log file.
+    /// Use `verify_integrity()` for full chain verification across all files.
+    ///
+    /// # Arguments
+    /// * `expected_start_hash` - The expected prev_hash of the first entry.
+    ///   Use `[0u8; 32]` for a fresh log, or the last hash from the previous
+    ///   rotated file for continuity checking.
+    pub fn verify_current_file(&self, expected_start_hash: [u8; 32]) -> std::io::Result<VerifyResult> {
         if !self.log_path.exists() {
             return Ok(VerifyResult {
                 valid: true,
@@ -403,9 +506,9 @@ impl AuditLogger {
         let file = File::open(&self.log_path)?;
         let reader = BufReader::new(file);
 
-        let mut prev_hash = [0u8; 32];
+        let mut prev_hash = expected_start_hash;
         let mut entries_checked = 0u64;
-        let mut expected_seq = 0u64;
+        let mut first_entry = true;
 
         for line in reader.lines() {
             let line = line?;
@@ -442,19 +545,15 @@ impl AuditLogger {
                 });
             }
 
-            // Verify sequence
-            if entry.sequence != expected_seq {
-                return Ok(VerifyResult {
-                    valid: false,
-                    entries_checked,
-                    first_invalid: Some(entries_checked),
-                });
-            }
+            // Note: sequence verification is skipped here since we don't know
+            // the starting sequence for a single-file check
 
             prev_hash = entry.entry_hash;
-            expected_seq += 1;
             entries_checked += 1;
+            first_entry = false;
         }
+
+        let _ = first_entry; // Silence unused warning
 
         Ok(VerifyResult {
             valid: true,

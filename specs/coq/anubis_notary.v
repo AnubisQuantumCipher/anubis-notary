@@ -250,12 +250,8 @@ Module Theorems.
     exact Hseed.
   Qed.
 
-  Theorem mldsa_keygen_deterministic :
-    forall seed,
-      mldsa_keygen seed = mldsa_keygen seed.
-  Proof.
-    reflexivity.
-  Qed.
+  (** Note: Determinism is inherent - mldsa_keygen is a pure Coq function.
+      Same seed always produces same keypair by construction. *)
 
   (* ========================================= *)
   (* 4.2 ML-KEM-1024 KEM Correctness          *)
@@ -676,10 +672,34 @@ Module CompleteProofs.
       - specs/refinedrust/proofs/proof_obligations.v
   *)
 
-  (** Proof completion status *)
-  Definition all_proofs_complete := True.
+  (** Proof completion status: conjunction of key verified properties *)
+  Definition all_proofs_complete : Prop :=
+    (* ML-DSA-87 signature correctness *)
+    (forall seed msg, Theorems.mldsa_signature_correctness seed msg) /\
+    (* ML-KEM-1024 encapsulation/decapsulation correctness *)
+    (forall seed, Theorems.mlkem_encap_decap_correctness seed) /\
+    (* Merkle domain separation *)
+    Theorems.merkle_domain_separation /\
+    (* Nonce derivation injectivity *)
+    (forall c1 e1 d1 c2 e2 d2, Theorems.nonce_derivation_injective c1 e1 d1 c2 e2 d2) /\
+    (* Constant-time equality is timing-independent *)
+    (forall x y, Theorems.ct_eq_timing_independent x y).
 
   Theorem verification_complete : all_proofs_complete.
-  Proof. exact I. Qed.
+  Proof.
+    unfold all_proofs_complete.
+    repeat split.
+    - (* ML-DSA signature correctness *)
+      intros seed msg. apply Theorems.mldsa_signature_correctness.
+    - (* ML-KEM encap/decap correctness *)
+      intros seed. apply Theorems.mlkem_encap_decap_correctness.
+    - (* Merkle domain separation *)
+      apply Theorems.merkle_domain_separation.
+    - (* Nonce derivation injective *)
+      intros c1 e1 d1 c2 e2 d2.
+      apply Theorems.nonce_derivation_injective.
+    - (* CT equality timing independent *)
+      intros x y. apply Theorems.ct_eq_timing_independent.
+  Qed.
 
 End CompleteProofs.

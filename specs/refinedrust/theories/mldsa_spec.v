@@ -144,13 +144,8 @@ Section mldsa_spec.
     apply repeat_length.
   Qed.
 
-  (** Key generation is deterministic *)
-  Theorem ml_dsa_keygen_deterministic :
-    forall seed,
-      ml_dsa_keygen seed = ml_dsa_keygen seed.
-  Proof.
-    reflexivity.
-  Qed.
+  (** Note: Key generation is deterministic by construction - it's a pure Coq function.
+      Same seed always produces same keypair. *)
 
   (** ------------------------------------------------------------------ *)
   (** ** Data Models                                                     *)
@@ -526,17 +521,12 @@ Section mldsa_spec.
   (** ** Determinism Properties                                          *)
   (** ------------------------------------------------------------------ *)
 
-  (** Same seed produces same key pair *)
-  Theorem keygen_deterministic :
-    forall seed,
-      length seed = SEED_SIZE ->
-      ml_dsa_keygen seed = ml_dsa_keygen seed.
-  Proof.
-    intros. apply ml_dsa_keygen_deterministic.
-  Qed.
+  (** Note: Determinism is inherent in Coq's functional model.
+      All operations (keygen, sign, verify) are pure functions -
+      same inputs always produce same outputs by construction.
 
-  (** Different seeds produce different keys (with high probability) *)
-  (* This is a cryptographic assumption, not provable *)
+      Different seeds produce different keys with overwhelming probability
+      due to the pseudorandomness properties of the underlying primitives. *)
 
   (** ------------------------------------------------------------------ *)
   (** ** Proof Obligations Summary                                       *)

@@ -53,6 +53,10 @@ pub use ciborium_wrapper::{to_vec, from_slice, CiboriumError};
 use core::cmp::Ordering;
 use core::fmt;
 
+/// Maximum nesting depth for CBOR structures (arrays, maps, tags).
+/// This prevents stack overflow from maliciously crafted deeply-nested CBOR.
+pub const MAX_NESTING_DEPTH: usize = 128;
+
 /// CBOR error types.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum CborError {
@@ -74,6 +78,8 @@ pub enum CborError {
     InvalidUtf8,
     /// Type mismatch.
     TypeMismatch,
+    /// Maximum nesting depth exceeded (prevents stack overflow).
+    MaxDepthExceeded,
 }
 
 impl fmt::Display for CborError {
@@ -88,6 +94,7 @@ impl fmt::Display for CborError {
             Self::BufferTooSmall => write!(f, "output buffer too small for CBOR encoding"),
             Self::InvalidUtf8 => write!(f, "invalid UTF-8 in CBOR text string"),
             Self::TypeMismatch => write!(f, "CBOR type mismatch"),
+            Self::MaxDepthExceeded => write!(f, "CBOR nesting depth exceeds maximum ({MAX_NESTING_DEPTH})"),
         }
     }
 }
@@ -405,28 +412,51 @@ impl<'a> Decoder<'a> {
     ///
     /// This function is total: it returns Ok or Err for all valid and invalid
     /// CBOR inputs without panicking.
+    ///
+    /// # Security
+    ///
+    /// This function enforces a maximum nesting depth of [`MAX_NESTING_DEPTH`]
+    /// to prevent stack overflow attacks from maliciously crafted CBOR with
+    /// deeply nested arrays, maps, or tags.
     pub fn skip_value(&mut self) -> Result<(), CborError> {
+        self.skip_value_depth(0)
+    }
+
+    /// Skip a CBOR value with depth tracking.
+    ///
+    /// Internal implementation that tracks nesting depth to prevent stack overflow.
+    fn skip_value_depth(&mut self, depth: usize) -> Result<(), CborError> {
+        if depth > MAX_NESTING_DEPTH {
+            return Err(CborError::MaxDepthExceeded);
+        }
+
         let (major, arg) = self.decode_type_arg()?;
         match major {
+            // Unsigned/negative integers: no nested content
             0 | 1 => Ok(()),
+            // Byte/text strings: skip the content bytes
             2 | 3 => {
                 self.read_bytes(arg as usize)?;
                 Ok(())
             }
+            // Array: skip each element (increase depth)
             4 => {
                 for _ in 0..arg {
-                    self.skip_value()?;
+                    self.skip_value_depth(depth + 1)?;
                 }
                 Ok(())
             }
+            // Map: skip each key-value pair (increase depth)
             5 => {
                 for _ in 0..arg {
-                    self.skip_value()?;
-                    self.skip_value()?;
+                    self.skip_value_depth(depth + 1)?;
+                    self.skip_value_depth(depth + 1)?;
                 }
                 Ok(())
             }
-            6 => self.skip_value(),
+            // Tag: skip the tagged value (increase depth)
+            6 => self.skip_value_depth(depth + 1),
+            // Simple values and floats: no nested content
             7 => Ok(()),
             _ => Err(CborError::InvalidEncoding),
         }
@@ -484,5 +514,48 @@ mod tests {
 
         let mut dec = Decoder::new(enc.as_bytes());
         assert_eq!(dec.decode_int().unwrap(), -100);
+    }
+
+    #[test]
+    fn test_skip_value_depth_limit() {
+        // Create a deeply nested array that exceeds MAX_NESTING_DEPTH.
+        // Each 0x81 is an array of length 1 containing another element.
+        // We need MAX_NESTING_DEPTH + 2 levels to trigger the error.
+        let depth = MAX_NESTING_DEPTH + 2;
+        let mut nested: Vec<u8> = vec![0x81; depth]; // array[1] headers
+        nested.push(0x00); // innermost value: integer 0
+
+        let mut dec = Decoder::new(&nested);
+        let result = dec.skip_value();
+        assert_eq!(result, Err(CborError::MaxDepthExceeded));
+    }
+
+    #[test]
+    fn test_skip_value_within_depth_limit() {
+        // Create a nested array just within the depth limit.
+        let depth = MAX_NESTING_DEPTH;
+        let mut nested: Vec<u8> = vec![0x81; depth]; // array[1] headers
+        nested.push(0x00); // innermost value: integer 0
+
+        let mut dec = Decoder::new(&nested);
+        // Should succeed - exactly at the limit
+        assert!(dec.skip_value().is_ok());
+    }
+
+    #[test]
+    fn test_skip_nested_maps_depth_limit() {
+        // Create deeply nested maps: {0: {0: {0: ...}}}
+        // 0xA1 is map with 1 entry, 0x00 is key (integer 0)
+        let depth = MAX_NESTING_DEPTH + 2;
+        let mut nested: Vec<u8> = Vec::with_capacity(depth * 2 + 1);
+        for _ in 0..depth {
+            nested.push(0xA1); // map with 1 entry
+            nested.push(0x00); // key: integer 0
+        }
+        nested.push(0x00); // final value: integer 0
+
+        let mut dec = Decoder::new(&nested);
+        let result = dec.skip_value();
+        assert_eq!(result, Err(CborError::MaxDepthExceeded));
     }
 }

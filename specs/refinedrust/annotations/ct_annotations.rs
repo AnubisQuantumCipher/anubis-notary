@@ -338,7 +338,7 @@ pub fn ct_lookup<T: Copy + Default + ConditionallySelectable>(table: &[T], index
 /// - No secret-dependent memory access patterns (except ct_lookup which
 ///   accesses all entries)
 ///
-/// ## Memory Safety (NRTE)
+/// ## Memory Safety (NRTE = No Run-Time Errors)
 /// - All array indices are within bounds
 /// - No integer overflow in index computations
 /// - Slice operations respect length preconditions
