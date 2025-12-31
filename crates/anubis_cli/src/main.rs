@@ -2,14 +2,40 @@
 //!
 //! A post-quantum CLI for signing, timestamping, licensing, and revenue generation.
 //! Uses ML-DSA-87 for signatures, Argon2id for password-based key encryption.
+//!
+//! # Environment Variables
+//!
+//! - `ANUBIS_HOME` - Keystore directory (default: `~/.anubis`)
+//! - `ANUBIS_PASSWORD` - Password for non-interactive operations (CI/CD)
+//! - `ANUBIS_PASSWORD_FILE` - Path to file containing password
+//!
+//! # Non-Interactive Usage
+//!
+//! For CI/CD pipelines and scripts, you can provide passwords via:
+//! ```bash
+//! # Environment variable
+//! export ANUBIS_PASSWORD="your-password"
+//! anubis-notary sign document.pdf
+//!
+//! # Password file
+//! echo "your-password" > /path/to/password
+//! chmod 600 /path/to/password
+//! export ANUBIS_PASSWORD_FILE=/path/to/password
+//! anubis-notary sign document.pdf
+//! ```
 
-use std::io::{self, Write};
+use std::io::{self, BufRead, Write};
 use std::path::PathBuf;
 use std::process::ExitCode;
 
 use clap::{Parser, Subcommand};
 use serde::Serialize;
 use zeroize::Zeroize;
+
+/// Environment variable for password (non-interactive)
+const ENV_ANUBIS_PASSWORD: &str = "ANUBIS_PASSWORD";
+/// Environment variable for password file path
+const ENV_ANUBIS_PASSWORD_FILE: &str = "ANUBIS_PASSWORD_FILE";
 
 use anubis_core::mldsa::{KeyPair, PublicKey, Signature, SEED_SIZE};
 use anubis_core::multisig::{Multisig, Proposal, ProposalType};
@@ -97,9 +123,9 @@ enum Commands {
 enum KeyCommands {
     /// Initialize a new keystore with a signing key.
     Init {
-        /// Keystore path.
-        #[arg(long, default_value = "~/.anubis")]
-        keystore: String,
+        /// Keystore path (default: $ANUBIS_HOME or ~/.anubis).
+        #[arg(long)]
+        keystore: Option<String>,
         /// KDF parameters (e.g., argon2id:m=4G,t=3,p=1).
         #[arg(long, default_value = "argon2id:m=4G,t=3,p=1")]
         kdf: String,
@@ -412,7 +438,10 @@ fn run_command(cli: &Cli) -> Result<(), Box<dyn std::error::Error>> {
 fn handle_key(action: &KeyCommands, json: bool) -> Result<(), Box<dyn std::error::Error>> {
     match action {
         KeyCommands::Init { keystore, kdf, low_memory } => {
-            let path = expand_path(keystore);
+            let path = keystore
+                .as_ref()
+                .map(|s| expand_path(s))
+                .unwrap_or_else(Keystore::default_path);
             let ks = Keystore::open(&path)?;
 
             // Parse KDF parameters
@@ -2760,10 +2789,50 @@ fn generate_seed() -> Result<[u8; SEED_SIZE], Box<dyn std::error::Error>> {
     Ok(seed)
 }
 
+/// Get password from environment variable or file.
+///
+/// Checks in order:
+/// 1. ANUBIS_PASSWORD environment variable
+/// 2. ANUBIS_PASSWORD_FILE environment variable (reads from file)
+/// 3. Returns None if neither is set
+fn get_password_from_env() -> Result<Option<String>, Box<dyn std::error::Error>> {
+    // Check ANUBIS_PASSWORD first
+    if let Ok(password) = std::env::var(ENV_ANUBIS_PASSWORD) {
+        if !password.is_empty() {
+            return Ok(Some(password));
+        }
+    }
+
+    // Check ANUBIS_PASSWORD_FILE
+    if let Ok(path) = std::env::var(ENV_ANUBIS_PASSWORD_FILE) {
+        if !path.is_empty() {
+            let file = std::fs::File::open(&path)
+                .map_err(|e| format!("Failed to open password file '{}': {}", path, e))?;
+            let reader = std::io::BufReader::new(file);
+            if let Some(Ok(line)) = reader.lines().next() {
+                let password = line.trim_end_matches('\n').trim_end_matches('\r').to_string();
+                if !password.is_empty() {
+                    return Ok(Some(password));
+                }
+            }
+            return Err(format!("Password file '{}' is empty", path).into());
+        }
+    }
+
+    Ok(None)
+}
+
 /// Prompt for a password without echoing to the terminal.
 ///
+/// First checks environment variables, then prompts interactively.
 /// Returns the password as a zeroizable string.
 fn prompt_password(prompt: &str) -> Result<String, Box<dyn std::error::Error>> {
+    // Check environment first
+    if let Some(password) = get_password_from_env()? {
+        return Ok(password);
+    }
+
+    // Interactive prompt
     eprint!("{}", prompt);
     io::stderr().flush()?;
     let password = rpassword::read_password()?;
@@ -2772,9 +2841,19 @@ fn prompt_password(prompt: &str) -> Result<String, Box<dyn std::error::Error>> {
 
 /// Prompt for a new password with confirmation.
 ///
-/// Requires the user to enter the password twice to prevent typos.
+/// In non-interactive mode (env var set), uses the env password without confirmation.
+/// In interactive mode, requires the user to enter the password twice.
 /// Both password buffers are zeroized after comparison.
 fn prompt_new_password() -> Result<String, Box<dyn std::error::Error>> {
+    // Check environment first - no confirmation needed for scripted usage
+    if let Some(password) = get_password_from_env()? {
+        if password.len() < 8 {
+            return Err("Password must be at least 8 characters".into());
+        }
+        return Ok(password);
+    }
+
+    // Interactive mode with confirmation
     let mut password1 = prompt_password("Enter password: ")?;
     let mut password2 = prompt_password("Confirm password: ")?;
 
