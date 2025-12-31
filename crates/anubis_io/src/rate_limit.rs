@@ -103,13 +103,37 @@ impl RateLimiter {
     ///
     /// Uses write-to-temp + fsync + rename pattern to prevent corruption
     /// on crash. Sets restrictive permissions (0600) on Unix.
+    ///
+    /// # Security
+    ///
+    /// Uses a unique temp file name (PID + random suffix) to prevent race
+    /// conditions between concurrent writers.
     fn write_state(&self, state: RateLimitState) -> Result<(), IoError> {
         let mut data = Vec::with_capacity(12);
         data.extend_from_slice(&state.failures.to_le_bytes());
         data.extend_from_slice(&state.last_failure.to_le_bytes());
 
-        // Write to temp file first for atomicity
-        let temp_path = self.state_file.with_extension("tmp");
+        // SECURITY: Use unique temp file name to prevent race condition.
+        // Multiple concurrent processes could otherwise clobber each other's
+        // temp files, leading to data loss or corruption.
+        let pid = std::process::id();
+        let random_suffix: u32 = {
+            // Use system time nanoseconds as a simple source of randomness
+            // combined with a memory address for additional uniqueness
+            let time_component = SystemTime::now()
+                .duration_since(UNIX_EPOCH)
+                .map(|d| d.subsec_nanos())
+                .unwrap_or(0);
+            let addr_component = (&state as *const _ as usize) as u32;
+            time_component.wrapping_add(addr_component)
+        };
+        let temp_name = format!(
+            "{}.tmp.{}.{}",
+            self.state_file.file_name().unwrap_or_default().to_string_lossy(),
+            pid,
+            random_suffix
+        );
+        let temp_path = self.state_file.with_file_name(temp_name);
 
         let mut file = OpenOptions::new()
             .write(true)
@@ -129,8 +153,11 @@ impl RateLimiter {
         file.sync_all()?;
         drop(file);
 
-        // Atomic rename
-        fs::rename(&temp_path, &self.state_file)?;
+        // Atomic rename - if this fails, clean up the temp file
+        if let Err(e) = fs::rename(&temp_path, &self.state_file) {
+            let _ = fs::remove_file(&temp_path);
+            return Err(e.into());
+        }
 
         // Sync parent directory for durability on Unix
         #[cfg(unix)]

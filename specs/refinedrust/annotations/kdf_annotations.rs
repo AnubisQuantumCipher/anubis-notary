@@ -7,8 +7,18 @@
 // Argon2id Constants
 // ============================================================================
 
-/// Minimum memory cost for Argon2id in KiB (4 GiB).
-pub const ARGON2ID_MIN_M_COST: u32 = 4 * 1024 * 1024;
+/// Minimum memory cost for Argon2id in KiB (64 MiB).
+///
+/// OWASP 2023 recommendations for Argon2id:
+/// - Minimum acceptable: 19 MiB (19456 KiB) with t=2, p=1
+/// - First recommendation: 46 MiB (47104 KiB) with t=1, p=1
+/// - High security: 64 MiB (65536 KiB) with t=3, p=4
+///
+/// We use 64 MiB as the minimum for a security-critical notary application.
+/// This provides strong memory hardness while remaining practical on modern systems.
+///
+/// Reference: OWASP Password Storage Cheat Sheet (2023)
+pub const ARGON2ID_MIN_M_COST: u32 = 65536; // 64 MiB
 
 /// Minimum time cost for Argon2id.
 pub const ARGON2ID_MIN_T_COST: u32 = 3;

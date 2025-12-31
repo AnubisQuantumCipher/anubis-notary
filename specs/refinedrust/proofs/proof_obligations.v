@@ -12,8 +12,19 @@ Require Import ct_spec bytes_spec keccak_spec keccak_model sha3_spec shake_spec.
 Import ListNotations.
 
 (** ========================================================================= *)
-(** ** Priority 1: Memory Safety (NRTE)                                      *)
+(** ** Priority 1: Memory Safety (NRTE = No Run-Time Errors)                 *)
 (** ========================================================================= *)
+
+(** NRTE (No Run-Time Errors) is a formal verification goal ensuring that
+    code cannot fail at runtime due to:
+    - Array index out of bounds
+    - Integer overflow/underflow
+    - Division by zero
+    - Null pointer dereference
+    - Buffer overflows
+
+    All NRTE proof obligations below prove that array/index operations
+    are within bounds and arithmetic operations cannot overflow. *)
 
 Section nrte_obligations.
 
@@ -529,7 +540,7 @@ End security_properties.
   2. NIST FIPS COMPLIANCE
      - SHA3-256: FIPS 202 (KE-12, KE-17, KE-18)
      - SHAKE256: FIPS 202 (KE-13, KE-22)
-     - Ascon-128a: Round constants (AE-7, AE-8, AE-9)
+     - ChaCha20-Poly1305: RFC 8439 (AE-7, AE-8, AE-9)
      - ML-DSA-87: FIPS 204 parameters (mldsa_spec.v)
 
   3. ENCODING CORRECTNESS

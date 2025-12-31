@@ -123,54 +123,61 @@ Proof.
     apply IHxs.
 Qed.
 
+(** Helper: remove from list without element is identity *)
+Lemma remove_not_in : forall {A : Type} (eq_dec : forall x y : A, {x = y} + {x <> y}) x l,
+  ~ In x l -> remove eq_dec x l = l.
+Proof.
+  intros A eq_dec x l. induction l as [|h t IH]; intro Hnin.
+  - reflexivity.
+  - simpl. destruct (eq_dec x h) as [Heq|Hneq].
+    + subst. exfalso. apply Hnin. left. reflexivity.
+    + f_equal. apply IH. intro Hin. apply Hnin. right. exact Hin.
+Qed.
+
 (** Helper: fold_left XOR with and without a token differ by that token *)
+(** Requires NoDup because remove removes ALL occurrences *)
 Lemma fold_xor_remove_token :
   forall tokens token acc,
+    NoDup tokens ->
     In token tokens ->
     Z.lxor (fold_left Z.lxor (remove Z.eq_dec token tokens) acc)
            (fold_left Z.lxor tokens acc) = token.
 Proof.
   intros tokens.
-  induction tokens as [|t ts IH]; intros token acc Hin.
+  induction tokens as [|t ts IH]; intros token acc Hnodup Hin.
   - (* Empty list - contradiction with In *)
     destruct Hin.
-  - simpl in Hin. destruct Hin as [Heq | Hin].
+  - (* Cons case *)
+    inversion Hnodup as [|h' ts' Hnin Hnodup_ts Heq]. subst h' ts'.
+    simpl in Hin. destruct Hin as [Heq | Hin].
     + (* token = t: first element is removed *)
       subst t.
       simpl. destruct (Z.eq_dec token token) as [_|Hneq]; [|contradiction].
+      (* Since NoDup (token :: ts), we have ~In token ts *)
+      (* So remove token ts = ts *)
+      rewrite remove_not_in by exact Hnin.
       (* Goal: Z.lxor (fold ts acc) (fold ts (Z.lxor acc token)) = token *)
       rewrite fold_xor_lxor_acc.
       (* Goal: Z.lxor (fold ts acc) (Z.lxor (fold ts acc) token) = token *)
-      (* Use: a XOR (a XOR b) = b via algebraic manipulation *)
-      set (A := fold_left Z.lxor ts acc).
-      (* Goal: Z.lxor A (Z.lxor A token) = token *)
-      (* Rewrite using associativity: A XOR (A XOR token) = (A XOR A) XOR token *)
-      rewrite <- Z.lxor_assoc.
-      (* Goal: Z.lxor (Z.lxor A A) token = token *)
-      rewrite Z.lxor_nilpotent.
-      (* Goal: Z.lxor 0 token = token *)
-      rewrite Z.lxor_0_l.
-      reflexivity.
+      (* Use algebraic identity: a XOR (a XOR b) = b *)
+      assert (Hid: forall a b, Z.lxor a (Z.lxor a b) = b).
+      { intros a b. rewrite <- Z.lxor_assoc. rewrite Z.lxor_nilpotent. apply Z.lxor_0_l. }
+      apply Hid.
     + (* token is in ts, not the first *)
-      simpl. destruct (Z.eq_dec t token) as [Heq|Hneq].
-      * (* t = token *)
-        subst t.
-        rewrite fold_xor_lxor_acc.
-        (* Same pattern: a XOR (a XOR b) = b *)
-        set (A := fold_left Z.lxor ts acc).
-        rewrite <- Z.lxor_assoc.
-        rewrite Z.lxor_nilpotent.
-        rewrite Z.lxor_0_l.
-        reflexivity.
-      * (* t <> token, keep t and recurse *)
+      simpl. destruct (Z.eq_dec token t) as [Heq|Hneq].
+      * (* token = t: contradicts ~In t ts with token in ts *)
+        subst t. contradiction.
+      * (* token <> t, keep t and recurse *)
         simpl.
-        specialize (IH token (Z.lxor acc t) Hin).
+        specialize (IH token (Z.lxor acc t) Hnodup_ts Hin).
         exact IH.
 Qed.
 
 (** THEOREM: Missing a token causes verification failure *)
+(** Requires NoDup because CFI tokens should be unique identifiers *)
 Theorem cfi_missing_token_fails :
   forall tokens token,
+    NoDup tokens ->
     In token tokens ->
     token <> 0 ->
     let partial_tokens := remove Z.eq_dec token tokens in
@@ -178,22 +185,23 @@ Theorem cfi_missing_token_fails :
     let final_state := fold_left cfi_record partial_tokens (cfi_init tokens) in
     cfi_verify final_state = false.
 Proof.
-  intros tokens token Hin Hnonzero partial_tokens Hlen final_state.
-  unfold cfi_verify, final_state.
+  intros tokens token Hnodup Hin Hnonzero partial_tokens Hlen final_state.
+  unfold cfi_verify, final_state, partial_tokens.
   rewrite cfi_record_xor_tokens.
   rewrite cfi_record_preserves_expected.
   unfold cfi_init. simpl.
-  (* checksum = fold_left Z.lxor partial_tokens SENTINEL *)
+  (* checksum = fold_left Z.lxor (remove token tokens) SENTINEL *)
   (* expected = fold_left Z.lxor tokens SENTINEL *)
   (* We need to show they're not equal, i.e., the eqb returns false *)
   apply Z.eqb_neq.
   intro Heq.
   (* If they're equal, then their XOR is 0 *)
-  assert (Hxor: Z.lxor (fold_left Z.lxor partial_tokens CFI_SENTINEL)
+  assert (Hxor: Z.lxor (fold_left Z.lxor (remove Z.eq_dec token tokens) CFI_SENTINEL)
                        (fold_left Z.lxor tokens CFI_SENTINEL) = 0).
   { rewrite Heq. apply Z.lxor_nilpotent. }
   (* But by fold_xor_remove_token, this XOR equals token *)
-  rewrite fold_xor_remove_token in Hxor by exact Hin.
+  pose proof (fold_xor_remove_token tokens token CFI_SENTINEL Hnodup Hin) as Hremove.
+  rewrite Hremove in Hxor.
   (* So token = 0, contradiction *)
   exact (Hnonzero Hxor).
 Qed.
@@ -274,13 +282,39 @@ Proof.
   - exfalso. apply Hneq. reflexivity.
 Qed.
 
-(** Axiom: Checksum is collision-resistant *)
-(** If data1 <> data2 then with overwhelming probability checksum(data1) <> checksum(data2) *)
+(** Axiom: Checksum is collision-resistant (cryptographic assumption)
+
+    This models the collision resistance property of SHA3-256:
+    For distinct inputs, the outputs are distinct.
+
+    In practice, this is a computational assumption - finding collisions
+    requires ~2^128 operations for SHA3-256. We model this as a logical
+    axiom since Coq cannot express probabilistic/computational hardness.
+
+    Security note: This axiom is REQUIRED for integrity verification.
+    Without it, an attacker could potentially find data' <> data with
+    the same checksum, defeating the integrity buffer's purpose.
+*)
 Axiom checksum_collision_resistant :
   forall (data1 data2 : list Z),
     data1 <> data2 ->
-    (* compute_checksum data1 <> compute_checksum data2 with high probability *)
-    True.
+    compute_checksum data1 <> compute_checksum data2.
+
+(** THEOREM: Corrupted data fails integrity check (uses collision resistance)
+
+    This is the key security theorem: if data is corrupted (changed to
+    something different), the integrity check will fail because the
+    checksum of the corrupted data won't match the stored checksum.
+*)
+Theorem integrity_buffer_detects_corruption :
+  forall data corrupted_data,
+    corrupted_data <> data ->
+    compute_checksum corrupted_data <> compute_checksum data.
+Proof.
+  intros data corrupted_data Hneq.
+  apply checksum_collision_resistant.
+  exact Hneq.
+Qed.
 
 (** ========================================================================= *)
 (** * XOR Properties for CFI                                                  *)

@@ -42,6 +42,15 @@ pub const ALG_MLDSA87: &str = "ML-DSA-87";
 /// Hash algorithm identifier.
 pub const HASH_SHA3_256: &str = "sha3-256";
 
+/// Maximum size for RFC3161 TSA response tokens.
+pub const MAX_RFC3161_TOKEN_SIZE: usize = 256;
+
+/// Maximum size for OpenTimestamps proofs.
+pub const MAX_OTS_PROOF_SIZE: usize = 512;
+
+/// Maximum size for HTTP log URLs.
+pub const MAX_URL_SIZE: usize = 256;
+
 /// Receipt error types.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum ReceiptError {
@@ -63,6 +72,12 @@ pub enum ReceiptError {
     InvalidTimeSource,
     /// Invalid anchor type.
     InvalidAnchorType,
+    /// RFC3161 token exceeds maximum size (256 bytes).
+    Rfc3161TokenTooLarge(usize),
+    /// OpenTimestamps proof exceeds maximum size (512 bytes).
+    OtsProofTooLarge(usize),
+    /// URL exceeds maximum size (256 bytes).
+    UrlTooLarge(usize),
 }
 
 impl From<CborError> for ReceiptError {
@@ -450,9 +465,12 @@ impl Receipt {
                     return Err(ReceiptError::InvalidTimeSource);
                 }
                 let token_bytes = dec.decode_bytes()?;
-                let mut token = [0u8; 256];
-                let len = core::cmp::min(token_bytes.len(), 256);
-                token[..len].copy_from_slice(&token_bytes[..len]);
+                if token_bytes.len() > MAX_RFC3161_TOKEN_SIZE {
+                    return Err(ReceiptError::Rfc3161TokenTooLarge(token_bytes.len()));
+                }
+                let mut token = [0u8; MAX_RFC3161_TOKEN_SIZE];
+                let len = token_bytes.len();
+                token[..len].copy_from_slice(token_bytes);
                 Ok(TimeSource::Rfc3161 { token, len })
             }
             "ots" => {
@@ -460,9 +478,12 @@ impl Receipt {
                     return Err(ReceiptError::InvalidTimeSource);
                 }
                 let proof_bytes = dec.decode_bytes()?;
-                let mut proof = [0u8; 512];
-                let len = core::cmp::min(proof_bytes.len(), 512);
-                proof[..len].copy_from_slice(&proof_bytes[..len]);
+                if proof_bytes.len() > MAX_OTS_PROOF_SIZE {
+                    return Err(ReceiptError::OtsProofTooLarge(proof_bytes.len()));
+                }
+                let mut proof = [0u8; MAX_OTS_PROOF_SIZE];
+                let len = proof_bytes.len();
+                proof[..len].copy_from_slice(proof_bytes);
                 Ok(TimeSource::Ots { proof, len })
             }
             _ => Err(ReceiptError::InvalidTimeSource),
@@ -496,9 +517,12 @@ impl Receipt {
                     return Err(ReceiptError::InvalidAnchorType);
                 }
                 let url_bytes = dec.decode_bytes()?;
-                let mut url = [0u8; 256];
-                let url_len = core::cmp::min(url_bytes.len(), 256);
-                url[..url_len].copy_from_slice(&url_bytes[..url_len]);
+                if url_bytes.len() > MAX_URL_SIZE {
+                    return Err(ReceiptError::UrlTooLarge(url_bytes.len()));
+                }
+                let mut url = [0u8; MAX_URL_SIZE];
+                let url_len = url_bytes.len();
+                url[..url_len].copy_from_slice(url_bytes);
                 let entry_id = dec.decode_uint()?;
                 Ok(AnchorType::HttpLog {
                     url,
@@ -540,5 +564,87 @@ mod tests {
         assert_eq!(decoded.digest, digest);
         assert_eq!(decoded.created, 1703462400);
         assert_eq!(&decoded.signature[..decoded.sig_len], &sig);
+    }
+
+    #[test]
+    fn test_rfc3161_token_size_limit() {
+        use crate::cbor::Encoder;
+
+        // Create a time source array with oversized RFC3161 token
+        // ["rfc3161", <oversized token>]
+        let oversized_token = vec![0xAA; MAX_RFC3161_TOKEN_SIZE + 1];
+        let mut buf = [0u8; 512];
+        let mut enc = Encoder::new(&mut buf);
+        enc.encode_array_header(2).unwrap();
+        enc.encode_text("rfc3161").unwrap();
+        enc.encode_bytes(&oversized_token).unwrap();
+        let len = enc.position();
+
+        let mut dec = crate::cbor::Decoder::new(&buf[..len]);
+        let result = Receipt::decode_time_source(&mut dec);
+        assert_eq!(result, Err(ReceiptError::Rfc3161TokenTooLarge(MAX_RFC3161_TOKEN_SIZE + 1)));
+    }
+
+    #[test]
+    fn test_ots_proof_size_limit() {
+        use crate::cbor::Encoder;
+
+        // Create a time source array with oversized OTS proof
+        // ["ots", <oversized proof>]
+        let oversized_proof = vec![0xBB; MAX_OTS_PROOF_SIZE + 1];
+        let mut buf = [0u8; 768];
+        let mut enc = Encoder::new(&mut buf);
+        enc.encode_array_header(2).unwrap();
+        enc.encode_text("ots").unwrap();
+        enc.encode_bytes(&oversized_proof).unwrap();
+        let len = enc.position();
+
+        let mut dec = crate::cbor::Decoder::new(&buf[..len]);
+        let result = Receipt::decode_time_source(&mut dec);
+        assert_eq!(result, Err(ReceiptError::OtsProofTooLarge(MAX_OTS_PROOF_SIZE + 1)));
+    }
+
+    #[test]
+    fn test_url_size_limit() {
+        use crate::cbor::Encoder;
+
+        // Create an anchor array with oversized URL
+        // ["http-log", <oversized url>, entry_id]
+        let oversized_url = vec![0x61; MAX_URL_SIZE + 1]; // 'a' repeated
+        let mut buf = [0u8; 512];
+        let mut enc = Encoder::new(&mut buf);
+        enc.encode_array_header(3).unwrap();
+        enc.encode_text("http-log").unwrap();
+        enc.encode_bytes(&oversized_url).unwrap();
+        enc.encode_uint(12345).unwrap();
+        let len = enc.position();
+
+        let mut dec = crate::cbor::Decoder::new(&buf[..len]);
+        let result = Receipt::decode_anchor(&mut dec);
+        assert_eq!(result, Err(ReceiptError::UrlTooLarge(MAX_URL_SIZE + 1)));
+    }
+
+    #[test]
+    fn test_valid_size_data_accepted() {
+        use crate::cbor::Encoder;
+
+        // Test that data at the exact limit is accepted
+        let valid_token = vec![0xCC; MAX_RFC3161_TOKEN_SIZE];
+        let mut buf = [0u8; 512];
+        let mut enc = Encoder::new(&mut buf);
+        enc.encode_array_header(2).unwrap();
+        enc.encode_text("rfc3161").unwrap();
+        enc.encode_bytes(&valid_token).unwrap();
+        let len = enc.position();
+
+        let mut dec = crate::cbor::Decoder::new(&buf[..len]);
+        let result = Receipt::decode_time_source(&mut dec);
+        assert!(result.is_ok());
+        if let Ok(TimeSource::Rfc3161 { token, len }) = result {
+            assert_eq!(len, MAX_RFC3161_TOKEN_SIZE);
+            assert_eq!(&token[..len], &valid_token[..]);
+        } else {
+            panic!("Expected Rfc3161 time source");
+        }
     }
 }

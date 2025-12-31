@@ -432,7 +432,7 @@ Section timing_formalization.
   (** AEAD seal/open is CT *)
   Theorem aead_ct :
     forall (msg : list Z) (key nonce : list Z),
-      (* Ascon-128a uses only permutations, XOR, AND - all CT *)
+      (* ChaCha20-Poly1305 uses only ARX (add-rotate-xor) - all CT *)
       is_constant_time (Cost_Linear (length msg)).
   Proof.
     intros. unfold is_constant_time. auto.

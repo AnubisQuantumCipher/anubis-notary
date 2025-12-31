@@ -1,6 +1,62 @@
+## Rust build artifacts
 target/
 *.rlib
 *.rmeta
 *.d
 *.so
 *.dylib
+Cargo.lock
+
+## Coq/Rocq build outputs
+_build/
+**/_build/
+*.vo
+*.vok
+*.vos
+*.vio
+*.glob
+*.aux
+.*.aux
+*.cache
+.lia.cache
+**/.lia.cache
+.coqdeps.d
+**/.coqdeps.d
+.filesystem-clock
+.lock
+*.d.anubis_proofs.theory.d
+**/.dune/
+
+## Dune build
+_opam/
+.merlin
+
+## IDE files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.#*
+\#*\#
+
+## OS files
+.DS_Store
+Thumbs.db
+._*
+
+## Logs
+*.log
+
+## Test artifacts
+*.profraw
+*.profdata
+
+## Temporary files
+*.tmp
+*.temp
+/tmp/
+
+## Editor backup files
+*.bak
+*.orig

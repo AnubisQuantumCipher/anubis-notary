@@ -342,14 +342,69 @@ Section multisig_spec.
   (** ** Voting Properties                                               *)
   (** ------------------------------------------------------------------ *)
 
+  (** Helper: existsb_In correspondence *)
+  Lemma existsb_In_signer : forall (s : signer) (ls : list signer),
+    existsb (fun s' => if list_eq_dec Z.eq_dec (sig_id s') (sig_id s)
+                       then true else false) ls = true ->
+    exists s', In s' ls /\ sig_id s' = sig_id s.
+  Proof.
+    intros s ls.
+    induction ls as [| x rest IH].
+    - simpl. discriminate.
+    - simpl. intros H.
+      destruct (list_eq_dec Z.eq_dec (sig_id x) (sig_id s)) as [Heq | Hne].
+      + exists x. split; [left; reflexivity | exact Heq].
+      + apply Bool.orb_true_iff in H as [Habs | Hrest].
+        * destruct (list_eq_dec Z.eq_dec (sig_id x) (sig_id s)); discriminate.
+        * destruct (IH Hrest) as [s' [Hin Hid]].
+          exists s'. split; [right; exact Hin | exact Hid].
+  Qed.
+
   (** Can't vote twice on same proposal *)
+  (**
+      If a signer has already voted, they cannot be added to the
+      voter lists again without violating the NoDup invariant.
+
+      This theorem proves that if has_voted returns true,
+      then the signer's ID is already in the combined voter list,
+      and adding them again would create a duplicate.
+  *)
   Theorem no_double_voting :
     forall (p : proposal) (s : signer),
       proposal_wf p ->
       has_voted p s = true ->
-      (* Cannot vote again *)
-      True.
-  Proof. auto. Qed.
+      (* Signer's ID is already in one of the vote lists *)
+      exists s', (In s' (prop_approvals p) \/ In s' (prop_rejections p)) /\
+                 sig_id s' = sig_id s.
+  Proof.
+    intros p s Hwf Hvoted.
+    unfold has_voted in Hvoted.
+    apply existsb_In_signer in Hvoted.
+    destruct Hvoted as [s' [Hin Hid]].
+    exists s'.
+    split; [| exact Hid].
+    apply in_app_iff in Hin.
+    exact Hin.
+  Qed.
+
+  (** Adding a duplicate voter would violate well-formedness *)
+  Theorem double_vote_violates_wf :
+    forall (p : proposal) (s : signer),
+      proposal_wf p ->
+      In s (prop_approvals p) ->
+      (* Adding s again to approvals would violate NoDup *)
+      ~ NoDup (map sig_id (s :: prop_approvals p)).
+  Proof.
+    intros p s [_ [Happrove_nodup _]] Hin.
+    simpl.
+    intro Hnodup.
+    inversion Hnodup as [| x xs Hnotin Hrest Heq].
+    subst.
+    apply Hnotin.
+    apply in_map_iff.
+    exists s.
+    split; [reflexivity | exact Hin].
+  Qed.
 
   (** Can't approve and reject same proposal *)
   Theorem no_conflicting_votes :

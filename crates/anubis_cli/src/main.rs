@@ -818,6 +818,13 @@ fn handle_sign(
         return Err("No signing key found. Run 'anubis-notary key init' first.".into());
     }
 
+    // SECURITY: Check if the key has been revoked before allowing signing
+    let pk_bytes = ks.read_public_key()?;
+    let fingerprint = hex::encode(anubis_core::keccak::sha3::sha3_256(&pk_bytes));
+    if ks.is_revoked(&fingerprint)? {
+        return Err("Cannot sign: key has been revoked. Generate a new key with 'anubis-notary key init'.".into());
+    }
+
     // Load keypair with password authentication
     let kp = load_keypair_with_password(&ks)?;
 
@@ -954,6 +961,13 @@ fn handle_attest(
         return Err("No signing key found. Run 'anubis-notary key init' first.".into());
     }
 
+    // SECURITY: Check if the key has been revoked before allowing attestation
+    let pk_bytes = ks.read_public_key()?;
+    let fingerprint = hex::encode(sha3_256(&pk_bytes));
+    if ks.is_revoked(&fingerprint)? {
+        return Err("Cannot attest: key has been revoked. Generate a new key with 'anubis-notary key init'.".into());
+    }
+
     // Load keypair with password authentication
     let kp = load_keypair_with_password(&ks)?;
 
@@ -1039,11 +1053,42 @@ fn handle_check(
     path: &PathBuf,
     json: bool,
 ) -> Result<(), Box<dyn std::error::Error>> {
+    use anubis_core::mldsa::{PublicKey, Signature};
     use anubis_core::receipt::Receipt;
 
     let receipt_data = read_file(receipt_path)?;
     let receipt = Receipt::decode(&receipt_data).map_err(|e| format!("{:?}", e))?;
 
+    // SECURITY: Load public key to verify signature
+    let ks = Keystore::open(Keystore::default_path())?;
+    if !ks.has_key() {
+        return Err("No public key found. Cannot verify receipt signature.".into());
+    }
+
+    let pk_bytes = ks.read_public_key()?;
+    let pk = PublicKey::from_bytes(&pk_bytes)
+        .map_err(|e| format!("Invalid public key: {:?}", e))?;
+
+    // Check if key is revoked
+    let fingerprint = hex::encode(anubis_core::keccak::sha3::sha3_256(&pk_bytes));
+    let key_revoked = ks.is_revoked(&fingerprint)?;
+
+    // Verify the signature on the receipt
+    let mut signable_buf = [0u8; 4096];
+    let signable_len = receipt
+        .encode_signable(&mut signable_buf)
+        .map_err(|e| format!("Failed to encode signable portion: {:?}", e))?;
+
+    let mut message_to_verify = Vec::with_capacity(signable_len + 32);
+    message_to_verify.extend_from_slice(b"anubis-notary:attest:v1:");
+    message_to_verify.extend_from_slice(&signable_buf[..signable_len]);
+
+    let signature = Signature::from_bytes(&receipt.signature[..receipt.sig_len])
+        .map_err(|e| format!("Invalid signature in receipt: {:?}", e))?;
+
+    let sig_valid = pk.verify(&message_to_verify, &signature);
+
+    // Compute current hash of the file/directory
     let current_hash = if path.is_file() {
         hash_file(path)?
     } else if path.is_dir() {
@@ -1058,7 +1103,10 @@ fn handle_check(
         return Err("Path must be a file or directory".into());
     };
 
-    let valid = current_hash == receipt.digest;
+    let digest_valid = current_hash == receipt.digest;
+
+    // Receipt is only valid if BOTH signature is valid AND digest matches AND key not revoked
+    let valid = sig_valid && digest_valid && !key_revoked;
 
     if json {
         #[derive(Serialize)]
@@ -1067,6 +1115,9 @@ fn handle_check(
             path: String,
             expected_digest: String,
             actual_digest: String,
+            digest_valid: bool,
+            signature_valid: bool,
+            key_revoked: bool,
             valid: bool,
             created: i64,
         }
@@ -1075,19 +1126,32 @@ fn handle_check(
             path: path.display().to_string(),
             expected_digest: hex::encode(receipt.digest),
             actual_digest: hex::encode(current_hash),
+            digest_valid,
+            signature_valid: sig_valid,
+            key_revoked,
             valid,
             created: receipt.created,
         });
         println!("{}", serde_json::to_string_pretty(&output)?);
     } else if valid {
         println!("Receipt VALID");
-        println!("Path: {}", path.display());
-        println!("Digest: {}", hex::encode(current_hash));
-        println!("Created: {}", receipt.created);
+        println!("  Path: {}", path.display());
+        println!("  Digest: {}", hex::encode(current_hash));
+        println!("  Signature: verified (ML-DSA-87)");
+        println!("  Created: {}", receipt.created);
     } else {
-        println!("Receipt INVALID - digest mismatch");
-        println!("Expected: {}", hex::encode(receipt.digest));
-        println!("Actual: {}", hex::encode(current_hash));
+        println!("Receipt INVALID");
+        if !digest_valid {
+            println!("  Digest mismatch:");
+            println!("    Expected: {}", hex::encode(receipt.digest));
+            println!("    Actual: {}", hex::encode(current_hash));
+        }
+        if !sig_valid {
+            println!("  Signature verification FAILED");
+        }
+        if key_revoked {
+            println!("  Signing key has been REVOKED");
+        }
     }
 
     Ok(())
@@ -1108,6 +1172,13 @@ fn handle_license(action: &LicenseCommands, json: bool) -> Result<(), Box<dyn st
             let ks = Keystore::open(Keystore::default_path())?;
             if !ks.has_key() {
                 return Err("No signing key found. Run 'anubis-notary key init' first.".into());
+            }
+
+            // SECURITY: Check if the key has been revoked before allowing signing
+            let pk_bytes = ks.read_public_key()?;
+            let fingerprint = hex::encode(anubis_core::keccak::sha3::sha3_256(&pk_bytes));
+            if ks.is_revoked(&fingerprint)? {
+                return Err("Cannot issue license: key has been revoked. Generate a new key with 'anubis-notary key init'.".into());
             }
 
             // Load keypair with password authentication
@@ -1951,6 +2022,14 @@ fn handle_multisig(action: &MultisigCommands, json: bool) -> Result<(), Box<dyn 
             if !ks.has_key() {
                 return Err("No signing key found. Run 'anubis-notary key init' first.".into());
             }
+
+            // SECURITY: Check if the key has been revoked before allowing signing
+            let pk_bytes = ks.read_public_key()?;
+            let fingerprint = hex::encode(anubis_core::keccak::sha3::sha3_256(&pk_bytes));
+            if ks.is_revoked(&fingerprint)? {
+                return Err("Cannot sign: key has been revoked. Generate a new key with 'anubis-notary key init'.".into());
+            }
+
             let kp = load_keypair_with_password(&ks)?;
 
             // Find signer index
@@ -2048,6 +2127,8 @@ fn handle_multisig(action: &MultisigCommands, json: bool) -> Result<(), Box<dyn 
             Ok(())
         }
         MultisigCommands::Execute { proposal, config } => {
+            use anubis_core::mldsa::Signature;
+
             let config_data = read_file(config)?;
             let config_json: serde_json::Value = serde_json::from_slice(&config_data)?;
 
@@ -2055,20 +2136,93 @@ fn handle_multisig(action: &MultisigCommands, json: bool) -> Result<(), Box<dyn 
                 .and_then(|v| v.as_u64())
                 .ok_or("Invalid config: missing threshold")? as u8;
 
+            // SECURITY: Parse signer public keys for verification
+            let signers = config_json.get("signers")
+                .and_then(|v| v.as_array())
+                .ok_or("Invalid config: missing signers")?;
+
+            let mut signer_pks = Vec::new();
+            for signer_hex in signers {
+                let pk_bytes = hex::decode(signer_hex.as_str().ok_or("Invalid signer")?)
+                    .map_err(|e| format!("Invalid signer hex: {}", e))?;
+                let pk = PublicKey::from_bytes(&pk_bytes)
+                    .map_err(|e| format!("Invalid public key: {:?}", e))?;
+                signer_pks.push(pk);
+            }
+
             let proposal_data = read_file(proposal)?;
             let proposal_json: serde_json::Value = serde_json::from_slice(&proposal_data)?;
+
+            // Get proposal fields needed for verification
+            let proposal_id = proposal_json.get("id")
+                .and_then(|v| v.as_str())
+                .ok_or("Invalid proposal: missing id")?;
+            let multisig_hash = proposal_json.get("multisig_hash")
+                .and_then(|v| v.as_str())
+                .ok_or("Invalid proposal: missing multisig_hash")?;
+            let nonce = proposal_json.get("nonce")
+                .and_then(|v| v.as_u64())
+                .ok_or("Invalid proposal: missing nonce")?;
+
+            // Reconstruct the message that was signed
+            let mut message = Vec::new();
+            message.extend_from_slice(b"ANUBIS-MULTISIG-PROPOSAL-V1:");
+            message.extend_from_slice(&hex::decode(proposal_id)
+                .map_err(|e| format!("Invalid proposal id: {}", e))?);
+            message.extend_from_slice(&hex::decode(multisig_hash)
+                .map_err(|e| format!("Invalid multisig_hash: {}", e))?);
+            message.extend_from_slice(&nonce.to_le_bytes());
 
             let signatures = proposal_json.get("signatures")
                 .and_then(|v| v.as_array())
                 .ok_or("Invalid proposal: missing signatures")?;
 
-            let sig_count = signatures.iter().filter(|s| !s.is_null()).count();
+            // SECURITY: Cryptographically verify each signature
+            let mut verified_count = 0;
+            let mut verification_errors = Vec::new();
 
-            if sig_count < threshold as usize {
-                return Err(format!(
-                    "Insufficient signatures: {} of {} required",
-                    sig_count, threshold
-                ).into());
+            for (idx, sig_value) in signatures.iter().enumerate() {
+                if sig_value.is_null() {
+                    continue;
+                }
+
+                let sig_hex = sig_value.as_str().ok_or("Invalid signature format")?;
+                let sig_bytes = hex::decode(sig_hex)
+                    .map_err(|e| format!("Invalid signature hex at index {}: {}", idx, e))?;
+
+                if idx >= signer_pks.len() {
+                    verification_errors.push(format!("Signature at index {} has no corresponding signer", idx));
+                    continue;
+                }
+
+                let signature = match Signature::from_bytes(&sig_bytes) {
+                    Ok(s) => s,
+                    Err(e) => {
+                        verification_errors.push(format!("Invalid signature at index {}: {:?}", idx, e));
+                        continue;
+                    }
+                };
+
+                if signer_pks[idx].verify(&message, &signature) {
+                    verified_count += 1;
+                } else {
+                    verification_errors.push(format!("Signature verification FAILED for signer {}", idx));
+                }
+            }
+
+            // Check threshold with VERIFIED signatures only
+            if verified_count < threshold as usize {
+                let mut err_msg = format!(
+                    "Insufficient valid signatures: {} verified of {} required",
+                    verified_count, threshold
+                );
+                if !verification_errors.is_empty() {
+                    err_msg.push_str("\nVerification errors:");
+                    for err in &verification_errors {
+                        err_msg.push_str(&format!("\n  - {}", err));
+                    }
+                }
+                return Err(err_msg.into());
             }
 
             // Check expiration
@@ -2095,14 +2249,14 @@ fn handle_multisig(action: &MultisigCommands, json: bool) -> Result<(), Box<dyn 
                 struct ExecuteResult {
                     proposal_type: String,
                     data: String,
-                    signatures: usize,
+                    verified_signatures: usize,
                     threshold: u8,
                     executed: bool,
                 }
                 let output = JsonOutput::success(ExecuteResult {
                     proposal_type: proposal_type.to_string(),
                     data: data_hex.to_string(),
-                    signatures: sig_count,
+                    verified_signatures: verified_count,
                     threshold,
                     executed: true,
                 });
@@ -2111,7 +2265,13 @@ fn handle_multisig(action: &MultisigCommands, json: bool) -> Result<(), Box<dyn 
                 println!("Proposal executed:");
                 println!("  Type: {}", proposal_type);
                 println!("  Data: {} bytes", data_hex.len() / 2);
-                println!("  Signatures: {} of {}", sig_count, threshold);
+                println!("  Verified signatures: {} of {} (threshold: {})", verified_count, signer_pks.len(), threshold);
+                if !verification_errors.is_empty() {
+                    println!("  Warnings:");
+                    for err in &verification_errors {
+                        println!("    - {}", err);
+                    }
+                }
                 println!();
                 println!("Note: This CLI demonstrates the multisig flow.");
                 println!("Actual execution logic depends on the proposal type.");
@@ -2657,11 +2817,13 @@ fn load_keypair_with_password(ks: &Keystore) -> Result<KeyPair, Box<dyn std::err
 
     // Attempt to unseal
     match ks.unseal_stored_key(password.as_bytes()) {
-        Ok(seed_bytes) => {
+        Ok(mut seed_bytes) => {
             password.zeroize();
             limiter.record_success()?;
 
             if seed_bytes.len() != SEED_SIZE {
+                // SECURITY: Zeroize seed_bytes before returning error
+                seed_bytes.zeroize();
                 return Err(format!(
                     "Invalid seed size: expected {}, got {}",
                     SEED_SIZE,
@@ -2672,8 +2834,15 @@ fn load_keypair_with_password(ks: &Keystore) -> Result<KeyPair, Box<dyn std::err
             let mut seed = [0u8; SEED_SIZE];
             seed.copy_from_slice(&seed_bytes);
 
+            // SECURITY: Zeroize the Vec buffer immediately after copying
+            seed_bytes.zeroize();
+
             let kp = KeyPair::from_seed(&seed)
-                .map_err(|e| format!("Key reconstruction failed: {:?}", e))?;
+                .map_err(|e| {
+                    // Zeroize seed on error path
+                    seed.zeroize();
+                    format!("Key reconstruction failed: {:?}", e)
+                })?;
 
             // Zeroize seed
             seed.zeroize();

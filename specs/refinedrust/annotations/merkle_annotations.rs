@@ -2,6 +2,22 @@
 //!
 //! This file shows the complete refinement type annotations for the
 //! Merkle tree batch anchoring implementation.
+//!
+//! NOTE: This is a specification file containing pseudo-code annotations.
+//! The actual implementation is in `anubis_core/src/merkle/`.
+
+#![allow(dead_code, unused_variables, unreachable_code)]
+
+// Placeholder types for annotation purposes
+pub struct MerkleTree {
+    count: usize,
+}
+pub struct MerkleProof;
+pub enum MerkleError {
+    InvalidIndex,
+    EmptyTree,
+    TreeFull,
+}
 
 // ============================================================================
 // Constants
@@ -211,7 +227,12 @@ pub fn generate_proof(&self, idx: usize) -> Result<MerkleProof, MerkleError> {
         return Err(MerkleError::EmptyTree);
     }
 
-    // ... proof generation implementation ...
+    // Stub: actual proof generation implementation
+    let proof = MerkleProof {
+        siblings: [[0u8; HASH_SIZE]; MAX_PROOF_DEPTH],
+        is_left: [false; MAX_PROOF_DEPTH],
+        len: 0,
+    };
 
     Ok(proof)
 }

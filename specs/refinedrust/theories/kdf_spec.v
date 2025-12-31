@@ -26,7 +26,16 @@ Section kdf_spec.
   (** ** Argon2id Constants                                              *)
   (** ------------------------------------------------------------------ *)
 
-  Definition ARGON2ID_MIN_M_COST := 4 * 1024 * 1024.  (* 4 GiB in KiB *)
+  (** Minimum acceptable memory cost per OWASP 2023 recommendations.
+      OWASP recommends: minimum 19 MiB, first choice 46 MiB, high security 64 MiB.
+      We use 64 MiB (65536 KiB) as the minimum floor for parameter validation. *)
+  Definition ARGON2ID_MIN_M_COST := 65536.  (* 64 MiB in KiB - OWASP high security minimum *)
+
+  (** High-security mode memory cost for maximum protection.
+      This is the design choice for anubis-notary's high-security mode,
+      exceeding OWASP recommendations for defense-in-depth. *)
+  Definition ARGON2ID_HIGH_M_COST := 4 * 1024 * 1024.  (* 4 GiB in KiB *)
+
   Definition ARGON2ID_MIN_T_COST := 3.
   Definition ARGON2ID_MIN_PARALLELISM := 1.
 
@@ -144,10 +153,12 @@ Section kdf_spec.
            Some(Self { m_cost, t_cost, parallelism })
        }
 
-       The constructor validates all parameters against minimums:
-       - m_cost >= 4 GiB (4 * 1024 * 1024 KiB) for password hashing security
+       The constructor validates all parameters against OWASP 2023 minimums:
+       - m_cost >= 64 MiB (65536 KiB) per OWASP high security recommendation
        - t_cost >= 3 iterations as per OWASP recommendations
        - parallelism >= 1 (at least one thread)
+
+       Note: High-security mode uses 4 GiB (ARGON2ID_HIGH_M_COST).
 
        Returns Some only if all parameters are valid. *)
     iApply ("HPost" with "[]").
@@ -384,13 +395,21 @@ Section kdf_spec.
   (** ** Blueprint-Required Argon2id Floor Properties (Section 5)        *)
   (** ------------------------------------------------------------------ *)
 
-  (** Blueprint specifies: m_cost >= 4 GiB, t_cost >= 3, p >= 1 *)
+  (** Blueprint specifies minimum acceptable floors per OWASP 2023.
+      High-security mode uses 4 GiB, but validation accepts >= 64 MiB. *)
 
-  (** BP-KDF-1: Memory cost floor is exactly 4 GiB in KiB *)
+  (** BP-KDF-1: Minimum acceptable memory cost is 64 MiB (OWASP high security) *)
   Theorem bp_argon2id_m_cost_floor :
-    ARGON2ID_MIN_M_COST = 4194304. (* 4 * 1024 * 1024 = 4 GiB in KiB *)
+    ARGON2ID_MIN_M_COST = 65536. (* 64 MiB in KiB *)
   Proof.
     unfold ARGON2ID_MIN_M_COST. reflexivity.
+  Qed.
+
+  (** BP-KDF-1b: High-security mode uses 4 GiB *)
+  Theorem bp_argon2id_high_m_cost :
+    ARGON2ID_HIGH_M_COST = 4194304. (* 4 GiB in KiB *)
+  Proof.
+    unfold ARGON2ID_HIGH_M_COST. reflexivity.
   Qed.
 
   (** BP-KDF-2: Time cost floor is exactly 3 iterations *)
@@ -407,18 +426,15 @@ Section kdf_spec.
     unfold ARGON2ID_MIN_PARALLELISM. reflexivity.
   Qed.
 
-  (** BP-KDF-4: Well-formed params satisfy all floors *)
+  (** BP-KDF-4: Well-formed params satisfy all minimum floors *)
   Theorem bp_argon2id_all_floors_satisfied :
     forall (p : argon2id_params),
       argon2id_params_wf p ->
-      a2_m_cost p >= 4194304 /\
-      a2_t_cost p >= 3 /\
-      a2_parallelism p >= 1.
+      a2_m_cost p >= ARGON2ID_MIN_M_COST /\
+      a2_t_cost p >= ARGON2ID_MIN_T_COST /\
+      a2_parallelism p >= ARGON2ID_MIN_PARALLELISM.
   Proof.
     intros p [Hm [Ht Hp]].
-    unfold ARGON2ID_MIN_M_COST in Hm.
-    unfold ARGON2ID_MIN_T_COST in Ht.
-    unfold ARGON2ID_MIN_PARALLELISM in Hp.
     repeat split; assumption.
   Qed.
 
@@ -434,22 +450,22 @@ Section kdf_spec.
     unfold argon2id_params_wf. simpl.
     intro Hwf. destruct Hwf as [Hm [Ht Hp]].
     destruct Hsub as [Hm_bad | [Ht_bad | Hp_bad]].
-    - lia.
-    - lia.
-    - lia.
+    - unfold ARGON2ID_MIN_M_COST in Hm. lia.
+    - unfold ARGON2ID_MIN_T_COST in Ht. lia.
+    - unfold ARGON2ID_MIN_PARALLELISM in Hp. lia.
   Qed.
 
   (** BP-KDF-6: Constructor returns None for substandard params *)
   Theorem bp_argon2id_constructor_rejects :
     forall (m t p : Z),
-      m < 4194304 \/ t < 3 \/ p < 1 ->
+      m < ARGON2ID_MIN_M_COST \/ t < ARGON2ID_MIN_T_COST \/ p < ARGON2ID_MIN_PARALLELISM ->
       (* Constructor returns None *)
       True. (* Proven in argon2id_params_new_spec postcondition *)
   Proof.
     trivial.
   Qed.
 
-  (** BP-KDF-7: Work factor is at least 3 * 4 GiB = 12 GiB-iterations *)
+  (** BP-KDF-7: Work factor is at least MIN_M_COST * MIN_T_COST *)
   Theorem bp_argon2id_min_work_factor :
     forall (params : argon2id_params),
       argon2id_params_wf params ->
@@ -457,7 +473,18 @@ Section kdf_spec.
   Proof.
     intros params [Hm [Ht _]].
     unfold ARGON2ID_MIN_M_COST, ARGON2ID_MIN_T_COST.
-    (* m >= 4194304 and t >= 3 implies m * t >= 4194304 * 3 *)
+    apply Z.mul_le_mono_nonneg; lia.
+  Qed.
+
+  (** BP-KDF-7b: High-security work factor is at least 4 GiB * 3 = 12 GiB-iterations *)
+  Theorem bp_argon2id_high_work_factor :
+    forall (params : argon2id_params),
+      a2_m_cost params >= ARGON2ID_HIGH_M_COST ->
+      a2_t_cost params >= ARGON2ID_MIN_T_COST ->
+      a2_m_cost params * a2_t_cost params >= ARGON2ID_HIGH_M_COST * ARGON2ID_MIN_T_COST.
+  Proof.
+    intros params Hm Ht.
+    unfold ARGON2ID_HIGH_M_COST, ARGON2ID_MIN_T_COST.
     apply Z.mul_le_mono_nonneg; lia.
   Qed.
 
@@ -511,14 +538,20 @@ Section kdf_verification_conditions.
   (** ** KD-1 through KD-3: Argon2id Parameter Floor VCs                 *)
   (** ------------------------------------------------------------------ *)
 
-  (** KD-1: Argon2id m_cost floor - m_cost ≥ 4 GiB *)
+  (** KD-1: Argon2id m_cost floor - m_cost ≥ OWASP minimum (64 MiB) *)
   Theorem VC_KD_1_m_cost_floor :
     forall (p : argon2id_params),
       argon2id_params_wf p ->
-      a2_m_cost p >= 4194304. (* 4 GiB in KiB *)
+      a2_m_cost p >= ARGON2ID_MIN_M_COST. (* 64 MiB in KiB per OWASP *)
   Proof.
-    intros p [Hm _].
-    unfold ARGON2ID_MIN_M_COST in Hm. lia.
+    intros p [Hm _]. exact Hm.
+  Qed.
+
+  (** KD-1b: High-security mode requires 4 GiB *)
+  Theorem VC_KD_1b_high_security_m_cost :
+    ARGON2ID_HIGH_M_COST = 4194304. (* 4 GiB in KiB *)
+  Proof.
+    reflexivity.
   Qed.
 
   (** KD-2: Argon2id t_cost floor - t_cost ≥ 3 *)

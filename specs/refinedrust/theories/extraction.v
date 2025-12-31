@@ -5,9 +5,30 @@
     used alongside the Rust implementation.
 
     The extraction includes:
-    1. Pure model functions (merkle, ct, nonce operations)
+    1. Pure model functions (merkle, nonce operations)
     2. Specification validators
     3. Test oracle functions for property testing
+
+    ╔═══════════════════════════════════════════════════════════════════════╗
+    ║  ⚠️  WARNING: EXTRACTED CODE IS NOT CONSTANT-TIME  ⚠️                 ║
+    ╠═══════════════════════════════════════════════════════════════════════╣
+    ║                                                                       ║
+    ║  The functions in this module are SPECIFICATION MODELS, not          ║
+    ║  production implementations. When extracted to OCaml:                ║
+    ║                                                                       ║
+    ║  • Coq's Z type becomes case analysis (if z=0, if z>0, else)        ║
+    ║  • Bitwise operations use recursive bit-by-bit decomposition        ║
+    ║  • Every operation has DATA-DEPENDENT BRANCHES                       ║
+    ║                                                                       ║
+    ║  DO NOT use extracted OCaml for cryptographic operations!            ║
+    ║  Use the Rust implementation which uses actual constant-time code.   ║
+    ║                                                                       ║
+    ║  These models exist for:                                             ║
+    ║  • Proving functional correctness of the specification               ║
+    ║  • Property-based testing against the Rust implementation            ║
+    ║  • Generating test oracles for verification                          ║
+    ║                                                                       ║
+    ╚═══════════════════════════════════════════════════════════════════════╝
 *)
 
 From Stdlib Require Import Extraction ExtrOcamlBasic ExtrOcamlString.
@@ -49,15 +70,64 @@ Module ExtractedModels.
   Definition is_right_child (i : Z) : bool := Z.odd i.
   Definition tree_height (n : Z) : Z := Z.log2_up n.
 
-  (** Constant-time operations *)
-  Definition ct_select (a b choice : Z) : Z :=
-    if Z.eqb choice 1 then a else b.
+  (** ================================================================== *)
+  (** SPECIFICATION MODELS for conditional selection and comparison     *)
+  (**                                                                    *)
+  (** ⚠️  WARNING: NOT CONSTANT-TIME IN EXTRACTED CODE  ⚠️              *)
+  (**                                                                    *)
+  (** These definitions model the SEMANTICS of constant-time operations *)
+  (** but the extracted OCaml code is NOT constant-time because:        *)
+  (**   - Z operations use case analysis (if z=0, if z>0, else)         *)
+  (**   - Bitwise ops recurse bit-by-bit with data-dependent branches   *)
+  (**                                                                    *)
+  (** The Rust implementation uses ACTUAL constant-time primitives:     *)
+  (**   - subtle::Choice, subtle::ConditionallySelectable              *)
+  (**   - subtle::ConstantTimeEq, subtle::ConstantTimeLess             *)
+  (**                                                                    *)
+  (** These models are for PROVING correctness, not for execution.      *)
+  (** ================================================================== *)
 
-  Definition ct_eq (a b : Z) : Z :=
-    if Z.eqb a b then 1 else 0.
+  (** model_select: Specification model of conditional selection.
+      Semantics: if choice=1 return a, if choice=0 return b.
 
-  Definition ct_lt (a b : Z) : Z :=
-    if Z.ltb a b then 1 else 0.
+      NOTE: This models the Rust subtle::conditional_select semantics.
+      The extracted OCaml is NOT constant-time - use Rust for that. *)
+  Definition model_select (a b choice : Z) : Z :=
+    let mask := Z.opp choice in  (* -choice: 0 -> 0, 1 -> -1 (all 1s) *)
+    Z.lor (Z.land a mask) (Z.land b (Z.lnot mask)).
+
+  (** Backward-compatible alias - DEPRECATED, use model_select *)
+  Definition ct_select := model_select.
+
+  (** model_eq: Specification model of constant-time equality.
+      Semantics: returns 1 if a = b, 0 otherwise.
+
+      NOTE: This models the Rust subtle::ct_eq semantics.
+      The extracted OCaml is NOT constant-time - use Rust for that. *)
+  Definition model_eq (a b : Z) : Z :=
+    let diff := Z.lxor a b in
+    let collapsed := Z.shiftr (Z.lor diff (Z.opp diff)) 7 in
+    Z.lxor (Z.land collapsed 1) 1.
+
+  (** Backward-compatible alias - DEPRECATED, use model_eq *)
+  Definition ct_eq := model_eq.
+
+  (** model_lt: Specification model of constant-time less-than.
+      Semantics: returns 1 if a < b, 0 otherwise.
+
+      NOTE: This models the Rust subtle::ct_lt semantics.
+      The extracted OCaml is NOT constant-time - use Rust for that. *)
+  Definition model_lt (a b : Z) : Z :=
+    let not_a := Z.lnot a in
+    let xor_ab := Z.lxor a b in
+    let not_xor := Z.lnot xor_ab in
+    let diff := Z.sub a b in
+    let term1 := Z.land not_a b in
+    let term2 := Z.land not_xor diff in
+    Z.land (Z.shiftr (Z.lor term1 term2) 63) 1.
+
+  (** Backward-compatible alias - DEPRECATED, use model_lt *)
+  Definition ct_lt := model_lt.
 
   (** Nonce operations *)
   Definition nonce_index (key_id counter : Z) : Z :=
@@ -96,10 +166,14 @@ Module TestOracles.
     if Z.ltb i 1 then true (* skip invalid indices *)
     else Z.eqb (merkle_sibling (merkle_sibling i)) i.
 
-  (** Oracle: verify ct_select correctness *)
-  Definition oracle_ct_select (a b : Z) : bool :=
-    Z.eqb (ct_select a b 1) a &&
-    Z.eqb (ct_select a b 0) b.
+  (** Oracle: verify model_select correctness
+      NOTE: Tests semantic correctness, not timing behavior *)
+  Definition oracle_model_select (a b : Z) : bool :=
+    Z.eqb (model_select a b 1) a &&
+    Z.eqb (model_select a b 0) b.
+
+  (** Backward-compatible alias *)
+  Definition oracle_ct_select := oracle_model_select.
 
   (** Oracle: verify nonce roundtrip *)
   Definition oracle_nonce_roundtrip (key_id counter : Z) : bool :=
@@ -141,7 +215,7 @@ Module SpecValidators.
     Z.leb 0 key_id && Z.ltb key_id (Z.pow 2 32) &&
     Z.leb 0 counter && Z.ltb counter (Z.pow 2 32).
 
-  (** Validate byte value for CT operations *)
+  (** Validate byte value for model operations *)
   Definition validate_byte (v : Z) : bool :=
     Z.leb 0 v && Z.ltb v 256.
 
@@ -164,9 +238,12 @@ Extraction "anubis_models.ml"
   ExtractedModels.is_left_child
   ExtractedModels.is_right_child
   ExtractedModels.tree_height
-  ExtractedModels.ct_select
-  ExtractedModels.ct_eq
-  ExtractedModels.ct_lt
+  ExtractedModels.model_select
+  ExtractedModels.model_eq
+  ExtractedModels.model_lt
+  ExtractedModels.ct_select      (* deprecated alias *)
+  ExtractedModels.ct_eq          (* deprecated alias *)
+  ExtractedModels.ct_lt          (* deprecated alias *)
   ExtractedModels.nonce_index
   ExtractedModels.nonce_key_id
   ExtractedModels.nonce_counter
@@ -177,7 +254,8 @@ Extraction "anubis_models.ml"
 Extraction "anubis_oracles.ml"
   TestOracles.oracle_parent_child
   TestOracles.oracle_sibling_involutive
-  TestOracles.oracle_ct_select
+  TestOracles.oracle_model_select
+  TestOracles.oracle_ct_select   (* deprecated alias *)
   TestOracles.oracle_nonce_roundtrip
   TestOracles.oracle_threshold_monotonic.
 
