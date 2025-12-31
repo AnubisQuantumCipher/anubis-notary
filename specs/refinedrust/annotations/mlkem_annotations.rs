@@ -44,34 +44,40 @@ pub struct MlKemKeyPair {
 }
 
 // ============================================================================
-// MlKemKeyPair::generate
+// MlKemKeyPair Implementation
 // ============================================================================
 
-/// Generate a new ML-KEM-1024 key pair.
-///
-/// # RefinedRust Specification
-/// ```refinedrust
-/// #[rr::returns("Ok(kp) | Err(RngFailed)")]
-/// #[rr::ensures("match result {
-///     Ok(kp) =>
-///         len(kp.pk) = PUBLIC_KEY_SIZE /\
-///         len(kp.sk) = SECRET_KEY_SIZE /\
-///         is_valid_mlkem_keypair(kp.pk, kp.sk) /\
-///         (* Key generation produces correctly paired keys *)
-///         forall ct ss. encapsulate(kp.pk, ct, ss) ->
-///             decapsulate(kp.sk, ct) = ss
-///   | Err(RngFailed) => True
-/// }")]
-/// ```
-#[rr::verified]
-pub fn generate() -> Result<MlKemKeyPair, MlKemError> {
-    #[rr::assert("Obtain 64 bytes of cryptographic randomness")]
-    let randomness: [u8; 64] = rand_bytes().map_err(|_| MlKemError::RngFailed)?;
+impl MlKemKeyPair {
+    // ========================================================================
+    // MlKemKeyPair::generate
+    // ========================================================================
 
-    #[rr::assert("Generate key pair using verified libcrux implementation")]
-    let inner = mlkem1024::generate_key_pair(randomness);
+    /// Generate a new ML-KEM-1024 key pair.
+    ///
+    /// # RefinedRust Specification
+    /// ```refinedrust
+    /// #[rr::returns("Ok(kp) | Err(RngFailed)")]
+    /// #[rr::ensures("match result {
+    ///     Ok(kp) =>
+    ///         len(kp.pk) = PUBLIC_KEY_SIZE /\
+    ///         len(kp.sk) = SECRET_KEY_SIZE /\
+    ///         is_valid_mlkem_keypair(kp.pk, kp.sk) /\
+    ///         (* Key generation produces correctly paired keys *)
+    ///         forall ct ss. encapsulate(kp.pk, ct, ss) ->
+    ///             decapsulate(kp.sk, ct) = ss
+    ///       | Err(RngFailed) => True
+    /// }")]
+    /// ```
+    #[rr::verified]
+    pub fn generate() -> Result<Self, MlKemError> {
+        #[rr::assert("Obtain 64 bytes of cryptographic randomness")]
+        let randomness: [u8; 64] = rand_bytes().map_err(|_| MlKemError::RngFailed)?;
 
-    Ok(MlKemKeyPair { inner })
+        #[rr::assert("Generate key pair using verified libcrux implementation")]
+        let inner = mlkem1024::generate_key_pair(randomness);
+
+        Ok(Self { inner })
+    }
 }
 
 // ============================================================================

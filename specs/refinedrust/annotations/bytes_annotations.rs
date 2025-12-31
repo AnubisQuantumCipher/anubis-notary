@@ -3,6 +3,8 @@
 //! This file shows the complete refinement type annotations for the
 //! byte manipulation utilities including LE encoding/decoding and zeroization.
 
+use zeroize::{Zeroize, ZeroizeOnDrop};
+
 // ============================================================================
 // SecretBytes Type
 // ============================================================================
