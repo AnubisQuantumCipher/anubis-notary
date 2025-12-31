@@ -1,10 +1,15 @@
 # Anubis Notary - Proof Verification Container
 # Build: docker build -t anubis-proofs .
 # Run:   docker run -it anubis-proofs
+#
+# Proof Categories:
+#   core        - Core cryptographic proofs (AEAD, CBOR, Merkle, ML-DSA)
+#   refinedrust - Separation logic specs (nonce injectivity, constant-time)
+#   properties  - High-level property proofs
+#   verified    - Generated RefinedRust proofs
 
 FROM coqorg/coq:8.18
 
-# Set maintainer
 LABEL maintainer="AnubisQuantumCipher <sic.tau@pm.me>"
 LABEL description="Anubis Notary formal proofs verification environment"
 
@@ -13,6 +18,7 @@ USER root
 RUN apt-get update && apt-get install -y \
     make \
     m4 \
+    time \
     && rm -rf /var/lib/apt/lists/*
 
 USER coq
@@ -22,16 +28,19 @@ RUN opam update && \
     opam install -y dune coq-stdpp coq-equations && \
     opam clean -a -c -s --logs
 
-# Copy proof files
+# Set up project directory
 WORKDIR /home/coq/anubis-notary
+
+# Copy all proof directories
 COPY --chown=coq:coq proofs/ ./proofs/
 COPY --chown=coq:coq specs/ ./specs/
+COPY --chown=coq:coq verified/output/ ./verified/output/
 
-# Set working directory to proofs
-WORKDIR /home/coq/anubis-notary/proofs
+# Copy the master Makefile
+COPY --chown=coq:coq docker/Makefile.proofs ./Makefile
 
-# Build proofs on image creation (optional - comment out for faster builds)
-# RUN eval $(opam env) && make all
+# Set working directory
+WORKDIR /home/coq/anubis-notary
 
-# Default command: interactive shell for proof verification
-CMD ["bash", "-c", "eval $(opam env) && echo 'Anubis Notary Proofs Environment' && echo 'Run: make all    - Build all proofs' && echo 'Run: make prove  - Verify proofs' && echo 'Run: make clean  - Clean artifacts' && exec bash"]
+# Show help by default
+CMD ["bash", "-c", "eval $(opam env) && make help && exec bash"]
