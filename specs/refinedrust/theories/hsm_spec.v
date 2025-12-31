@@ -15,7 +15,7 @@ From iris.proofmode Require Import coq_tactics reduction.
 From iris.base_logic.lib Require Import invariants.
 From caesium Require Import lang notation.
 From refinedrust Require Import typing shims.
-From Anubis Require Import val_conversions.
+From AnubisSpec Require Import val_conversions.
 Import ListNotations.
 
 Open Scope Z_scope.

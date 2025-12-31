@@ -1,0 +1,539 @@
+# CodeRabbit Pro Configuration - MAXIMUM EXHAUSTIVE REVIEW
+# Anubis Notary: Post-Quantum Cryptographic CLI Tool
+# Using ALL Pro features for comprehensive security audit
+
+language: "en-US"
+early_access: true
+enable_free_tier: false
+
+# BRUTAL TONE - No sugarcoating for cryptographic code
+tone_instructions: |
+  Be BRUTALLY HONEST and UNFORGIVING. This is post-quantum cryptographic security software.
+  ANY bug could compromise user security. Point out EVERY issue, no matter how small.
+  Treat this as a hostile security audit. Assume attackers will exploit any weakness.
+  Do NOT praise code - only identify problems. Be direct and technical.
+
+# =============================================================================
+# REVIEWS CONFIGURATION - ALL FEATURES ENABLED
+# =============================================================================
+reviews:
+  # Exclude non-essential files to stay under 300 file limit
+  path_filters:
+    - "!**/target/**"
+    - "!**/.git/**"
+    - "!**/node_modules/**"
+    - "!**/*.lock"
+    - "!**/Cargo.lock"
+    - "!**/.DS_Store"
+    - "!**/obj/**"
+    - "!**/alire/**"
+    - "!**/*.ali"
+    - "!**/*.o"
+  profile: "assertive"
+  request_changes_workflow: true
+  high_level_summary: true
+  high_level_summary_instructions: |
+    Provide executive summary of security posture. Highlight:
+    - Critical vulnerabilities found
+    - Cryptographic implementation issues
+    - Memory safety concerns
+    - Side-channel attack vectors
+    - Missing or incomplete verification
+  high_level_summary_placeholder: "@coderabbitai summary"
+  high_level_summary_in_walkthrough: true
+  review_status: true
+  commit_status: true
+  fail_commit_status: true
+  collapse_walkthrough: false
+  changed_files_summary: true
+
+  # PRO FEATURES - Visualizations and Analysis
+  sequence_diagrams: true
+  estimate_code_review_effort: true
+  assess_linked_issues: true
+  related_issues: true
+  related_prs: true
+  suggested_labels: true
+  auto_apply_labels: false
+  suggested_reviewers: true
+  auto_assign_reviewers: false
+  poem: false
+  enable_prompt_for_ai_agents: true
+  abort_on_close: true
+  disable_cache: false
+
+  # AUTO REVIEW SETTINGS
+  auto_review:
+    enabled: true
+    auto_incremental_review: true
+    ignore_title_keywords: []
+    labels: []
+    drafts: true
+    base_branches: ["main", "master", "develop"]
+    ignore_usernames: []
+
+  # PRO: FINISHING TOUCHES - Auto-generate missing pieces
+  finishing_touches:
+    docstrings:
+      enabled: true
+    unit_tests:
+      enabled: true
+
+  # PRO: PRE-MERGE CHECKS - Custom validation rules
+  pre_merge_checks:
+    docstrings:
+      mode: "error"
+      threshold: 90
+    title:
+      mode: "warning"
+      requirements: "Must describe security impact if applicable"
+    description:
+      mode: "warning"
+    issue_assessment:
+      mode: "error"
+    custom_checks:
+      - name: "crypto_constant_time"
+        instructions: |
+          FAIL if any cryptographic comparison or selection uses:
+          - Early return based on secret data
+          - Data-dependent branching on secrets
+          - Non-constant-time equality checks for secrets
+          Exceptions: Only if using subtle crate primitives correctly
+        mode: "error"
+      - name: "zeroization_check"
+        instructions: |
+          FAIL if sensitive data (keys, passwords, plaintexts) is not zeroized:
+          - Check for zeroize() calls on secrets
+          - Verify Drop implementations for secret types
+          - Flag any unwrap() that could skip zeroization paths
+        mode: "error"
+      - name: "unsafe_audit"
+        instructions: |
+          FAIL if unsafe code lacks:
+          - SAFETY comment explaining invariants
+          - Bounds checking before pointer arithmetic
+          - Proper lifetime annotations
+        mode: "error"
+      - name: "error_handling"
+        instructions: |
+          FAIL if production code contains:
+          - unwrap() on fallible operations
+          - expect() without security justification
+          - Unchecked array indexing
+        mode: "error"
+      - name: "spec_alignment"
+        instructions: |
+          WARNING if code doesn't match RefinedRust specifications in comments
+        mode: "warning"
+
+  # ==========================================================================
+  # ALL STATIC ANALYSIS TOOLS - ENABLED
+  # ==========================================================================
+  tools:
+    # AST-GREP - Structural code analysis
+    ast-grep:
+      rule_dirs: []
+      util_dirs: []
+      essential_rules: true
+      packages: []
+
+    # Shell analysis
+    shellcheck:
+      enabled: true
+
+    # Rust-specific (via general analysis)
+    ruff:
+      enabled: true
+
+    # Markdown docs
+    markdownlint:
+      enabled: true
+
+    # JavaScript/TypeScript
+    biome:
+      enabled: true
+    eslint:
+      enabled: true
+
+    # Python
+    flake8:
+      enabled: true
+    pylint:
+      enabled: true
+
+    # Go
+    golangci-lint:
+      enabled: true
+
+    # YAML validation
+    yamllint:
+      enabled: true
+
+    # SECURITY SCANNERS - CRITICAL
+    gitleaks:
+      enabled: true
+    semgrep:
+      enabled: true
+
+    # Additional Pro tools
+    detekt:
+      enabled: true
+    checkov:
+      enabled: true
+    phpstan:
+      enabled: true
+    cppcheck:
+      enabled: true
+    clippy:
+      enabled: true
+    buf:
+      enabled: true
+    actionlint:
+      enabled: true
+    pmd:
+      enabled: true
+    hadolint:
+      enabled: true
+
+  # ==========================================================================
+  # PATH-SPECIFIC INSTRUCTIONS - EXHAUSTIVE RULES
+  # ==========================================================================
+  path_instructions:
+    # CORE CRYPTOGRAPHY - MAXIMUM SCRUTINY
+    - path: "**/crates/anubis_core/src/**/*.rs"
+      instructions: |
+        CRYPTOGRAPHIC CORE - HIGHEST SECURITY SCRUTINY
+
+        1. CONSTANT-TIME OPERATIONS:
+           - All comparisons on secrets MUST use subtle crate
+           - No early returns based on secret values
+           - No data-dependent array indexing on secrets
+           - Check ct_eq, ct_select, ct_cmov usage
+
+        2. MEMORY SAFETY:
+           - Every unsafe block needs SAFETY comment
+           - Bounds checks before all pointer ops
+           - No integer overflow in index calculations
+           - Verify lifetime correctness
+
+        3. ZEROIZATION:
+           - All keys/passwords/plaintexts must zeroize
+           - Check Drop impls clear secrets
+           - Verify zeroization on all exit paths (including errors)
+           - Flag any panic that could skip zeroization
+
+        4. CRYPTOGRAPHIC CORRECTNESS:
+           - ML-DSA-87: Verify FIPS 204 compliance
+           - ML-KEM-1024: Verify FIPS 203 compliance
+           - SHA3/SHAKE: Verify FIPS 202 compliance
+           - ChaCha20Poly1305: Verify RFC 8439 compliance
+           - Argon2id: Verify RFC 9106 compliance
+
+        5. NONCE HANDLING:
+           - Verify nonce derivation is injective
+           - Check counter never reused
+           - Persistence before use (crash safety)
+
+        6. ERROR HANDLING:
+           - No unwrap() on cryptographic operations
+           - Errors must not leak timing information
+           - All error paths must zeroize secrets
+
+        7. API DESIGN:
+           - APIs must be misuse-resistant
+           - Check for proper type-state patterns
+           - Sensitive data should use newtype wrappers
+
+    # CBOR ENCODING - Parser security
+    - path: "**/cbor/**/*.rs"
+      instructions: |
+        CBOR PARSER SECURITY REVIEW
+
+        1. TOTALITY: Decoder must handle ALL inputs
+        2. BOUNDS: Position checks before every read
+        3. OVERFLOW: Check integer parsing for overflow
+        4. CANONICAL: Verify deterministic encoding
+        5. INJECTION: No way to craft malicious CBOR
+        6. MEMORY: Bounded allocations, no amplification
+        7. FUZZING: Coverage for malformed inputs
+
+    # KDF - Key derivation security
+    - path: "**/kdf/**/*.rs"
+      instructions: |
+        KEY DERIVATION FUNCTION REVIEW
+
+        1. ARGON2ID:
+           - Memory cost >= 512 MiB enforced
+           - Time cost >= 3 enforced
+           - Salt must be random and unique
+           - Output properly zeroized after use
+
+        2. HKDF:
+           - Domain separation correct
+           - Extract-then-expand pattern followed
+           - Info parameter properly included
+
+        3. MEMORY DETECTION:
+           - Fallback safe if detection fails
+           - No DoS via memory exhaustion
+
+    # ML-DSA (Dilithium) signatures
+    - path: "**/mldsa/**/*.rs"
+      instructions: |
+        ML-DSA-87 (FIPS 204) REVIEW
+
+        1. Verify parameter set is ML-DSA-87 (highest security)
+        2. Key generation: proper randomness source
+        3. Signing: deterministic or hedged correctly
+        4. Verification: reject malformed signatures
+        5. Signature size: exactly 4627 bytes
+        6. No timing leaks in polynomial operations
+
+    # ML-KEM (Kyber) key encapsulation
+    - path: "**/mlkem/**/*.rs"
+      instructions: |
+        ML-KEM-1024 (FIPS 203) REVIEW
+
+        1. Verify parameter set is ML-KEM-1024 (highest security)
+        2. Encapsulation: proper randomness
+        3. Decapsulation: implicit rejection correct
+        4. Ciphertext validation before decaps
+        5. Shared secret zeroization
+
+    # Keccak/SHA3/SHAKE
+    - path: "**/keccak/**/*.rs"
+      instructions: |
+        KECCAK IMPLEMENTATION REVIEW (FIPS 202)
+
+        1. Permutation: all 24 rounds correct
+        2. Padding: 0x06 for SHA3, 0x1F for SHAKE
+        3. Rate/capacity: correct for each variant
+        4. No state leakage between uses
+        5. Absorb/squeeze phase transitions correct
+
+    # AEAD - Authenticated encryption
+    - path: "**/aead/**/*.rs"
+      instructions: |
+        AEAD REVIEW (ChaCha20Poly1305)
+
+        1. Nonce: unique per encryption, 96-bit
+        2. Tag verification: constant-time
+        3. Reject invalid tags before decryption
+        4. AD properly included in auth
+        5. Key never used after compromise indication
+
+    # Nonce derivation
+    - path: "**/nonce/**/*.rs"
+      instructions: |
+        NONCE DERIVATION REVIEW
+
+        1. INJECTIVITY: Different inputs -> different nonces
+        2. COUNTER: Persisted before use, never reused
+        3. DOMAIN SEP: Different contexts get different nonces
+        4. OVERFLOW: Counter limit enforced (2^48)
+        5. CRASH SAFETY: fsync before counter increment returns
+
+    # Merkle trees
+    - path: "**/merkle/**/*.rs"
+      instructions: |
+        MERKLE TREE REVIEW
+
+        1. DOMAIN SEP: 0x00 for leaves, 0x01 for internal
+        2. SECOND PREIMAGE: Protected by domain separation
+        3. PROOF VERIFICATION: Correct path reconstruction
+        4. BOUNDS: Leaf/sibling indices checked
+        5. DETERMINISM: Same inputs -> same root
+
+    # Receipt/License schemas
+    - path: "**/receipt/**/*.rs"
+      instructions: |
+        RECEIPT SCHEMA REVIEW
+
+        1. VERSION: Check handled correctly
+        2. SIGNATURE: Covers all signable fields
+        3. CANONICAL: Keys sorted per RFC 8949
+        4. ROUND-TRIP: encode(decode(x)) == x
+        5. FORWARD COMPAT: Unknown fields skipped safely
+
+    - path: "**/license/**/*.rs"
+      instructions: |
+        LICENSE SCHEMA REVIEW
+
+        1. EXPIRATION: Checked against current time
+        2. SIGNATURE: Cannot be forged or transferred
+        3. FEATURES: Properly validated
+        4. ENCODING: Canonical CBOR
+
+    # CLI - User-facing code
+    - path: "**/cli/**/*.rs"
+      instructions: |
+        CLI SECURITY REVIEW
+
+        1. INPUT VALIDATION: All user input sanitized
+        2. PATH TRAVERSAL: No directory escape
+        3. SECRETS: Not logged or displayed
+        4. PERMISSIONS: Files created with safe modes
+        5. ERROR MESSAGES: No sensitive data leaked
+
+    # I/O operations
+    - path: "**/io/**/*.rs"
+      instructions: |
+        I/O SECURITY REVIEW
+
+        1. ATOMIC WRITES: temp + fsync + rename pattern
+        2. PERMISSIONS: Restrictive modes (0600 for secrets)
+        3. TOCTOU: No race conditions in file ops
+        4. CLEANUP: Temp files removed on all paths
+        5. ERROR HANDLING: Secrets cleaned on I/O failure
+
+    # Formal proofs
+    - path: "**/proofs/**/*.v"
+      instructions: |
+        COQ/ROCQ PROOF REVIEW
+
+        1. NO ADMITS: All proofs complete
+        2. SPEC MATCH: Specs match implementation intent
+        3. COVERAGE: All critical properties covered
+        4. AUTOMATION: Proofs maintainable
+        5. SOUNDNESS: No axiom abuse
+
+    # RefinedRust specifications
+    - path: "**/specs/**/*.v"
+      instructions: |
+        REFINEDRUST SPECIFICATION REVIEW
+
+        1. COMPLETENESS: All public APIs specified
+        2. CORRECTNESS: Specs capture security properties
+        3. VERIFIABLE: Specs can actually be proven
+        4. CONSISTENCY: Specs match implementation
+
+    # Test code
+    - path: "**/tests/**/*.rs"
+      instructions: |
+        TEST REVIEW
+
+        1. COVERAGE: Edge cases and boundaries tested
+        2. SECURITY: Attack vectors tested
+        3. KAT: Known-Answer Tests for crypto
+        4. NEGATIVE: Invalid inputs rejected correctly
+        5. DETERMINISM: Tests reproducible
+
+    # Fuzzing targets
+    - path: "**/fuzz/**/*.rs"
+      instructions: |
+        FUZZING TARGET REVIEW
+
+        1. COVERAGE: All parsers/decoders fuzzed
+        2. CRASHES: Handle all malformed input
+        3. MEMORY: No unbounded allocations
+        4. CORPUS: Meaningful seed inputs
+
+    # Benchmarks
+    - path: "**/benches/**/*.rs"
+      instructions: |
+        BENCHMARK REVIEW
+
+        1. TIMING: dudect tests for constant-time
+        2. PERFORMANCE: Reasonable for security level
+        3. NO SHORTCUTS: Benchmarks use real operations
+
+    # Build configuration
+    - path: "**/Cargo.toml"
+      instructions: |
+        CARGO CONFIG REVIEW
+
+        1. DEPENDENCIES: Up to date, no vulnerabilities
+        2. FEATURES: Correctly configured
+        3. PROFILES: Release builds secure
+        4. NO UNSAFE: Unless explicitly needed
+
+    # Documentation
+    - path: "**/*.md"
+      instructions: |
+        DOCUMENTATION REVIEW
+
+        1. ACCURACY: Matches implementation
+        2. SECURITY: Warns about misuse
+        3. COMPLETENESS: All APIs documented
+        4. EXAMPLES: Safe usage patterns
+
+# =============================================================================
+# CHAT CONFIGURATION
+# =============================================================================
+chat:
+  art: false
+  auto_reply: true
+  integrations:
+    jira:
+      usage: "auto"
+    linear:
+      usage: "auto"
+
+# =============================================================================
+# KNOWLEDGE BASE - FULL CONTEXT
+# =============================================================================
+knowledge_base:
+  opt_out: false
+  web_search:
+    enabled: true
+  code_guidelines:
+    enabled: true
+    filePatterns:
+      - "CLAUDE.md"
+      - "ARCHITECTURE.md"
+      - "SECURITY.md"
+      - "FORMAL.md"
+  learnings:
+    scope: "auto"
+  issues:
+    scope: "auto"
+    jira:
+      usage: "auto"
+      project_keys: []
+    linear:
+      usage: "auto"
+      team_keys: []
+  pull_requests:
+    scope: "auto"
+  mcp:
+    usage: "auto"
+    disabled_servers: []
+
+# =============================================================================
+# CODE GENERATION SETTINGS
+# =============================================================================
+code_generation:
+  docstrings:
+    language: "en-US"
+    path_instructions:
+      - path: "**/crates/**/*.rs"
+        instructions: |
+          Generate security-focused documentation:
+          - Document all preconditions and postconditions
+          - Note any timing/side-channel considerations
+          - Warn about potential misuse
+          - Reference relevant standards (FIPS, RFC)
+  unit_tests:
+    path_instructions:
+      - path: "**/crates/**/*.rs"
+        instructions: |
+          Generate comprehensive tests including:
+          - Boundary conditions
+          - Invalid input handling
+          - Known-answer tests for crypto
+          - Roundtrip tests for encoding
+
+# =============================================================================
+# LABELING
+# =============================================================================
+labeling_instructions:
+  - label: "security-critical"
+    instructions: "Apply when changes affect cryptographic operations, key handling, or authentication"
+  - label: "memory-safety"
+    instructions: "Apply when changes involve unsafe code, raw pointers, or manual memory management"
+  - label: "needs-audit"
+    instructions: "Apply when changes require security expert review"
+  - label: "breaking-change"
+    instructions: "Apply when public API changes that could affect users"
+  - label: "verification-needed"
+    instructions: "Apply when changes need formal proof updates"
