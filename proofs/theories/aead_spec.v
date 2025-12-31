@@ -80,11 +80,55 @@ Record aead_tag := mk_tag {
   tag_valid : List.length tag_bytes = Params.tag_size;
 }.
 
+(** ** Constant-Time Tag Comparison *)
+
+(** Byte equality (decidable) *)
+Definition byte_eqb (b1 b2 : byte) : bool := Z.eqb b1 b2.
+
+(** Constant-time bytes equality - compares ALL bytes to prevent timing attacks.
+    Returns true iff all corresponding bytes are equal. *)
+Fixpoint bytes_eqb (bs1 bs2 : bytes) : bool :=
+  match bs1, bs2 with
+  | [], [] => true
+  | b1 :: rest1, b2 :: rest2 =>
+      (* Compare current byte AND rest - no short-circuit to maintain constant time *)
+      andb (byte_eqb b1 b2) (bytes_eqb rest1 rest2)
+  | _, _ => false  (* Different lengths *)
+  end.
+
+(** Tag equality uses constant-time byte comparison *)
+Definition tag_eqb (t1 t2 : aead_tag) : bool :=
+  bytes_eqb (tag_bytes t1) (tag_bytes t2).
+
+(** Correctness: bytes_eqb reflects propositional equality *)
+Lemma bytes_eqb_eq : forall bs1 bs2,
+  bytes_eqb bs1 bs2 = true <-> bs1 = bs2.
+Proof.
+  induction bs1 as [| b1 rest1 IH]; intros bs2.
+  - destruct bs2; simpl; split; intros H; auto; discriminate.
+  - destruct bs2 as [| b2 rest2]; simpl.
+    + split; intros H; discriminate.
+    + rewrite Bool.andb_true_iff.
+      unfold byte_eqb. rewrite Z.eqb_eq.
+      rewrite IH.
+      split; intros H.
+      * destruct H as [Hb Hr]. subst. reflexivity.
+      * injection H as Hb Hr. auto.
+Qed.
+
+(** Tag equality reflects propositional equality on bytes *)
+Lemma tag_eqb_eq : forall t1 t2,
+  tag_eqb t1 t2 = true <-> tag_bytes t1 = tag_bytes t2.
+Proof.
+  intros t1 t2. unfold tag_eqb. apply bytes_eqb_eq.
+Qed.
+
 (** ** ChaCha20 Quarter Round *)
 
 Definition rotl32 (x : word32) (n : nat) : word32 :=
   let mask := 2^32 - 1 in
-  ((Z.shiftl x (Z.of_nat n)) + (Z.shiftr x (Z.of_nat (32 - n)))) mod (2^32).
+  Z.lor (Z.land (Z.shiftl x (Z.of_nat n)) mask)
+        (Z.shiftr x (Z.of_nat (32 - n))).
 
 (** ChaCha20 quarter round: QR(a, b, c, d) *)
 Definition quarter_round (a b c d : word32) : word32 * word32 * word32 * word32 :=
@@ -133,13 +177,27 @@ Fixpoint chacha20_rounds (n : nat) (state : list word32) : list word32 :=
   | S n' => chacha20_rounds n' (chacha20_double_round state)
   end.
 
+(** Convert 32-bit word to 4 little-endian bytes *)
+Definition word32_to_bytes (w : word32) : bytes :=
+  [w mod 256;
+   (w / 256) mod 256;
+   (w / 65536) mod 256;
+   (w / 16777216) mod 256].
+
+(** Convert list of words to bytes (little-endian) *)
+Fixpoint words_to_bytes (ws : list word32) : bytes :=
+  match ws with
+  | [] => []
+  | w :: rest => word32_to_bytes w ++ words_to_bytes rest
+  end.
+
 Definition chacha20_block (k : aead_key) (n : aead_nonce) (counter : Z) : bytes :=
   let initial := chacha20_init k n counter in
   let final := chacha20_rounds 10 initial in
-  (* Add initial state and convert to bytes *)
+  (* Add initial state and convert to bytes (RFC 8439 Section 2.3) *)
   let added := map2 (fun a b => (a + b) mod 2^32) initial final in
-  (* Convert words to little-endian bytes - simplified *)
-  repeat 0 64.
+  (* Convert 16 words to 64 little-endian bytes *)
+  words_to_bytes added.
 
 Axiom chacha20_block_length :
   forall k n counter,
@@ -258,12 +316,38 @@ Definition clamp_r (r : Z) : Z :=
     (Z.shiftl 15 28)))))))) in
   Z.land r mask.
 
+(** Take first n elements from a list *)
+Fixpoint take {A : Type} (n : nat) (xs : list A) : list A :=
+  match n, xs with
+  | 0%nat, _ => []
+  | _, [] => []
+  | S m, x :: rest => x :: take m rest
+  end.
+
+(** Drop first n elements from a list *)
+Fixpoint drop {A : Type} (n : nat) (xs : list A) : list A :=
+  match n, xs with
+  | 0%nat, xs => xs
+  | _, [] => []
+  | S m, _ :: rest => drop m rest
+  end.
+
+(** Convert up to 16 bytes (little-endian) to Z *)
+Fixpoint bytes_to_z128_aux (bs : bytes) (shift : Z) : Z :=
+  match bs with
+  | [] => 0
+  | b :: rest => b * (2 ^ shift) + bytes_to_z128_aux rest (shift + 8)
+  end.
+
+Definition bytes_to_z128 (bs : bytes) : Z :=
+  bytes_to_z128_aux bs 0.
+
 (** Poly1305 one-time key derivation *)
 Definition poly1305_keygen (k : aead_key) (n : aead_nonce) : poly1305_key :=
   let block := chacha20_block k n 0 in
-  (* First 16 bytes for r, next 16 for s *)
-  let r := 0 in  (* Load from block[0..16] as LE *)
-  let s := 0 in  (* Load from block[16..32] as LE *)
+  (* First 16 bytes for r, next 16 for s - load as little-endian *)
+  let r := bytes_to_z128 (take 16 block) in
+  let s := bytes_to_z128 (take 16 (drop 16 block)) in
   mk_poly_key (clamp_r r) s.
 
 (** Poly1305 accumulator update *)
@@ -277,23 +361,68 @@ Fixpoint poly1305_blocks (acc : Z) (r : Z) (blocks : list Z) : Z :=
   | b :: rest => poly1305_blocks (poly1305_update acc r b) r rest
   end.
 
+(** Convert 128-bit Z to 16 bytes (little-endian) *)
+Definition z128_to_bytes (z : Z) : bytes :=
+  let z := z mod 2^128 in  (* Ensure within range *)
+  [z mod 256;
+   (z / 256) mod 256;
+   (z / 65536) mod 256;
+   (z / 16777216) mod 256;
+   (z / 4294967296) mod 256;
+   (z / 1099511627776) mod 256;
+   (z / 281474976710656) mod 256;
+   (z / 72057594037927936) mod 256;
+   (z / 18446744073709551616) mod 256;
+   (z / 4722366482869645213696) mod 256;
+   (z / 1208925819614629174706176) mod 256;
+   (z / 309485009821345068724781056) mod 256;
+   (z / 79228162514264337593543950336) mod 256;
+   (z / 20282409603651670423947251286016) mod 256;
+   (z / 5192296858534827628530496329220096) mod 256;
+   (z / 1329227995784915872903807060280344576) mod 256].
+
 (** Poly1305 finalization *)
 Definition poly1305_finalize (acc : Z) (s : Z) : bytes :=
   let tag := (acc + s) mod 2^128 in
   (* Convert to 16 bytes little-endian *)
-  repeat 0 16.  (* Simplified *)
+  z128_to_bytes tag.
 
 (** Helper: poly1305_finalize produces 16 bytes *)
 Lemma poly1305_finalize_length : forall acc s,
   List.length (poly1305_finalize acc s) = 16%nat.
 Proof.
-  intros. unfold poly1305_finalize. apply repeat_length.
+  intros. unfold poly1305_finalize, z128_to_bytes. simpl. reflexivity.
 Qed.
+
+(** Convert a chunk of up to 16 bytes to a Poly1305 block.
+    Appends a 0x01 byte and interprets as little-endian. *)
+Definition chunk_to_poly_block (chunk : bytes) : Z :=
+  let padded := chunk ++ [1] in  (* Append 0x01 *)
+  bytes_to_z128 padded.
+
+(** Convert message bytes to Poly1305 blocks (16-byte chunks with padding) *)
+Fixpoint message_to_poly_blocks (msg : bytes) (fuel : nat) : list Z :=
+  match fuel with
+  | 0%nat => []
+  | S f =>
+    match msg with
+    | [] => []
+    | _ =>
+      let chunk := take 16 msg in
+      let rest := drop 16 msg in
+      chunk_to_poly_block chunk :: message_to_poly_blocks rest f
+    end
+  end.
+
+(** Helper: compute number of 16-byte blocks needed *)
+Definition num_poly_blocks (len : nat) : nat :=
+  ((len + 15) / 16)%nat.
 
 (** Full Poly1305 MAC computation *)
 Definition poly1305 (key : poly1305_key) (msg : bytes) : aead_tag :=
-  (* Pad and convert message to 16-byte blocks *)
-  let blocks := [] in  (* Simplified *)
+  (* Convert message to 16-byte blocks with 0x01 padding *)
+  let fuel := S (num_poly_blocks (List.length msg)) in
+  let blocks := message_to_poly_blocks msg fuel in
   let acc := poly1305_blocks 0 (poly_r key) blocks in
   let tag_bytes := poly1305_finalize acc (poly_s key) in
   mk_tag tag_bytes (poly1305_finalize_length acc (poly_s key)).
@@ -351,8 +480,8 @@ Definition aead_decrypt (k : aead_key) (n : aead_nonce) (aad ciphertext : bytes)
   let poly_input := aead_poly_input aad ciphertext in
   let expected_tag := poly1305 poly_key poly_input in
 
-  (* Constant-time tag comparison *)
-  if true (* tag_bytes expected_tag = tag_bytes tag - simplified *) then
+  (* Constant-time tag comparison - ACTUALLY VERIFY THE TAG *)
+  if tag_eqb expected_tag tag then
     (* Decrypt ciphertext *)
     let plaintext := chacha20_decrypt k n 1 ciphertext in
     Some plaintext
@@ -368,9 +497,18 @@ Theorem aead_roundtrip :
 Proof.
   intros k n aad pt.
   unfold aead_encrypt, aead_decrypt.
-  (* Tag verification succeeds since we use the same key *)
-  (* Decryption inverts encryption *)
-  simpl.
+  (* The tag computed during decryption is identical to the tag from encryption
+     because both use the same key, nonce, aad, and ciphertext. *)
+  (* Show that tag_eqb returns true for identical tags *)
+  assert (Htag: tag_eqb
+    (poly1305 (poly1305_keygen k n)
+              (aead_poly_input aad (chacha20_encrypt k n 1 pt)))
+    (poly1305 (poly1305_keygen k n)
+              (aead_poly_input aad (chacha20_encrypt k n 1 pt))) = true).
+  { (* Tag comparison of identical values yields true *)
+    apply tag_eqb_eq. reflexivity. }
+  rewrite Htag.
+  (* Now decryption proceeds and inverts encryption *)
   rewrite chacha20_roundtrip.
   reflexivity.
 Qed.
@@ -397,6 +535,32 @@ Proof.
   exact Htb.
 Qed.
 
+(** Authentication actually rejects invalid tags *)
+Theorem aead_rejects_bad_tag :
+  forall k n aad ct good_tag bad_tag pt,
+    tag_bytes good_tag <> tag_bytes bad_tag ->
+    aead_decrypt k n aad ct good_tag = Some pt ->
+    aead_decrypt k n aad ct bad_tag = None.
+Proof.
+  intros k n aad ct good_tag bad_tag pt Hdiff Hgood.
+  unfold aead_decrypt in *.
+  (* The expected tag is computed from k, n, aad, ct *)
+  set (expected := poly1305 (poly1305_keygen k n) (aead_poly_input aad ct)) in *.
+  (* For good_tag to succeed, expected must equal good_tag *)
+  destruct (tag_eqb expected good_tag) eqn:Heq_good.
+  - (* good_tag matched expected *)
+    apply tag_eqb_eq in Heq_good.
+    (* bad_tag differs from good_tag, so differs from expected *)
+    destruct (tag_eqb expected bad_tag) eqn:Heq_bad.
+    + (* Contradiction: bad_tag can't match expected if it differs from good_tag *)
+      apply tag_eqb_eq in Heq_bad.
+      rewrite Heq_good in Heq_bad.
+      contradiction.
+    + reflexivity.
+  - (* good_tag didn't match - contradicts Hgood *)
+    discriminate Hgood.
+Qed.
+
 (** ** Security Properties *)
 
 (** IND-CPA security: ciphertext reveals nothing about plaintext *)
@@ -409,14 +573,26 @@ Parameter int_ctxt_secure : Prop.
 
 Axiom chacha20poly1305_int_ctxt : int_ctxt_secure.
 
-(** Combined IND-CCA2 security *)
-Theorem chacha20poly1305_ind_cca2 :
+(** IND-CCA2 security: chosen ciphertext attack resistance *)
+Parameter ind_cca2_secure : Prop.
+
+(** Combined IND-CCA2 security: IND-CPA + INT-CTXT => IND-CCA2 *)
+(** ChaCha20-Poly1305 achieves IND-CCA2 security through IND-CPA + INT-CTXT
+    This is a standard cryptographic composition theorem.
+    See: Bellare & Namprempre "Authenticated Encryption" (2000)
+
+    The proof requires showing that an IND-CCA2 adversary can be
+    simulated by an IND-CPA adversary plus an INT-CTXT adversary:
+    - If A never queries the decryption oracle on a new ciphertext,
+      A is essentially an IND-CPA adversary.
+    - If A queries decryption on a new valid ciphertext, A is an
+      INT-CTXT adversary (forging authentication).
+
+    This requires game-hopping argument and probabilistic reasoning
+    that is outside the scope of standard Coq/Rocq. *)
+Axiom chacha20poly1305_ind_cca2 :
   ind_cpa_secure -> int_ctxt_secure ->
-  (* The AEAD is IND-CCA2 secure *)
-  True.
-Proof.
-  intros _ _. exact I.
-Qed.
+  ind_cca2_secure.
 
 (** Nonce misuse: using same nonce twice breaks security *)
 Definition nonce_unique (n1 n2 : aead_nonce) : Prop :=
@@ -504,24 +680,59 @@ End AnubisIntegration.
 (** ** Constant-Time Requirements *)
 
 Module ConstantTime.
-  (** All operations must be constant-time to prevent timing attacks *)
+  (** Constant-time operation: execution time depends only on public parameters
+      (like lengths), not on secret values.
 
-  Definition ct_xor : Prop := True.  (* XOR is naturally constant-time *)
+      We model constant-time as an abstract predicate because the actual
+      timing analysis requires low-level details about the implementation. *)
 
+  (** A function is constant-time if its execution time is independent of
+      secret-dependent branches and memory access patterns *)
+  Parameter is_constant_time : forall {A B : Type}, (A -> B) -> Prop.
+
+  (** XOR is constant-time: it processes each byte pair independently
+      with no branches or data-dependent memory accesses *)
+  Definition ct_xor : Prop :=
+    forall (n : nat),
+      is_constant_time (fun (p : list Z * list Z) =>
+        let (a, b) := p in
+        map2 Z.lxor a b).
+
+  (** Poly1305 is constant-time: uses constant-time modular arithmetic
+      with no secret-dependent branches in the field operations *)
   Definition ct_poly1305 : Prop :=
-    (* Poly1305 uses constant-time modular arithmetic *)
-    True.
+    forall (r s : Z),
+      is_constant_time (fun (blocks : list Z) =>
+        let acc := fold_left (fun a b => ((a + b) * r) mod poly1305_prime) blocks 0 in
+        (acc + s) mod (2^128)).
 
+  (** Tag comparison is constant-time: must compare all bytes before
+      returning, not short-circuit on first mismatch *)
   Definition ct_tag_compare : Prop :=
-    (* Tag comparison must be constant-time *)
-    True.
+    is_constant_time (fun (p : list Z * list Z) =>
+      let (tag1, tag2) := p in
+      fold_left (fun acc '(a, b) => andb acc (Z.eqb a b))
+                (combine tag1 tag2)
+                true).
 
+  (** ChaCha20 rounds are constant-time: quarter rounds use only
+      addition, XOR, and rotation - no branches *)
   Definition ct_chacha_rounds : Prop :=
-    (* ChaCha20 rounds are constant-time (no branches) *)
-    True.
+    is_constant_time (fun state : list word32 =>
+      chacha20_rounds 10 state).
 
+  (** The implementation is assumed to satisfy these properties.
+      This is verified at the Rust level through careful coding practices
+      and (ideally) external timing analysis. *)
   Axiom implementation_constant_time :
     ct_xor /\ ct_poly1305 /\ ct_tag_compare /\ ct_chacha_rounds.
+
+  (** Composition of constant-time operations is constant-time *)
+  Axiom ct_compose : forall {A B C : Type} (f : A -> B) (g : B -> C),
+    is_constant_time f ->
+    is_constant_time g ->
+    is_constant_time (fun x => g (f x)).
+
 End ConstantTime.
 
 (** ** Zeroization *)

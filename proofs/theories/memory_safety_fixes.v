@@ -40,15 +40,40 @@ Definition line_is_empty (line : list Z) : Prop := line = nil.
 (** Predicate: line equals "FreePhysicalMemory" *)
 Parameter is_header_line : list Z -> Prop.
 
-(** Predicate: line parses as valid u64 *)
+(** Predicate: line parses as valid u64.
+
+    This is an abstract relation modeling Rust's str::parse::<u64>().
+    The relation parses_as_u64 line v holds when:
+    - line contains ASCII digit characters
+    - The decimal value they represent equals v
+    - The value fits in a u64 (0 <= v <= 2^64 - 1)
+
+    The value v is always non-negative because u64 is unsigned. *)
 Parameter parses_as_u64 : list Z -> Z -> Prop.
 
 (** Split stdout into lines *)
 Parameter split_lines : list Z -> list (list Z).
 
-(** Axiom: parsing produces non-negative values *)
+(** u64 values are always non-negative.
+
+    JUSTIFICATION: This is a tautology from the semantics of unsigned integers.
+    A u64 (unsigned 64-bit integer) can only represent values in [0, 2^64 - 1].
+    There is no representation for negative numbers in an unsigned type.
+
+    In Rust: u64::MIN == 0, u64::MAX == 18446744073709551615
+
+    This axiom captures the fundamental property that parsing a string as u64
+    can only succeed if the value is in the valid range [0, 2^64 - 1].
+
+    ALTERNATIVE FORMULATION: We could define parses_as_u64 with this property
+    built in, but keeping it as a separate axiom makes the property explicit
+    and allows parses_as_u64 to focus on the parsing semantics. *)
 Axiom parses_as_u64_nonneg :
   forall line v, parses_as_u64 line v -> v >= 0.
+
+(** Stronger property: u64 values are in valid range *)
+Axiom parses_as_u64_in_range :
+  forall line v, parses_as_u64 line v -> 0 <= v <= 18446744073709551615.
 
 (** u64 max value *)
 Definition u64_max : Z := 18446744073709551615.

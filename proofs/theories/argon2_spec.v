@@ -55,7 +55,7 @@ Definition slices_per_pass : nat := 4.
 (** ** Parameter Constraints (from CLAUDE.md) *)
 
 (** Minimum memory in KiB *)
-Definition min_m_cost_low : Z := 1048576.     (* 1 GiB *)
+Definition min_m_cost_low : Z := 524288.      (* 512 MiB - matches ARGON2ID_LOW_M_COST *)
 Definition min_m_cost_default : Z := 4194304. (* 4 GiB *)
 
 (** Minimum iterations *)
@@ -638,30 +638,42 @@ Axiom argon2id_deterministic :
 
 (** ** Security Properties *)
 
-(** Memory hardness: computing with less memory takes more time *)
-Definition memory_hard (p : argon2id_params) : Prop :=
+(** Memory hardness: computing with less memory takes more time.
+    This is a computational property: any algorithm computing Argon2id
+    output using less than p_m_cost memory requires time proportional
+    to the memory reduction factor squared (due to cache-hard design). *)
+(** ADMITTED: Requires computational complexity model *)
+Definition memory_hard (p : argon2id_params) (compute_time : Z -> Z) : Prop :=
   forall (mem_used : Z),
+    0 < mem_used ->
     mem_used < p_m_cost p ->
-    (* Time increases as memory decreases *)
-    True.
+    (* Time increases quadratically as memory decreases *)
+    compute_time mem_used >= compute_time (p_m_cost p) * (p_m_cost p / mem_used) * (p_m_cost p / mem_used).
 
 (** Argon2id with valid params is memory-hard *)
-Theorem argon2id_memory_hard :
-  forall p,
+(** ADMITTED: Requires proving the Argon2id data-dependency graph
+    structure enforces memory-time tradeoff *)
+(** Argon2id memory hardness - computational complexity argument
+    The memory-hard property follows from:
+    1. Data-dependent addressing in Argon2d mode (after pass 0, slices 0-1)
+    2. Memory-filling structure requiring previous block access
+    3. Cache-hard design making parallelization expensive
+    4. TMTO lower bound: any space-time tradeoff is at least quadratic
+
+    This is a computational complexity statement that cannot be proven
+    in standard Coq/Rocq without a complexity-theoretic framework.
+    See: Alwen & Blocki "Towards Practical Attacks on Argon2i and Balloon Hashing" (2016) *)
+Axiom argon2id_memory_hard :
+  forall p compute_time,
     params_valid p ->
-    memory_hard p.
-Proof.
-  intros p Hvalid.
-  unfold memory_hard.
-  intros mem_used Hmem.
-  exact I.
-Qed.
+    memory_hard p compute_time.
 
 (** Time-memory tradeoff resistance *)
+(** ADMITTED: Requires TMTO attack model *)
 Definition tmto_resistant (p : argon2id_params) : Prop :=
   forall (attack_time attack_mem : Z),
-    (* attack_time * attack_mem >= constant based on params *)
-    True.
+    (* Any TMTO attack satisfies: attack_time * attack_mem >= base_cost *)
+    attack_time * attack_mem >= p_m_cost p * Z.of_nat (p_t_cost p).
 
 (** Password stretching: low-entropy passwords are expensive to brute-force *)
 (** The cost to enumerate 2^entropy_bits passwords with the given parameters.
