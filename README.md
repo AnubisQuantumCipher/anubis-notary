@@ -213,7 +213,9 @@ anubis-notary/
 
 ### Reporting Vulnerabilities
 
-Please report security issues to: security@example.com
+Please report security issues to: **sic.tau@pm.me**
+
+All reports are treated with strict confidentiality. We aim to respond within 48 hours.
 
 ## Development
 
@@ -249,6 +251,22 @@ MIT License - see [LICENSE](LICENSE)
 ## Contributing
 
 Contributions welcome! Please read [CONTRIBUTING.md](CONTRIBUTING.md) first.
+
+### Supporting Development
+
+This project is developed independently for advancing post-quantum cryptography research and open-source security tooling. If you find this work valuable for your research, testing, or production use, consider supporting continued development:
+
+| Network | Address |
+|---------|---------|
+| **Bitcoin (BTC)** | `bc1qum8pp56ahlkrvcurrfmryyg0hxtay5jzfrlx9s` |
+| **Cardano (ADA)** | `addr1qxx5zwas6p53hnmnweua2ngdqx4x52ugatyqatcrn3yfjvmm99tf343tw7ldxg746f87cll4gfq5nc0dcm7f5f8mwq0qfwsl93` |
+| **Monero (XMR)** | `43SQ1nkaFybf8zQ1JFG2xphKxkf3QUZeEQ6q1rgrrL1g6PSYFqzJ8XEEzNTGEAVpjh9pSF4hEihkt3w2yHobJbMy496H19D` |
+
+Contributions support:
+- Ongoing security audits and formal verification efforts
+- Post-quantum cryptography research and testing infrastructure
+- Documentation, tooling, and community resources
+- Hardware security module (HSM) integration development
 
 ## Acknowledgments
 
