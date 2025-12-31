@@ -560,7 +560,7 @@ mod cbor_properties {
 
 mod merkle_properties {
     use super::*;
-    use anubis_core::merkle::{MerkleTree, HASH_SIZE};
+    use anubis_core::merkle::MerkleTree;
 
     proptest! {
         /// Merkle tree is deterministic

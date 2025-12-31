@@ -357,9 +357,9 @@ impl ShamirSharing {
             let mut coeffs = vec![0u8; threshold as usize];
             coeffs[0] = secret_byte;
 
-            for i in 1..threshold as usize {
+            for coeff in coeffs.iter_mut().skip(1).take(threshold as usize - 1) {
                 // Use cryptographically secure random bytes from OS entropy
-                coeffs[i] = random_bytes[random_idx];
+                *coeff = random_bytes[random_idx];
                 random_idx += 1;
             }
 

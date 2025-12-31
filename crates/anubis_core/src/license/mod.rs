@@ -397,8 +397,11 @@ impl License {
         let mut dec = Decoder::new(data);
 
         let map_len = dec.decode_map_header()?;
-        if map_len != 6 {
-            return Err(LicenseError::MissingField("expected 6 fields"));
+        // FORWARD COMPATIBILITY: Accept maps with >= 6 fields.
+        // Older versions created 6-field licenses; future versions may add more.
+        // Unknown fields will be skipped below.
+        if map_len < 6 {
+            return Err(LicenseError::MissingField("expected at least 6 fields"));
         }
 
         let mut version = None;
