@@ -170,22 +170,33 @@ See [docs/MULTISIG.md](docs/MULTISIG.md) for multi-signature governance workflow
 
 This project includes Rocq/Coq proofs for critical cryptographic properties.
 
-### Run Proofs with Docker (Recommended)
+### Run Proofs with Docker (Recommended - Zero Setup)
 
 ```bash
-# One-command proof verification
-docker run -it ghcr.io/anubisquantumcipher/anubis-proofs make prove
+# One-command proof verification (requires Docker installed—free/one-time)
+./docker/run-proofs.sh
 
-# Or build locally
-cd docker
-./run-proofs.sh
+# Inside container, choose what to verify:
+make help         # Show all proof categories
+make core         # Core crypto proofs (AEAD, CBOR, Merkle, ML-DSA)
+make refinedrust  # Separation logic specs (nonce injectivity, constant-time)
+make properties   # High-level property proofs
+make all          # Build everything
 ```
 
-### Build Proofs Manually
+Or run directly:
+```bash
+docker build -t anubis-proofs docker/
+docker run -it anubis-proofs
+# Inside: make prove
+```
 
-Requires Rocq 9.0+ with coq-iris, coq-stdpp:
+### Build Proofs Manually (Without Docker)
+
+Requires Rocq/Coq 8.19+ with Iris:
 
 ```bash
+opam install coq-iris coq-stdpp coq-equations
 cd proofs
 make all
 ```

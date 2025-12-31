@@ -2,13 +2,9 @@
 # Build: docker build -t anubis-proofs .
 # Run:   docker run -it anubis-proofs
 #
-# Proof Categories:
-#   core        - Core cryptographic proofs (AEAD, CBOR, Merkle, ML-DSA)
-#   refinedrust - Separation logic specs (nonce injectivity, constant-time)
-#   properties  - High-level property proofs
-#   verified    - Generated RefinedRust proofs
+# One-command proof verification - no manual install needed!
 
-FROM coqorg/coq:8.18
+FROM coqorg/coq:8.19
 
 LABEL maintainer="AnubisQuantumCipher <sic.tau@pm.me>"
 LABEL description="Anubis Notary formal proofs verification environment"
@@ -23,24 +19,25 @@ RUN apt-get update && apt-get install -y \
 
 USER coq
 
-# Install Coq libraries and dune via opam
+# Install Coq libraries (Iris, stdpp, equations) via opam
 RUN opam update && \
-    opam install -y dune coq-stdpp coq-equations && \
+    opam install -y dune coq-iris coq-stdpp coq-equations && \
     opam clean -a -c -s --logs
 
 # Set up project directory
-WORKDIR /home/coq/anubis-notary
+WORKDIR /app
 
-# Copy all proof directories
+# Copy all project files
 COPY --chown=coq:coq proofs/ ./proofs/
 COPY --chown=coq:coq specs/ ./specs/
 COPY --chown=coq:coq verified/output/ ./verified/output/
-
-# Copy the master Makefile
 COPY --chown=coq:coq docker/Makefile.proofs ./Makefile
 
-# Set working directory
-WORKDIR /home/coq/anubis-notary
+# Pre-build proofs (creates .vo files)
+RUN eval $(opam env) && cd proofs && dune build 2>/dev/null || true
 
-# Show help by default
+# Set working directory
+WORKDIR /app
+
+# Interactive shell for proof checking
 CMD ["bash", "-c", "eval $(opam env) && make help && exec bash"]
