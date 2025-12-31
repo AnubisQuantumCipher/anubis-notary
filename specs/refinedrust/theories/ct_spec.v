@@ -13,7 +13,7 @@ From Stdlib Require Import ZArith Lia List Bool.
 Import ListNotations.
 Open Scope Z_scope.
 
-Require Import timing_model.
+From AnubisSpec Require Import timing_model.
 
 (** Type aliases for readability *)
 Definition u8 := Z.

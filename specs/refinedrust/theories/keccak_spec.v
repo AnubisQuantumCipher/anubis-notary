@@ -14,7 +14,7 @@ From iris.proofmode Require Import coq_tactics reduction.
 From iris.base_logic.lib Require Import invariants ghost_var.
 From caesium Require Import lang notation.
 From refinedrust Require Import typing shims.
-Require Import keccak_model bytes_spec.
+From AnubisSpec Require Import keccak_model bytes_spec.
 
 Section keccak_spec.
   Context `{!typeGS Sigma}.

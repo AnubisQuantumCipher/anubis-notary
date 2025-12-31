@@ -17,9 +17,8 @@ From Stdlib Require Import ZArith Lia List Bool.
 (** ------------------------------------------------------------------ *)
 
 (* Core specifications - these compile independently *)
-From anubis_notary Require Import
+From AnubisSpec Require Import
   timing_model
-  ct_spec
   merkle_spec
   nonce_spec.
 
@@ -27,7 +26,7 @@ From anubis_notary Require Import
 (** ** Import Bridge Modules                                           *)
 (** ------------------------------------------------------------------ *)
 
-From anubis_notary Require Import
+From AnubisSpec Require Import
   merkle_bridge
   ct_bridge.
 
