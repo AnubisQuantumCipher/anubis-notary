@@ -479,10 +479,10 @@ knowledge_base:
   code_guidelines:
     enabled: true
     filePatterns:
-      - "CLAUDE.md"
       - "ARCHITECTURE.md"
       - "SECURITY.md"
       - "FORMAL.md"
+      - "README.md"
   learnings:
     scope: "auto"
   issues:

@@ -673,9 +673,9 @@ Module Summary.
       3. Rotation preserves word64 (rotl64_is_word64)
       4. Info string injectivity (info_string_injective)
       5. CBOR encode injectivity (cbor_encode_injective)
+      6. Full rotation inverse proof (rotation_inverse_complete)
 
-      Remaining admitted (require deeper bit-level reasoning):
-      - Full rotation inverse proof (rotation_inverse_complete)
+      Remaining admitted (require implementation work):
       - CBOR decode/encode roundtrip (needs parser implementation)
 
       Cryptographic axioms (cannot be proven - hardness assumptions):

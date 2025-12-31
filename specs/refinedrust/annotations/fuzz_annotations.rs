@@ -3,6 +3,14 @@
 //! This file documents the formal properties verified by the fuzz targets
 //! and the critical fix for fuzz_aead.rs (Ascon128a -> ChaCha20Poly1305).
 
+#![allow(dead_code)]
+
+use arbitrary::Arbitrary;
+
+/// ChaCha20Poly1305 constants (from anubis_core::aead)
+pub const KEY_SIZE: usize = 32;    // 256 bits
+pub const NONCE_SIZE: usize = 12;  // 96 bits
+
 // ============================================================================
 // CRITICAL FIX: fuzz_aead.rs Type Mismatch
 // ============================================================================

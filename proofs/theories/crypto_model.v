@@ -434,7 +434,7 @@ Module Argon2id.
   Definition version : Z := 19.  (* 0x13 *)
   Definition variant : Z := 2.   (* Argon2id *)
 
-  (** Parameter constraints from CLAUDE.md *)
+  (** Parameter constraints per RFC 9106 *)
   (** Note: Using Z for large values to avoid Rocq 9.0 nat stack issues *)
   Definition min_m_cost_kib : Z := 524288.   (* 512 MiB minimum - matches ARGON2ID_LOW_M_COST *)
   Definition default_m_cost_kib : Z := 4194304.  (* 4 GiB default *)

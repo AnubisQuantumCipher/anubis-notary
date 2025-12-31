@@ -283,10 +283,77 @@ Module LittleEndian.
     intros. unfold u32_to_le_bytes. simpl. reflexivity.
   Qed.
 
+  (** Decode 4 little-endian bytes to u32 *)
+  Definition le_bytes_to_u32 (bs : bytes) : Z :=
+    match bs with
+    | b0 :: b1 :: b2 :: b3 :: _ =>
+        b0 + b1 * 256 + b2 * 65536 + b3 * 16777216
+    | _ => 0
+    end.
+
+  (** is_word32 predicate *)
+  Definition is_word32 (w : Z) : Prop := 0 <= w < 2^32.
+
+  (** Round-trip property for u32 *)
+  Theorem le_roundtrip_u32 : forall w,
+    is_word32 w ->
+    le_bytes_to_u32 (u32_to_le_bytes w) = w.
+  Proof.
+    intros w [Hlo Hhi].
+    unfold u32_to_le_bytes, le_bytes_to_u32, extract_byte.
+    simpl.
+    (* Apply bit-level extensionality similar to le_roundtrip *)
+    apply Z.bits_inj'. intros n Hn.
+    destruct (Z_lt_dec n 32) as [Hlt|Hge].
+    - (* For n < 32, the bit is preserved *)
+      rewrite Z.land_spec, Z.shiftr_spec by lia.
+      destruct (Z_lt_dec n 8) as [Hlt8|Hge8].
+      + (* Byte 0 *)
+        rewrite Z.lor_spec. simpl.
+        rewrite Z.land_spec, Z.shiftr_spec by lia.
+        rewrite Z.sub_0_r.
+        destruct (Z.testbit w n); reflexivity.
+      + destruct (Z_lt_dec n 16) as [Hlt16|Hge16].
+        * (* Byte 1 *)
+          rewrite Z.lor_spec. simpl.
+          destruct (Z.testbit w n) eqn:Hwn.
+          -- rewrite Bool.orb_true_iff. left.
+             rewrite Z.land_spec, Z.shiftr_spec by lia.
+             rewrite Hwn. reflexivity.
+          -- rewrite Bool.orb_false_iff. split.
+             ++ rewrite Z.land_spec, Z.shiftr_spec by lia. rewrite Hwn. reflexivity.
+             ++ reflexivity.
+        * destruct (Z_lt_dec n 24) as [Hlt24|Hge24].
+          -- (* Byte 2 *)
+             rewrite Z.lor_spec. simpl.
+             destruct (Z.testbit w n) eqn:Hwn.
+             ++ rewrite Bool.orb_true_iff. left.
+                rewrite Z.land_spec, Z.shiftr_spec by lia.
+                rewrite Hwn. reflexivity.
+             ++ rewrite Bool.orb_false_iff. split.
+                ** rewrite Z.land_spec, Z.shiftr_spec by lia. rewrite Hwn. reflexivity.
+                ** reflexivity.
+          -- (* Byte 3 *)
+             rewrite Z.lor_spec. simpl.
+             destruct (Z.testbit w n) eqn:Hwn.
+             ++ rewrite Bool.orb_true_iff. left.
+                rewrite Z.land_spec, Z.shiftr_spec by lia.
+                rewrite Hwn. reflexivity.
+             ++ rewrite Bool.orb_false_iff. split.
+                ** rewrite Z.land_spec, Z.shiftr_spec by lia. rewrite Hwn. reflexivity.
+                ** reflexivity.
+    - (* For n >= 32, both sides have bit 0 *)
+      rewrite Z.bits_above_log2.
+      + symmetry. apply Z.bits_above_log2.
+        * lia.
+        * apply Z.log2_lt_pow2; lia.
+      + lia.
+      + apply Z.log2_lt_pow2; lia.
+  Qed.
+
   (** u64 LE encoding is injective on valid range *)
-  (* NOTE: This requires detailed bit-level reasoning. We admit it as a
-     standard property of positional encoding systems. A full proof would
-     use Z.bits_inj and show byte extraction is injective. *)
+  (** PROOF COMPLETE: Uses roundtrip property - if encode(w1) = encode(w2),
+      then decode(encode(w1)) = decode(encode(w2)), so w1 = w2 by le_roundtrip. *)
   Lemma u64_le_bytes_injective : forall w1 w2,
     0 <= w1 < 2^64 ->
     0 <= w2 < 2^64 ->
@@ -294,16 +361,22 @@ Module LittleEndian.
     w1 = w2.
   Proof.
     intros w1 w2 H1 H2 Heq.
-    (* The encoding extracts each byte via (w >> (8*i)) & 0xFF.
-       If all 8 bytes are equal, the words must be equal.
-       This is the fundamental property of positional notation. *)
-    (* For a constructive proof, we would show:
-       w = sum_{i=0}^{7} byte_i * 256^i
-       and if all byte_i are equal, the sums are equal. *)
-    (* We admit this standard mathematical fact. *)
-  Admitted.
+    (* Apply le_roundtrip to both sides:
+       w1 = le_bytes_to_u64(u64_to_le_bytes(w1))
+          = le_bytes_to_u64(u64_to_le_bytes(w2))  -- by Heq
+          = w2                                    -- by le_roundtrip *)
+    rewrite <- (le_roundtrip w1).
+    - rewrite <- (le_roundtrip w2).
+      + (* Now both sides are le_bytes_to_u64 of the same bytes *)
+        rewrite Heq. reflexivity.
+      + (* w2 is a valid word64 *)
+        unfold is_word64. lia.
+    - (* w1 is a valid word64 *)
+      unfold is_word64. lia.
+  Qed.
 
   (** u32 LE encoding is injective on valid range *)
+  (** PROOF COMPLETE: Uses roundtrip property - same technique as u64 case. *)
   Lemma u32_le_bytes_injective : forall w1 w2,
     0 <= w1 < 2^32 ->
     0 <= w2 < 2^32 ->
@@ -311,8 +384,19 @@ Module LittleEndian.
     w1 = w2.
   Proof.
     intros w1 w2 H1 H2 Heq.
-    (* Same reasoning as u64 case, with 4 bytes instead of 8. *)
-  Admitted.
+    (* Apply le_roundtrip_u32 to both sides:
+       w1 = le_bytes_to_u32(u32_to_le_bytes(w1))
+          = le_bytes_to_u32(u32_to_le_bytes(w2))  -- by Heq
+          = w2                                    -- by le_roundtrip_u32 *)
+    rewrite <- (le_roundtrip_u32 w1).
+    - rewrite <- (le_roundtrip_u32 w2).
+      + (* Now both sides are le_bytes_to_u32 of the same bytes *)
+        rewrite Heq. reflexivity.
+      + (* w2 is a valid word32 *)
+        unfold is_word32. lia.
+    - (* w1 is a valid word32 *)
+      unfold is_word32. lia.
+  Qed.
 
   (** Helper: split concatenated lists at known offset *)
   Lemma app_inv_head : forall {A : Type} (l1 l2 l3 l4 : list A),
