@@ -527,9 +527,9 @@ Axiom encode_preserves_canonical_order :
       In (k2, v2) pairs ->
       key_compare k1 k2 = Lt ->
       (* k1's encoding appears before k2's in the encoded byte sequence *)
-      exists n1 n2 prefix suffix1 mid suffix2,
+      exists (n1 n2 : nat) prefix suffix1 mid suffix2,
         encode (CborMap pairs) = prefix ++ encode k1 ++ suffix1 ++ mid ++ encode k2 ++ suffix2 /\
-        n1 < n2 /\
+        (n1 < n2)%nat /\
         List.length prefix = n1 /\
         List.length (prefix ++ encode k1 ++ suffix1 ++ mid) = n2.
 
