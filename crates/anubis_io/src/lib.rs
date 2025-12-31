@@ -345,13 +345,26 @@ pub mod keystore {
 
         /// Get the default keystore path.
         ///
-        /// On Linux, respects XDG Base Directory Specification:
-        /// - Uses `$XDG_DATA_HOME/anubis` if XDG_DATA_HOME is set
-        /// - Falls back to `~/.local/share/anubis` if XDG_DATA_HOME is unset
+        /// Checks in order:
+        /// 1. `ANUBIS_HOME` environment variable (for CI/CD and custom deployments)
+        /// 2. On Linux: XDG Base Directory Specification (`$XDG_DATA_HOME/anubis`)
+        /// 3. On macOS/Windows: `~/.anubis` (traditional dotfile location)
         ///
-        /// On macOS/Windows:
-        /// - Uses `~/.anubis` (traditional dotfile location)
+        /// # Environment Variable
+        ///
+        /// Set `ANUBIS_HOME` to use a custom keystore location:
+        /// ```bash
+        /// export ANUBIS_HOME=/path/to/keystore
+        /// anubis-notary key init
+        /// ```
         pub fn default_path() -> PathBuf {
+            // Check ANUBIS_HOME first (highest priority)
+            if let Ok(anubis_home) = std::env::var("ANUBIS_HOME") {
+                if !anubis_home.is_empty() {
+                    return PathBuf::from(anubis_home);
+                }
+            }
+
             #[cfg(target_os = "linux")]
             {
                 // XDG Base Directory Specification for Linux
