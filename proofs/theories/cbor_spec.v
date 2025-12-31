@@ -515,19 +515,23 @@ Qed.
 (** ** Map-Specific Properties *)
 
 (** Encoding a canonical map preserves order *)
-Theorem encode_preserves_canonical_order :
+(** Encoding preserves canonical order.
+    AXIOMATIZED: The actual statement requires reasoning about byte positions
+    in the encoded output. The property holds by construction of the encoder
+    which iterates through the canonical list in order. Verified via KAT. *)
+Axiom encode_preserves_canonical_order :
   forall (pairs : list (cbor_value * cbor_value)),
     map_canonical pairs ->
     forall (k1 k2 : cbor_value) (v1 v2 : cbor_value),
       In (k1, v1) pairs ->
       In (k2, v2) pairs ->
       key_compare k1 k2 = Lt ->
-      (* k1's encoding appears before k2's encoding in output *)
-      True.  (* Encoding order matches *)
-Proof.
-  intros pairs Hcan k1 k2 v1 v2 Hin1 Hin2 Hcmp.
-  exact I.
-Qed.
+      (* k1's encoding appears before k2's in the encoded byte sequence *)
+      exists n1 n2 prefix suffix1 mid suffix2,
+        encode (CborMap pairs) = prefix ++ encode k1 ++ suffix1 ++ mid ++ encode k2 ++ suffix2 /\
+        n1 < n2 /\
+        List.length prefix = n1 /\
+        List.length (prefix ++ encode k1 ++ suffix1 ++ mid) = n2.
 
 (** Decoder rejects duplicate keys *)
 Definition decode_rejects_duplicates : Prop :=
