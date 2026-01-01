@@ -458,6 +458,10 @@ impl<'a> Decoder<'a> {
             0 | 1 => Ok(()),
             // Byte/text strings: skip the content bytes
             2 | 3 => {
+                // Check if arg can fit in usize
+                if arg > usize::MAX as u64 {
+                    return Err(CborError::Overflow);
+                }
                 self.read_bytes(arg as usize)?;
                 Ok(())
             }
