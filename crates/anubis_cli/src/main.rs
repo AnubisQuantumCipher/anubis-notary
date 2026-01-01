@@ -2179,11 +2179,12 @@ fn handle_mina(action: &MinaCommands, json: bool) -> Result<(), Box<dyn std::err
                 .spawn()
                 .map_err(|e| format!("Failed to spawn bridge: {}", e))?;
 
-            // Wait for bridge to initialize (o1js needs time to load WASM and compile)
+            // Wait for bridge to initialize (o1js needs time to load WASM)
+            // Compilation is cached after first run, so subsequent anchors are faster
             if !json {
-                println!("  Initializing zkApp circuit (this may take 30-60 seconds)...");
+                println!("  Loading zkApp circuit (first run compiles, ~30-60s; cached runs ~5s)...");
             }
-            thread::sleep(Duration::from_millis(3000));
+            thread::sleep(Duration::from_millis(2000));
 
             // Send anchor command
             let wait_flag = if *wait { "true" } else { "false" };

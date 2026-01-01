@@ -27,9 +27,17 @@
  * - MINA_FEE: Transaction fee in nanomina
  */
 
-import { Mina, PrivateKey, PublicKey, Field, fetchAccount, AccountUpdate } from 'o1js';
+import { Mina, PrivateKey, PublicKey, Field, fetchAccount, AccountUpdate, Cache } from 'o1js';
 import { AnubisAnchor, hexToField } from './build/index.js';
 import * as readline from 'readline';
+import * as fs from 'fs';
+import * as path from 'path';
+import { fileURLToPath } from 'url';
+
+// Get directory for cache storage
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+const CACHE_DIR = path.join(__dirname, '.cache');
 
 // Network configuration
 const NETWORKS = {
@@ -125,16 +133,45 @@ async function initialize() {
 
 /**
  * Compile the zkApp contract (required before creating proofs).
+ * Uses filesystem cache to avoid recompilation on subsequent runs.
  */
 async function compileContract() {
   if (isCompiled) return;
 
   try {
-    logDebug('Compiling AnubisAnchor contract...');
-    const result = await AnubisAnchor.compile();
+    // Ensure cache directory exists
+    if (!fs.existsSync(CACHE_DIR)) {
+      fs.mkdirSync(CACHE_DIR, { recursive: true });
+      logDebug(`Created cache directory: ${CACHE_DIR}`);
+    }
+
+    // Check if we have a cached verification key
+    const vkCachePath = path.join(CACHE_DIR, 'verification-key.json');
+    const hasCachedVK = fs.existsSync(vkCachePath);
+
+    if (hasCachedVK) {
+      logDebug('Found cached compilation, loading...');
+    } else {
+      logDebug('No cache found, compiling AnubisAnchor contract (this may take 30-60 seconds)...');
+    }
+
+    // Use o1js Cache for circuit compilation
+    const cache = Cache.FileSystem(CACHE_DIR);
+    const result = await AnubisAnchor.compile({ cache });
     verificationKey = result.verificationKey;
+
+    // Cache the verification key separately for quick checks
+    if (!hasCachedVK) {
+      fs.writeFileSync(vkCachePath, JSON.stringify({
+        hash: verificationKey.hash.toString(),
+        data: verificationKey.data,
+        cachedAt: new Date().toISOString(),
+      }, null, 2));
+      logDebug('Cached verification key for future runs');
+    }
+
     isCompiled = true;
-    logDebug('Contract compiled successfully');
+    logDebug('Contract ready');
   } catch (error) {
     throw new Error(`Failed to compile contract: ${error.message}`);
   }
