@@ -1,83 +1,69 @@
-## Rust build artifacts
-target/
+
+_build/
+_opam/
+._*
+.*.aux
+.#*
+.coqdeps.d
+.dev-notes/
+.DS_Store
+.filesystem-clock
+.idea/
+.lia.cache
+.lock
+.merlin
+.vscode/
+*_build/
+*.aux
+*.bak
+*.cache
+*.d
+*.d.anubis_proofs.theory.d
+*.dylib
+*.glob
+*.log
+*.orig
+*.private.md
+*.profdata
+*.profraw
 *.rlib
 *.rmeta
-*.d
 *.so
-*.dylib
-# Cargo.lock - keeping for reproducible builds
-
-## Coq/Rocq build outputs
-_build/
-**/_build/
+*.swo
+*.swp
+*.temp
+*.tmp
+*.tsbuildinfo
+*.vio
 *.vo
 *.vok
 *.vos
-*.vio
-*.glob
-*.aux
-.*.aux
-*.cache
-.lia.cache
-**/.lia.cache
-.coqdeps.d
+**/_build/
 **/.coqdeps.d
-.filesystem-clock
-.lock
-*.d.anubis_proofs.theory.d
 **/.dune/
-
-## Dune build
-_opam/
-.merlin
-
-## IDE files
-.vscode/
-.idea/
-*.swp
-*.swo
+**/.lia.cache
 *~
-.#*
-\#*\#
-
-## OS files
-.DS_Store
-Thumbs.db
-._*
-
-## Private configuration
-*.private.md
-CLAUDE.md
-.dev-notes/
-
-## Logs
-*.log
-
-## Test artifacts
-*.profraw
-*.profdata
-
-## Temporary files
-*.tmp
-*.temp
 /tmp/
-
+\#*\#
+# Cargo.lock - keeping for reproducible builds
+## Coq/Rocq build outputs
+## Dune build
 ## Editor backup files
-*.bak
-*.orig
-crates.zip
-*_build/
-*.glob
-*.vo
-*.aux
-
+## IDE files
+## Logs
 ## Node.js (mina-bridge)
-node_modules/
-*.tsbuildinfo
-mina-bridge/build/
-
+## OS files
+## Private configuration
 ## Release binaries (uploaded separately)
-releases/
-
+## Rust build artifacts
+## Temporary files
+## Test artifacts
 ## Test deployment files
+CLAUDE.md
+crates.zip
+mina-bridge/build/
 mina-bridge/test-*.js
+node_modules/
+releases/
+target/
+Thumbs.db
