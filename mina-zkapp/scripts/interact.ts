@@ -3,7 +3,7 @@
  *
  * Usage:
  *   MINA_PRIVATE_KEY=<key> npm run interact -- --action anchor --root <hex>
- *   MINA_PRIVATE_KEY=<key> npm run interact -- --action verify --root <hex>
+ *   npm run interact -- --action verify --root <hex>
  *   npm run interact -- --action status
  *
  * Environment:
@@ -21,18 +21,18 @@ import {
 import { AnubisAnchor, hexToField } from '../src/index.js';
 
 // Network configurations
-const NETWORKS = {
+const NETWORKS: Record<string, { mina: string; networkId: 'mainnet' | 'testnet' }> = {
   mainnet: {
-    mina: 'https://graphql.minaexplorer.com',
-    archive: 'https://archive.minaexplorer.com',
+    mina: 'https://api.minascan.io/node/mainnet/v1/graphql',
+    networkId: 'mainnet',
   },
   devnet: {
-    mina: 'https://devnet.minaexplorer.com/graphql',
-    archive: 'https://devnet-archive.minaexplorer.com',
+    mina: 'https://api.minascan.io/node/devnet/v1/graphql',
+    networkId: 'testnet',
   },
   local: {
     mina: 'http://localhost:8080/graphql',
-    archive: 'http://localhost:8081',
+    networkId: 'testnet',
   },
 };
 
@@ -61,7 +61,7 @@ function parseArgs() {
 async function main() {
   const args = parseArgs();
   const action = args.action || 'status';
-  const networkName = args.network || process.env.MINA_NETWORK || 'devnet';
+  const networkName = args.network || process.env.MINA_NETWORK || 'mainnet';
   const zkAppAddressStr = args.address || process.env.MINA_ZKAPP_ADDRESS;
 
   if (!zkAppAddressStr) {
@@ -69,7 +69,7 @@ async function main() {
     process.exit(1);
   }
 
-  const network = NETWORKS[networkName as keyof typeof NETWORKS];
+  const network = NETWORKS[networkName];
   if (!network) {
     console.error(`Unknown network: ${networkName}`);
     process.exit(1);
@@ -81,7 +81,7 @@ async function main() {
   // Setup network
   const Network = Mina.Network({
     mina: network.mina,
-    archive: network.archive,
+    networkId: network.networkId,
   });
   Mina.setActiveInstance(Network);
 
@@ -103,17 +103,13 @@ async function main() {
     case 'status': {
       const merkleRoot = zkApp.merkleRoot.get();
       const anchorCount = zkApp.anchorCount.get();
-      const lastAnchorTime = zkApp.lastAnchorTime.get();
-      const protocolVersion = zkApp.protocolVersion.get();
 
       console.log('\n========================================');
       console.log('ZKAPP STATUS');
       console.log('========================================');
       console.log(`Address: ${zkAppAddressStr}`);
-      console.log(`Protocol Version: ${protocolVersion.toString()}`);
       console.log(`Anchor Count: ${anchorCount.toString()}`);
       console.log(`Current Root: ${merkleRoot.toString()}`);
-      console.log(`Last Anchor Time: ${lastAnchorTime.toString()}`);
       console.log('========================================');
       break;
     }
@@ -157,16 +153,20 @@ async function main() {
       console.log('Sending transaction...');
       const pendingTx = await tx.send();
 
-      if (!pendingTx.isSuccess) {
-        console.error('Transaction failed!');
+      if (pendingTx.status !== 'pending') {
+        console.error('Transaction failed to send!');
         process.exit(1);
       }
 
       console.log(`Transaction: ${pendingTx.hash}`);
       console.log('Waiting for inclusion...');
 
-      const includedTx = await pendingTx.wait();
-      console.log(`\nAnchored in block: ${includedTx.blockHeight}`);
+      try {
+        await pendingTx.wait();
+        console.log('Transaction included!');
+      } catch (e) {
+        console.log('Wait timed out, but transaction may still be included.');
+      }
       break;
     }
 

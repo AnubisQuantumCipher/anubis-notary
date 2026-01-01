@@ -7,8 +7,5 @@
 
 export {
   AnubisAnchor,
-  AnchorEvent,
-  AnchorHistoryEntry,
-  sha3ToField,
   hexToField,
 } from './AnubisAnchor.js';
