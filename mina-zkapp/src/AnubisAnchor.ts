@@ -20,20 +20,19 @@ import {
  */
 export class AnubisAnchor extends SmartContract {
   @state(Field) merkleRoot = State<Field>();
-  @state(Field) anchorCount = State<Field>();
 
   init() {
     super.init();
+    this.merkleRoot.set(Field(0));
     this.account.permissions.set({
       ...Permissions.default(),
       editState: Permissions.proofOrSignature(),
     });
   }
 
-  @method async anchorRoot(root: Field) {
-    const count = this.anchorCount.getAndRequireEquals();
+  @method
+  async anchorRoot(root: Field) {
     this.merkleRoot.set(root);
-    this.anchorCount.set(count.add(1));
   }
 }
 

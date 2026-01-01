@@ -13,8 +13,12 @@ import {
   PrivateKey,
   AccountUpdate,
   fetchAccount,
+  Field,
 } from 'o1js';
 import { AnubisAnchor } from '../src/index.js';
+
+// Workaround for o1js State binding during compilation
+// See: https://github.com/o1-labs/o1js/issues/1677
 
 // Network configurations
 const NETWORKS: Record<string, { mina: string; networkId: 'mainnet' | 'testnet' }> = {
@@ -74,8 +78,15 @@ async function main() {
   console.log(`zkApp Address: ${zkAppAddress.toBase58()}`);
   console.log(`zkApp Private Key: ${zkAppKey.toBase58()}`);
 
+  // Create zkApp instance BEFORE compiling (required for State binding)
+  const zkApp = new AnubisAnchor(zkAppAddress);
+
+  // Analyze methods first for better error messages
+  console.log('\nAnalyzing methods...');
+  await AnubisAnchor.analyzeMethods();
+
   // Compile contract
-  console.log('\nCompiling AnubisAnchor...');
+  console.log('Compiling AnubisAnchor...');
   const startCompile = Date.now();
   const { verificationKey } = await AnubisAnchor.compile();
   console.log(`Compiled in ${(Date.now() - startCompile) / 1000}s`);
@@ -83,9 +94,6 @@ async function main() {
   // Fetch deployer account
   console.log('\nFetching deployer account...');
   await fetchAccount({ publicKey: deployerAddress });
-
-  // Create zkApp instance
-  const zkApp = new AnubisAnchor(zkAppAddress);
 
   // Deploy
   console.log('\nCreating deploy transaction...');

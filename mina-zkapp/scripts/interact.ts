@@ -102,13 +102,11 @@ async function main() {
   switch (action) {
     case 'status': {
       const merkleRoot = zkApp.merkleRoot.get();
-      const anchorCount = zkApp.anchorCount.get();
 
       console.log('\n========================================');
       console.log('ZKAPP STATUS');
       console.log('========================================');
       console.log(`Address: ${zkAppAddressStr}`);
-      console.log(`Anchor Count: ${anchorCount.toString()}`);
       console.log(`Current Root: ${merkleRoot.toString()}`);
       console.log('========================================');
       break;
