@@ -34,7 +34,7 @@
 use std::collections::HashMap;
 use std::sync::{Arc, Mutex, RwLock};
 
-use zeroize::{Zeroize, ZeroizeOnDrop, Zeroizing};
+use zeroize::{Zeroize, Zeroizing};
 
 /// HSM operation errors.
 #[derive(Debug, Clone, PartialEq, Eq)]
@@ -267,14 +267,27 @@ pub struct SoftwareHsm {
 }
 
 /// A key stored in the software HSM.
-#[derive(Clone, Zeroize, ZeroizeOnDrop)]
+#[derive(Clone)]
 struct SoftwareKey {
-    #[zeroize(skip)]
     key_type: KeyType,
     secret_key: Vec<u8>,
     public_key: Vec<u8>,
-    #[zeroize(skip)]
     attributes: KeyAttributes,
+}
+
+impl Zeroize for SoftwareKey {
+    fn zeroize(&mut self) {
+        // Only zeroize sensitive cryptographic material
+        self.secret_key.zeroize();
+        self.public_key.zeroize();
+        // key_type and attributes are not sensitive metadata
+    }
+}
+
+impl Drop for SoftwareKey {
+    fn drop(&mut self) {
+        self.zeroize();
+    }
 }
 
 impl SoftwareHsm {
