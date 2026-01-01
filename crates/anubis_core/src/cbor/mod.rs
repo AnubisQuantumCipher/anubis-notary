@@ -57,6 +57,11 @@ use core::fmt;
 /// This prevents stack overflow from maliciously crafted deeply-nested CBOR.
 pub const MAX_NESTING_DEPTH: usize = 128;
 
+/// Maximum length for CBOR arrays and maps.
+/// This prevents DoS attacks from extreme length values (e.g., u64::MAX).
+/// Set to 1MB worth of elements (assuming ~8 bytes per element).
+pub const MAX_COLLECTION_LENGTH: u64 = 128 * 1024;
+
 /// CBOR error types.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum CborError {
@@ -363,6 +368,10 @@ impl<'a> Decoder<'a> {
         if major != 2 {
             return Err(CborError::TypeMismatch);
         }
+        // Check if len can fit in usize and doesn't exceed buffer
+        if len > usize::MAX as u64 {
+            return Err(CborError::Overflow);
+        }
         self.read_bytes(len as usize)
     }
 
@@ -371,6 +380,10 @@ impl<'a> Decoder<'a> {
         let (major, len) = self.decode_type_arg()?;
         if major != 3 {
             return Err(CborError::TypeMismatch);
+        }
+        // Check if len can fit in usize and doesn't exceed buffer
+        if len > usize::MAX as u64 {
+            return Err(CborError::Overflow);
         }
         let bytes = self.read_bytes(len as usize)?;
         core::str::from_utf8(bytes).map_err(|_| CborError::InvalidUtf8)
@@ -382,6 +395,9 @@ impl<'a> Decoder<'a> {
         if major != 4 {
             return Err(CborError::TypeMismatch);
         }
+        if len > MAX_COLLECTION_LENGTH {
+            return Err(CborError::Overflow);
+        }
         Ok(len as usize)
     }
 
@@ -390,6 +406,9 @@ impl<'a> Decoder<'a> {
         let (major, len) = self.decode_type_arg()?;
         if major != 5 {
             return Err(CborError::TypeMismatch);
+        }
+        if len > MAX_COLLECTION_LENGTH {
+            return Err(CborError::Overflow);
         }
         Ok(len as usize)
     }
@@ -444,6 +463,9 @@ impl<'a> Decoder<'a> {
             }
             // Array: skip each element (increase depth)
             4 => {
+                if arg > MAX_COLLECTION_LENGTH {
+                    return Err(CborError::Overflow);
+                }
                 for _ in 0..arg {
                     self.skip_value_depth(depth + 1)?;
                 }
@@ -451,6 +473,9 @@ impl<'a> Decoder<'a> {
             }
             // Map: skip each key-value pair (increase depth)
             5 => {
+                if arg > MAX_COLLECTION_LENGTH {
+                    return Err(CborError::Overflow);
+                }
                 for _ in 0..arg {
                     self.skip_value_depth(depth + 1)?;
                     self.skip_value_depth(depth + 1)?;
