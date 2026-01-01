@@ -25,19 +25,13 @@
  * - MINA_ZKAPP_ADDRESS: zkApp contract address
  * - MINA_PRIVATE_KEY: Wallet private key for signing
  * - MINA_FEE: Transaction fee in nanomina
+ * - MINA_FORCE_RECOMPILE: Set to "1" to bypass compilation cache
+ * - MINA_DEBUG: Set to "1" to enable debug logging
  */
 
-import { Mina, PrivateKey, PublicKey, Field, fetchAccount, AccountUpdate, Cache } from 'o1js';
+import { Mina, PrivateKey, PublicKey, Field, fetchAccount, AccountUpdate } from 'o1js';
 import { AnubisAnchor, hexToField } from './build/index.js';
 import * as readline from 'readline';
-import * as fs from 'fs';
-import * as path from 'path';
-import { fileURLToPath } from 'url';
-
-// Get directory for cache storage
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
-const CACHE_DIR = path.join(__dirname, '.cache');
 
 // Network configuration
 const NETWORKS = {
@@ -133,42 +127,25 @@ async function initialize() {
 
 /**
  * Compile the zkApp contract (required before creating proofs).
- * Uses filesystem cache to avoid recompilation on subsequent runs.
+ * Uses o1js default cache (~/.cache/o1js) which shares SRS across all o1js projects.
+ * First compilation takes 40-120s, cached runs take ~1-2s.
  */
 async function compileContract() {
   if (isCompiled) return;
 
   try {
-    // Ensure cache directory exists
-    if (!fs.existsSync(CACHE_DIR)) {
-      fs.mkdirSync(CACHE_DIR, { recursive: true });
-      logDebug(`Created cache directory: ${CACHE_DIR}`);
-    }
+    const forceRecompile = process.env.MINA_FORCE_RECOMPILE === '1';
 
-    // Check if we have a cached verification key
-    const vkCachePath = path.join(CACHE_DIR, 'verification-key.json');
-    const hasCachedVK = fs.existsSync(vkCachePath);
-
-    if (hasCachedVK) {
-      logDebug('Found cached compilation, loading...');
+    if (forceRecompile) {
+      logDebug('Force recompile requested, ignoring cache...');
     } else {
-      logDebug('No cache found, compiling AnubisAnchor contract (this may take 30-60 seconds)...');
+      logDebug('Compiling contract (using system cache in ~/.cache/o1js)...');
     }
 
-    // Use o1js Cache for circuit compilation
-    const cache = Cache.FileSystem(CACHE_DIR);
-    const result = await AnubisAnchor.compile({ cache });
+    // Use default o1js cache - shares SRS across all o1js projects
+    // This dramatically speeds up subsequent runs (40-120s -> 1-2s)
+    const result = await AnubisAnchor.compile({ forceRecompile });
     verificationKey = result.verificationKey;
-
-    // Cache the verification key separately for quick checks
-    if (!hasCachedVK) {
-      fs.writeFileSync(vkCachePath, JSON.stringify({
-        hash: verificationKey.hash.toString(),
-        data: verificationKey.data,
-        cachedAt: new Date().toISOString(),
-      }, null, 2));
-      logDebug('Cached verification key for future runs');
-    }
 
     isCompiled = true;
     logDebug('Contract ready');
