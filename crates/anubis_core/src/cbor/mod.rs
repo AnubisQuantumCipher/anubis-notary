@@ -295,11 +295,13 @@ impl<'a> Decoder<'a> {
     }
 
     fn read_bytes(&mut self, n: usize) -> Result<&'a [u8], CborError> {
-        if self.pos + n > self.buffer.len() {
+        // Use checked arithmetic to prevent integer overflow
+        let end = self.pos.checked_add(n).ok_or(CborError::Overflow)?;
+        if end > self.buffer.len() {
             return Err(CborError::UnexpectedEnd);
         }
-        let slice = &self.buffer[self.pos..self.pos + n];
-        self.pos += n;
+        let slice = &self.buffer[self.pos..end];
+        self.pos = end;
         Ok(slice)
     }
 
