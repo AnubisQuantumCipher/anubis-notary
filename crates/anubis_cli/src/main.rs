@@ -2106,52 +2106,197 @@ fn handle_mina(action: &MinaCommands, json: bool) -> Result<(), Box<dyn std::err
                 }
             }
         }
-        MinaCommands::Anchor { receipt, wait: _ } => {
+        MinaCommands::Anchor { receipt, wait } => {
+            use std::process::{Command, Stdio};
+            use std::io::{BufRead, BufReader, Write as IoWrite};
+            use std::thread;
+            use std::time::Duration;
+
             // Load receipt
             let receipt_data = read_file(receipt)?;
             let parsed = Receipt::decode(&receipt_data)
                 .map_err(|e| format!("Invalid receipt: {:?}", e))?;
 
+            let digest_hex = hex::encode(parsed.digest);
+
+            // Check for bridge - try keystore path first, then home dir
+            let bridge_path = {
+                let ks_bridge = ks.path().join("mina-bridge");
+                if ks_bridge.join("mina-bridge.js").exists() {
+                    ks_bridge
+                } else {
+                    dirs::home_dir()
+                        .unwrap_or_else(|| PathBuf::from("."))
+                        .join(".anubis")
+                        .join("mina-bridge")
+                }
+            };
+            let bridge_script = bridge_path.join("mina-bridge.js");
+
+            if !bridge_script.exists() {
+                if json {
+                    let output: JsonOutput<()> = JsonOutput::error("Mina bridge not installed. Run 'anchor mina setup' first.");
+                    println!("{}", serde_json::to_string_pretty(&output)?);
+                } else {
+                    println!("Mina Anchor:");
+                    println!("  Status: Bridge not installed");
+                    println!();
+                    println!("Run 'anchor mina setup' to install the Mina bridge.");
+                }
+                return Ok(());
+            }
+
             // Load Mina configuration or use defaults
-            let config_path = ks.path().join("mina.json");
+            let config_path = ks.path().join("mina-config.json");
             let zkapp_address = if config_path.exists() {
                 let config_data = std::fs::read_to_string(&config_path)?;
                 let config: serde_json::Value = serde_json::from_str(&config_data)?;
                 config
-                    .get("zkapp_address")
+                    .get("zkappAddress")
                     .and_then(|v| v.as_str())
                     .unwrap_or(anubis_io::mina::MAINNET_ZKAPP_ADDRESS)
                     .to_string()
             } else {
-                // Use official mainnet zkApp by default
                 anubis_io::mina::MAINNET_ZKAPP_ADDRESS.to_string()
             };
 
-            // For now, just show what would be anchored
-            // Full implementation would use MinaClient to submit
-            if json {
-                #[derive(Serialize)]
-                struct MinaAnchorResult {
-                    digest: String,
-                    zkapp_address: String,
-                    status: String,
-                    message: String,
-                }
-                let output = JsonOutput::success(MinaAnchorResult {
-                    digest: hex::encode(parsed.digest),
-                    zkapp_address: zkapp_address.to_string(),
-                    status: "pending".to_string(),
-                    message: "Mina bridge not connected. Run 'anchor mina setup' to install.".to_string(),
-                });
-                println!("{}", serde_json::to_string_pretty(&output)?);
-            } else {
-                println!("Mina Anchor (pending setup):");
+            if !json {
+                println!("Mina Anchor:");
                 println!("  Receipt: {}", receipt.display());
-                println!("  Digest: {}", hex::encode(parsed.digest));
+                println!("  Digest: {}", digest_hex);
                 println!("  zkApp: {}", zkapp_address);
                 println!();
-                println!("Note: Run 'anchor mina setup' to install the Mina bridge,");
-                println!("      then retry this command.");
+                println!("Submitting to Mina blockchain...");
+            }
+
+            // Spawn bridge process
+            let mut child = Command::new("node")
+                .arg(&bridge_script)
+                .current_dir(&bridge_path)
+                .stdin(Stdio::piped())
+                .stdout(Stdio::piped())
+                .stderr(Stdio::piped())
+                .spawn()
+                .map_err(|e| format!("Failed to spawn bridge: {}", e))?;
+
+            // Wait for bridge to initialize (o1js needs time to load WASM and compile)
+            if !json {
+                println!("  Initializing zkApp circuit (this may take 30-60 seconds)...");
+            }
+            thread::sleep(Duration::from_millis(3000));
+
+            // Send anchor command
+            let wait_flag = if *wait { "true" } else { "false" };
+            let cmd = format!(r#"{{"cmd":"anchor","root":"{}","wait":{}}}"#, digest_hex, wait_flag);
+            {
+                let stdin = child.stdin.as_mut()
+                    .ok_or("Failed to get stdin")?;
+                writeln!(stdin, "{}", cmd)
+                    .map_err(|e| format!("Failed to send command: {}", e))?;
+                stdin.flush().map_err(|e| format!("Failed to flush: {}", e))?;
+            }
+
+            // Read response with timeout (anchor can take a while due to proof generation)
+            let stdout = child.stdout.take()
+                .ok_or("Failed to get stdout")?;
+            let mut reader = BufReader::new(stdout);
+            let mut response = String::new();
+
+            // Give it up to 2 minutes for proof generation and tx submission
+            let start = std::time::Instant::now();
+            loop {
+                if start.elapsed() > Duration::from_secs(120) {
+                    let _ = child.kill();
+                    return Err("Anchor timed out after 120 seconds".into());
+                }
+                match reader.read_line(&mut response) {
+                    Ok(0) => {
+                        // EOF - process exited, check stderr
+                        let stderr = child.stderr.take();
+                        let mut err_msg = String::new();
+                        if let Some(mut stderr) = stderr {
+                            use std::io::Read;
+                            let _ = stderr.read_to_string(&mut err_msg);
+                        }
+                        if !err_msg.is_empty() && err_msg.contains("error") {
+                            return Err(format!("Bridge error: {}", err_msg).into());
+                        }
+                        break;
+                    }
+                    Ok(_) => {
+                        if response.contains(r#""ok":"#) {
+                            break;
+                        }
+                    }
+                    Err(e) => {
+                        let _ = child.kill();
+                        return Err(format!("Failed to read response: {}", e).into());
+                    }
+                }
+                thread::sleep(Duration::from_millis(100));
+            }
+
+            // Kill the bridge process
+            let _ = child.kill();
+
+            // Parse response
+            if response.contains(r#""ok":true"#) {
+                // Bridge returns "tx" for anchor, "txHash" for deploy
+                let tx_hash: String = response.split(r#""tx":""#)
+                    .nth(1)
+                    .and_then(|s| s.split('"').next())
+                    .or_else(|| {
+                        response.split(r#""txHash":""#)
+                            .nth(1)
+                            .and_then(|s| s.split('"').next())
+                    })
+                    .unwrap_or("unknown")
+                    .to_string();
+
+                // Build explorer URL from tx hash
+                let explorer_url = if tx_hash != "unknown" {
+                    format!("https://minascan.io/mainnet/tx/{}", tx_hash)
+                } else {
+                    String::new()
+                };
+
+                if json {
+                    #[derive(Serialize)]
+                    struct MinaAnchorResult {
+                        success: bool,
+                        digest: String,
+                        zkapp_address: String,
+                        tx_hash: String,
+                        explorer_url: String,
+                    }
+                    let output = JsonOutput::success(MinaAnchorResult {
+                        success: true,
+                        digest: digest_hex,
+                        zkapp_address,
+                        tx_hash,
+                        explorer_url,
+                    });
+                    println!("{}", serde_json::to_string_pretty(&output)?);
+                } else {
+                    println!();
+                    println!("Anchor submitted successfully!");
+                    println!("  Transaction: {}", tx_hash);
+                    if !explorer_url.is_empty() {
+                        println!("  Explorer: {}", explorer_url);
+                    }
+                }
+            } else {
+                let err = response.split(r#""error":""#)
+                    .nth(1)
+                    .and_then(|s| s.split('"').next())
+                    .unwrap_or("Unknown error");
+                if json {
+                    let output: JsonOutput<()> = JsonOutput::error(&format!("Anchor failed: {}", err));
+                    println!("{}", serde_json::to_string_pretty(&output)?);
+                } else {
+                    println!();
+                    println!("Anchor failed: {}", err);
+                }
             }
         }
         MinaCommands::Verify { receipt } => {
