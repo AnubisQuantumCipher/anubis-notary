@@ -635,8 +635,12 @@ pub struct Pkcs11Hsm {
 
 /// Inner state for PKCS#11 HSM (contains non-Sync types).
 struct Pkcs11HsmInner {
+    /// PKCS#11 context - must be kept alive for the session to work.
+    #[allow(dead_code)]
     ctx: Option<Pkcs11>,
     session: Option<Session>,
+    /// Slot used for this session - stored for potential reconnection.
+    #[allow(dead_code)]
     slot: Option<Slot>,
 }
 
