@@ -182,20 +182,10 @@ impl ChaCha20Poly1305 {
     }
 
     /// Type-safe encryption with fixed-size nonce.
-    pub fn seal_fixed(
-        &self,
-        nonce: &[u8; NONCE_SIZE],
-        ad: &[u8],
-        plaintext: &[u8],
-    ) -> Vec<u8> {
+    pub fn seal_fixed(&self, nonce: &[u8; NONCE_SIZE], ad: &[u8], plaintext: &[u8]) -> Vec<u8> {
         let mut result = vec![0u8; plaintext.len() + TAG_SIZE];
-        libcrux_chacha20poly1305::encrypt(
-            &self.key,
-            plaintext,
-            &mut result,
-            ad,
-            nonce,
-        ).expect("encryption should not fail with valid inputs");
+        libcrux_chacha20poly1305::encrypt(&self.key, plaintext, &mut result, ad, nonce)
+            .expect("encryption should not fail with valid inputs");
         result
     }
 
@@ -281,13 +271,7 @@ impl ChaCha20Poly1305 {
         let pt_len = ciphertext.len() - TAG_SIZE;
         let mut plaintext = vec![0u8; pt_len];
 
-        match libcrux_chacha20poly1305::decrypt(
-            &self.key,
-            &mut plaintext,
-            ciphertext,
-            ad,
-            nonce,
-        ) {
+        match libcrux_chacha20poly1305::decrypt(&self.key, &mut plaintext, ciphertext, ad, nonce) {
             Ok(_) => Ok(plaintext),
             Err(_) => {
                 plaintext.zeroize();

@@ -99,10 +99,7 @@ mod mldsa_timing {
         let msg_zeros = [0x00u8; 256];
         let msg_ones = [0xFFu8; 256];
 
-        dudect_test(
-            || kp.sign(&msg_zeros),
-            || kp.sign(&msg_ones),
-        )
+        dudect_test(|| kp.sign(&msg_zeros), || kp.sign(&msg_ones))
     }
 
     /// Test ML-DSA signing with different key seeds
@@ -119,10 +116,7 @@ mod mldsa_timing {
 
         let msg = b"constant message for timing test";
 
-        dudect_test(
-            || kp_a.sign(msg),
-            || kp_b.sign(msg),
-        )
+        dudect_test(|| kp_a.sign(msg), || kp_b.sign(msg))
     }
 
     /// Test ML-DSA verification with valid vs invalid signatures
@@ -283,10 +277,7 @@ mod hash_timing {
         let input_zeros = [0x00u8; 256];
         let input_ones = [0xFFu8; 256];
 
-        dudect_test(
-            || sha3_256(&input_zeros),
-            || sha3_256(&input_ones),
-        )
+        dudect_test(|| sha3_256(&input_zeros), || sha3_256(&input_ones))
     }
 
     /// Test SHAKE256 with different input patterns
@@ -314,10 +305,7 @@ mod hash_timing {
         // Dense: all bytes are 0xFF
         let dense = [0xFFu8; 256];
 
-        dudect_test(
-            || sha3_256(&sparse),
-            || sha3_256(&dense),
-        )
+        dudect_test(|| sha3_256(&sparse), || sha3_256(&dense))
     }
 }
 
@@ -405,7 +393,7 @@ mod kdf_timing {
 
 mod ct_timing {
     use super::*;
-    use anubis_core::ct::{ct_eq, ct_lt_u64, ct_lookup, ct_select, ct_select_u64};
+    use anubis_core::ct::{ct_eq, ct_lookup, ct_lt_u64, ct_select, ct_select_u64};
 
     pub fn test_ct_eq() -> f64 {
         let equal_a = [0x42u8; 32];
@@ -413,10 +401,7 @@ mod ct_timing {
         let diff_a = [0x00u8; 32];
         let diff_b = [0xFFu8; 32];
 
-        dudect_test(
-            || ct_eq(&equal_a, &equal_b),
-            || ct_eq(&diff_a, &diff_b),
-        )
+        dudect_test(|| ct_eq(&equal_a, &equal_b), || ct_eq(&diff_a, &diff_b))
     }
 
     pub fn test_ct_select() -> f64 {
@@ -434,19 +419,13 @@ mod ct_timing {
     }
 
     pub fn test_ct_lt_u64() -> f64 {
-        dudect_test(
-            || ct_lt_u64(5, 10),
-            || ct_lt_u64(10, 5),
-        )
+        dudect_test(|| ct_lt_u64(5, 10), || ct_lt_u64(10, 5))
     }
 
     pub fn test_ct_lookup() -> f64 {
         let table: [u64; 16] = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15];
 
-        dudect_test(
-            || ct_lookup(&table, 0),
-            || ct_lookup(&table, 15),
-        )
+        dudect_test(|| ct_lookup(&table, 0), || ct_lookup(&table, 15))
     }
 }
 
@@ -490,7 +469,10 @@ fn mldsa_timing_benchmarks(c: &mut Criterion) {
         b.iter(|| {
             let t = mldsa_timing::test_keygen_seed_pattern();
             // Don't assert - rejection sampling causes expected timing variation
-            println!("  keygen timing t-stat: {:.2} (expected variation due to rejection sampling)", t);
+            println!(
+                "  keygen timing t-stat: {:.2} (expected variation due to rejection sampling)",
+                t
+            );
             black_box(t)
         })
     });
@@ -501,7 +483,10 @@ fn mldsa_timing_benchmarks(c: &mut Criterion) {
             let t = mldsa_timing::test_verify_valid_vs_invalid();
             // We don't assert here because early-exit on invalid sigs is common
             // but we measure and document
-            println!("  verify timing t-stat: {:.2} (expected - early exit on invalid)", t);
+            println!(
+                "  verify timing t-stat: {:.2} (expected - early exit on invalid)",
+                t
+            );
             black_box(t)
         })
     });
@@ -546,7 +531,10 @@ fn aead_timing_benchmarks(c: &mut Criterion) {
             let t = aead_timing::test_decrypt_valid_vs_tampered();
             // Log but don't fail - this is a known library limitation
             if t.abs() >= T_THRESHOLD {
-                println!("  [KNOWN] AEAD decrypt valid/tampered t={:.2} - libcrux early-exit", t);
+                println!(
+                    "  [KNOWN] AEAD decrypt valid/tampered t={:.2} - libcrux early-exit",
+                    t
+                );
             }
             black_box(t)
         })
@@ -557,7 +545,10 @@ fn aead_timing_benchmarks(c: &mut Criterion) {
             let t = aead_timing::test_decrypt_tag_position();
             // Log but don't fail - same issue as above
             if t.abs() >= T_THRESHOLD {
-                println!("  [KNOWN] AEAD tag position t={:.2} - libcrux early-exit", t);
+                println!(
+                    "  [KNOWN] AEAD tag position t={:.2} - libcrux early-exit",
+                    t
+                );
             }
             black_box(t)
         })
@@ -667,7 +658,11 @@ fn ct_primitives_benchmarks(c: &mut Criterion) {
     group.bench_function("ct_select", |b| {
         b.iter(|| {
             let t = ct_timing::test_ct_select();
-            assert!(t.abs() < T_THRESHOLD, "TIMING LEAK in ct_select: t={:.2}", t);
+            assert!(
+                t.abs() < T_THRESHOLD,
+                "TIMING LEAK in ct_select: t={:.2}",
+                t
+            );
             black_box(t)
         })
     });
@@ -675,7 +670,11 @@ fn ct_primitives_benchmarks(c: &mut Criterion) {
     group.bench_function("ct_select_u64", |b| {
         b.iter(|| {
             let t = ct_timing::test_ct_select_u64();
-            assert!(t.abs() < T_THRESHOLD, "TIMING LEAK in ct_select_u64: t={:.2}", t);
+            assert!(
+                t.abs() < T_THRESHOLD,
+                "TIMING LEAK in ct_select_u64: t={:.2}",
+                t
+            );
             black_box(t)
         })
     });
@@ -683,7 +682,11 @@ fn ct_primitives_benchmarks(c: &mut Criterion) {
     group.bench_function("ct_lt_u64", |b| {
         b.iter(|| {
             let t = ct_timing::test_ct_lt_u64();
-            assert!(t.abs() < T_THRESHOLD, "TIMING LEAK in ct_lt_u64: t={:.2}", t);
+            assert!(
+                t.abs() < T_THRESHOLD,
+                "TIMING LEAK in ct_lt_u64: t={:.2}",
+                t
+            );
             black_box(t)
         })
     });
@@ -691,7 +694,11 @@ fn ct_primitives_benchmarks(c: &mut Criterion) {
     group.bench_function("ct_lookup", |b| {
         b.iter(|| {
             let t = ct_timing::test_ct_lookup();
-            assert!(t.abs() < T_THRESHOLD, "TIMING LEAK in ct_lookup: t={:.2}", t);
+            assert!(
+                t.abs() < T_THRESHOLD,
+                "TIMING LEAK in ct_lookup: t={:.2}",
+                t
+            );
             black_box(t)
         })
     });
@@ -710,8 +717,14 @@ pub fn print_full_timing_report() {
     println!("║         COMPREHENSIVE CONSTANT-TIME VERIFICATION REPORT          ║");
     println!("╠══════════════════════════════════════════════════════════════════╣");
     println!("║ Methodology: dudect (Welch's t-test)                             ║");
-    println!("║ Measurements: {} per class                                     ║", MEASUREMENTS);
-    println!("║ Threshold: |t| < {:.1} (99.999% confidence)                       ║", T_THRESHOLD);
+    println!(
+        "║ Measurements: {} per class                                     ║",
+        MEASUREMENTS
+    );
+    println!(
+        "║ Threshold: |t| < {:.1} (99.999% confidence)                       ║",
+        T_THRESHOLD
+    );
     println!("╚══════════════════════════════════════════════════════════════════╝");
     println!();
 
@@ -720,10 +733,19 @@ pub fn print_full_timing_report() {
     println!("│ ML-DSA-87 (FIPS 204) Timing Analysis                            │");
     println!("├─────────────────────────────────────────────────────────────────┤");
     let tests = [
-        ("Sign (message pattern)", mldsa_timing::test_sign_message_pattern()),
+        (
+            "Sign (message pattern)",
+            mldsa_timing::test_sign_message_pattern(),
+        ),
         ("Sign (key pattern)", mldsa_timing::test_sign_key_pattern()),
-        ("KeyGen (seed pattern)", mldsa_timing::test_keygen_seed_pattern()),
-        ("Verify (valid vs invalid)", mldsa_timing::test_verify_valid_vs_invalid()),
+        (
+            "KeyGen (seed pattern)",
+            mldsa_timing::test_keygen_seed_pattern(),
+        ),
+        (
+            "Verify (valid vs invalid)",
+            mldsa_timing::test_verify_valid_vs_invalid(),
+        ),
     ];
     print_test_table(&tests);
 
@@ -732,10 +754,22 @@ pub fn print_full_timing_report() {
     println!("│ ChaCha20-Poly1305 AEAD Timing Analysis                          │");
     println!("├─────────────────────────────────────────────────────────────────┤");
     let tests = [
-        ("Encrypt (plaintext)", aead_timing::test_encrypt_plaintext_pattern()),
-        ("Encrypt (key pattern)", aead_timing::test_encrypt_key_pattern()),
-        ("Decrypt (valid vs tampered)", aead_timing::test_decrypt_valid_vs_tampered()),
-        ("Decrypt (tag position)", aead_timing::test_decrypt_tag_position()),
+        (
+            "Encrypt (plaintext)",
+            aead_timing::test_encrypt_plaintext_pattern(),
+        ),
+        (
+            "Encrypt (key pattern)",
+            aead_timing::test_encrypt_key_pattern(),
+        ),
+        (
+            "Decrypt (valid vs tampered)",
+            aead_timing::test_decrypt_valid_vs_tampered(),
+        ),
+        (
+            "Decrypt (tag position)",
+            aead_timing::test_decrypt_tag_position(),
+        ),
     ];
     print_test_table(&tests);
 
@@ -744,9 +778,18 @@ pub fn print_full_timing_report() {
     println!("│ SHA3/SHAKE Hash Timing Analysis                                 │");
     println!("├─────────────────────────────────────────────────────────────────┤");
     let tests = [
-        ("SHA3-256 (input pattern)", hash_timing::test_sha3_input_pattern()),
-        ("SHAKE256 (input pattern)", hash_timing::test_shake_input_pattern()),
-        ("SHA3-256 (Hamming weight)", hash_timing::test_sha3_hamming_weight()),
+        (
+            "SHA3-256 (input pattern)",
+            hash_timing::test_sha3_input_pattern(),
+        ),
+        (
+            "SHAKE256 (input pattern)",
+            hash_timing::test_shake_input_pattern(),
+        ),
+        (
+            "SHA3-256 (Hamming weight)",
+            hash_timing::test_sha3_hamming_weight(),
+        ),
     ];
     print_test_table_3(&tests);
 
@@ -755,9 +798,18 @@ pub fn print_full_timing_report() {
     println!("│ HKDF-SHAKE256 Key Derivation Timing Analysis                    │");
     println!("├─────────────────────────────────────────────────────────────────┤");
     let tests = [
-        ("HKDF extract (IKM)", kdf_timing::test_hkdf_extract_ikm_pattern()),
-        ("HKDF expand (info)", kdf_timing::test_hkdf_expand_info_pattern()),
-        ("HKDF derive (password)", kdf_timing::test_hkdf_derive_password_pattern()),
+        (
+            "HKDF extract (IKM)",
+            kdf_timing::test_hkdf_extract_ikm_pattern(),
+        ),
+        (
+            "HKDF expand (info)",
+            kdf_timing::test_hkdf_expand_info_pattern(),
+        ),
+        (
+            "HKDF derive (password)",
+            kdf_timing::test_hkdf_derive_password_pattern(),
+        ),
     ];
     print_test_table_3(&tests);
 
@@ -793,7 +845,11 @@ fn print_test_table(tests: &[(&str, f64); 4]) {
     println!("│ {:^30} │ {:^10} │ {:^8} │", "Test", "t-stat", "Status");
     println!("├────────────────────────────────┼────────────┼──────────┤");
     for (name, t) in tests {
-        let status = if t.abs() < T_THRESHOLD { "✓ PASS" } else { "✗ FAIL" };
+        let status = if t.abs() < T_THRESHOLD {
+            "✓ PASS"
+        } else {
+            "✗ FAIL"
+        };
         println!("│ {:<30} │ {:>10.2} │ {:^8} │", name, t, status);
     }
     println!("└────────────────────────────────┴────────────┴──────────┘");
@@ -804,7 +860,11 @@ fn print_test_table_3(tests: &[(&str, f64); 3]) {
     println!("│ {:^30} │ {:^10} │ {:^8} │", "Test", "t-stat", "Status");
     println!("├────────────────────────────────┼────────────┼──────────┤");
     for (name, t) in tests {
-        let status = if t.abs() < T_THRESHOLD { "✓ PASS" } else { "✗ FAIL" };
+        let status = if t.abs() < T_THRESHOLD {
+            "✓ PASS"
+        } else {
+            "✗ FAIL"
+        };
         println!("│ {:<30} │ {:>10.2} │ {:^8} │", name, t, status);
     }
     println!("└────────────────────────────────┴────────────┴──────────┘");
@@ -815,7 +875,11 @@ fn print_test_table_5(tests: &[(&str, f64); 5]) {
     println!("│ {:^30} │ {:^10} │ {:^8} │", "Test", "t-stat", "Status");
     println!("├────────────────────────────────┼────────────┼──────────┤");
     for (name, t) in tests {
-        let status = if t.abs() < T_THRESHOLD { "✓ PASS" } else { "✗ FAIL" };
+        let status = if t.abs() < T_THRESHOLD {
+            "✓ PASS"
+        } else {
+            "✗ FAIL"
+        };
         println!("│ {:<30} │ {:>10.2} │ {:^8} │", name, t, status);
     }
     println!("└────────────────────────────────┴────────────┴──────────┘");

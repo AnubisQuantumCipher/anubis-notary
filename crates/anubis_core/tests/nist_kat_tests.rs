@@ -11,8 +11,14 @@
 //! - FIPS 203: Module-Lattice-Based Key-Encapsulation Mechanism Standard
 //! - FIPS 204: Module-Lattice-Based Digital Signature Standard
 
-use anubis_core::mlkem::{MlKemKeyPair, MlKemPublicKey, MlKemSecretKey, CIPHERTEXT_SIZE, PUBLIC_KEY_SIZE, SECRET_KEY_SIZE, SHARED_SECRET_SIZE};
-use anubis_core::mldsa::{KeyPair as MlDsaKeyPair, PUBLIC_KEY_SIZE as MLDSA_PK_SIZE, SECRET_KEY_SIZE as MLDSA_SK_SIZE, SIGNATURE_SIZE as MLDSA_SIG_SIZE};
+use anubis_core::mldsa::{
+    KeyPair as MlDsaKeyPair, PUBLIC_KEY_SIZE as MLDSA_PK_SIZE, SECRET_KEY_SIZE as MLDSA_SK_SIZE,
+    SIGNATURE_SIZE as MLDSA_SIG_SIZE,
+};
+use anubis_core::mlkem::{
+    MlKemKeyPair, MlKemPublicKey, MlKemSecretKey, CIPHERTEXT_SIZE, PUBLIC_KEY_SIZE,
+    SECRET_KEY_SIZE, SHARED_SECRET_SIZE,
+};
 
 /// Decode hex string to bytes
 fn hex_decode(s: &str) -> Vec<u8> {
@@ -46,7 +52,11 @@ fn test_mlkem_1024_decapsulation_kat() {
 
     assert_eq!(sk_bytes.len(), SECRET_KEY_SIZE, "Secret key size mismatch");
     assert_eq!(ct_bytes.len(), CIPHERTEXT_SIZE, "Ciphertext size mismatch");
-    assert_eq!(expected_ss.len(), SHARED_SECRET_SIZE, "Shared secret size mismatch");
+    assert_eq!(
+        expected_ss.len(),
+        SHARED_SECRET_SIZE,
+        "Shared secret size mismatch"
+    );
 
     // Create secret key from bytes
     let sk = MlKemSecretKey::from_bytes(&sk_bytes).expect("Failed to parse secret key");
@@ -62,10 +72,22 @@ fn test_mlkem_1024_decapsulation_kat() {
 #[test]
 fn test_mlkem_1024_key_sizes_kat() {
     // Verify our size constants match FIPS 203 ML-KEM-1024
-    assert_eq!(PUBLIC_KEY_SIZE, 1568, "ML-KEM-1024 public key should be 1568 bytes");
-    assert_eq!(SECRET_KEY_SIZE, 3168, "ML-KEM-1024 secret key should be 3168 bytes");
-    assert_eq!(CIPHERTEXT_SIZE, 1568, "ML-KEM-1024 ciphertext should be 1568 bytes");
-    assert_eq!(SHARED_SECRET_SIZE, 32, "ML-KEM-1024 shared secret should be 32 bytes");
+    assert_eq!(
+        PUBLIC_KEY_SIZE, 1568,
+        "ML-KEM-1024 public key should be 1568 bytes"
+    );
+    assert_eq!(
+        SECRET_KEY_SIZE, 3168,
+        "ML-KEM-1024 secret key should be 3168 bytes"
+    );
+    assert_eq!(
+        CIPHERTEXT_SIZE, 1568,
+        "ML-KEM-1024 ciphertext should be 1568 bytes"
+    );
+    assert_eq!(
+        SHARED_SECRET_SIZE, 32,
+        "ML-KEM-1024 shared secret should be 32 bytes"
+    );
 }
 
 // ============================================================================
@@ -76,9 +98,18 @@ fn test_mlkem_1024_key_sizes_kat() {
 #[test]
 fn test_mldsa_87_key_sizes_kat() {
     // Verify our size constants match FIPS 204 ML-DSA-87
-    assert_eq!(MLDSA_PK_SIZE, 2592, "ML-DSA-87 public key should be 2592 bytes");
-    assert_eq!(MLDSA_SK_SIZE, 4896, "ML-DSA-87 secret key should be 4896 bytes");
-    assert_eq!(MLDSA_SIG_SIZE, 4627, "ML-DSA-87 signature should be 4627 bytes");
+    assert_eq!(
+        MLDSA_PK_SIZE, 2592,
+        "ML-DSA-87 public key should be 2592 bytes"
+    );
+    assert_eq!(
+        MLDSA_SK_SIZE, 4896,
+        "ML-DSA-87 secret key should be 4896 bytes"
+    );
+    assert_eq!(
+        MLDSA_SIG_SIZE, 4627,
+        "ML-DSA-87 signature should be 4627 bytes"
+    );
 }
 
 /// Test ML-DSA-87 key generation against NIST ACVP test vector seed
@@ -99,8 +130,16 @@ fn test_mldsa_87_nist_seed_keygen() {
     let kp = MlDsaKeyPair::from_seed(&seed_bytes).expect("Key generation failed");
 
     // Verify key sizes match FIPS 204 ML-DSA-87
-    assert_eq!(kp.public_key().to_bytes().len(), MLDSA_PK_SIZE, "Public key size mismatch");
-    assert_eq!(kp.secret_key().to_bytes().len(), MLDSA_SK_SIZE, "Secret key size mismatch");
+    assert_eq!(
+        kp.public_key().to_bytes().len(),
+        MLDSA_PK_SIZE,
+        "Public key size mismatch"
+    );
+    assert_eq!(
+        kp.secret_key().to_bytes().len(),
+        MLDSA_SK_SIZE,
+        "Secret key size mismatch"
+    );
 
     // Verify deterministic generation
     let kp2 = MlDsaKeyPair::from_seed(&seed_bytes).expect("Second key generation failed");
@@ -114,11 +153,21 @@ fn test_mldsa_87_nist_seed_keygen() {
     let test_message = b"NIST FIPS 204 ML-DSA-87 Known Answer Test";
     let signature = kp.sign(test_message).expect("Signing failed");
 
-    assert_eq!(signature.to_bytes().len(), MLDSA_SIG_SIZE, "Signature size mismatch");
-    assert!(kp.public_key().verify(test_message, &signature), "Signature verification failed");
+    assert_eq!(
+        signature.to_bytes().len(),
+        MLDSA_SIG_SIZE,
+        "Signature size mismatch"
+    );
+    assert!(
+        kp.public_key().verify(test_message, &signature),
+        "Signature verification failed"
+    );
 
     // Verify wrong message fails
-    assert!(!kp.public_key().verify(b"wrong message", &signature), "Wrong message should fail verification");
+    assert!(
+        !kp.public_key().verify(b"wrong message", &signature),
+        "Wrong message should fail verification"
+    );
 }
 
 /// Test ML-DSA-87 sign/verify roundtrip with deterministic key
@@ -132,11 +181,17 @@ fn test_mldsa_87_sign_verify_roundtrip() {
     let signature = kp.sign(message).expect("Signing failed");
 
     // Verify signature
-    assert!(kp.public_key().verify(message, &signature), "Signature verification failed");
+    assert!(
+        kp.public_key().verify(message, &signature),
+        "Signature verification failed"
+    );
 
     // Verify wrong message fails
     let wrong_message = b"Wrong message";
-    assert!(!kp.public_key().verify(wrong_message, &signature), "Wrong message should fail");
+    assert!(
+        !kp.public_key().verify(wrong_message, &signature),
+        "Wrong message should fail"
+    );
 }
 
 /// Test ML-DSA-87 deterministic key generation
@@ -198,6 +253,10 @@ fn test_mldsa_sign_verify_multiple() {
         let message = format!("Test message {}", i);
         let sig = kp.sign(message.as_bytes()).expect("Signing failed");
 
-        assert!(kp.public_key().verify(message.as_bytes(), &sig), "Round {} verification failed", i);
+        assert!(
+            kp.public_key().verify(message.as_bytes(), &sig),
+            "Round {} verification failed",
+            i
+        );
     }
 }

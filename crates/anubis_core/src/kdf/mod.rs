@@ -274,8 +274,8 @@ impl MemoryTier {
         // - Low: < 2 GiB -> use 512 MiB for Argon2id
         //
         // Note: We leave headroom - if 8 GiB available, using 4 GiB leaves 4 GiB for OS/apps
-        const HIGH_THRESHOLD: u64 = 8 * 1024 * 1024;    // 8 GiB
-        const MEDIUM_THRESHOLD: u64 = 2 * 1024 * 1024;  // 2 GiB
+        const HIGH_THRESHOLD: u64 = 8 * 1024 * 1024; // 8 GiB
+        const MEDIUM_THRESHOLD: u64 = 2 * 1024 * 1024; // 2 GiB
 
         if available_kib >= HIGH_THRESHOLD {
             MemoryTier::High
@@ -824,16 +824,34 @@ mod tests {
     #[test]
     fn test_memory_tier_from_kib() {
         // High tier: >= 8 GiB
-        assert_eq!(MemoryTier::from_available_kib(8 * 1024 * 1024), MemoryTier::High);
-        assert_eq!(MemoryTier::from_available_kib(16 * 1024 * 1024), MemoryTier::High);
+        assert_eq!(
+            MemoryTier::from_available_kib(8 * 1024 * 1024),
+            MemoryTier::High
+        );
+        assert_eq!(
+            MemoryTier::from_available_kib(16 * 1024 * 1024),
+            MemoryTier::High
+        );
 
         // Medium tier: 2-8 GiB
-        assert_eq!(MemoryTier::from_available_kib(2 * 1024 * 1024), MemoryTier::Medium);
-        assert_eq!(MemoryTier::from_available_kib(4 * 1024 * 1024), MemoryTier::Medium);
-        assert_eq!(MemoryTier::from_available_kib(7 * 1024 * 1024), MemoryTier::Medium);
+        assert_eq!(
+            MemoryTier::from_available_kib(2 * 1024 * 1024),
+            MemoryTier::Medium
+        );
+        assert_eq!(
+            MemoryTier::from_available_kib(4 * 1024 * 1024),
+            MemoryTier::Medium
+        );
+        assert_eq!(
+            MemoryTier::from_available_kib(7 * 1024 * 1024),
+            MemoryTier::Medium
+        );
 
         // Low tier: < 2 GiB
-        assert_eq!(MemoryTier::from_available_kib(1 * 1024 * 1024), MemoryTier::Low);
+        assert_eq!(
+            MemoryTier::from_available_kib(1 * 1024 * 1024),
+            MemoryTier::Low
+        );
         assert_eq!(MemoryTier::from_available_kib(512 * 1024), MemoryTier::Low);
         assert_eq!(MemoryTier::from_available_kib(1024), MemoryTier::Low);
     }

@@ -14,7 +14,7 @@
 //!   "Dude, is my code constant time?"
 //! - https://github.com/oreparaz/dudect
 
-use anubis_core::ct::{ct_eq, ct_lt_u64, ct_lookup, ct_select, ct_select_u64};
+use anubis_core::ct::{ct_eq, ct_lookup, ct_lt_u64, ct_select, ct_select_u64};
 use criterion::{black_box, criterion_group, criterion_main, Criterion};
 use std::time::Instant;
 
@@ -75,10 +75,7 @@ fn test_ct_eq_timing() -> f64 {
     let diff_a = [0x00u8; 32];
     let diff_b = [0xFFu8; 32];
 
-    dudect_test(
-        || ct_eq(&equal_a, &equal_b),
-        || ct_eq(&diff_a, &diff_b),
-    )
+    dudect_test(|| ct_eq(&equal_a, &equal_b), || ct_eq(&diff_a, &diff_b))
 }
 
 /// Test ct_select with true vs false choice
@@ -100,8 +97,8 @@ fn test_ct_select_u64_timing() -> f64 {
 /// Test ct_lt_u64 with different comparison outcomes
 fn test_ct_lt_u64_timing() -> f64 {
     dudect_test(
-        || ct_lt_u64(5, 10),  // a < b -> 1
-        || ct_lt_u64(10, 5),  // a > b -> 0
+        || ct_lt_u64(5, 10), // a < b -> 1
+        || ct_lt_u64(10, 5), // a > b -> 0
     )
 }
 

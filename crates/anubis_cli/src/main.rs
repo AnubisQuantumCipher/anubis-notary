@@ -39,9 +39,11 @@ const ENV_ANUBIS_PASSWORD_FILE: &str = "ANUBIS_PASSWORD_FILE";
 
 use anubis_core::mldsa::{KeyPair, PublicKey, Signature, SEED_SIZE};
 use anubis_core::multisig::{Multisig, Proposal, ProposalType};
-use anubis_core::streaming::{StreamingHasher, StreamingSigner, StreamingVerifier, StreamingConfig};
-use anubis_io::{hash_directory, hash_file, keystore::Keystore, read_file, write_file_atomic};
+use anubis_core::streaming::{
+    StreamingConfig, StreamingHasher, StreamingSigner, StreamingVerifier,
+};
 use anubis_io::{format_delay, RateLimiter, SystemClock, TimeSource};
+use anubis_io::{hash_directory, hash_file, keystore::Keystore, read_file, write_file_atomic};
 
 /// Anubis Notary - Post-quantum signing and licensing CLI.
 #[derive(Parser)]
@@ -437,7 +439,11 @@ fn run_command(cli: &Cli) -> Result<(), Box<dyn std::error::Error>> {
 
 fn handle_key(action: &KeyCommands, json: bool) -> Result<(), Box<dyn std::error::Error>> {
     match action {
-        KeyCommands::Init { keystore, kdf, low_memory } => {
+        KeyCommands::Init {
+            keystore,
+            kdf,
+            low_memory,
+        } => {
             let path = keystore
                 .as_ref()
                 .map(|s| expand_path(s))
@@ -457,8 +463,10 @@ fn handle_key(action: &KeyCommands, json: bool) -> Result<(), Box<dyn std::error
             // Prompt for password
             if !json {
                 eprintln!("Creating new keystore with password-protected key.");
-                eprintln!("This will use Argon2id with {} memory for key derivation.",
-                    if *low_memory { "1 GiB" } else { "4 GiB" });
+                eprintln!(
+                    "This will use Argon2id with {} memory for key derivation.",
+                    if *low_memory { "1 GiB" } else { "4 GiB" }
+                );
                 eprintln!();
             }
 
@@ -490,7 +498,11 @@ fn handle_key(action: &KeyCommands, json: bool) -> Result<(), Box<dyn std::error
             seed.zeroize();
 
             // Log memory mode used
-            let memory_mode = if *low_memory { "1 GiB (low-memory)" } else { "4 GiB (default)" };
+            let memory_mode = if *low_memory {
+                "1 GiB (low-memory)"
+            } else {
+                "4 GiB (default)"
+            };
 
             if json {
                 #[derive(Serialize)]
@@ -562,7 +574,10 @@ fn handle_key(action: &KeyCommands, json: bool) -> Result<(), Box<dyn std::error
             }
             Ok(())
         }
-        KeyCommands::Rotate { keystore, low_memory } => {
+        KeyCommands::Rotate {
+            keystore,
+            low_memory,
+        } => {
             let path = keystore
                 .as_ref()
                 .map(|s| expand_path(s))
@@ -570,7 +585,11 @@ fn handle_key(action: &KeyCommands, json: bool) -> Result<(), Box<dyn std::error
             let ks = Keystore::open(&path)?;
 
             // Determine memory mode for display
-            let memory_mode = if *low_memory { "1 GiB (low-memory)" } else { "4 GiB (default)" };
+            let memory_mode = if *low_memory {
+                "1 GiB (low-memory)"
+            } else {
+                "4 GiB (default)"
+            };
 
             // Check if key exists
             if !ks.has_key() {
@@ -663,8 +682,14 @@ fn handle_key(action: &KeyCommands, json: bool) -> Result<(), Box<dyn std::error
             } else {
                 println!();
                 println!("Key rotated successfully!");
-                println!("Old public key: {} (archived)", hex::encode(old_kp.public_key().to_bytes()));
-                println!("New public key: {}", hex::encode(new_kp.public_key().to_bytes()));
+                println!(
+                    "Old public key: {} (archived)",
+                    hex::encode(old_kp.public_key().to_bytes())
+                );
+                println!(
+                    "New public key: {}",
+                    hex::encode(new_kp.public_key().to_bytes())
+                );
                 println!("Archive ID: {}", archive_id);
                 println!("Argon2id memory: {}", memory_mode);
                 println!("Password protection: ENABLED");
@@ -772,7 +797,10 @@ fn handle_key(action: &KeyCommands, json: bool) -> Result<(), Box<dyn std::error
                     .iter()
                     .map(|id| ArchivedKeyInfo {
                         archive_id: id.clone(),
-                        public_key: ks.read_archived_public_key(id).ok().map(|pk| hex::encode(&pk)),
+                        public_key: ks
+                            .read_archived_public_key(id)
+                            .ok()
+                            .map(|pk| hex::encode(&pk)),
                     })
                     .collect();
 
@@ -851,7 +879,10 @@ fn handle_sign(
     let pk_bytes = ks.read_public_key()?;
     let fingerprint = hex::encode(anubis_core::keccak::sha3::sha3_256(&pk_bytes));
     if ks.is_revoked(&fingerprint)? {
-        return Err("Cannot sign: key has been revoked. Generate a new key with 'anubis-notary key init'.".into());
+        return Err(
+            "Cannot sign: key has been revoked. Generate a new key with 'anubis-notary key init'."
+                .into(),
+        );
     }
 
     // Load keypair with password authentication
@@ -1095,8 +1126,8 @@ fn handle_check(
     }
 
     let pk_bytes = ks.read_public_key()?;
-    let pk = PublicKey::from_bytes(&pk_bytes)
-        .map_err(|e| format!("Invalid public key: {:?}", e))?;
+    let pk =
+        PublicKey::from_bytes(&pk_bytes).map_err(|e| format!("Invalid public key: {:?}", e))?;
 
     // Check if key is revoked
     let fingerprint = hex::encode(anubis_core::keccak::sha3::sha3_256(&pk_bytes));
@@ -1386,7 +1417,10 @@ fn handle_license(action: &LicenseCommands, json: bool) -> Result<(), Box<dyn st
                         "EXPIRED"
                     }
                 );
-                println!("  Signature: {}", if sig_valid { "valid" } else { "INVALID" });
+                println!(
+                    "  Signature: {}",
+                    if sig_valid { "valid" } else { "INVALID" }
+                );
                 println!("  Product: {}", license.product());
                 println!("  User: {}", license.subject());
                 println!(
@@ -1431,7 +1465,10 @@ fn handle_license(action: &LicenseCommands, json: bool) -> Result<(), Box<dyn st
                         if let Ok(meta) = serde_json::from_slice::<serde_json::Value>(&meta_bytes) {
                             licenses.push(LicenseInfo {
                                 id: id.clone(),
-                                product: meta.get("product").and_then(|v| v.as_str()).map(String::from),
+                                product: meta
+                                    .get("product")
+                                    .and_then(|v| v.as_str())
+                                    .map(String::from),
                                 user: meta.get("user").and_then(|v| v.as_str()).map(String::from),
                                 expiry: meta.get("expiry").and_then(|v| v.as_i64()),
                                 issued_at: meta.get("issued_at").and_then(|v| v.as_i64()),
@@ -1466,7 +1503,8 @@ fn handle_license(action: &LicenseCommands, json: bool) -> Result<(), Box<dyn st
                 for id in &license_ids {
                     if let Ok(meta_bytes) = ks.get_license_metadata(id) {
                         if let Ok(meta) = serde_json::from_slice::<serde_json::Value>(&meta_bytes) {
-                            let product = meta.get("product").and_then(|v| v.as_str()).unwrap_or("?");
+                            let product =
+                                meta.get("product").and_then(|v| v.as_str()).unwrap_or("?");
                             let user = meta.get("user").and_then(|v| v.as_str()).unwrap_or("?");
                             let expiry = meta.get("expiry").and_then(|v| v.as_i64()).unwrap_or(0);
                             println!("  {} - {} ({}) expires {}", id, product, user, expiry);
@@ -1580,9 +1618,14 @@ fn handle_anchor(action: &AnchorCommands, json: bool) -> Result<(), Box<dyn std:
                 }
             }
         },
-        AnchorCommands::Submit { provider, url, batch, wait } => {
-            use anubis_io::anchor::AnchorClient;
+        AnchorCommands::Submit {
+            provider,
+            url,
+            batch,
+            wait,
+        } => {
             use anubis_core::merkle::MAX_LEAVES;
+            use anubis_io::anchor::AnchorClient;
 
             let queued = ks.list_queue()?;
 
@@ -1600,7 +1643,8 @@ fn handle_anchor(action: &AnchorCommands, json: bool) -> Result<(), Box<dyn std:
                 return Err(format!(
                     "Batch size {} exceeds maximum of {} leaves per Merkle tree",
                     batch, MAX_LEAVES
-                ).into());
+                )
+                .into());
             }
 
             // Limit batch size to available receipts
@@ -1620,7 +1664,8 @@ fn handle_anchor(action: &AnchorCommands, json: bool) -> Result<(), Box<dyn std:
                 receipt_digests.push(hex::encode(receipt.digest));
             }
 
-            let merkle_root = tree.compute_root()
+            let merkle_root = tree
+                .compute_root()
                 .map_err(|e| format!("Failed to compute Merkle root: {:?}", e))?;
 
             // Get timestamp
@@ -1634,10 +1679,12 @@ fn handle_anchor(action: &AnchorCommands, json: bool) -> Result<(), Box<dyn std:
                     .map_err(|e| format!("Failed to create anchor client: {}", e))?;
 
                 let response = if *wait > 0 {
-                    client.submit_and_wait(&merkle_root, timestamp, *wait, 5)
+                    client
+                        .submit_and_wait(&merkle_root, timestamp, *wait, 5)
                         .map_err(|e| format!("Failed to submit anchor: {}", e))?
                 } else {
-                    client.submit(&merkle_root, timestamp)
+                    client
+                        .submit(&merkle_root, timestamp)
                         .map_err(|e| format!("Failed to submit anchor: {}", e))?
                 };
 
@@ -1649,7 +1696,12 @@ fn handle_anchor(action: &AnchorCommands, json: bool) -> Result<(), Box<dyn std:
                 )
             } else {
                 // For other providers (btc), just store locally
-                (hex::encode(merkle_root), "submitted".to_string(), None, None)
+                (
+                    hex::encode(merkle_root),
+                    "submitted".to_string(),
+                    None,
+                    None,
+                )
             };
 
             // Create anchor record (JSON format for readability)
@@ -1712,7 +1764,10 @@ fn handle_anchor(action: &AnchorCommands, json: bool) -> Result<(), Box<dyn std:
                     println!("  Entry ID: {}", eid);
                 }
                 println!();
-                println!("Use 'anchor status {}' to check anchoring status.", &anchor_id[..16.min(anchor_id.len())]);
+                println!(
+                    "Use 'anchor status {}' to check anchoring status.",
+                    &anchor_id[..16.min(anchor_id.len())]
+                );
             }
         }
         AnchorCommands::Status { id, refresh } => {
@@ -1720,9 +1775,7 @@ fn handle_anchor(action: &AnchorCommands, json: bool) -> Result<(), Box<dyn std:
 
             // Try to find anchor by ID prefix
             let anchors = ks.list_anchors()?;
-            let matching: Vec<_> = anchors.iter()
-                .filter(|a| a.starts_with(id))
-                .collect();
+            let matching: Vec<_> = anchors.iter().filter(|a| a.starts_with(id)).collect();
 
             if matching.is_empty() {
                 return Err(format!("No anchor found matching: {}", id).into());
@@ -1737,18 +1790,19 @@ fn handle_anchor(action: &AnchorCommands, json: bool) -> Result<(), Box<dyn std:
 
             // Refresh from HTTP service if requested
             if *refresh {
-                let provider = anchor.get("provider")
+                let provider = anchor
+                    .get("provider")
                     .and_then(|v| v.as_str())
                     .unwrap_or("");
-                let url = anchor.get("url")
-                    .and_then(|v| v.as_str());
+                let url = anchor.get("url").and_then(|v| v.as_str());
 
                 if provider == "http-log" {
                     if let Some(service_url) = url {
                         let client = AnchorClient::new(service_url)
                             .map_err(|e| format!("Failed to create anchor client: {}", e))?;
 
-                        let response = client.status(anchor_id)
+                        let response = client
+                            .status(anchor_id)
                             .map_err(|e| format!("Failed to query anchor status: {}", e))?;
 
                         // Update the stored anchor record
@@ -1770,7 +1824,11 @@ fn handle_anchor(action: &AnchorCommands, json: bool) -> Result<(), Box<dyn std:
                         return Err("Cannot refresh: no URL stored for this anchor".into());
                     }
                 } else {
-                    return Err(format!("Cannot refresh: provider '{}' does not support refresh", provider).into());
+                    return Err(format!(
+                        "Cannot refresh: provider '{}' does not support refresh",
+                        provider
+                    )
+                    .into());
                 }
             }
 
@@ -1821,9 +1879,16 @@ fn handle_anchor(action: &AnchorCommands, json: bool) -> Result<(), Box<dyn std:
     Ok(())
 }
 
-fn handle_multisig(action: &MultisigCommands, json: bool) -> Result<(), Box<dyn std::error::Error>> {
+fn handle_multisig(
+    action: &MultisigCommands,
+    json: bool,
+) -> Result<(), Box<dyn std::error::Error>> {
     match action {
-        MultisigCommands::Init { threshold, signers, out } => {
+        MultisigCommands::Init {
+            threshold,
+            signers,
+            out,
+        } => {
             if signers.is_empty() {
                 return Err("At least one signer is required".into());
             }
@@ -1837,7 +1902,8 @@ fn handle_multisig(action: &MultisigCommands, json: bool) -> Result<(), Box<dyn 
                     "Threshold {} exceeds number of signers {}",
                     threshold,
                     signers.len()
-                ).into());
+                )
+                .into());
             }
 
             // Load public keys from files
@@ -1846,8 +1912,9 @@ fn handle_multisig(action: &MultisigCommands, json: bool) -> Result<(), Box<dyn 
 
             for signer_path in signers {
                 let pk_bytes = read_file(signer_path)?;
-                let pk = PublicKey::from_bytes(&pk_bytes)
-                    .map_err(|e| format!("Invalid public key in {}: {:?}", signer_path.display(), e))?;
+                let pk = PublicKey::from_bytes(&pk_bytes).map_err(|e| {
+                    format!("Invalid public key in {}: {:?}", signer_path.display(), e)
+                })?;
 
                 let fingerprint = hex::encode(anubis_core::keccak::sha3::sha3_256(&pk_bytes));
                 signer_pks.push(pk);
@@ -1885,10 +1952,13 @@ fn handle_multisig(action: &MultisigCommands, json: bool) -> Result<(), Box<dyn 
                     config_file: out.display().to_string(),
                     threshold: *threshold,
                     signer_count: signers.len(),
-                    signers: signer_info.iter().map(|(f, fp)| SignerInfo {
-                        file: f.clone(),
-                        fingerprint: fp.clone(),
-                    }).collect(),
+                    signers: signer_info
+                        .iter()
+                        .map(|(f, fp)| SignerInfo {
+                            file: f.clone(),
+                            fingerprint: fp.clone(),
+                        })
+                        .collect(),
                 });
                 println!("{}", serde_json::to_string_pretty(&output)?);
             } else {
@@ -1902,16 +1972,24 @@ fn handle_multisig(action: &MultisigCommands, json: bool) -> Result<(), Box<dyn 
             }
             Ok(())
         }
-        MultisigCommands::Propose { config, proposal_type, data, expires, out } => {
+        MultisigCommands::Propose {
+            config,
+            proposal_type,
+            data,
+            expires,
+            out,
+        } => {
             let config_data = read_file(config)?;
             let config_json: serde_json::Value = serde_json::from_slice(&config_data)?;
 
             // Parse signers from config
-            let signers = config_json.get("signers")
+            let signers = config_json
+                .get("signers")
                 .and_then(|v| v.as_array())
                 .ok_or("Invalid config: missing signers")?;
 
-            let threshold = config_json.get("threshold")
+            let threshold = config_json
+                .get("threshold")
                 .and_then(|v| v.as_u64())
                 .ok_or("Invalid config: missing threshold")? as u8;
 
@@ -1926,8 +2004,7 @@ fn handle_multisig(action: &MultisigCommands, json: bool) -> Result<(), Box<dyn 
             let multisig = Multisig::new(threshold, signer_pks).map_err(|e| format!("{:?}", e))?;
 
             // Parse proposal type - use AuthorizeAction for all custom data types
-            let data_bytes = hex::decode(data)
-                .map_err(|e| format!("Invalid data hex: {}", e))?;
+            let data_bytes = hex::decode(data).map_err(|e| format!("Invalid data hex: {}", e))?;
 
             let ptype = match proposal_type.to_lowercase().as_str() {
                 "key-rotation" => ProposalType::KeyRotation {
@@ -1940,9 +2017,7 @@ fn handle_multisig(action: &MultisigCommands, json: bool) -> Result<(), Box<dyn 
                 "add-signer" => ProposalType::AddSigner {
                     new_signer_hash: [0u8; 32],
                 },
-                "remove-signer" => ProposalType::RemoveSigner {
-                    signer_index: 0,
-                },
+                "remove-signer" => ProposalType::RemoveSigner { signer_index: 0 },
                 "authorize-action" => ProposalType::AuthorizeAction {
                     action_type: "custom".to_string(),
                     payload: data_bytes.clone(),
@@ -1968,7 +2043,8 @@ fn handle_multisig(action: &MultisigCommands, json: bool) -> Result<(), Box<dyn 
                 now, // Use timestamp as nonce
                 now,
                 expires_at,
-            ).map_err(|e| format!("{:?}", e))?;
+            )
+            .map_err(|e| format!("{:?}", e))?;
 
             // Serialize proposal
             let proposal_json = serde_json::json!({
@@ -1987,7 +2063,10 @@ fn handle_multisig(action: &MultisigCommands, json: bool) -> Result<(), Box<dyn 
                 "signed_by": Vec::<usize>::new(),
             });
 
-            write_file_atomic(out, serde_json::to_string_pretty(&proposal_json)?.as_bytes())?;
+            write_file_atomic(
+                out,
+                serde_json::to_string_pretty(&proposal_json)?.as_bytes(),
+            )?;
 
             if json {
                 #[derive(Serialize)]
@@ -2023,16 +2102,22 @@ fn handle_multisig(action: &MultisigCommands, json: bool) -> Result<(), Box<dyn 
             }
             Ok(())
         }
-        MultisigCommands::Sign { proposal, config, out } => {
+        MultisigCommands::Sign {
+            proposal,
+            config,
+            out,
+        } => {
             let config_data = read_file(config)?;
             let config_json: serde_json::Value = serde_json::from_slice(&config_data)?;
 
             // Parse signers from config
-            let signers = config_json.get("signers")
+            let signers = config_json
+                .get("signers")
                 .and_then(|v| v.as_array())
                 .ok_or("Invalid config: missing signers")?;
 
-            let threshold = config_json.get("threshold")
+            let threshold = config_json
+                .get("threshold")
                 .and_then(|v| v.as_u64())
                 .ok_or("Invalid config: missing threshold")? as u8;
 
@@ -2063,7 +2148,9 @@ fn handle_multisig(action: &MultisigCommands, json: bool) -> Result<(), Box<dyn 
 
             // Find signer index
             let my_pk = kp.public_key();
-            let signer_idx = signer_pks.iter().position(|pk| pk.to_bytes() == my_pk.to_bytes())
+            let signer_idx = signer_pks
+                .iter()
+                .position(|pk| pk.to_bytes() == my_pk.to_bytes())
                 .ok_or("Your key is not a signer in this multisig")?;
 
             // Load proposal
@@ -2071,9 +2158,18 @@ fn handle_multisig(action: &MultisigCommands, json: bool) -> Result<(), Box<dyn 
             let mut proposal_json: serde_json::Value = serde_json::from_slice(&proposal_data)?;
 
             // Get proposal ID and multisig hash
-            let proposal_id = proposal_json.get("id").and_then(|v| v.as_str()).ok_or("Invalid proposal: missing id")?;
-            let multisig_hash = proposal_json.get("multisig_hash").and_then(|v| v.as_str()).ok_or("Invalid proposal: missing multisig_hash")?;
-            let nonce = proposal_json.get("nonce").and_then(|v| v.as_u64()).ok_or("Invalid proposal: missing nonce")?;
+            let proposal_id = proposal_json
+                .get("id")
+                .and_then(|v| v.as_str())
+                .ok_or("Invalid proposal: missing id")?;
+            let multisig_hash = proposal_json
+                .get("multisig_hash")
+                .and_then(|v| v.as_str())
+                .ok_or("Invalid proposal: missing multisig_hash")?;
+            let nonce = proposal_json
+                .get("nonce")
+                .and_then(|v| v.as_u64())
+                .ok_or("Invalid proposal: missing nonce")?;
 
             // Create message to sign (using proposal signing payload format)
             let mut message = Vec::new();
@@ -2083,11 +2179,14 @@ fn handle_multisig(action: &MultisigCommands, json: bool) -> Result<(), Box<dyn 
             message.extend_from_slice(&nonce.to_le_bytes());
 
             // Sign
-            let signature = kp.sign(&message).map_err(|e| format!("Signing failed: {:?}", e))?;
+            let signature = kp
+                .sign(&message)
+                .map_err(|e| format!("Signing failed: {:?}", e))?;
 
             // Update proposal with signature
             {
-                let signatures = proposal_json.get_mut("signatures")
+                let signatures = proposal_json
+                    .get_mut("signatures")
                     .and_then(|v| v.as_array_mut())
                     .ok_or("Invalid proposal: missing signatures")?;
 
@@ -2100,16 +2199,21 @@ fn handle_multisig(action: &MultisigCommands, json: bool) -> Result<(), Box<dyn 
 
             // Update signed_by
             {
-                let signed_by = proposal_json.get_mut("signed_by")
+                let signed_by = proposal_json
+                    .get_mut("signed_by")
                     .and_then(|v| v.as_array_mut())
                     .ok_or("Invalid proposal: missing signed_by")?;
-                if !signed_by.iter().any(|v| v.as_u64() == Some(signer_idx as u64)) {
+                if !signed_by
+                    .iter()
+                    .any(|v| v.as_u64() == Some(signer_idx as u64))
+                {
                     signed_by.push(serde_json::json!(signer_idx));
                 }
             }
 
             // Count signatures
-            let sig_count = proposal_json.get("signatures")
+            let sig_count = proposal_json
+                .get("signatures")
                 .and_then(|v| v.as_array())
                 .map(|arr| arr.iter().filter(|s| !s.is_null()).count())
                 .unwrap_or(0);
@@ -2121,7 +2225,10 @@ fn handle_multisig(action: &MultisigCommands, json: bool) -> Result<(), Box<dyn 
 
             // Write updated proposal
             let out_path = out.as_ref().unwrap_or(proposal);
-            write_file_atomic(out_path, serde_json::to_string_pretty(&proposal_json)?.as_bytes())?;
+            write_file_atomic(
+                out_path,
+                serde_json::to_string_pretty(&proposal_json)?.as_bytes(),
+            )?;
 
             if json {
                 #[derive(Serialize)]
@@ -2150,7 +2257,10 @@ fn handle_multisig(action: &MultisigCommands, json: bool) -> Result<(), Box<dyn 
                     println!();
                     println!("Use 'multisig execute' to execute this proposal.");
                 } else {
-                    println!("  Status: Pending ({} more signatures needed)", threshold as usize - sig_count);
+                    println!(
+                        "  Status: Pending ({} more signatures needed)",
+                        threshold as usize - sig_count
+                    );
                 }
             }
             Ok(())
@@ -2161,12 +2271,14 @@ fn handle_multisig(action: &MultisigCommands, json: bool) -> Result<(), Box<dyn 
             let config_data = read_file(config)?;
             let config_json: serde_json::Value = serde_json::from_slice(&config_data)?;
 
-            let threshold = config_json.get("threshold")
+            let threshold = config_json
+                .get("threshold")
                 .and_then(|v| v.as_u64())
                 .ok_or("Invalid config: missing threshold")? as u8;
 
             // SECURITY: Parse signer public keys for verification
-            let signers = config_json.get("signers")
+            let signers = config_json
+                .get("signers")
                 .and_then(|v| v.as_array())
                 .ok_or("Invalid config: missing signers")?;
 
@@ -2183,26 +2295,32 @@ fn handle_multisig(action: &MultisigCommands, json: bool) -> Result<(), Box<dyn 
             let proposal_json: serde_json::Value = serde_json::from_slice(&proposal_data)?;
 
             // Get proposal fields needed for verification
-            let proposal_id = proposal_json.get("id")
+            let proposal_id = proposal_json
+                .get("id")
                 .and_then(|v| v.as_str())
                 .ok_or("Invalid proposal: missing id")?;
-            let multisig_hash = proposal_json.get("multisig_hash")
+            let multisig_hash = proposal_json
+                .get("multisig_hash")
                 .and_then(|v| v.as_str())
                 .ok_or("Invalid proposal: missing multisig_hash")?;
-            let nonce = proposal_json.get("nonce")
+            let nonce = proposal_json
+                .get("nonce")
                 .and_then(|v| v.as_u64())
                 .ok_or("Invalid proposal: missing nonce")?;
 
             // Reconstruct the message that was signed
             let mut message = Vec::new();
             message.extend_from_slice(b"ANUBIS-MULTISIG-PROPOSAL-V1:");
-            message.extend_from_slice(&hex::decode(proposal_id)
-                .map_err(|e| format!("Invalid proposal id: {}", e))?);
-            message.extend_from_slice(&hex::decode(multisig_hash)
-                .map_err(|e| format!("Invalid multisig_hash: {}", e))?);
+            message.extend_from_slice(
+                &hex::decode(proposal_id).map_err(|e| format!("Invalid proposal id: {}", e))?,
+            );
+            message.extend_from_slice(
+                &hex::decode(multisig_hash).map_err(|e| format!("Invalid multisig_hash: {}", e))?,
+            );
             message.extend_from_slice(&nonce.to_le_bytes());
 
-            let signatures = proposal_json.get("signatures")
+            let signatures = proposal_json
+                .get("signatures")
                 .and_then(|v| v.as_array())
                 .ok_or("Invalid proposal: missing signatures")?;
 
@@ -2220,14 +2338,18 @@ fn handle_multisig(action: &MultisigCommands, json: bool) -> Result<(), Box<dyn 
                     .map_err(|e| format!("Invalid signature hex at index {}: {}", idx, e))?;
 
                 if idx >= signer_pks.len() {
-                    verification_errors.push(format!("Signature at index {} has no corresponding signer", idx));
+                    verification_errors.push(format!(
+                        "Signature at index {} has no corresponding signer",
+                        idx
+                    ));
                     continue;
                 }
 
                 let signature = match Signature::from_bytes(&sig_bytes) {
                     Ok(s) => s,
                     Err(e) => {
-                        verification_errors.push(format!("Invalid signature at index {}: {:?}", idx, e));
+                        verification_errors
+                            .push(format!("Invalid signature at index {}: {:?}", idx, e));
                         continue;
                     }
                 };
@@ -2235,7 +2357,8 @@ fn handle_multisig(action: &MultisigCommands, json: bool) -> Result<(), Box<dyn 
                 if signer_pks[idx].verify(&message, &signature) {
                     verified_count += 1;
                 } else {
-                    verification_errors.push(format!("Signature verification FAILED for signer {}", idx));
+                    verification_errors
+                        .push(format!("Signature verification FAILED for signer {}", idx));
                 }
             }
 
@@ -2265,11 +2388,13 @@ fn handle_multisig(action: &MultisigCommands, json: bool) -> Result<(), Box<dyn 
                 }
             }
 
-            let proposal_type = proposal_json.get("proposal_type")
+            let proposal_type = proposal_json
+                .get("proposal_type")
                 .and_then(|v| v.as_str())
                 .ok_or("Invalid proposal: missing proposal_type")?;
 
-            let data_hex = proposal_json.get("data")
+            let data_hex = proposal_json
+                .get("data")
                 .and_then(|v| v.as_str())
                 .unwrap_or("");
 
@@ -2294,7 +2419,12 @@ fn handle_multisig(action: &MultisigCommands, json: bool) -> Result<(), Box<dyn 
                 println!("Proposal executed:");
                 println!("  Type: {}", proposal_type);
                 println!("  Data: {} bytes", data_hex.len() / 2);
-                println!("  Verified signatures: {} of {} (threshold: {})", verified_count, signer_pks.len(), threshold);
+                println!(
+                    "  Verified signatures: {} of {} (threshold: {})",
+                    verified_count,
+                    signer_pks.len(),
+                    threshold
+                );
                 if !verification_errors.is_empty() {
                     println!("  Warnings:");
                     for err in &verification_errors {
@@ -2311,33 +2441,45 @@ fn handle_multisig(action: &MultisigCommands, json: bool) -> Result<(), Box<dyn 
             let config_data = read_file(config)?;
             let config_json: serde_json::Value = serde_json::from_slice(&config_data)?;
 
-            let threshold = config_json.get("threshold")
+            let threshold = config_json
+                .get("threshold")
                 .and_then(|v| v.as_u64())
                 .ok_or("Invalid config: missing threshold")? as u8;
 
-            let signers = config_json.get("signers")
+            let signers = config_json
+                .get("signers")
                 .and_then(|v| v.as_array())
                 .ok_or("Invalid config: missing signers")?;
 
             let proposal_data = read_file(proposal)?;
             let proposal_json: serde_json::Value = serde_json::from_slice(&proposal_data)?;
 
-            let nonce = proposal_json.get("nonce").and_then(|v| v.as_u64()).unwrap_or(0);
-            let proposal_type = proposal_json.get("proposal_type")
+            let nonce = proposal_json
+                .get("nonce")
+                .and_then(|v| v.as_u64())
+                .unwrap_or(0);
+            let proposal_type = proposal_json
+                .get("proposal_type")
                 .and_then(|v| v.as_str())
                 .unwrap_or("unknown");
-            let status = proposal_json.get("status")
+            let status = proposal_json
+                .get("status")
                 .and_then(|v| v.as_str())
                 .unwrap_or("unknown");
             let expires = proposal_json.get("expires").and_then(|v| v.as_u64());
-            let created = proposal_json.get("created").and_then(|v| v.as_u64()).unwrap_or(0);
+            let created = proposal_json
+                .get("created")
+                .and_then(|v| v.as_u64())
+                .unwrap_or(0);
 
-            let signatures = proposal_json.get("signatures")
+            let signatures = proposal_json
+                .get("signatures")
                 .and_then(|v| v.as_array())
                 .map(|a| a.iter().filter(|s| !s.is_null()).count())
                 .unwrap_or(0);
 
-            let signed_by = proposal_json.get("signed_by")
+            let signed_by = proposal_json
+                .get("signed_by")
                 .and_then(|v| v.as_array())
                 .map(|a| a.iter().filter_map(|v| v.as_u64()).collect::<Vec<_>>())
                 .unwrap_or_default();
@@ -2388,11 +2530,20 @@ fn handle_multisig(action: &MultisigCommands, json: bool) -> Result<(), Box<dyn 
                 println!("  Nonce: {}", nonce);
                 println!("  Type: {}", proposal_type);
                 println!("  Status: {}", status);
-                println!("  Signatures: {} of {} (threshold: {})", signatures, signers.len(), threshold);
+                println!(
+                    "  Signatures: {} of {} (threshold: {})",
+                    signatures,
+                    signers.len(),
+                    threshold
+                );
                 println!("  Created: {}", created);
                 if let Some(exp) = expires {
                     if exp > 0 {
-                        println!("  Expires: {}{}", exp, if is_expired { " (EXPIRED)" } else { "" });
+                        println!(
+                            "  Expires: {}{}",
+                            exp,
+                            if is_expired { " (EXPIRED)" } else { "" }
+                        );
                     }
                 }
                 println!();
@@ -2401,7 +2552,10 @@ fn handle_multisig(action: &MultisigCommands, json: bool) -> Result<(), Box<dyn 
                 } else if is_expired {
                     println!("  Proposal has expired.");
                 } else {
-                    println!("  Needs {} more signature(s).", threshold as usize - signatures);
+                    println!(
+                        "  Needs {} more signature(s).",
+                        threshold as usize - signatures
+                    );
                 }
             }
             Ok(())
@@ -2410,11 +2564,13 @@ fn handle_multisig(action: &MultisigCommands, json: bool) -> Result<(), Box<dyn 
             let config_data = read_file(config)?;
             let config_json: serde_json::Value = serde_json::from_slice(&config_data)?;
 
-            let threshold = config_json.get("threshold")
+            let threshold = config_json
+                .get("threshold")
                 .and_then(|v| v.as_u64())
                 .ok_or("Invalid config: missing threshold")? as u8;
 
-            let signers = config_json.get("signers")
+            let signers = config_json
+                .get("signers")
                 .and_then(|v| v.as_array())
                 .ok_or("Invalid config: missing signers")?;
 
@@ -2432,7 +2588,9 @@ fn handle_multisig(action: &MultisigCommands, json: bool) -> Result<(), Box<dyn 
                     fingerprint: String,
                 }
 
-                let signers_info: Vec<SignerInfo> = signers.iter().enumerate()
+                let signers_info: Vec<SignerInfo> = signers
+                    .iter()
+                    .enumerate()
                     .filter_map(|(i, s)| {
                         let pk_hex = s.as_str()?;
                         let pk_bytes = hex::decode(pk_hex).ok()?;
@@ -2471,7 +2629,12 @@ fn handle_multisig(action: &MultisigCommands, json: bool) -> Result<(), Box<dyn 
 
 fn handle_stream(action: &StreamCommands, json: bool) -> Result<(), Box<dyn std::error::Error>> {
     match action {
-        StreamCommands::Sign { file, out, chunk_size, progress } => {
+        StreamCommands::Sign {
+            file,
+            out,
+            chunk_size,
+            progress,
+        } => {
             use std::fs::File;
             use std::io::BufReader;
 
@@ -2493,8 +2656,8 @@ fn handle_stream(action: &StreamCommands, json: bool) -> Result<(), Box<dyn std:
             let mut reader = BufReader::new(f);
 
             // Create streaming signer with custom chunk size
-            let config = StreamingConfig::with_chunk_size(*chunk_size)
-                .map_err(|e| format!("{}", e))?;
+            let config =
+                StreamingConfig::with_chunk_size(*chunk_size).map_err(|e| format!("{}", e))?;
             let mut signer = StreamingSigner::with_config(&kp, config.clone());
             // Also run hasher in parallel to get the hash for display
             let mut hasher = StreamingHasher::with_config(config);
@@ -2515,7 +2678,10 @@ fn handle_stream(action: &StreamCommands, json: bool) -> Result<(), Box<dyn std:
 
                 if *progress && !json {
                     let pct = (bytes_read as f64 / file_size as f64 * 100.0) as u32;
-                    eprint!("\rProcessing: {}% ({}/{} bytes)", pct, bytes_read, file_size);
+                    eprint!(
+                        "\rProcessing: {}% ({}/{} bytes)",
+                        pct, bytes_read, file_size
+                    );
                     io::stderr().flush()?;
                 }
             }
@@ -2556,11 +2722,19 @@ fn handle_stream(action: &StreamCommands, json: bool) -> Result<(), Box<dyn std:
                 println!("File size: {} bytes", file_size);
                 println!("Hash: {}", hex::encode(hash));
                 println!("Signature: {}", out_path.display());
-                println!("Signature size: {} bytes (ML-DSA-87)", signature.to_bytes().len());
+                println!(
+                    "Signature size: {} bytes (ML-DSA-87)",
+                    signature.to_bytes().len()
+                );
             }
             Ok(())
         }
-        StreamCommands::Verify { file, sig, chunk_size, progress } => {
+        StreamCommands::Verify {
+            file,
+            sig,
+            chunk_size,
+            progress,
+        } => {
             use std::fs::File;
             use std::io::BufReader;
 
@@ -2588,8 +2762,8 @@ fn handle_stream(action: &StreamCommands, json: bool) -> Result<(), Box<dyn std:
             let mut reader = BufReader::new(f);
 
             // Create streaming verifier with custom chunk size
-            let config = StreamingConfig::with_chunk_size(*chunk_size)
-                .map_err(|e| format!("{}", e))?;
+            let config =
+                StreamingConfig::with_chunk_size(*chunk_size).map_err(|e| format!("{}", e))?;
             let mut verifier = StreamingVerifier::with_config(&pk, &signature, config.clone());
             // Also run hasher in parallel to get the hash for display
             let mut hasher = StreamingHasher::with_config(config);
@@ -2604,7 +2778,9 @@ fn handle_stream(action: &StreamCommands, json: bool) -> Result<(), Box<dyn std:
                 if n == 0 {
                     break;
                 }
-                verifier.update(&buffer[..n]).map_err(|e| format!("{}", e))?;
+                verifier
+                    .update(&buffer[..n])
+                    .map_err(|e| format!("{}", e))?;
                 hasher.update(&buffer[..n]).map_err(|e| format!("{}", e))?;
                 bytes_read += n as u64;
 
@@ -2651,7 +2827,11 @@ fn handle_stream(action: &StreamCommands, json: bool) -> Result<(), Box<dyn std:
             }
             Ok(())
         }
-        StreamCommands::Hash { file, chunk_size, progress } => {
+        StreamCommands::Hash {
+            file,
+            chunk_size,
+            progress,
+        } => {
             use std::fs::File;
             use std::io::BufReader;
 
@@ -2664,8 +2844,8 @@ fn handle_stream(action: &StreamCommands, json: bool) -> Result<(), Box<dyn std:
             let mut reader = BufReader::new(f);
 
             // Create streaming hasher with custom chunk size
-            let config = StreamingConfig::with_chunk_size(*chunk_size)
-                .map_err(|e| format!("{}", e))?;
+            let config =
+                StreamingConfig::with_chunk_size(*chunk_size).map_err(|e| format!("{}", e))?;
             let mut hasher = StreamingHasher::with_config(config);
 
             // Process file with optional progress
@@ -2810,7 +2990,10 @@ fn get_password_from_env() -> Result<Option<String>, Box<dyn std::error::Error>>
                 .map_err(|e| format!("Failed to open password file '{}': {}", path, e))?;
             let reader = std::io::BufReader::new(file);
             if let Some(Ok(line)) = reader.lines().next() {
-                let password = line.trim_end_matches('\n').trim_end_matches('\r').to_string();
+                let password = line
+                    .trim_end_matches('\n')
+                    .trim_end_matches('\r')
+                    .to_string();
                 if !password.is_empty() {
                     return Ok(Some(password));
                 }
@@ -2888,7 +3071,8 @@ fn load_keypair_with_password(ks: &Keystore) -> Result<KeyPair, Box<dyn std::err
         return Err(format!(
             "Too many failed attempts. Please wait {} before trying again.",
             format_delay(wait_duration)
-        ).into());
+        )
+        .into());
     }
 
     // Prompt for password
@@ -2907,7 +3091,8 @@ fn load_keypair_with_password(ks: &Keystore) -> Result<KeyPair, Box<dyn std::err
                     "Invalid seed size: expected {}, got {}",
                     SEED_SIZE,
                     seed_bytes.len()
-                ).into());
+                )
+                .into());
             }
 
             let mut seed = [0u8; SEED_SIZE];
@@ -2916,12 +3101,11 @@ fn load_keypair_with_password(ks: &Keystore) -> Result<KeyPair, Box<dyn std::err
             // SECURITY: Zeroize the Vec buffer immediately after copying
             seed_bytes.zeroize();
 
-            let kp = KeyPair::from_seed(&seed)
-                .map_err(|e| {
-                    // Zeroize seed on error path
-                    seed.zeroize();
-                    format!("Key reconstruction failed: {:?}", e)
-                })?;
+            let kp = KeyPair::from_seed(&seed).map_err(|e| {
+                // Zeroize seed on error path
+                seed.zeroize();
+                format!("Key reconstruction failed: {:?}", e)
+            })?;
 
             // Zeroize seed
             seed.zeroize();
@@ -2941,7 +3125,8 @@ fn load_keypair_with_password(ks: &Keystore) -> Result<KeyPair, Box<dyn std::err
                     Err(format!(
                         "Wrong password ({} failed attempts). Next attempt allowed in {} seconds.",
                         failures, delay
-                    ).into())
+                    )
+                    .into())
                 } else {
                     Err(format!("Wrong password ({} failed attempts).", failures).into())
                 }

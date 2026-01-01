@@ -140,9 +140,7 @@ impl AnchorClient {
     pub fn new(base_url: &str) -> Result<Self, AnchorError> {
         // Validate URL format
         if !base_url.starts_with("https://") {
-            return Err(AnchorError::InvalidUrl(
-                "URL must use HTTPS".to_string(),
-            ));
+            return Err(AnchorError::InvalidUrl("URL must use HTTPS".to_string()));
         }
 
         let agent = ureq::AgentBuilder::new()
@@ -254,7 +252,9 @@ impl AnchorClient {
 
         if response.status == AnchorStatus::Failed {
             return Err(AnchorError::InvalidStatus(
-                response.error.unwrap_or_else(|| "unknown error".to_string()),
+                response
+                    .error
+                    .unwrap_or_else(|| "unknown error".to_string()),
             ));
         }
 
@@ -483,7 +483,7 @@ mod tests {
     fn test_verify_anchor_proof_single_leaf_mismatch() {
         let root = [0x42u8; 32];
         let tree_root = [0x00u8; 32]; // Different
-        // Single leaf but roots don't match
+                                      // Single leaf but roots don't match
         assert!(!verify_anchor_proof(&root, &[], 1, &tree_root));
     }
 

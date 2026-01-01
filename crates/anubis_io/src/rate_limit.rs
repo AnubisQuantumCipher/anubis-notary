@@ -67,11 +67,11 @@ impl RateLimiter {
     /// ```
     pub fn delay_seconds(failures: u32) -> u64 {
         match failures {
-            0..=2 => 0,          // No delay for first 3 attempts
-            3..=4 => 1,          // 1 second for attempts 4-5
-            5..=6 => 5,          // 5 seconds for attempts 6-7
-            7..=9 => 30,         // 30 seconds for attempts 8-10
-            _ => 60,             // 60 seconds for 11+ attempts
+            0..=2 => 0,  // No delay for first 3 attempts
+            3..=4 => 1,  // 1 second for attempts 4-5
+            5..=6 => 5,  // 5 seconds for attempts 6-7
+            7..=9 => 30, // 30 seconds for attempts 8-10
+            _ => 60,     // 60 seconds for 11+ attempts
         }
     }
 
@@ -92,11 +92,20 @@ impl RateLimiter {
         // Parse: 4 bytes failures (LE) + 8 bytes timestamp (LE)
         let failures = u32::from_le_bytes([contents[0], contents[1], contents[2], contents[3]]);
         let last_failure = i64::from_le_bytes([
-            contents[4], contents[5], contents[6], contents[7],
-            contents[8], contents[9], contents[10], contents[11],
+            contents[4],
+            contents[5],
+            contents[6],
+            contents[7],
+            contents[8],
+            contents[9],
+            contents[10],
+            contents[11],
         ]);
 
-        Some(RateLimitState { failures, last_failure })
+        Some(RateLimitState {
+            failures,
+            last_failure,
+        })
     }
 
     /// Write rate limit state to disk atomically.
@@ -129,7 +138,10 @@ impl RateLimiter {
         };
         let temp_name = format!(
             "{}.tmp.{}.{}",
-            self.state_file.file_name().unwrap_or_default().to_string_lossy(),
+            self.state_file
+                .file_name()
+                .unwrap_or_default()
+                .to_string_lossy(),
             pid,
             random_suffix
         );
@@ -266,9 +278,13 @@ pub fn format_delay(duration: Duration) -> String {
         if remaining_secs == 0 {
             format!("{} minute{}", mins, if mins == 1 { "" } else { "s" })
         } else {
-            format!("{} minute{} {} second{}",
-                mins, if mins == 1 { "" } else { "s" },
-                remaining_secs, if remaining_secs == 1 { "" } else { "s" })
+            format!(
+                "{} minute{} {} second{}",
+                mins,
+                if mins == 1 { "" } else { "s" },
+                remaining_secs,
+                if remaining_secs == 1 { "" } else { "s" }
+            )
         }
     }
 }
@@ -624,14 +640,20 @@ impl ApiRateLimiter {
         } else {
             drop(buckets);
             let mut buckets = self.buckets.write().unwrap_or_else(|e| e.into_inner());
-            buckets.entry(endpoint.to_string())
-                .or_insert_with(|| TokenBucket::new(self.config.burst_size, self.config.refill_rate))
+            buckets
+                .entry(endpoint.to_string())
+                .or_insert_with(|| {
+                    TokenBucket::new(self.config.burst_size, self.config.refill_rate)
+                })
                 .clone()
         }
     }
 
     fn update_bucket(&self, endpoint: &str, bucket: TokenBucket) {
-        self.buckets.write().unwrap_or_else(|e| e.into_inner()).insert(endpoint.to_string(), bucket);
+        self.buckets
+            .write()
+            .unwrap_or_else(|e| e.into_inner())
+            .insert(endpoint.to_string(), bucket);
     }
 
     fn get_or_create_window(&self, endpoint: &str) -> SlidingWindow {
@@ -641,14 +663,20 @@ impl ApiRateLimiter {
         } else {
             drop(windows);
             let mut windows = self.windows.write().unwrap_or_else(|e| e.into_inner());
-            windows.entry(endpoint.to_string())
-                .or_insert_with(|| SlidingWindow::new(self.config.max_requests, self.config.window_secs))
+            windows
+                .entry(endpoint.to_string())
+                .or_insert_with(|| {
+                    SlidingWindow::new(self.config.max_requests, self.config.window_secs)
+                })
                 .clone()
         }
     }
 
     fn update_window(&self, endpoint: &str, window: SlidingWindow) {
-        self.windows.write().unwrap_or_else(|e| e.into_inner()).insert(endpoint.to_string(), window);
+        self.windows
+            .write()
+            .unwrap_or_else(|e| e.into_inner())
+            .insert(endpoint.to_string(), window);
     }
 
     /// Check if a request is allowed for the given endpoint.
@@ -705,18 +733,28 @@ impl ApiRateLimiter {
 
     /// Reset rate limits for an endpoint.
     pub fn reset(&self, endpoint: &str) {
-        self.buckets.write().unwrap_or_else(|e| e.into_inner()).remove(endpoint);
-        self.windows.write().unwrap_or_else(|e| e.into_inner()).remove(endpoint);
+        self.buckets
+            .write()
+            .unwrap_or_else(|e| e.into_inner())
+            .remove(endpoint);
+        self.windows
+            .write()
+            .unwrap_or_else(|e| e.into_inner())
+            .remove(endpoint);
     }
 
     /// Reset all rate limits.
     pub fn reset_all(&self) {
-        self.buckets.write().unwrap_or_else(|e| e.into_inner()).clear();
-        self.windows.write().unwrap_or_else(|e| e.into_inner()).clear();
-        *self.global_bucket.lock().unwrap_or_else(|e| e.into_inner()) = TokenBucket::new(
-            self.config.burst_size * 10,
-            self.config.refill_rate * 10.0,
-        );
+        self.buckets
+            .write()
+            .unwrap_or_else(|e| e.into_inner())
+            .clear();
+        self.windows
+            .write()
+            .unwrap_or_else(|e| e.into_inner())
+            .clear();
+        *self.global_bucket.lock().unwrap_or_else(|e| e.into_inner()) =
+            TokenBucket::new(self.config.burst_size * 10, self.config.refill_rate * 10.0);
     }
 }
 

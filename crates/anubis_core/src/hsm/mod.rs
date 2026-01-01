@@ -101,7 +101,10 @@ impl KeyType {
 
     /// Check if this is an asymmetric key type.
     pub fn is_asymmetric(&self) -> bool {
-        matches!(self, KeyType::MlDsa87 | KeyType::MlKem1024 | KeyType::Ed25519 | KeyType::EcdsaP256)
+        matches!(
+            self,
+            KeyType::MlDsa87 | KeyType::MlKem1024 | KeyType::Ed25519 | KeyType::EcdsaP256
+        )
     }
 }
 
@@ -215,7 +218,12 @@ pub trait HsmBackend: Send + Sync {
     fn generate_key(&self, key_type: KeyType, label: &str) -> Result<KeyHandle, HsmError>;
 
     /// Import a key (if allowed by policy).
-    fn import_key(&self, key_type: KeyType, key_data: &[u8], label: &str) -> Result<KeyHandle, HsmError>;
+    fn import_key(
+        &self,
+        key_type: KeyType,
+        key_data: &[u8],
+        label: &str,
+    ) -> Result<KeyHandle, HsmError>;
 
     /// Export the public key.
     fn export_public_key(&self, handle: &KeyHandle) -> Result<Vec<u8>, HsmError>;
@@ -224,7 +232,12 @@ pub trait HsmBackend: Send + Sync {
     fn sign(&self, handle: &KeyHandle, message: &[u8]) -> Result<Vec<u8>, HsmError>;
 
     /// Verify a signature.
-    fn verify(&self, handle: &KeyHandle, message: &[u8], signature: &[u8]) -> Result<bool, HsmError>;
+    fn verify(
+        &self,
+        handle: &KeyHandle,
+        message: &[u8],
+        signature: &[u8],
+    ) -> Result<bool, HsmError>;
 
     /// Encrypt data (for KEM keys, this is encapsulation).
     fn encrypt(&self, handle: &KeyHandle, plaintext: &[u8]) -> Result<Vec<u8>, HsmError>;
@@ -305,7 +318,10 @@ impl HsmBackend for SoftwareHsm {
                 use crate::mldsa::KeyPair;
                 let keypair = KeyPair::generate()
                     .map_err(|e| HsmError::KeyGenerationFailed(e.to_string()))?;
-                (keypair.secret_key().to_bytes().to_vec(), keypair.public_key().to_bytes().to_vec())
+                (
+                    keypair.secret_key().to_bytes().to_vec(),
+                    keypair.public_key().to_bytes().to_vec(),
+                )
             }
             KeyType::MlKem1024 => {
                 use crate::mlkem::MlKemKeyPair;
@@ -320,8 +336,14 @@ impl HsmBackend for SoftwareHsm {
         let id = self.generate_id();
         let attributes = KeyAttributes {
             key_type,
-            can_sign: matches!(key_type, KeyType::MlDsa87 | KeyType::Ed25519 | KeyType::EcdsaP256),
-            can_verify: matches!(key_type, KeyType::MlDsa87 | KeyType::Ed25519 | KeyType::EcdsaP256),
+            can_sign: matches!(
+                key_type,
+                KeyType::MlDsa87 | KeyType::Ed25519 | KeyType::EcdsaP256
+            ),
+            can_verify: matches!(
+                key_type,
+                KeyType::MlDsa87 | KeyType::Ed25519 | KeyType::EcdsaP256
+            ),
             can_encrypt: matches!(key_type, KeyType::MlKem1024 | KeyType::Aes256),
             can_decrypt: matches!(key_type, KeyType::MlKem1024 | KeyType::Aes256),
             exportable: false,
@@ -341,7 +363,12 @@ impl HsmBackend for SoftwareHsm {
         Ok(KeyHandle::new(id))
     }
 
-    fn import_key(&self, key_type: KeyType, key_data: &[u8], label: &str) -> Result<KeyHandle, HsmError> {
+    fn import_key(
+        &self,
+        key_type: KeyType,
+        key_data: &[u8],
+        label: &str,
+    ) -> Result<KeyHandle, HsmError> {
         if !self.initialized {
             return Err(HsmError::NotInitialized);
         }
@@ -350,13 +377,15 @@ impl HsmBackend for SoftwareHsm {
         // For asymmetric keys, key_data must contain both secret and public key concatenated
         let (secret_key, public_key) = match key_type {
             KeyType::MlDsa87 => {
-                use crate::mldsa::{SecretKey, PublicKey, SECRET_KEY_SIZE, PUBLIC_KEY_SIZE};
+                use crate::mldsa::{PublicKey, SecretKey, PUBLIC_KEY_SIZE, SECRET_KEY_SIZE};
                 // Expect concatenated sk || pk format
                 let expected_len = SECRET_KEY_SIZE + PUBLIC_KEY_SIZE;
                 if key_data.len() != expected_len {
-                    return Err(HsmError::CryptoFailed(
-                        format!("ML-DSA import requires {} bytes (sk || pk), got {}", expected_len, key_data.len())
-                    ));
+                    return Err(HsmError::CryptoFailed(format!(
+                        "ML-DSA import requires {} bytes (sk || pk), got {}",
+                        expected_len,
+                        key_data.len()
+                    )));
                 }
                 // Validate both keys
                 let sk_bytes = &key_data[..SECRET_KEY_SIZE];
@@ -396,16 +425,22 @@ impl HsmBackend for SoftwareHsm {
 
     fn export_public_key(&self, handle: &KeyHandle) -> Result<Vec<u8>, HsmError> {
         let keys = self.keys.read().unwrap();
-        let key = keys.get(handle.id()).ok_or_else(|| HsmError::KeyNotFound(handle.id().to_string()))?;
+        let key = keys
+            .get(handle.id())
+            .ok_or_else(|| HsmError::KeyNotFound(handle.id().to_string()))?;
         Ok(key.public_key.clone())
     }
 
     fn sign(&self, handle: &KeyHandle, message: &[u8]) -> Result<Vec<u8>, HsmError> {
         let keys = self.keys.read().unwrap();
-        let key = keys.get(handle.id()).ok_or_else(|| HsmError::KeyNotFound(handle.id().to_string()))?;
+        let key = keys
+            .get(handle.id())
+            .ok_or_else(|| HsmError::KeyNotFound(handle.id().to_string()))?;
 
         if !key.attributes.can_sign {
-            return Err(HsmError::OperationNotPermitted("Key cannot be used for signing".to_string()));
+            return Err(HsmError::OperationNotPermitted(
+                "Key cannot be used for signing".to_string(),
+            ));
         }
 
         match key.key_type {
@@ -413,7 +448,8 @@ impl HsmBackend for SoftwareHsm {
                 use crate::mldsa::SecretKey;
                 let sk = SecretKey::from_bytes(key.secret_key.as_slice())
                     .map_err(|e| HsmError::InternalError(e.to_string()))?;
-                let sig = sk.sign(message)
+                let sig = sk
+                    .sign(message)
                     .map_err(|e| HsmError::SigningFailed(e.to_string()))?;
                 Ok(sig.to_bytes().to_vec())
             }
@@ -421,12 +457,21 @@ impl HsmBackend for SoftwareHsm {
         }
     }
 
-    fn verify(&self, handle: &KeyHandle, message: &[u8], signature: &[u8]) -> Result<bool, HsmError> {
+    fn verify(
+        &self,
+        handle: &KeyHandle,
+        message: &[u8],
+        signature: &[u8],
+    ) -> Result<bool, HsmError> {
         let keys = self.keys.read().unwrap();
-        let key = keys.get(handle.id()).ok_or_else(|| HsmError::KeyNotFound(handle.id().to_string()))?;
+        let key = keys
+            .get(handle.id())
+            .ok_or_else(|| HsmError::KeyNotFound(handle.id().to_string()))?;
 
         if !key.attributes.can_verify {
-            return Err(HsmError::OperationNotPermitted("Key cannot be used for verification".to_string()));
+            return Err(HsmError::OperationNotPermitted(
+                "Key cannot be used for verification".to_string(),
+            ));
         }
 
         match key.key_type {
@@ -444,10 +489,14 @@ impl HsmBackend for SoftwareHsm {
 
     fn encrypt(&self, handle: &KeyHandle, _plaintext: &[u8]) -> Result<Vec<u8>, HsmError> {
         let keys = self.keys.read().unwrap();
-        let key = keys.get(handle.id()).ok_or_else(|| HsmError::KeyNotFound(handle.id().to_string()))?;
+        let key = keys
+            .get(handle.id())
+            .ok_or_else(|| HsmError::KeyNotFound(handle.id().to_string()))?;
 
         if !key.attributes.can_encrypt {
-            return Err(HsmError::OperationNotPermitted("Key cannot be used for encryption".to_string()));
+            return Err(HsmError::OperationNotPermitted(
+                "Key cannot be used for encryption".to_string(),
+            ));
         }
 
         match key.key_type {
@@ -455,7 +504,8 @@ impl HsmBackend for SoftwareHsm {
                 use crate::mlkem::MlKemPublicKey;
                 let pk = MlKemPublicKey::from_bytes(key.public_key.as_slice())
                     .map_err(|e| HsmError::CryptoFailed(e.to_string()))?;
-                let (ciphertext, _shared_secret) = pk.encapsulate()
+                let (ciphertext, _shared_secret) = pk
+                    .encapsulate()
                     .map_err(|e| HsmError::CryptoFailed(e.to_string()))?;
                 // For simple encryption, we'd need to combine KEM with symmetric encryption
                 // This is a simplified implementation
@@ -467,10 +517,14 @@ impl HsmBackend for SoftwareHsm {
 
     fn decrypt(&self, handle: &KeyHandle, ciphertext: &[u8]) -> Result<Vec<u8>, HsmError> {
         let keys = self.keys.read().unwrap();
-        let key = keys.get(handle.id()).ok_or_else(|| HsmError::KeyNotFound(handle.id().to_string()))?;
+        let key = keys
+            .get(handle.id())
+            .ok_or_else(|| HsmError::KeyNotFound(handle.id().to_string()))?;
 
         if !key.attributes.can_decrypt {
-            return Err(HsmError::OperationNotPermitted("Key cannot be used for decryption".to_string()));
+            return Err(HsmError::OperationNotPermitted(
+                "Key cannot be used for decryption".to_string(),
+            ));
         }
 
         match key.key_type {
@@ -478,7 +532,8 @@ impl HsmBackend for SoftwareHsm {
                 use crate::mlkem::MlKemSecretKey;
                 let sk = MlKemSecretKey::from_bytes(key.secret_key.as_slice())
                     .map_err(|e| HsmError::CryptoFailed(e.to_string()))?;
-                let shared_secret = sk.decapsulate(ciphertext)
+                let shared_secret = sk
+                    .decapsulate(ciphertext)
                     .map_err(|e| HsmError::CryptoFailed(e.to_string()))?;
                 Ok(shared_secret.to_vec())
             }
@@ -505,7 +560,9 @@ impl HsmBackend for SoftwareHsm {
 
     fn get_attributes(&self, handle: &KeyHandle) -> Result<KeyAttributes, HsmError> {
         let keys = self.keys.read().unwrap();
-        let key = keys.get(handle.id()).ok_or_else(|| HsmError::KeyNotFound(handle.id().to_string()))?;
+        let key = keys
+            .get(handle.id())
+            .ok_or_else(|| HsmError::KeyNotFound(handle.id().to_string()))?;
         Ok(key.attributes.clone())
     }
 
@@ -625,14 +682,18 @@ impl Pkcs11Hsm {
 
     /// Generate an AES-256 wrapping key for protecting PQ keys.
     /// Takes a session reference to avoid double-locking.
-    fn get_or_create_wrapping_key_with_session(&self, session: &Session) -> Result<ObjectHandle, HsmError> {
+    fn get_or_create_wrapping_key_with_session(
+        &self,
+        session: &Session,
+    ) -> Result<ObjectHandle, HsmError> {
         // Search for existing wrapping key
         let template = vec![
             Attribute::Class(ObjectClass::SECRET_KEY),
             Attribute::Label(b"anubis-pq-wrapper".to_vec()),
         ];
 
-        let objects = session.find_objects(&template)
+        let objects = session
+            .find_objects(&template)
             .map_err(|e| HsmError::InternalError(format!("Find wrapping key failed: {}", e)))?;
 
         if let Some(handle) = objects.first() {
@@ -655,7 +716,8 @@ impl Pkcs11Hsm {
             Attribute::Label(b"anubis-pq-wrapper".to_vec()),
         ];
 
-        session.generate_key(&Mechanism::AesKeyGen, &key_template)
+        session
+            .generate_key(&Mechanism::AesKeyGen, &key_template)
             .map_err(|e| HsmError::KeyGenerationFailed(format!("AES keygen failed: {}", e)))
     }
 
@@ -670,9 +732,14 @@ impl Pkcs11Hsm {
         getrandom::getrandom(&mut iv).map_err(|e| HsmError::InternalError(e.to_string()))?;
 
         // Encrypt with AES-GCM
-        let mechanism = Mechanism::AesGcm(cryptoki::mechanism::aead::GcmParams::new(&iv, &[], 128.into()));
+        let mechanism = Mechanism::AesGcm(cryptoki::mechanism::aead::GcmParams::new(
+            &iv,
+            &[],
+            128.into(),
+        ));
 
-        let ciphertext = session.encrypt(&mechanism, wrap_key, data)
+        let ciphertext = session
+            .encrypt(&mechanism, wrap_key, data)
             .map_err(|e| HsmError::CryptoFailed(format!("Wrap failed: {}", e)))?;
 
         // Prepend IV to ciphertext
@@ -694,9 +761,14 @@ impl Pkcs11Hsm {
         let iv = &wrapped[..12];
         let ciphertext = &wrapped[12..];
 
-        let mechanism = Mechanism::AesGcm(cryptoki::mechanism::aead::GcmParams::new(iv, &[], 128.into()));
+        let mechanism = Mechanism::AesGcm(cryptoki::mechanism::aead::GcmParams::new(
+            iv,
+            &[],
+            128.into(),
+        ));
 
-        session.decrypt(&mechanism, wrap_key, ciphertext)
+        session
+            .decrypt(&mechanism, wrap_key, ciphertext)
             .map_err(|e| HsmError::CryptoFailed(format!("Unwrap failed: {}", e)))
     }
 }
@@ -704,15 +776,18 @@ impl Pkcs11Hsm {
 impl HsmBackend for Pkcs11Hsm {
     fn initialize(&mut self, config: &HsmConfig) -> Result<(), HsmError> {
         // Load PKCS#11 library
-        let ctx = Pkcs11::new(&self.library_path)
-            .map_err(|e| HsmError::ConnectionFailed(format!("Failed to load PKCS#11 library: {}", e)))?;
+        let ctx = Pkcs11::new(&self.library_path).map_err(|e| {
+            HsmError::ConnectionFailed(format!("Failed to load PKCS#11 library: {}", e))
+        })?;
 
         // Initialize the library
-        ctx.initialize(CInitializeArgs::OsThreads)
-            .map_err(|e| HsmError::ConnectionFailed(format!("Failed to initialize PKCS#11: {}", e)))?;
+        ctx.initialize(CInitializeArgs::OsThreads).map_err(|e| {
+            HsmError::ConnectionFailed(format!("Failed to initialize PKCS#11: {}", e))
+        })?;
 
         // Get slots with tokens
-        let slots = ctx.get_slots_with_token()
+        let slots = ctx
+            .get_slots_with_token()
             .map_err(|e| HsmError::ConnectionFailed(format!("Failed to get slots: {}", e)))?;
 
         if slots.is_empty() {
@@ -721,18 +796,21 @@ impl HsmBackend for Pkcs11Hsm {
 
         // Select slot
         let slot_idx = config.slot_id.unwrap_or(0) as usize;
-        let slot = slots.get(slot_idx)
+        let slot = slots
+            .get(slot_idx)
             .ok_or_else(|| HsmError::ConnectionFailed(format!("Slot {} not found", slot_idx)))?;
 
         // Open read-write session
-        let session = ctx.open_rw_session(*slot)
+        let session = ctx
+            .open_rw_session(*slot)
             .map_err(|e| HsmError::ConnectionFailed(format!("Failed to open session: {}", e)))?;
 
         // Login if credentials provided
         if let Some(ref pin) = config.credentials {
             // SECURITY: Use the Zeroizing<String> directly - no extra copies
             let auth_pin = AuthPin::new(pin.as_str().to_string());
-            session.login(UserType::User, Some(&auth_pin))
+            session
+                .login(UserType::User, Some(&auth_pin))
                 .map_err(|_e| HsmError::AuthenticationFailed)?;
             // NOTE: PIN is NOT stored after login - it's no longer needed.
             // The session remains authenticated until logout/close.
@@ -762,7 +840,8 @@ impl HsmBackend for Pkcs11Hsm {
                 let session = inner.session.as_ref().ok_or(HsmError::NotInitialized)?;
 
                 let ec_params = vec![
-                    0x06, 0x08, 0x2a, 0x86, 0x48, 0xce, 0x3d, 0x03, 0x01, 0x07 // OID for P-256
+                    0x06, 0x08, 0x2a, 0x86, 0x48, 0xce, 0x3d, 0x03, 0x01,
+                    0x07, // OID for P-256
                 ];
 
                 let pub_template = vec![
@@ -784,11 +863,11 @@ impl HsmBackend for Pkcs11Hsm {
                     Attribute::Id(id.as_bytes().to_vec()),
                 ];
 
-                let (pub_h, priv_h) = session.generate_key_pair(
-                    &Mechanism::EccKeyPairGen,
-                    &pub_template,
-                    &priv_template,
-                ).map_err(|e| HsmError::KeyGenerationFailed(format!("ECDSA keygen failed: {}", e)))?;
+                let (pub_h, priv_h) = session
+                    .generate_key_pair(&Mechanism::EccKeyPairGen, &pub_template, &priv_template)
+                    .map_err(|e| {
+                        HsmError::KeyGenerationFailed(format!("ECDSA keygen failed: {}", e))
+                    })?;
 
                 (priv_h, pub_h, None, None)
             }
@@ -820,8 +899,9 @@ impl HsmBackend for Pkcs11Hsm {
                     Attribute::Value(wrapped_sk.clone()),
                 ];
 
-                let sk_obj = session.create_object(&data_template)
-                    .map_err(|e| HsmError::KeyGenerationFailed(format!("Store ML-DSA SK failed: {}", e)))?;
+                let sk_obj = session.create_object(&data_template).map_err(|e| {
+                    HsmError::KeyGenerationFailed(format!("Store ML-DSA SK failed: {}", e))
+                })?;
 
                 let pk_template = vec![
                     Attribute::Class(ObjectClass::DATA),
@@ -832,8 +912,9 @@ impl HsmBackend for Pkcs11Hsm {
                     Attribute::Value(wrapped_pk.clone()),
                 ];
 
-                let pk_obj = session.create_object(&pk_template)
-                    .map_err(|e| HsmError::KeyGenerationFailed(format!("Store ML-DSA PK failed: {}", e)))?;
+                let pk_obj = session.create_object(&pk_template).map_err(|e| {
+                    HsmError::KeyGenerationFailed(format!("Store ML-DSA PK failed: {}", e))
+                })?;
 
                 (sk_obj, pk_obj, Some(wrapped_sk), Some(wrapped_pk))
             }
@@ -864,8 +945,9 @@ impl HsmBackend for Pkcs11Hsm {
                     Attribute::Value(wrapped_sk.clone()),
                 ];
 
-                let sk_obj = session.create_object(&data_template)
-                    .map_err(|e| HsmError::KeyGenerationFailed(format!("Store ML-KEM SK failed: {}", e)))?;
+                let sk_obj = session.create_object(&data_template).map_err(|e| {
+                    HsmError::KeyGenerationFailed(format!("Store ML-KEM SK failed: {}", e))
+                })?;
 
                 let pk_template = vec![
                     Attribute::Class(ObjectClass::DATA),
@@ -876,8 +958,9 @@ impl HsmBackend for Pkcs11Hsm {
                     Attribute::Value(wrapped_pk.clone()),
                 ];
 
-                let pk_obj = session.create_object(&pk_template)
-                    .map_err(|e| HsmError::KeyGenerationFailed(format!("Store ML-KEM PK failed: {}", e)))?;
+                let pk_obj = session.create_object(&pk_template).map_err(|e| {
+                    HsmError::KeyGenerationFailed(format!("Store ML-KEM PK failed: {}", e))
+                })?;
 
                 (sk_obj, pk_obj, Some(wrapped_sk), Some(wrapped_pk))
             }
@@ -887,8 +970,14 @@ impl HsmBackend for Pkcs11Hsm {
 
         let attributes = KeyAttributes {
             key_type,
-            can_sign: matches!(key_type, KeyType::MlDsa87 | KeyType::Ed25519 | KeyType::EcdsaP256),
-            can_verify: matches!(key_type, KeyType::MlDsa87 | KeyType::Ed25519 | KeyType::EcdsaP256),
+            can_sign: matches!(
+                key_type,
+                KeyType::MlDsa87 | KeyType::Ed25519 | KeyType::EcdsaP256
+            ),
+            can_verify: matches!(
+                key_type,
+                KeyType::MlDsa87 | KeyType::Ed25519 | KeyType::EcdsaP256
+            ),
             can_encrypt: matches!(key_type, KeyType::MlKem1024 | KeyType::Aes256),
             can_decrypt: matches!(key_type, KeyType::MlKem1024 | KeyType::Aes256),
             exportable: false,
@@ -910,28 +999,37 @@ impl HsmBackend for Pkcs11Hsm {
         Ok(KeyHandle::new(id))
     }
 
-    fn import_key(&self, _key_type: KeyType, _key_data: &[u8], _label: &str) -> Result<KeyHandle, HsmError> {
+    fn import_key(
+        &self,
+        _key_type: KeyType,
+        _key_data: &[u8],
+        _label: &str,
+    ) -> Result<KeyHandle, HsmError> {
         Err(HsmError::OperationNotPermitted(
-            "Key import disabled for security".to_string()
+            "Key import disabled for security".to_string(),
         ))
     }
 
     fn export_public_key(&self, handle: &KeyHandle) -> Result<Vec<u8>, HsmError> {
         let keys = self.keys.read().unwrap();
-        let entry = keys.get(handle.id())
+        let entry = keys
+            .get(handle.id())
             .ok_or_else(|| HsmError::KeyNotFound(handle.id().to_string()))?;
 
         match entry.key_type {
             KeyType::MlDsa87 | KeyType::MlKem1024 => {
                 // PQ keys: public key stored unwrapped
-                entry.wrapped_pk.clone()
+                entry
+                    .wrapped_pk
+                    .clone()
                     .ok_or_else(|| HsmError::InternalError("Public key not found".to_string()))
             }
             KeyType::EcdsaP256 => {
                 // Get EC point from HSM
                 let inner = self.inner.lock().unwrap();
                 let session = inner.session.as_ref().ok_or(HsmError::NotInitialized)?;
-                let attrs = session.get_attributes(entry.public_handle, &[AttributeType::EcPoint])
+                let attrs = session
+                    .get_attributes(entry.public_handle, &[AttributeType::EcPoint])
                     .map_err(|e| HsmError::InternalError(format!("Get EC point failed: {}", e)))?;
 
                 for attr in attrs {
@@ -947,11 +1045,14 @@ impl HsmBackend for Pkcs11Hsm {
 
     fn sign(&self, handle: &KeyHandle, message: &[u8]) -> Result<Vec<u8>, HsmError> {
         let keys = self.keys.read().unwrap();
-        let entry = keys.get(handle.id())
+        let entry = keys
+            .get(handle.id())
             .ok_or_else(|| HsmError::KeyNotFound(handle.id().to_string()))?;
 
         if !entry.attributes.can_sign {
-            return Err(HsmError::OperationNotPermitted("Key cannot sign".to_string()));
+            return Err(HsmError::OperationNotPermitted(
+                "Key cannot sign".to_string(),
+            ));
         }
 
         match entry.key_type {
@@ -962,12 +1063,15 @@ impl HsmBackend for Pkcs11Hsm {
 
                 let inner = self.inner.lock().unwrap();
                 let session = inner.session.as_ref().ok_or(HsmError::NotInitialized)?;
-                session.sign(&Mechanism::Ecdsa, private_handle, message)
+                session
+                    .sign(&Mechanism::Ecdsa, private_handle, message)
                     .map_err(|e| HsmError::SigningFailed(format!("ECDSA sign failed: {}", e)))
             }
             KeyType::MlDsa87 => {
                 // Unwrap key and sign in software
-                let wrapped_sk = entry.wrapped_sk.as_ref()
+                let wrapped_sk = entry
+                    .wrapped_sk
+                    .as_ref()
                     .ok_or_else(|| HsmError::InternalError("Wrapped SK not found".to_string()))?;
 
                 // Need to drop keys lock before calling unwrap_data (which needs session)
@@ -982,7 +1086,8 @@ impl HsmBackend for Pkcs11Hsm {
                 let sk = SecretKey::from_bytes(&sk_bytes)
                     .map_err(|e| HsmError::InternalError(e.to_string()))?;
 
-                let sig = sk.sign(message)
+                let sig = sk
+                    .sign(message)
                     .map_err(|e| HsmError::SigningFailed(e.to_string()))?;
 
                 // sk_bytes is automatically zeroized when dropped here
@@ -992,13 +1097,21 @@ impl HsmBackend for Pkcs11Hsm {
         }
     }
 
-    fn verify(&self, handle: &KeyHandle, message: &[u8], signature: &[u8]) -> Result<bool, HsmError> {
+    fn verify(
+        &self,
+        handle: &KeyHandle,
+        message: &[u8],
+        signature: &[u8],
+    ) -> Result<bool, HsmError> {
         let keys = self.keys.read().unwrap();
-        let entry = keys.get(handle.id())
+        let entry = keys
+            .get(handle.id())
             .ok_or_else(|| HsmError::KeyNotFound(handle.id().to_string()))?;
 
         if !entry.attributes.can_verify {
-            return Err(HsmError::OperationNotPermitted("Key cannot verify".to_string()));
+            return Err(HsmError::OperationNotPermitted(
+                "Key cannot verify".to_string(),
+            ));
         }
 
         match entry.key_type {
@@ -1014,7 +1127,9 @@ impl HsmBackend for Pkcs11Hsm {
                 }
             }
             KeyType::MlDsa87 => {
-                let pk_bytes = entry.wrapped_pk.as_ref()
+                let pk_bytes = entry
+                    .wrapped_pk
+                    .as_ref()
                     .ok_or_else(|| HsmError::InternalError("Public key not found".to_string()))?;
 
                 use crate::mldsa::{PublicKey, Signature};
@@ -1031,23 +1146,29 @@ impl HsmBackend for Pkcs11Hsm {
 
     fn encrypt(&self, handle: &KeyHandle, _plaintext: &[u8]) -> Result<Vec<u8>, HsmError> {
         let keys = self.keys.read().unwrap();
-        let entry = keys.get(handle.id())
+        let entry = keys
+            .get(handle.id())
             .ok_or_else(|| HsmError::KeyNotFound(handle.id().to_string()))?;
 
         if !entry.attributes.can_encrypt {
-            return Err(HsmError::OperationNotPermitted("Key cannot encrypt".to_string()));
+            return Err(HsmError::OperationNotPermitted(
+                "Key cannot encrypt".to_string(),
+            ));
         }
 
         match entry.key_type {
             KeyType::MlKem1024 => {
-                let pk_bytes = entry.wrapped_pk.as_ref()
+                let pk_bytes = entry
+                    .wrapped_pk
+                    .as_ref()
                     .ok_or_else(|| HsmError::InternalError("Public key not found".to_string()))?;
 
                 use crate::mlkem::MlKemPublicKey;
                 let pk = MlKemPublicKey::from_bytes(pk_bytes)
                     .map_err(|e| HsmError::CryptoFailed(e.to_string()))?;
 
-                let (ciphertext, _shared_secret) = pk.encapsulate()
+                let (ciphertext, _shared_secret) = pk
+                    .encapsulate()
                     .map_err(|e| HsmError::CryptoFailed(e.to_string()))?;
 
                 Ok(ciphertext.to_vec())
@@ -1058,16 +1179,21 @@ impl HsmBackend for Pkcs11Hsm {
 
     fn decrypt(&self, handle: &KeyHandle, ciphertext: &[u8]) -> Result<Vec<u8>, HsmError> {
         let keys = self.keys.read().unwrap();
-        let entry = keys.get(handle.id())
+        let entry = keys
+            .get(handle.id())
             .ok_or_else(|| HsmError::KeyNotFound(handle.id().to_string()))?;
 
         if !entry.attributes.can_decrypt {
-            return Err(HsmError::OperationNotPermitted("Key cannot decrypt".to_string()));
+            return Err(HsmError::OperationNotPermitted(
+                "Key cannot decrypt".to_string(),
+            ));
         }
 
         match entry.key_type {
             KeyType::MlKem1024 => {
-                let wrapped_sk = entry.wrapped_sk.as_ref()
+                let wrapped_sk = entry
+                    .wrapped_sk
+                    .as_ref()
                     .ok_or_else(|| HsmError::InternalError("Wrapped SK not found".to_string()))?;
 
                 let wrapped_sk = wrapped_sk.clone();
@@ -1081,7 +1207,8 @@ impl HsmBackend for Pkcs11Hsm {
                 let sk = MlKemSecretKey::from_bytes(&sk_bytes)
                     .map_err(|e| HsmError::CryptoFailed(e.to_string()))?;
 
-                let shared_secret = sk.decapsulate(ciphertext)
+                let shared_secret = sk
+                    .decapsulate(ciphertext)
                     .map_err(|e| HsmError::CryptoFailed(e.to_string()))?;
 
                 // sk_bytes is automatically zeroized when dropped here
@@ -1093,7 +1220,8 @@ impl HsmBackend for Pkcs11Hsm {
 
     fn delete_key(&self, handle: &KeyHandle) -> Result<(), HsmError> {
         let mut keys = self.keys.write().unwrap();
-        let entry = keys.remove(handle.id())
+        let entry = keys
+            .remove(handle.id())
             .ok_or_else(|| HsmError::KeyNotFound(handle.id().to_string()))?;
 
         // Destroy objects in HSM
@@ -1116,7 +1244,8 @@ impl HsmBackend for Pkcs11Hsm {
 
     fn get_attributes(&self, handle: &KeyHandle) -> Result<KeyAttributes, HsmError> {
         let keys = self.keys.read().unwrap();
-        let entry = keys.get(handle.id())
+        let entry = keys
+            .get(handle.id())
             .ok_or_else(|| HsmError::KeyNotFound(handle.id().to_string()))?;
         Ok(entry.attributes.clone())
     }
@@ -1175,22 +1304,22 @@ impl HsmProvider {
             }
             HsmProviderType::AwsCloudHsm => {
                 return Err(HsmError::InternalError(
-                    "AWS CloudHSM backend not yet implemented".to_string()
+                    "AWS CloudHSM backend not yet implemented".to_string(),
                 ));
             }
             HsmProviderType::AzureKeyVault => {
                 return Err(HsmError::InternalError(
-                    "Azure Key Vault backend not yet implemented".to_string()
+                    "Azure Key Vault backend not yet implemented".to_string(),
                 ));
             }
             HsmProviderType::GcpCloudHsm => {
                 return Err(HsmError::InternalError(
-                    "GCP Cloud HSM backend not yet implemented".to_string()
+                    "GCP Cloud HSM backend not yet implemented".to_string(),
                 ));
             }
             HsmProviderType::Tpm => {
                 return Err(HsmError::InternalError(
-                    "TPM backend not yet implemented".to_string()
+                    "TPM backend not yet implemented".to_string(),
                 ));
             }
         };
@@ -1214,8 +1343,16 @@ impl HsmProvider {
     }
 
     /// Import a key into the HSM.
-    pub fn import_key(&self, key_type: KeyType, key_data: &[u8], label: &str) -> Result<KeyHandle, HsmError> {
-        self.backend.lock().unwrap().import_key(key_type, key_data, label)
+    pub fn import_key(
+        &self,
+        key_type: KeyType,
+        key_data: &[u8],
+        label: &str,
+    ) -> Result<KeyHandle, HsmError> {
+        self.backend
+            .lock()
+            .unwrap()
+            .import_key(key_type, key_data, label)
     }
 
     /// Export the public key.
@@ -1229,8 +1366,16 @@ impl HsmProvider {
     }
 
     /// Verify a signature using a key in the HSM.
-    pub fn verify(&self, handle: &KeyHandle, message: &[u8], signature: &[u8]) -> Result<bool, HsmError> {
-        self.backend.lock().unwrap().verify(handle, message, signature)
+    pub fn verify(
+        &self,
+        handle: &KeyHandle,
+        message: &[u8],
+        signature: &[u8],
+    ) -> Result<bool, HsmError> {
+        self.backend
+            .lock()
+            .unwrap()
+            .verify(handle, message, signature)
     }
 
     /// Encrypt data using a key in the HSM.

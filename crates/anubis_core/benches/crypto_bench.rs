@@ -91,21 +91,13 @@ fn hkdf_benchmark(c: &mut Criterion) {
         if *output_size == 32 {
             group.bench_function("derive-32", |b| {
                 b.iter(|| {
-                    HkdfShake256::derive::<32>(
-                        black_box(&salt),
-                        black_box(&ikm),
-                        black_box(info),
-                    )
+                    HkdfShake256::derive::<32>(black_box(&salt), black_box(&ikm), black_box(info))
                 })
             });
         } else if *output_size == 64 {
             group.bench_function("derive-64", |b| {
                 b.iter(|| {
-                    HkdfShake256::derive::<64>(
-                        black_box(&salt),
-                        black_box(&ikm),
-                        black_box(info),
-                    )
+                    HkdfShake256::derive::<64>(black_box(&salt), black_box(&ikm), black_box(info))
                 })
             });
         }
@@ -158,13 +150,9 @@ fn merkle_benchmark(c: &mut Criterion) {
         }
         tree.compute_root().unwrap();
 
-        group.bench_with_input(
-            BenchmarkId::new("proof", leaf_count),
-            &tree,
-            |b, tree| {
-                b.iter(|| tree.generate_proof(black_box(0)))
-            },
-        );
+        group.bench_with_input(BenchmarkId::new("proof", leaf_count), &tree, |b, tree| {
+            b.iter(|| tree.generate_proof(black_box(0)))
+        });
     }
 
     group.finish();
@@ -183,14 +171,16 @@ fn mldsa_benchmark(c: &mut Criterion) {
 
     let keypair = KeyPair::from_seed(&seed).unwrap();
 
-    group.bench_function("sign", |b| {
-        b.iter(|| keypair.sign(black_box(message)))
-    });
+    group.bench_function("sign", |b| b.iter(|| keypair.sign(black_box(message))));
 
     let signature = keypair.sign(message).unwrap();
 
     group.bench_function("verify", |b| {
-        b.iter(|| keypair.public_key().verify(black_box(message), black_box(&signature)))
+        b.iter(|| {
+            keypair
+                .public_key()
+                .verify(black_box(message), black_box(&signature))
+        })
     });
 
     group.finish();
@@ -200,16 +190,12 @@ fn mlkem_benchmark(c: &mut Criterion) {
     let mut group = c.benchmark_group("ML-KEM-1024");
     group.sample_size(10); // Reduce sample size due to slow operations
 
-    group.bench_function("keygen", |b| {
-        b.iter(|| MlKemKeyPair::generate())
-    });
+    group.bench_function("keygen", |b| b.iter(|| MlKemKeyPair::generate()));
 
     let keypair = MlKemKeyPair::generate().unwrap();
     let pk = anubis_core::mlkem::MlKemPublicKey::from_bytes(keypair.public_key_bytes()).unwrap();
 
-    group.bench_function("encapsulate", |b| {
-        b.iter(|| pk.encapsulate())
-    });
+    group.bench_function("encapsulate", |b| b.iter(|| pk.encapsulate()));
 
     let (ciphertext, _) = pk.encapsulate().unwrap();
 

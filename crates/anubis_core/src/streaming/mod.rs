@@ -599,7 +599,8 @@ impl<W: Write> Write for HashingWriter<W> {
         while written < buf.len() {
             let space = self.chunk_size - self.buffer.len();
             let to_copy = std::cmp::min(space, buf.len() - written);
-            self.buffer.extend_from_slice(&buf[written..written + to_copy]);
+            self.buffer
+                .extend_from_slice(&buf[written..written + to_copy]);
             written += to_copy;
 
             if self.buffer.len() == self.chunk_size {

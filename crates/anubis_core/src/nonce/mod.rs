@@ -17,8 +17,8 @@
 //! let nonce = deriver.derive(next, entry_id, domain)?;
 //! ```
 
-use core::fmt;
 use crate::kdf::HkdfShake256;
+use core::fmt;
 
 /// Maximum counter value for injectivity guarantee (2^48).
 pub const MAX_COUNTER: u64 = 1u64 << 48;
@@ -118,18 +118,16 @@ impl PersistentNonceCounter {
 
     /// Load a counter from an existing file.
     fn load(path: &std::path::Path) -> Result<Self, NonceError> {
-        let data = std::fs::read(path)
-            .map_err(|e| NonceError::LoadFailed(e.to_string()))?;
+        let data = std::fs::read(path).map_err(|e| NonceError::LoadFailed(e.to_string()))?;
 
         if data.len() != 8 {
-            return Err(NonceError::LoadFailed(
-                format!("invalid counter file size: expected 8, got {}", data.len())
-            ));
+            return Err(NonceError::LoadFailed(format!(
+                "invalid counter file size: expected 8, got {}",
+                data.len()
+            )));
         }
 
-        let counter = u64::from_le_bytes(
-            data.try_into().expect("length already checked")
-        );
+        let counter = u64::from_le_bytes(data.try_into().expect("length already checked"));
 
         if counter >= MAX_COUNTER {
             return Err(NonceError::CounterOverflow);
@@ -154,7 +152,9 @@ impl PersistentNonceCounter {
     /// Returns `CounterOverflow` if counter would exceed MAX_COUNTER.
     /// Returns `PersistenceFailed` if disk write fails.
     pub fn next(&mut self) -> Result<u64, NonceError> {
-        let next = self.counter.checked_add(1)
+        let next = self
+            .counter
+            .checked_add(1)
             .ok_or(NonceError::CounterOverflow)?;
 
         if next >= MAX_COUNTER {
@@ -235,10 +235,13 @@ impl PersistentNonceCounter {
     /// }
     /// ```
     pub fn reserve(&mut self, count: u64) -> Result<u64, NonceError> {
-        let start = self.counter.checked_add(1)
+        let start = self
+            .counter
+            .checked_add(1)
             .ok_or(NonceError::CounterOverflow)?;
 
-        let end = start.checked_add(count)
+        let end = start
+            .checked_add(count)
             .ok_or(NonceError::CounterOverflow)?;
 
         if end >= MAX_COUNTER {
@@ -363,9 +366,12 @@ impl NonceDeriver {
         info_buf[12..14].copy_from_slice(&(domain_len as u16).to_le_bytes());
         info_buf[14..14 + domain_len].copy_from_slice(&domain_str[..domain_len]);
 
-        let nonce: [u8; NONCE_SIZE] =
-            HkdfShake256::derive(&self.key_material, b"anubis-nonce-domain", &info_buf[..info_len])
-                .expect("HKDF output size is valid");
+        let nonce: [u8; NONCE_SIZE] = HkdfShake256::derive(
+            &self.key_material,
+            b"anubis-nonce-domain",
+            &info_buf[..info_len],
+        )
+        .expect("HKDF output size is valid");
 
         Ok(nonce)
     }
@@ -547,8 +553,8 @@ mod tests {
 
             // Reserve 10 values
             let start = counter.reserve(10).unwrap();
-            assert_eq!(start, 1);  // First usable value
-            assert_eq!(counter.current(), 11);  // Counter advanced by 10+1
+            assert_eq!(start, 1); // First usable value
+            assert_eq!(counter.current(), 11); // Counter advanced by 10+1
 
             // Next after reserve should be 12
             let next = counter.next().unwrap();

@@ -82,7 +82,11 @@ pub struct Share {
 impl Share {
     /// Create a new share.
     fn new(index: u8, data: Vec<u8>, threshold: u8) -> Self {
-        Self { index, data, threshold }
+        Self {
+            index,
+            data,
+            threshold,
+        }
     }
 
     /// Get the share as bytes for storage/transmission.
@@ -131,7 +135,11 @@ impl Share {
             return Err(ShamirError::ChecksumMismatch);
         }
 
-        Ok(Self { index, data, threshold })
+        Ok(Self {
+            index,
+            data,
+            threshold,
+        })
     }
 
     /// Get hex encoding of the share for display.
@@ -321,7 +329,11 @@ impl ShamirSharing {
     ///
     /// # Errors
     /// Returns error if parameters are invalid.
-    pub fn split(secret: &[u8], threshold: u8, total_shares: u8) -> Result<Vec<Share>, ShamirError> {
+    pub fn split(
+        secret: &[u8],
+        threshold: u8,
+        total_shares: u8,
+    ) -> Result<Vec<Share>, ShamirError> {
         // Validate parameters
         if secret.is_empty() {
             return Err(ShamirError::EmptySecret);
@@ -424,7 +436,8 @@ impl ShamirSharing {
         // Reconstruct each byte using Lagrange interpolation
         let mut secret = vec![0u8; data_len];
 
-        #[allow(clippy::needless_range_loop)] // Index needed for parallel access to secret and share.data
+        #[allow(clippy::needless_range_loop)]
+        // Index needed for parallel access to secret and share.data
         for byte_idx in 0..data_len {
             let points: Vec<(u8, u8)> = shares_to_use
                 .iter()
@@ -577,7 +590,9 @@ mod tests {
         assert_eq!(&recovered, secret);
 
         // Combine with different subset
-        let recovered2 = ShamirSharing::combine(&[shares[1].clone(), shares[3].clone(), shares[4].clone()]).unwrap();
+        let recovered2 =
+            ShamirSharing::combine(&[shares[1].clone(), shares[3].clone(), shares[4].clone()])
+                .unwrap();
         assert_eq!(&recovered2, secret);
     }
 

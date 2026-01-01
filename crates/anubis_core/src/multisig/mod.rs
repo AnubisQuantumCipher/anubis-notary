@@ -103,7 +103,11 @@ impl core::fmt::Display for MultisigError {
             Self::ProposalExpired => write!(f, "proposal has expired"),
             Self::InsufficientSignatures => write!(f, "not enough signatures to execute"),
             Self::DescriptionTooLong => {
-                write!(f, "description too long (max {} bytes)", MAX_DESCRIPTION_LENGTH)
+                write!(
+                    f,
+                    "description too long (max {} bytes)",
+                    MAX_DESCRIPTION_LENGTH
+                )
             }
             Self::InvalidProposal => write!(f, "invalid proposal data"),
             Self::SignerNotFound => write!(f, "signer not found in multisig"),
@@ -403,7 +407,10 @@ fn bincode_serialize(proposal_type: &ProposalType) -> Vec<u8> {
     // Simple deterministic serialization
     let mut out = Vec::new();
     match proposal_type {
-        ProposalType::KeyRotation { signer_index, new_key_hash } => {
+        ProposalType::KeyRotation {
+            signer_index,
+            new_key_hash,
+        } => {
             out.push(0);
             out.extend_from_slice(&(*signer_index as u64).to_le_bytes());
             out.extend_from_slice(new_key_hash);
@@ -420,7 +427,10 @@ fn bincode_serialize(proposal_type: &ProposalType) -> Vec<u8> {
             out.push(3);
             out.extend_from_slice(&(*signer_index as u64).to_le_bytes());
         }
-        ProposalType::AuthorizeAction { action_type, payload } => {
+        ProposalType::AuthorizeAction {
+            action_type,
+            payload,
+        } => {
             out.push(4);
             out.extend_from_slice(&(action_type.len() as u32).to_le_bytes());
             out.extend_from_slice(action_type.as_bytes());
@@ -626,7 +636,10 @@ impl Multisig {
         }
 
         match &proposal.proposal_type {
-            ProposalType::KeyRotation { signer_index, new_key_hash } => {
+            ProposalType::KeyRotation {
+                signer_index,
+                new_key_hash,
+            } => {
                 if *signer_index >= self.signers.len() {
                     return Err(MultisigError::InvalidSignerIndex);
                 }
@@ -978,7 +991,12 @@ mod tests {
         for i in 0..3 {
             let sig = keypairs[i].sign(&payload).unwrap();
             multisig
-                .sign_proposal(&mut proposal, keypairs[i].public_key(), &sig, 1001 + i as u64)
+                .sign_proposal(
+                    &mut proposal,
+                    keypairs[i].public_key(),
+                    &sig,
+                    1001 + i as u64,
+                )
                 .unwrap();
         }
 
