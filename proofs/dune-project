@@ -1,2 +1,6 @@
 (lang dune 3.8)
 (using coq 0.8)
+(name anubis_proofs)
+
+; Anubis Notary Core Proofs
+; Compatible with Coq 8.18+ / Rocq 9.0+
