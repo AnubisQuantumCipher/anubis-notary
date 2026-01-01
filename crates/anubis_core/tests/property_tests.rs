@@ -474,7 +474,7 @@ mod aead_properties {
 
 mod cbor_properties {
     use super::*;
-    use anubis_core::cbor::{Encoder, Decoder};
+    use anubis_core::cbor::{Decoder, Encoder};
 
     proptest! {
         /// Unsigned integer round-trip

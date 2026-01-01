@@ -111,7 +111,9 @@ impl ControlFlowIntegrity {
     /// The expected checksum is computed as XOR of all tokens.
     #[inline]
     pub fn new(expected_tokens: &[u64]) -> Self {
-        let expected = expected_tokens.iter().fold(CONTROL_FLOW_SENTINEL, |acc, &t| acc ^ t);
+        let expected = expected_tokens
+            .iter()
+            .fold(CONTROL_FLOW_SENTINEL, |acc, &t| acc ^ t);
         Self {
             checksum: CONTROL_FLOW_SENTINEL,
             expected,

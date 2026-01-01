@@ -105,7 +105,7 @@ pub mod prelude {
     pub use crate::ct::{ct_eq, ct_select};
 
     // CBOR - production-proven ciborium
-    pub use crate::cbor::{to_vec, from_slice, CiboriumError};
+    pub use crate::cbor::{from_slice, to_vec, CiboriumError};
     pub use crate::cbor::{CborError, Decoder, Encoder};
 
     // KDF
@@ -124,7 +124,7 @@ pub mod prelude {
 
     // Post-Quantum Crypto - formally verified via libcrux
     pub use crate::mldsa::{KeyPair, MlDsaError, PublicKey, SecretKey, Signature};
-    pub use crate::mlkem::{MlKemKeyPair, MlKemPublicKey, MlKemSecretKey, MlKemError};
+    pub use crate::mlkem::{MlKemError, MlKemKeyPair, MlKemPublicKey, MlKemSecretKey};
 
     // Nonce derivation
     pub use crate::nonce::NonceDeriver;
@@ -132,17 +132,21 @@ pub mod prelude {
     pub use crate::nonce::PersistentNonceCounter;
 
     // Audit logging
-    pub use crate::audit::{AuditLogger, AuditEntry, Severity, EventCategory};
+    pub use crate::audit::{AuditEntry, AuditLogger, EventCategory, Severity};
 
     // Key recovery
-    pub use crate::recovery::{ShamirSharing, Share, RecoveryCoordinator, ShamirError};
+    pub use crate::recovery::{RecoveryCoordinator, ShamirError, ShamirSharing, Share};
 
     // HSM support
-    pub use crate::hsm::{HsmProvider, HsmError, KeyHandle, KeyType, KeyAttributes};
+    pub use crate::hsm::{HsmError, HsmProvider, KeyAttributes, KeyHandle, KeyType};
 
     // Multi-signature governance
-    pub use crate::multisig::{Multisig, MultisigBuilder, MultisigError, Proposal, ProposalType, ProposalStatus};
+    pub use crate::multisig::{
+        Multisig, MultisigBuilder, MultisigError, Proposal, ProposalStatus, ProposalType,
+    };
 
     // Streaming interfaces
-    pub use crate::streaming::{StreamingHasher, StreamingSigner, StreamingVerifier, StreamingError, ChunkedData};
+    pub use crate::streaming::{
+        ChunkedData, StreamingError, StreamingHasher, StreamingSigner, StreamingVerifier,
+    };
 }

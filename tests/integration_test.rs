@@ -8,8 +8,8 @@
 
 use tempfile::TempDir;
 
-use anubis_core::mldsa::KeyPair;
 use anubis_core::keccak::sha3::sha3_256;
+use anubis_core::mldsa::KeyPair;
 use anubis_io::keystore::Keystore;
 
 /// Test the complete sign → verify workflow.
@@ -35,28 +35,34 @@ fn test_sign_verify_workflow() {
     // Seal and store the key
     let password = b"test-password-integration-1234";
     let secret_key = keypair.secret_key().to_bytes();
-    keystore.seal_and_store_key(password, &secret_key)
+    keystore
+        .seal_and_store_key(password, &secret_key)
         .expect("Failed to seal and store key");
 
     // Store public key
-    keystore.write_public_key(&keypair.public_key().to_bytes())
+    keystore
+        .write_public_key(&keypair.public_key().to_bytes())
         .expect("Failed to write public key");
 
     // Verify key was stored
     assert!(keystore.has_key(), "Key should exist after storage");
 
     // Unseal the key
-    let unsealed = keystore.unseal_stored_key(password)
+    let unsealed = keystore
+        .unseal_stored_key(password)
         .expect("Failed to unseal key");
-    assert_eq!(unsealed.as_slice(), &secret_key[..], "Unsealed key should match original");
+    assert_eq!(
+        unsealed.as_slice(),
+        &secret_key[..],
+        "Unsealed key should match original"
+    );
 
     // Prepare message for signing
     let message = b"This is a test message for signing verification.";
     let message_hash = sha3_256(message);
 
     // Sign the message
-    let signature = keypair.sign(&message_hash)
-        .expect("Failed to sign message");
+    let signature = keypair.sign(&message_hash).expect("Failed to sign message");
 
     // Verify the signature
     assert!(
@@ -74,8 +80,7 @@ fn test_sign_verify_workflow() {
 
     // Verify with wrong signature fails
     let wrong_msg_hash = sha3_256(b"different");
-    let wrong_signature = keypair.sign(&wrong_msg_hash)
-        .expect("Failed to sign");
+    let wrong_signature = keypair.sign(&wrong_msg_hash).expect("Failed to sign");
     assert!(
         !keypair.public_key().verify(&message_hash, &wrong_signature),
         "Wrong signature should NOT verify"
@@ -83,11 +88,15 @@ fn test_sign_verify_workflow() {
 
     // Verify password verification works
     assert!(
-        keystore.verify_password(password).expect("verify_password failed"),
+        keystore
+            .verify_password(password)
+            .expect("verify_password failed"),
         "Correct password should verify"
     );
     assert!(
-        !keystore.verify_password(b"wrong-password").expect("verify_password failed"),
+        !keystore
+            .verify_password(b"wrong-password")
+            .expect("verify_password failed"),
         "Wrong password should not verify"
     );
 
@@ -108,13 +117,19 @@ fn test_low_memory_seal_workflow() {
     // Seal with low-memory mode
     let password = b"low-memory-test-password";
     let secret_key = keypair.secret_key().to_bytes();
-    keystore.seal_and_store_key_low_memory(password, &secret_key)
+    keystore
+        .seal_and_store_key_low_memory(password, &secret_key)
         .expect("Failed to seal with low memory mode");
 
     // Unseal should work
-    let unsealed = keystore.unseal_stored_key(password)
+    let unsealed = keystore
+        .unseal_stored_key(password)
         .expect("Failed to unseal low-memory sealed key");
-    assert_eq!(unsealed.as_slice(), &secret_key[..], "Low-memory unsealed key should match");
+    assert_eq!(
+        unsealed.as_slice(),
+        &secret_key[..],
+        "Low-memory unsealed key should match"
+    );
 
     println!("low-memory seal workflow: PASSED");
 }
@@ -134,50 +149,68 @@ fn test_key_rotation_workflow() {
     let keypair1 = KeyPair::generate().expect("Failed to generate keypair");
 
     let password = b"rotation-test-password";
-    keystore.seal_and_store_key(password, &keypair1.secret_key().to_bytes())
+    keystore
+        .seal_and_store_key(password, &keypair1.secret_key().to_bytes())
         .expect("Failed to store initial key");
-    keystore.write_public_key(&keypair1.public_key().to_bytes())
+    keystore
+        .write_public_key(&keypair1.public_key().to_bytes())
         .expect("Failed to write initial public key");
 
     // Archive the current key
     let clock = SystemClock;
     let timestamp = clock.now();
-    let archive_id = keystore.archive_current_key(timestamp)
+    let archive_id = keystore
+        .archive_current_key(timestamp)
         .expect("Failed to archive key");
 
     // Generate new keypair
     let keypair2 = KeyPair::generate().expect("Failed to generate new keypair");
 
     // Store new key
-    keystore.seal_and_store_key(password, &keypair2.secret_key().to_bytes())
+    keystore
+        .seal_and_store_key(password, &keypair2.secret_key().to_bytes())
         .expect("Failed to store new key");
-    keystore.write_public_key(&keypair2.public_key().to_bytes())
+    keystore
+        .write_public_key(&keypair2.public_key().to_bytes())
         .expect("Failed to write new public key");
 
     // Verify old key is archived
-    let archived_ids = keystore.list_archived_keys()
+    let archived_ids = keystore
+        .list_archived_keys()
         .expect("Failed to list archived keys");
-    assert!(archived_ids.contains(&archive_id), "Archived key should be listed");
+    assert!(
+        archived_ids.contains(&archive_id),
+        "Archived key should be listed"
+    );
 
     // Verify we can read archived public key
-    let archived_pubkey = keystore.read_archived_public_key(&archive_id)
+    let archived_pubkey = keystore
+        .read_archived_public_key(&archive_id)
         .expect("Failed to read archived public key");
-    assert_eq!(archived_pubkey.as_slice(), &keypair1.public_key().to_bytes()[..],
-        "Archived public key should match original");
+    assert_eq!(
+        archived_pubkey.as_slice(),
+        &keypair1.public_key().to_bytes()[..],
+        "Archived public key should match original"
+    );
 
     // Verify current key is the new one
-    let current_pubkey = keystore.read_public_key()
+    let current_pubkey = keystore
+        .read_public_key()
         .expect("Failed to read current public key");
-    assert_eq!(current_pubkey.as_slice(), &keypair2.public_key().to_bytes()[..],
-        "Current public key should be the new one");
+    assert_eq!(
+        current_pubkey.as_slice(),
+        &keypair2.public_key().to_bytes()[..],
+        "Current public key should be the new one"
+    );
 
     // Verify signatures from old key still verify with archived key
     let message = sha3_256(b"test message");
-    let old_signature = keypair1.sign(&message)
+    let old_signature = keypair1
+        .sign(&message)
         .expect("Failed to sign with old key");
 
-    let archived_pk = PublicKey::from_bytes(&archived_pubkey)
-        .expect("Failed to parse archived public key");
+    let archived_pk =
+        PublicKey::from_bytes(&archived_pubkey).expect("Failed to parse archived public key");
     assert!(
         archived_pk.verify(&message, &old_signature),
         "Old signature should verify with archived key"
@@ -196,30 +229,48 @@ fn test_license_workflow() {
         "user@example.com",
         "anubis-pro",
         i64::MAX, // Far future expiration
-    ).expect("Failed to create license");
+    )
+    .expect("Failed to create license");
 
     // Add features
-    license.add_feature("offline-mode").expect("Failed to add feature");
-    license.add_feature("team-sync").expect("Failed to add feature");
+    license
+        .add_feature("offline-mode")
+        .expect("Failed to add feature");
+    license
+        .add_feature("team-sync")
+        .expect("Failed to add feature");
 
     // Verify features
-    assert!(license.has_feature("offline-mode"), "Should have offline-mode");
+    assert!(
+        license.has_feature("offline-mode"),
+        "Should have offline-mode"
+    );
     assert!(license.has_feature("team-sync"), "Should have team-sync");
-    assert!(!license.has_feature("enterprise"), "Should not have enterprise");
+    assert!(
+        !license.has_feature("enterprise"),
+        "Should not have enterprise"
+    );
 
     // Generate signature for encoding
     let keypair = KeyPair::generate().expect("Failed to generate keypair");
     let mut signable_buf = [0u8; 4096];
-    let signable_len = license.encode_signable(&mut signable_buf)
+    let signable_len = license
+        .encode_signable(&mut signable_buf)
         .expect("Failed to encode signable");
-    let sig = keypair.sign(&sha3_256(&signable_buf[..signable_len]))
+    let sig = keypair
+        .sign(&sha3_256(&signable_buf[..signable_len]))
         .expect("Failed to sign");
-    license.set_signature(&sig.to_bytes()).expect("Failed to set signature");
+    license
+        .set_signature(&sig.to_bytes())
+        .expect("Failed to set signature");
 
     // Encode and decode
     let mut buffer = [0u8; 8192];
     let encoded_len = license.encode(&mut buffer).expect("Failed to encode");
-    assert!(encoded_len > 0, "Encoded license should have non-zero length");
+    assert!(
+        encoded_len > 0,
+        "Encoded license should have non-zero length"
+    );
 
     // Decode the license
     let decoded = License::decode(&buffer[..encoded_len]).expect("Failed to decode");
@@ -229,7 +280,10 @@ fn test_license_workflow() {
     assert!(decoded.has_feature("team-sync"));
 
     // Test expiration checking
-    assert!(!license.is_expired(1_000_000_000), "License should not be expired");
+    assert!(
+        !license.is_expired(1_000_000_000),
+        "License should not be expired"
+    );
 
     println!("license workflow: PASSED");
 }
@@ -240,12 +294,7 @@ fn test_merkle_attestation_workflow() {
     use anubis_core::merkle::MerkleTree;
 
     // Create test data
-    let items = vec![
-        [0x01u8; 32],
-        [0x02u8; 32],
-        [0x03u8; 32],
-        [0x04u8; 32],
-    ];
+    let items = vec![[0x01u8; 32], [0x02u8; 32], [0x03u8; 32], [0x04u8; 32]];
 
     // Build Merkle tree
     let mut tree = MerkleTree::new();
@@ -259,7 +308,8 @@ fn test_merkle_attestation_workflow() {
         let proof = tree.generate_proof(i).expect("Failed to generate proof");
         assert!(
             proof.verify(item, &root),
-            "Proof should verify for leaf {}", i
+            "Proof should verify for leaf {}",
+            i
         );
     }
 
@@ -287,24 +337,29 @@ fn test_receipt_workflow() {
 
     // Encode signable portion (use larger buffer for signature)
     let mut buffer = [0u8; 8192];
-    let signable_len = receipt.encode_signable(&mut buffer)
+    let signable_len = receipt
+        .encode_signable(&mut buffer)
         .expect("Failed to encode signable");
 
     // Generate keypair and sign
     let keypair = KeyPair::generate().expect("Failed to generate keypair");
     let signable_hash = sha3_256(&buffer[..signable_len]);
-    let signature = keypair.sign(&signable_hash)
-        .expect("Failed to sign");
+    let signature = keypair.sign(&signable_hash).expect("Failed to sign");
 
     // Create signed receipt
-    let signed_receipt = receipt.with_signature(&signature.to_bytes())
+    let signed_receipt = receipt
+        .with_signature(&signature.to_bytes())
         .expect("Failed to set signature");
 
     // Encode full receipt
-    let full_len = signed_receipt.encode(&mut buffer)
+    let full_len = signed_receipt
+        .encode(&mut buffer)
         .expect("Failed to encode full receipt");
 
-    assert!(full_len > signable_len, "Full receipt should be larger than signable");
+    assert!(
+        full_len > signable_len,
+        "Full receipt should be larger than signable"
+    );
 
     println!("receipt workflow: PASSED");
 }
@@ -393,25 +448,28 @@ fn test_attest_check_workflow() {
 
     // Encode signable portion and sign
     let mut signable_buf = [0u8; 1024];
-    let signable_len = receipt.encode_signable(&mut signable_buf)
+    let signable_len = receipt
+        .encode_signable(&mut signable_buf)
         .expect("Failed to encode signable");
     let signable_hash = sha3_256(&signable_buf[..signable_len]);
-    let signature = keypair.sign(&signable_hash)
+    let signature = keypair
+        .sign(&signable_hash)
         .expect("Failed to sign receipt");
 
     // Create signed receipt
-    let signed_receipt = receipt.with_signature(&signature.to_bytes())
+    let signed_receipt = receipt
+        .with_signature(&signature.to_bytes())
         .expect("Failed to set signature");
 
     // Encode the full receipt (this is what gets saved to .receipt file)
     let mut receipt_buf = [0u8; 8192];
-    let receipt_len = signed_receipt.encode(&mut receipt_buf)
+    let receipt_len = signed_receipt
+        .encode(&mut receipt_buf)
         .expect("Failed to encode receipt");
 
     // === CHECK PHASE ===
     // Decode the receipt (as if loading from file)
-    let decoded = Receipt::decode(&receipt_buf[..receipt_len])
-        .expect("Failed to decode receipt");
+    let decoded = Receipt::decode(&receipt_buf[..receipt_len]).expect("Failed to decode receipt");
 
     // Verify the digest matches the original content
     assert_eq!(
@@ -427,14 +485,15 @@ fn test_attest_check_workflow() {
     let mut check_receipt = Receipt::new(decoded.digest, decoded.created);
     check_receipt = check_receipt.with_time_source(decoded.time_source.clone());
     check_receipt = check_receipt.with_anchor(decoded.anchor.clone());
-    let check_len = check_receipt.encode_signable(&mut check_buf)
+    let check_len = check_receipt
+        .encode_signable(&mut check_buf)
         .expect("Failed to encode signable for verification");
     let check_hash = sha3_256(&check_buf[..check_len]);
 
     // Reconstruct signature from decoded receipt
-    let decoded_sig = anubis_core::mldsa::Signature::from_bytes(
-        &decoded.signature[..decoded.sig_len]
-    ).expect("Failed to parse signature");
+    let decoded_sig =
+        anubis_core::mldsa::Signature::from_bytes(&decoded.signature[..decoded.sig_len])
+            .expect("Failed to parse signature");
 
     // Verify signature
     assert!(
@@ -453,11 +512,14 @@ fn test_attest_check_workflow() {
     // Verify tampering detection - modified receipt should fail verification
     let tampered_receipt = Receipt::new(tampered_hash, decoded.created);
     let mut tampered_buf = [0u8; 1024];
-    let tampered_len = tampered_receipt.encode_signable(&mut tampered_buf)
+    let tampered_len = tampered_receipt
+        .encode_signable(&mut tampered_buf)
         .expect("Failed to encode tampered signable");
     let tampered_check_hash = sha3_256(&tampered_buf[..tampered_len]);
     assert!(
-        !keypair.public_key().verify(&tampered_check_hash, &decoded_sig),
+        !keypair
+            .public_key()
+            .verify(&tampered_check_hash, &decoded_sig),
         "Signature should NOT verify with tampered content"
     );
 
@@ -479,11 +541,8 @@ fn test_license_expiration_workflow() {
 
     // Create license that expires in the future (2025-12-31)
     let future_exp = 1767225600i64;
-    let valid_license = License::new(
-        "user@example.com",
-        "anubis-pro",
-        future_exp,
-    ).expect("Failed to create valid license");
+    let valid_license = License::new("user@example.com", "anubis-pro", future_exp)
+        .expect("Failed to create valid license");
 
     // Should NOT be expired
     assert!(
@@ -493,11 +552,8 @@ fn test_license_expiration_workflow() {
 
     // Create license that expired in the past (2024-12-31)
     let past_exp = 1735689599i64;
-    let expired_license = License::new(
-        "user@example.com",
-        "anubis-pro",
-        past_exp,
-    ).expect("Failed to create expired license");
+    let expired_license = License::new("user@example.com", "anubis-pro", past_exp)
+        .expect("Failed to create expired license");
 
     // Should be expired
     assert!(
@@ -506,11 +562,8 @@ fn test_license_expiration_workflow() {
     );
 
     // Edge case: license expires exactly NOW
-    let edge_license = License::new(
-        "user@example.com",
-        "anubis-pro",
-        current_time,
-    ).expect("Failed to create edge case license");
+    let edge_license = License::new("user@example.com", "anubis-pro", current_time)
+        .expect("Failed to create edge case license");
 
     // At exact expiration time, license is still valid (now > exp is false)
     assert!(
@@ -546,11 +599,8 @@ fn test_license_signature_verification_workflow() {
     use anubis_core::license::License;
 
     // Create license with multiple features
-    let mut license = License::new(
-        "enterprise@corp.com",
-        "anubis-enterprise",
-        i64::MAX,
-    ).expect("Failed to create license");
+    let mut license = License::new("enterprise@corp.com", "anubis-enterprise", i64::MAX)
+        .expect("Failed to create license");
 
     license.add_feature("offline-mode").expect("add feature");
     license.add_feature("team-sync").expect("add feature");
@@ -562,34 +612,44 @@ fn test_license_signature_verification_workflow() {
 
     // Sign the license
     let mut signable_buf = [0u8; 4096];
-    let signable_len = license.encode_signable(&mut signable_buf)
+    let signable_len = license
+        .encode_signable(&mut signable_buf)
         .expect("Failed to encode signable");
     let signable_hash = sha3_256(&signable_buf[..signable_len]);
-    let signature = issuer_keypair.sign(&signable_hash)
+    let signature = issuer_keypair
+        .sign(&signable_hash)
         .expect("Failed to sign license");
-    license.set_signature(&signature.to_bytes())
+    license
+        .set_signature(&signature.to_bytes())
         .expect("Failed to set signature");
 
     // Encode the full license (what gets distributed to user)
     let mut license_buf = [0u8; 8192];
-    let license_len = license.encode(&mut license_buf)
+    let license_len = license
+        .encode(&mut license_buf)
         .expect("Failed to encode license");
 
     // === VERIFICATION PHASE ===
     // Decode the license (as if loading from file)
-    let decoded = License::decode(&license_buf[..license_len])
-        .expect("Failed to decode license");
+    let decoded = License::decode(&license_buf[..license_len]).expect("Failed to decode license");
 
     // Verify all features are present
-    assert!(decoded.has_feature("offline-mode"), "Should have offline-mode");
+    assert!(
+        decoded.has_feature("offline-mode"),
+        "Should have offline-mode"
+    );
     assert!(decoded.has_feature("team-sync"), "Should have team-sync");
     assert!(decoded.has_feature("audit-log"), "Should have audit-log");
     assert!(decoded.has_feature("api-access"), "Should have api-access");
-    assert!(!decoded.has_feature("admin-panel"), "Should NOT have admin-panel");
+    assert!(
+        !decoded.has_feature("admin-panel"),
+        "Should NOT have admin-panel"
+    );
 
     // Re-encode signable portion to verify signature
     let mut verify_buf = [0u8; 4096];
-    let verify_len = decoded.encode_signable(&mut verify_buf)
+    let verify_len = decoded
+        .encode_signable(&mut verify_buf)
         .expect("Failed to encode for verification");
     let verify_hash = sha3_256(&verify_buf[..verify_len]);
 
@@ -600,14 +660,18 @@ fn test_license_signature_verification_workflow() {
 
     // Verify with issuer's public key
     assert!(
-        issuer_keypair.public_key().verify(&verify_hash, &decoded_sig),
+        issuer_keypair
+            .public_key()
+            .verify(&verify_hash, &decoded_sig),
         "License signature should verify with issuer public key"
     );
 
     // Verify with wrong key fails
     let other_keypair = KeyPair::generate().expect("Failed to generate other keypair");
     assert!(
-        !other_keypair.public_key().verify(&verify_hash, &decoded_sig),
+        !other_keypair
+            .public_key()
+            .verify(&verify_hash, &decoded_sig),
         "License signature should NOT verify with different key"
     );
 

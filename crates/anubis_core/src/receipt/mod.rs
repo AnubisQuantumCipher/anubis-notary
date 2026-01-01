@@ -582,7 +582,12 @@ mod tests {
 
         let mut dec = crate::cbor::Decoder::new(&buf[..len]);
         let result = Receipt::decode_time_source(&mut dec);
-        assert_eq!(result, Err(ReceiptError::Rfc3161TokenTooLarge(MAX_RFC3161_TOKEN_SIZE + 1)));
+        assert_eq!(
+            result,
+            Err(ReceiptError::Rfc3161TokenTooLarge(
+                MAX_RFC3161_TOKEN_SIZE + 1
+            ))
+        );
     }
 
     #[test]
@@ -601,7 +606,10 @@ mod tests {
 
         let mut dec = crate::cbor::Decoder::new(&buf[..len]);
         let result = Receipt::decode_time_source(&mut dec);
-        assert_eq!(result, Err(ReceiptError::OtsProofTooLarge(MAX_OTS_PROOF_SIZE + 1)));
+        assert_eq!(
+            result,
+            Err(ReceiptError::OtsProofTooLarge(MAX_OTS_PROOF_SIZE + 1))
+        );
     }
 
     #[test]

@@ -34,7 +34,7 @@ fn test_streaming_hash_workflow() {
 
     // Create test files of various sizes
     let small_file = create_test_file(&temp_dir, "small.txt", b"Small file content");
-    let medium_content = vec![b'x'; 100_000];  // 100KB
+    let medium_content = vec![b'x'; 100_000]; // 100KB
     let medium_file = create_test_file(&temp_dir, "medium.bin", &medium_content);
 
     // Hash small file
@@ -93,12 +93,10 @@ fn test_streaming_hash_consistency() {
     assert!(output1.status.success());
     assert!(output2.status.success());
 
-    let json1: serde_json::Value = serde_json::from_str(
-        &String::from_utf8_lossy(&output1.stdout)
-    ).unwrap();
-    let json2: serde_json::Value = serde_json::from_str(
-        &String::from_utf8_lossy(&output2.stdout)
-    ).unwrap();
+    let json1: serde_json::Value =
+        serde_json::from_str(&String::from_utf8_lossy(&output1.stdout)).unwrap();
+    let json2: serde_json::Value =
+        serde_json::from_str(&String::from_utf8_lossy(&output2.stdout)).unwrap();
 
     // Hashes should be identical
     assert_eq!(json1["data"]["hash"], json2["data"]["hash"]);
@@ -123,12 +121,10 @@ fn test_streaming_hash_uniqueness() {
         .output()
         .unwrap();
 
-    let json1: serde_json::Value = serde_json::from_str(
-        &String::from_utf8_lossy(&output1.stdout)
-    ).unwrap();
-    let json2: serde_json::Value = serde_json::from_str(
-        &String::from_utf8_lossy(&output2.stdout)
-    ).unwrap();
+    let json1: serde_json::Value =
+        serde_json::from_str(&String::from_utf8_lossy(&output1.stdout)).unwrap();
+    let json2: serde_json::Value =
+        serde_json::from_str(&String::from_utf8_lossy(&output2.stdout)).unwrap();
 
     // Hashes should be different
     assert_ne!(json1["data"]["hash"], json2["data"]["hash"]);
@@ -140,7 +136,7 @@ fn test_streaming_hash_uniqueness() {
 #[test]
 fn test_streaming_hash_chunk_sizes() {
     let temp_dir = TempDir::new().unwrap();
-    let content = vec![0u8; 200_000];  // 200KB
+    let content = vec![0u8; 200_000]; // 200KB
     let file = create_test_file(&temp_dir, "chunked.bin", &content);
 
     let chunk_sizes = [4096, 8192, 16384, 32768, 65536];
@@ -161,22 +157,29 @@ fn test_streaming_hash_chunk_sizes() {
             .output()
             .unwrap();
 
-        assert!(output1.status.success(), "Failed with chunk size {}", chunk_size);
-        assert!(output2.status.success(), "Failed with chunk size {}", chunk_size);
+        assert!(
+            output1.status.success(),
+            "Failed with chunk size {}",
+            chunk_size
+        );
+        assert!(
+            output2.status.success(),
+            "Failed with chunk size {}",
+            chunk_size
+        );
 
-        let json1: serde_json::Value = serde_json::from_str(
-            &String::from_utf8_lossy(&output1.stdout)
-        ).unwrap();
-        let json2: serde_json::Value = serde_json::from_str(
-            &String::from_utf8_lossy(&output2.stdout)
-        ).unwrap();
+        let json1: serde_json::Value =
+            serde_json::from_str(&String::from_utf8_lossy(&output1.stdout)).unwrap();
+        let json2: serde_json::Value =
+            serde_json::from_str(&String::from_utf8_lossy(&output2.stdout)).unwrap();
 
         let hash1 = json1["data"]["hash"].as_str().unwrap();
         let hash2 = json2["data"]["hash"].as_str().unwrap();
 
         assert_eq!(
             hash1, hash2,
-            "Same chunk size {} produced different hashes", chunk_size
+            "Same chunk size {} produced different hashes",
+            chunk_size
         );
     }
 }
@@ -258,11 +261,15 @@ fn test_license_issue_invalid_date() {
 
     cli()
         .args([
-            "license", "issue",
-            "--product", "test-product",
-            "--user", "test@example.com",
-            "--expiry", "invalid-date",
-            "--out"
+            "license",
+            "issue",
+            "--product",
+            "test-product",
+            "--user",
+            "test@example.com",
+            "--expiry",
+            "invalid-date",
+            "--out",
         ])
         .arg(&license_path)
         .assert()
@@ -286,11 +293,7 @@ fn test_multisig_init_threshold_too_high() {
 
     // Threshold 5 with only 1 signer should fail
     cli()
-        .args([
-            "multisig", "init",
-            "--threshold", "5",
-            "-k"
-        ])
+        .args(["multisig", "init", "--threshold", "5", "-k"])
         .arg(&pk_path)
         .args(["--out"])
         .arg(&out_path)
@@ -335,12 +338,10 @@ fn test_concurrent_stream_hash() {
     assert!(output2.status.success());
 
     // Both should produce the same hash
-    let json1: serde_json::Value = serde_json::from_str(
-        &String::from_utf8_lossy(&output1.stdout)
-    ).unwrap();
-    let json2: serde_json::Value = serde_json::from_str(
-        &String::from_utf8_lossy(&output2.stdout)
-    ).unwrap();
+    let json1: serde_json::Value =
+        serde_json::from_str(&String::from_utf8_lossy(&output1.stdout)).unwrap();
+    let json2: serde_json::Value =
+        serde_json::from_str(&String::from_utf8_lossy(&output2.stdout)).unwrap();
 
     assert_eq!(json1["data"]["hash"], json2["data"]["hash"]);
 }

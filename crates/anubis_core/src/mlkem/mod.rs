@@ -97,8 +97,16 @@ impl MlKemError {
 impl fmt::Display for MlKemError {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         match self {
-            Self::InvalidLength { kind, expected, got } => {
-                write!(f, "invalid {} length: expected {}, got {}", kind, expected, got)
+            Self::InvalidLength {
+                kind,
+                expected,
+                got,
+            } => {
+                write!(
+                    f,
+                    "invalid {} length: expected {}, got {}",
+                    kind, expected, got
+                )
             }
             Self::InvalidPublicKey => write!(f, "public key validation failed"),
             Self::DecapsulationFailed => write!(f, "decapsulation failed"),
@@ -276,7 +284,9 @@ impl MlKemPublicKey {
     /// # Returns
     ///
     /// A tuple of (ciphertext, shared_secret).
-    pub fn encapsulate(&self) -> Result<([u8; CIPHERTEXT_SIZE], [u8; SHARED_SECRET_SIZE]), MlKemError> {
+    pub fn encapsulate(
+        &self,
+    ) -> Result<([u8; CIPHERTEXT_SIZE], [u8; SHARED_SECRET_SIZE]), MlKemError> {
         let randomness: [u8; 32] = rand_bytes_32()?;
         let (ciphertext, shared_secret) = mlkem1024::encapsulate(&self.inner, randomness);
         Ok((*ciphertext.as_slice(), shared_secret))
@@ -380,40 +390,82 @@ mod tests {
     #[test]
     fn test_invalid_public_key_length_empty() {
         let result = MlKemPublicKey::from_bytes(&[]);
-        assert!(matches!(result, Err(MlKemError::InvalidLength { kind: "public key", expected: 1568, got: 0 })));
+        assert!(matches!(
+            result,
+            Err(MlKemError::InvalidLength {
+                kind: "public key",
+                expected: 1568,
+                got: 0
+            })
+        ));
     }
 
     #[test]
     fn test_invalid_public_key_length_too_short() {
         let result = MlKemPublicKey::from_bytes(&[0u8; 100]);
-        assert!(matches!(result, Err(MlKemError::InvalidLength { kind: "public key", expected: 1568, got: 100 })));
+        assert!(matches!(
+            result,
+            Err(MlKemError::InvalidLength {
+                kind: "public key",
+                expected: 1568,
+                got: 100
+            })
+        ));
     }
 
     #[test]
     fn test_invalid_public_key_length_too_long() {
         let result = MlKemPublicKey::from_bytes(&[0u8; 2000]);
-        assert!(matches!(result, Err(MlKemError::InvalidLength { kind: "public key", expected: 1568, got: 2000 })));
+        assert!(matches!(
+            result,
+            Err(MlKemError::InvalidLength {
+                kind: "public key",
+                expected: 1568,
+                got: 2000
+            })
+        ));
     }
 
     #[test]
     fn test_invalid_ciphertext_length_empty() {
         let kp = MlKemKeyPair::generate().unwrap();
         let result = kp.decapsulate(&[]);
-        assert!(matches!(result, Err(MlKemError::InvalidLength { kind: "ciphertext", expected: 1568, got: 0 })));
+        assert!(matches!(
+            result,
+            Err(MlKemError::InvalidLength {
+                kind: "ciphertext",
+                expected: 1568,
+                got: 0
+            })
+        ));
     }
 
     #[test]
     fn test_invalid_ciphertext_length_too_short() {
         let kp = MlKemKeyPair::generate().unwrap();
         let result = kp.decapsulate(&[0u8; 100]);
-        assert!(matches!(result, Err(MlKemError::InvalidLength { kind: "ciphertext", expected: 1568, got: 100 })));
+        assert!(matches!(
+            result,
+            Err(MlKemError::InvalidLength {
+                kind: "ciphertext",
+                expected: 1568,
+                got: 100
+            })
+        ));
     }
 
     #[test]
     fn test_invalid_ciphertext_length_too_long() {
         let kp = MlKemKeyPair::generate().unwrap();
         let result = kp.decapsulate(&[0u8; 2000]);
-        assert!(matches!(result, Err(MlKemError::InvalidLength { kind: "ciphertext", expected: 1568, got: 2000 })));
+        assert!(matches!(
+            result,
+            Err(MlKemError::InvalidLength {
+                kind: "ciphertext",
+                expected: 1568,
+                got: 2000
+            })
+        ));
     }
 
     #[test]

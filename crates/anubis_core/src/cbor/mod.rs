@@ -48,7 +48,7 @@
 pub mod ciborium_wrapper;
 
 // Re-export ciborium wrapper functions
-pub use ciborium_wrapper::{to_vec, from_slice, CiboriumError};
+pub use ciborium_wrapper::{from_slice, to_vec, CiboriumError};
 
 use core::cmp::Ordering;
 use core::fmt;
@@ -94,7 +94,10 @@ impl fmt::Display for CborError {
             Self::BufferTooSmall => write!(f, "output buffer too small for CBOR encoding"),
             Self::InvalidUtf8 => write!(f, "invalid UTF-8 in CBOR text string"),
             Self::TypeMismatch => write!(f, "CBOR type mismatch"),
-            Self::MaxDepthExceeded => write!(f, "CBOR nesting depth exceeds maximum ({MAX_NESTING_DEPTH})"),
+            Self::MaxDepthExceeded => write!(
+                f,
+                "CBOR nesting depth exceeds maximum ({MAX_NESTING_DEPTH})"
+            ),
         }
     }
 }

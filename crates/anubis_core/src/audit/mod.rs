@@ -494,7 +494,10 @@ impl AuditLogger {
     /// * `expected_start_hash` - The expected prev_hash of the first entry.
     ///   Use `[0u8; 32]` for a fresh log, or the last hash from the previous
     ///   rotated file for continuity checking.
-    pub fn verify_current_file(&self, expected_start_hash: [u8; 32]) -> std::io::Result<VerifyResult> {
+    pub fn verify_current_file(
+        &self,
+        expected_start_hash: [u8; 32],
+    ) -> std::io::Result<VerifyResult> {
         if !self.log_path.exists() {
             return Ok(VerifyResult {
                 valid: true,
@@ -644,9 +647,22 @@ impl AuditLogger {
 
     /// Log license verification.
     pub fn log_license_verified(&self, license_id: &str, valid: bool) -> std::io::Result<()> {
-        let severity = if valid { Severity::Info } else { Severity::Warning };
-        let msg = if valid { "License verified" } else { "License verification failed" };
-        self.log(severity, EventCategory::License, msg, Some(format!("license_id={}", license_id)))
+        let severity = if valid {
+            Severity::Info
+        } else {
+            Severity::Warning
+        };
+        let msg = if valid {
+            "License verified"
+        } else {
+            "License verification failed"
+        };
+        self.log(
+            severity,
+            EventCategory::License,
+            msg,
+            Some(format!("license_id={}", license_id)),
+        )
     }
 
     /// Log key recovery initiation.
@@ -654,7 +670,10 @@ impl AuditLogger {
         self.log(
             Severity::Warning,
             EventCategory::Recovery,
-            format!("Key recovery initiated ({}/{} shares required)", threshold, total),
+            format!(
+                "Key recovery initiated ({}/{} shares required)",
+                threshold, total
+            ),
             None,
         )
     }
@@ -671,11 +690,19 @@ impl AuditLogger {
 
     /// Log HSM operation.
     pub fn log_hsm_operation(&self, operation: &str, success: bool) -> std::io::Result<()> {
-        let severity = if success { Severity::Info } else { Severity::Error };
+        let severity = if success {
+            Severity::Info
+        } else {
+            Severity::Error
+        };
         self.log(
             severity,
             EventCategory::Hsm,
-            format!("HSM {}: {}", operation, if success { "success" } else { "failed" }),
+            format!(
+                "HSM {}: {}",
+                operation,
+                if success { "success" } else { "failed" }
+            ),
             None,
         )
     }
@@ -719,12 +746,14 @@ mod tests {
         let logger = AuditLogger::new(temp_dir.path()).unwrap();
 
         for i in 0..10 {
-            logger.log(
-                Severity::Info,
-                EventCategory::System,
-                format!("Test event {}", i),
-                None,
-            ).unwrap();
+            logger
+                .log(
+                    Severity::Info,
+                    EventCategory::System,
+                    format!("Test event {}", i),
+                    None,
+                )
+                .unwrap();
         }
 
         let result = logger.verify_integrity().unwrap();

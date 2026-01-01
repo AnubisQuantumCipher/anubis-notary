@@ -146,7 +146,9 @@ fn test_multisig_help() {
         .args(["multisig", "--help"])
         .assert()
         .success()
-        .stdout(predicate::str::contains("Multi-signature governance commands"));
+        .stdout(predicate::str::contains(
+            "Multi-signature governance commands",
+        ));
 }
 
 #[test]
@@ -155,7 +157,9 @@ fn test_multisig_init_help() {
         .args(["multisig", "init", "--help"])
         .assert()
         .success()
-        .stdout(predicate::str::contains("Initialize a new multisig configuration"));
+        .stdout(predicate::str::contains(
+            "Initialize a new multisig configuration",
+        ));
 }
 
 // ============================================================================
@@ -177,7 +181,9 @@ fn test_stream_sign_help() {
         .args(["stream", "sign", "--help"])
         .assert()
         .success()
-        .stdout(predicate::str::contains("Sign a large file using streaming"));
+        .stdout(predicate::str::contains(
+            "Sign a large file using streaming",
+        ));
 }
 
 #[test]
@@ -313,7 +319,12 @@ fn test_key_show_no_keystore() {
 #[test]
 fn test_license_verify_missing() {
     cli()
-        .args(["license", "verify", "--license", "/nonexistent/license.cbor"])
+        .args([
+            "license",
+            "verify",
+            "--license",
+            "/nonexistent/license.cbor",
+        ])
         .assert()
         .failure();
 }
@@ -408,18 +419,12 @@ fn test_anchor_queue_list_help() {
 
 #[test]
 fn test_invalid_subcommand() {
-    cli()
-        .args(["invalid-command"])
-        .assert()
-        .failure();
+    cli().args(["invalid-command"]).assert().failure();
 }
 
 #[test]
 fn test_key_invalid_action() {
-    cli()
-        .args(["key", "invalid-action"])
-        .assert()
-        .failure();
+    cli().args(["key", "invalid-action"]).assert().failure();
 }
 
 // ============================================================================

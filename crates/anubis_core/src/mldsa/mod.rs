@@ -138,18 +138,33 @@ impl MlDsaError {
 impl core::fmt::Display for MlDsaError {
     fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
         match self {
-            Self::InvalidLength { kind, expected, got } => {
-                write!(f, "invalid {} length: expected {}, got {}", kind, expected, got)
+            Self::InvalidLength {
+                kind,
+                expected,
+                got,
+            } => {
+                write!(
+                    f,
+                    "invalid {} length: expected {}, got {}",
+                    kind, expected, got
+                )
             }
             Self::VerificationFailed => write!(f, "signature verification failed"),
             Self::SigningFailed => write!(f, "signing operation failed"),
             Self::RngFailed(Some(msg)) => write!(f, "RNG failed: {}", msg),
             Self::RngFailed(None) => write!(f, "RNG failed"),
             Self::ContextTooLong { got } => {
-                write!(f, "context too long: max {}, got {}", MAX_CONTEXT_LENGTH, got)
+                write!(
+                    f,
+                    "context too long: max {}, got {}",
+                    MAX_CONTEXT_LENGTH, got
+                )
             }
             Self::FaultDetected => {
-                write!(f, "fault detected: signature verification after signing failed")
+                write!(
+                    f,
+                    "fault detected: signature verification after signing failed"
+                )
             }
         }
     }
@@ -249,7 +264,12 @@ impl PublicKey {
     /// #[rr::returns("#mldsa_verify_ctx(self.pk, msg, ctx, sig)")]
     /// #[rr::ensures("timing_independent_of(sig.bytes)")]
     /// ```
-    pub fn verify_with_context(&self, message: &[u8], context: &[u8], signature: &Signature) -> bool {
+    pub fn verify_with_context(
+        &self,
+        message: &[u8],
+        context: &[u8],
+        signature: &Signature,
+    ) -> bool {
         ml_dsa_87::verify(&self.inner, message, context, &signature.inner).is_ok()
     }
 }
@@ -333,7 +353,11 @@ impl SecretKey {
     /// #[rr::ensures("is_ok(result) -> mldsa_verify_ctx(corresponding_pk(self), msg, ctx, unwrap(result))")]
     /// #[rr::timing("constant_time_in(self.sk)")]
     /// ```
-    pub fn sign_with_context(&self, message: &[u8], context: &[u8]) -> Result<Signature, MlDsaError> {
+    pub fn sign_with_context(
+        &self,
+        message: &[u8],
+        context: &[u8],
+    ) -> Result<Signature, MlDsaError> {
         if context.len() > MAX_CONTEXT_LENGTH {
             return Err(MlDsaError::ContextTooLong { got: context.len() });
         }
@@ -519,7 +543,11 @@ impl KeyPair {
     /// For maximum fault injection resistance, prefer `sign_verified_with_context`
     /// which verifies the signature after generation.
     #[inline]
-    pub fn sign_with_context(&self, message: &[u8], context: &[u8]) -> Result<Signature, MlDsaError> {
+    pub fn sign_with_context(
+        &self,
+        message: &[u8],
+        context: &[u8],
+    ) -> Result<Signature, MlDsaError> {
         self.secret.sign_with_context(message, context)
     }
 
@@ -578,7 +606,10 @@ impl KeyPair {
 
         // Verify the signature we just generated
         // This detects faults that corrupted the signature
-        if self.public.verify_with_context(message, context, &signature) {
+        if self
+            .public
+            .verify_with_context(message, context, &signature)
+        {
             Ok(signature)
         } else {
             // Signature verification failed - potential fault injection attack
@@ -742,9 +773,13 @@ mod tests {
         let context = b"anubis-notary-v1";
         let signature = kp.sign_with_context(message, context).unwrap();
 
-        assert!(kp.public_key().verify_with_context(message, context, &signature));
+        assert!(kp
+            .public_key()
+            .verify_with_context(message, context, &signature));
         // Wrong context should fail
-        assert!(!kp.public_key().verify_with_context(message, b"wrong-context", &signature));
+        assert!(!kp
+            .public_key()
+            .verify_with_context(message, b"wrong-context", &signature));
     }
 
     #[test]
@@ -839,7 +874,10 @@ mod tests {
         // Context 1 byte over limit (256 bytes) should fail
         let too_long_context = [0u8; MAX_CONTEXT_LENGTH + 1];
         let result = kp.sign_with_context(b"test", &too_long_context);
-        assert!(matches!(result, Err(MlDsaError::ContextTooLong { got: 256 })));
+        assert!(matches!(
+            result,
+            Err(MlDsaError::ContextTooLong { got: 256 })
+        ));
     }
 
     #[test]
@@ -1065,10 +1103,14 @@ mod tests {
         let signature = kp.sign_verified_with_context(message, context).unwrap();
 
         // Signature should be valid with correct context
-        assert!(kp.public_key().verify_with_context(message, context, &signature));
+        assert!(kp
+            .public_key()
+            .verify_with_context(message, context, &signature));
 
         // And invalid with wrong context
-        assert!(!kp.public_key().verify_with_context(message, b"wrong", &signature));
+        assert!(!kp
+            .public_key()
+            .verify_with_context(message, b"wrong", &signature));
     }
 
     #[test]

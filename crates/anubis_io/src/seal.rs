@@ -146,8 +146,7 @@ pub fn seal_key(password: &[u8], secret_key: &[u8]) -> Result<Vec<u8>, SealError
     derive_key(password, &salt, &mut derived_key)?;
 
     // Encrypt the secret key using formally verified libcrux ChaCha20Poly1305
-    let aead = ChaCha20Poly1305::new(&derived_key)
-        .map_err(|_| SealError::KeyDerivationFailed)?;
+    let aead = ChaCha20Poly1305::new(&derived_key).map_err(|_| SealError::KeyDerivationFailed)?;
 
     // Prepare output buffer: version + salt + nonce + ciphertext
     let ciphertext_len = secret_key.len() + TAG_SIZE;
@@ -210,8 +209,7 @@ pub fn seal_key_low_memory(password: &[u8], secret_key: &[u8]) -> Result<Vec<u8>
     derive_key_low_memory(password, &salt, &mut derived_key)?;
 
     // Encrypt the secret key using formally verified libcrux ChaCha20Poly1305
-    let aead = ChaCha20Poly1305::new(&derived_key)
-        .map_err(|_| SealError::KeyDerivationFailed)?;
+    let aead = ChaCha20Poly1305::new(&derived_key).map_err(|_| SealError::KeyDerivationFailed)?;
 
     // Prepare output buffer: version + salt + nonce + ciphertext
     let ciphertext_len = secret_key.len() + TAG_SIZE;
@@ -290,8 +288,7 @@ pub fn unseal_key(password: &[u8], sealed: &[u8]) -> Result<Vec<u8>, SealError> 
     }
 
     // Decrypt the secret key using formally verified libcrux ChaCha20Poly1305
-    let aead = ChaCha20Poly1305::new(&derived_key)
-        .map_err(|_| SealError::KeyDerivationFailed)?;
+    let aead = ChaCha20Poly1305::new(&derived_key).map_err(|_| SealError::KeyDerivationFailed)?;
 
     let pt_len = ciphertext.len() - TAG_SIZE;
     let mut plaintext = vec![0u8; pt_len];
@@ -313,13 +310,27 @@ pub fn unseal_key(password: &[u8], sealed: &[u8]) -> Result<Vec<u8>, SealError> 
 }
 
 /// Derive a key from password and salt using Argon2id (default 4 GiB mode).
-fn derive_key(password: &[u8], salt: &[u8], output: &mut [u8; DERIVED_KEY_SIZE]) -> Result<(), SealError> {
+fn derive_key(
+    password: &[u8],
+    salt: &[u8],
+    output: &mut [u8; DERIVED_KEY_SIZE],
+) -> Result<(), SealError> {
     derive_key_with_params(password, salt, output, ARGON2ID_M_COST, ARGON2ID_T_COST)
 }
 
 /// Derive a key from password and salt using Argon2id (low-memory 1 GiB mode).
-fn derive_key_low_memory(password: &[u8], salt: &[u8], output: &mut [u8; DERIVED_KEY_SIZE]) -> Result<(), SealError> {
-    derive_key_with_params(password, salt, output, ARGON2ID_LOW_MEMORY_M_COST, ARGON2ID_LOW_MEMORY_T_COST)
+fn derive_key_low_memory(
+    password: &[u8],
+    salt: &[u8],
+    output: &mut [u8; DERIVED_KEY_SIZE],
+) -> Result<(), SealError> {
+    derive_key_with_params(
+        password,
+        salt,
+        output,
+        ARGON2ID_LOW_MEMORY_M_COST,
+        ARGON2ID_LOW_MEMORY_T_COST,
+    )
 }
 
 /// Derive a key from password and salt using Argon2id with specified parameters.
@@ -330,13 +341,8 @@ fn derive_key_with_params(
     m_cost: u32,
     t_cost: u32,
 ) -> Result<(), SealError> {
-    let params = Params::new(
-        m_cost,
-        t_cost,
-        ARGON2ID_P_COST,
-        Some(DERIVED_KEY_SIZE),
-    )
-    .map_err(|_| SealError::KeyDerivationFailed)?;
+    let params = Params::new(m_cost, t_cost, ARGON2ID_P_COST, Some(DERIVED_KEY_SIZE))
+        .map_err(|_| SealError::KeyDerivationFailed)?;
 
     let argon2 = Argon2::new(Algorithm::Argon2id, Version::V0x13, params);
 

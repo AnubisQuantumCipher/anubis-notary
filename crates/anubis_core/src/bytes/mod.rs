@@ -118,10 +118,18 @@ impl fmt::Display for BytesError {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         match self {
             Self::SliceTooShort { required, actual } => {
-                write!(f, "slice too short: required {} bytes, got {}", required, actual)
+                write!(
+                    f,
+                    "slice too short: required {} bytes, got {}",
+                    required, actual
+                )
             }
             Self::OffsetOutOfBounds { offset, len } => {
-                write!(f, "offset {} out of bounds for slice of length {}", offset, len)
+                write!(
+                    f,
+                    "offset {} out of bounds for slice of length {}",
+                    offset, len
+                )
             }
         }
     }
@@ -301,9 +309,7 @@ pub fn load_le64_at(bytes: &[u8], offset: usize) -> u64 {
 #[inline]
 pub fn try_store_le64_at(word: u64, bytes: &mut [u8], offset: usize) -> bool {
     match offset.checked_add(8) {
-        Some(end) if end <= bytes.len() => {
-            try_store_le64(word, &mut bytes[offset..])
-        }
+        Some(end) if end <= bytes.len() => try_store_le64(word, &mut bytes[offset..]),
         _ => false,
     }
 }
@@ -460,13 +466,20 @@ mod tests {
 
         // Success case
         assert!(try_store_le64_at(0x0807060504030201, &mut bytes, 2));
-        assert_eq!(&bytes[2..10], &[0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08]);
+        assert_eq!(
+            &bytes[2..10],
+            &[0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08]
+        );
 
         // Failure - offset too large
         assert!(!try_store_le64_at(0x0807060504030201, &mut bytes, 3));
 
         // Failure - would overflow
-        assert!(!try_store_le64_at(0x0807060504030201, &mut bytes, usize::MAX));
+        assert!(!try_store_le64_at(
+            0x0807060504030201,
+            &mut bytes,
+            usize::MAX
+        ));
     }
 
     #[test]

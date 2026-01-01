@@ -22,8 +22,10 @@ pub mod anchor;
 pub mod rate_limit;
 pub mod seal;
 
-pub use rate_limit::{RateLimiter, format_delay};
-pub use rate_limit::{ApiRateLimiter, ApiRateLimitConfig, RateLimitResult, SharedApiRateLimiter, shared_rate_limiter};
+pub use rate_limit::{format_delay, RateLimiter};
+pub use rate_limit::{
+    shared_rate_limiter, ApiRateLimitConfig, ApiRateLimiter, RateLimitResult, SharedApiRateLimiter,
+};
 
 /// I/O errors.
 #[derive(Error, Debug)]
@@ -161,7 +163,10 @@ pub fn read_file_with_limit(path: impl AsRef<Path>, max_size: u64) -> Result<Vec
     let metadata = file.metadata()?;
     let size = metadata.len();
     if size > max_size {
-        return Err(IoError::FileTooLarge { size, limit: max_size });
+        return Err(IoError::FileTooLarge {
+            size,
+            limit: max_size,
+        });
     }
 
     let mut contents = Vec::with_capacity(size as usize);
@@ -477,7 +482,11 @@ pub mod keystore {
         /// #[rr::ensures("uses_argon2id_low_memory_params()")]
         /// #[rr::ensures("sealed_key_version() = VERSION_LOW_MEMORY")]
         /// ```
-        pub fn seal_and_store_key_low_memory(&self, password: &[u8], secret_key: &[u8]) -> Result<()> {
+        pub fn seal_and_store_key_low_memory(
+            &self,
+            password: &[u8],
+            secret_key: &[u8],
+        ) -> Result<()> {
             let sealed = seal::seal_key_low_memory(password, secret_key)
                 .map_err(|e| IoError::Keystore(format!("seal failed: {}", e)))?;
             self.write_sealed_key(&sealed)
@@ -659,7 +668,9 @@ pub mod keystore {
 
         /// Write a rotation certificate (signature proving key rotation authorization).
         pub fn write_rotation_cert(&self, archive_id: &str, cert_data: &[u8]) -> Result<()> {
-            let cert_path = self.archive_path().join(format!("{}{}", archive_id, ROTATION_CERT_SUFFIX));
+            let cert_path = self
+                .archive_path()
+                .join(format!("{}{}", archive_id, ROTATION_CERT_SUFFIX));
             write_file_atomic(&cert_path, cert_data)?;
             #[cfg(unix)]
             {
@@ -736,7 +747,9 @@ pub mod keystore {
             let mut contents = if revoked_path.exists() {
                 String::from_utf8_lossy(&read_file(&revoked_path)?).to_string()
             } else {
-                String::from("# Anubis Notary Revoked Keys\n# Format: fingerprint:timestamp:reason\n")
+                String::from(
+                    "# Anubis Notary Revoked Keys\n# Format: fingerprint:timestamp:reason\n",
+                )
             };
 
             // Check if already revoked
@@ -752,7 +765,8 @@ pub mod keystore {
             }
 
             // Sanitize reason (no colons or newlines)
-            let safe_reason: String = reason.chars()
+            let safe_reason: String = reason
+                .chars()
                 .filter(|c| *c != ':' && *c != '\n' && *c != '\r')
                 .collect();
 
@@ -895,7 +909,8 @@ pub mod keystore {
             message.extend_from_slice(b"anubis-notary:revocation-list:v1:");
             message.extend_from_slice(&signable_buf[..signable_len]);
 
-            let signature = keypair.sign(&message)
+            let signature = keypair
+                .sign(&message)
                 .map_err(|e| IoError::Keystore(format!("Signing failed: {:?}", e)))?;
 
             // Build final output with signature
@@ -903,51 +918,69 @@ pub mod keystore {
             let mut out_enc = Encoder::new(&mut output_buf);
 
             // Map with 5 fields (signable fields + signature)
-            out_enc.encode_map_header(5)
+            out_enc
+                .encode_map_header(5)
                 .map_err(|e| IoError::Keystore(format!("CBOR encode error: {:?}", e)))?;
 
             // Copy signable fields (created, issuer, revocations, v)
-            out_enc.encode_text("created")
+            out_enc
+                .encode_text("created")
                 .map_err(|e| IoError::Keystore(format!("CBOR encode error: {:?}", e)))?;
-            out_enc.encode_int(timestamp)
-                .map_err(|e| IoError::Keystore(format!("CBOR encode error: {:?}", e)))?;
-
-            out_enc.encode_text("issuer")
-                .map_err(|e| IoError::Keystore(format!("CBOR encode error: {:?}", e)))?;
-            out_enc.encode_text(issuer_fingerprint)
+            out_enc
+                .encode_int(timestamp)
                 .map_err(|e| IoError::Keystore(format!("CBOR encode error: {:?}", e)))?;
 
-            out_enc.encode_text("revocations")
+            out_enc
+                .encode_text("issuer")
                 .map_err(|e| IoError::Keystore(format!("CBOR encode error: {:?}", e)))?;
-            out_enc.encode_array_header(revocations.len())
+            out_enc
+                .encode_text(issuer_fingerprint)
+                .map_err(|e| IoError::Keystore(format!("CBOR encode error: {:?}", e)))?;
+
+            out_enc
+                .encode_text("revocations")
+                .map_err(|e| IoError::Keystore(format!("CBOR encode error: {:?}", e)))?;
+            out_enc
+                .encode_array_header(revocations.len())
                 .map_err(|e| IoError::Keystore(format!("CBOR encode error: {:?}", e)))?;
 
             for (fp, ts, reason) in &revocations {
-                out_enc.encode_map_header(3)
+                out_enc
+                    .encode_map_header(3)
                     .map_err(|e| IoError::Keystore(format!("CBOR encode error: {:?}", e)))?;
-                out_enc.encode_text("fp")
+                out_enc
+                    .encode_text("fp")
                     .map_err(|e| IoError::Keystore(format!("CBOR encode error: {:?}", e)))?;
-                out_enc.encode_text(fp)
+                out_enc
+                    .encode_text(fp)
                     .map_err(|e| IoError::Keystore(format!("CBOR encode error: {:?}", e)))?;
-                out_enc.encode_text("reason")
+                out_enc
+                    .encode_text("reason")
                     .map_err(|e| IoError::Keystore(format!("CBOR encode error: {:?}", e)))?;
-                out_enc.encode_text(reason)
+                out_enc
+                    .encode_text(reason)
                     .map_err(|e| IoError::Keystore(format!("CBOR encode error: {:?}", e)))?;
-                out_enc.encode_text("ts")
+                out_enc
+                    .encode_text("ts")
                     .map_err(|e| IoError::Keystore(format!("CBOR encode error: {:?}", e)))?;
-                out_enc.encode_int(*ts)
+                out_enc
+                    .encode_int(*ts)
                     .map_err(|e| IoError::Keystore(format!("CBOR encode error: {:?}", e)))?;
             }
 
             // "sig" - signature
-            out_enc.encode_text("sig")
+            out_enc
+                .encode_text("sig")
                 .map_err(|e| IoError::Keystore(format!("CBOR encode error: {:?}", e)))?;
-            out_enc.encode_bytes(&signature.to_bytes())
+            out_enc
+                .encode_bytes(&signature.to_bytes())
                 .map_err(|e| IoError::Keystore(format!("CBOR encode error: {:?}", e)))?;
 
-            out_enc.encode_text("v")
+            out_enc
+                .encode_text("v")
                 .map_err(|e| IoError::Keystore(format!("CBOR encode error: {:?}", e)))?;
-            out_enc.encode_uint(1)
+            out_enc
+                .encode_uint(1)
                 .map_err(|e| IoError::Keystore(format!("CBOR encode error: {:?}", e)))?;
 
             let output_len = out_enc.position();
@@ -974,10 +1007,13 @@ pub mod keystore {
             let mut dec = Decoder::new(data);
 
             // Decode map header
-            let map_len = dec.decode_map_header()
-                .map_err(|e| IoError::Keystore(format!("Invalid signed revocation list: {:?}", e)))?;
+            let map_len = dec.decode_map_header().map_err(|e| {
+                IoError::Keystore(format!("Invalid signed revocation list: {:?}", e))
+            })?;
             if map_len != 5 {
-                return Err(IoError::Keystore("Invalid signed revocation list: expected 5 fields".to_string()));
+                return Err(IoError::Keystore(
+                    "Invalid signed revocation list: expected 5 fields".to_string(),
+                ));
             }
 
             let mut created: Option<i64> = None;
@@ -988,27 +1024,36 @@ pub mod keystore {
 
             // Parse fields
             for _ in 0..map_len {
-                let key = dec.decode_text()
+                let key = dec
+                    .decode_text()
                     .map_err(|e| IoError::Keystore(format!("Invalid field key: {:?}", e)))?;
 
                 match key {
                     "created" => {
-                        created = Some(dec.decode_int()
-                            .map_err(|e| IoError::Keystore(format!("Invalid created: {:?}", e)))?);
+                        created =
+                            Some(dec.decode_int().map_err(|e| {
+                                IoError::Keystore(format!("Invalid created: {:?}", e))
+                            })?);
                     }
                     "issuer" => {
-                        issuer = Some(dec.decode_text()
-                            .map_err(|e| IoError::Keystore(format!("Invalid issuer: {:?}", e)))?
-                            .to_string());
+                        issuer = Some(
+                            dec.decode_text()
+                                .map_err(|e| IoError::Keystore(format!("Invalid issuer: {:?}", e)))?
+                                .to_string(),
+                        );
                     }
                     "revocations" => {
-                        let arr_len = dec.decode_array_header()
-                            .map_err(|e| IoError::Keystore(format!("Invalid revocations: {:?}", e)))?;
+                        let arr_len = dec.decode_array_header().map_err(|e| {
+                            IoError::Keystore(format!("Invalid revocations: {:?}", e))
+                        })?;
                         for _ in 0..arr_len {
-                            let entry_len = dec.decode_map_header()
-                                .map_err(|e| IoError::Keystore(format!("Invalid entry: {:?}", e)))?;
+                            let entry_len = dec.decode_map_header().map_err(|e| {
+                                IoError::Keystore(format!("Invalid entry: {:?}", e))
+                            })?;
                             if entry_len != 3 {
-                                return Err(IoError::Keystore("Invalid revocation entry".to_string()));
+                                return Err(IoError::Keystore(
+                                    "Invalid revocation entry".to_string(),
+                                ));
                             }
 
                             let mut fp = String::new();
@@ -1016,31 +1061,62 @@ pub mod keystore {
                             let mut reason = String::new();
 
                             for _ in 0..3 {
-                                let field = dec.decode_text()
-                                    .map_err(|e| IoError::Keystore(format!("Invalid field: {:?}", e)))?
+                                let field = dec
+                                    .decode_text()
+                                    .map_err(|e| {
+                                        IoError::Keystore(format!("Invalid field: {:?}", e))
+                                    })?
                                     .to_string();
                                 match field.as_str() {
-                                    "fp" => fp = dec.decode_text()
-                                        .map_err(|e| IoError::Keystore(format!("Invalid fp: {:?}", e)))?
-                                        .to_string(),
-                                    "ts" => ts = dec.decode_int()
-                                        .map_err(|e| IoError::Keystore(format!("Invalid ts: {:?}", e)))?,
-                                    "reason" => reason = dec.decode_text()
-                                        .map_err(|e| IoError::Keystore(format!("Invalid reason: {:?}", e)))?
-                                        .to_string(),
-                                    _ => return Err(IoError::Keystore(format!("Unknown field: {}", field))),
+                                    "fp" => {
+                                        fp = dec
+                                            .decode_text()
+                                            .map_err(|e| {
+                                                IoError::Keystore(format!("Invalid fp: {:?}", e))
+                                            })?
+                                            .to_string()
+                                    }
+                                    "ts" => {
+                                        ts = dec.decode_int().map_err(|e| {
+                                            IoError::Keystore(format!("Invalid ts: {:?}", e))
+                                        })?
+                                    }
+                                    "reason" => {
+                                        reason = dec
+                                            .decode_text()
+                                            .map_err(|e| {
+                                                IoError::Keystore(format!(
+                                                    "Invalid reason: {:?}",
+                                                    e
+                                                ))
+                                            })?
+                                            .to_string()
+                                    }
+                                    _ => {
+                                        return Err(IoError::Keystore(format!(
+                                            "Unknown field: {}",
+                                            field
+                                        )))
+                                    }
                                 }
                             }
                             revocations.push((fp, ts, reason));
                         }
                     }
                     "sig" => {
-                        signature = Some(dec.decode_bytes()
-                            .map_err(|e| IoError::Keystore(format!("Invalid signature: {:?}", e)))?.to_vec());
+                        signature = Some(
+                            dec.decode_bytes()
+                                .map_err(|e| {
+                                    IoError::Keystore(format!("Invalid signature: {:?}", e))
+                                })?
+                                .to_vec(),
+                        );
                     }
                     "v" => {
-                        version = Some(dec.decode_uint()
-                            .map_err(|e| IoError::Keystore(format!("Invalid version: {:?}", e)))?);
+                        version =
+                            Some(dec.decode_uint().map_err(|e| {
+                                IoError::Keystore(format!("Invalid version: {:?}", e))
+                            })?);
                     }
                     _ => {
                         dec.skip_value()
@@ -1050,13 +1126,19 @@ pub mod keystore {
             }
 
             // Validate required fields
-            let created = created.ok_or_else(|| IoError::Keystore("Missing created".to_string()))?;
+            let created =
+                created.ok_or_else(|| IoError::Keystore("Missing created".to_string()))?;
             let issuer = issuer.ok_or_else(|| IoError::Keystore("Missing issuer".to_string()))?;
-            let signature = signature.ok_or_else(|| IoError::Keystore("Missing signature".to_string()))?;
-            let version = version.ok_or_else(|| IoError::Keystore("Missing version".to_string()))?;
+            let signature =
+                signature.ok_or_else(|| IoError::Keystore("Missing signature".to_string()))?;
+            let version =
+                version.ok_or_else(|| IoError::Keystore("Missing version".to_string()))?;
 
             if version != 1 {
-                return Err(IoError::Keystore(format!("Unsupported version: {}", version)));
+                return Err(IoError::Keystore(format!(
+                    "Unsupported version: {}",
+                    version
+                )));
             }
 
             // Reconstruct signable content
@@ -1112,7 +1194,9 @@ pub mod keystore {
                 .map_err(|e| IoError::Keystore(format!("Invalid signature bytes: {:?}", e)))?;
 
             if !issuer_pubkey.verify(&message, &sig) {
-                return Err(IoError::Keystore("Signature verification failed".to_string()));
+                return Err(IoError::Keystore(
+                    "Signature verification failed".to_string(),
+                ));
             }
 
             Ok((issuer, created, revocations))
@@ -1214,7 +1298,9 @@ pub mod keystore {
             let data = read_file(&queue_path)?;
 
             // Split at first newline
-            let newline_pos = data.iter().position(|&b| b == b'\n')
+            let newline_pos = data
+                .iter()
+                .position(|&b| b == b'\n')
                 .ok_or_else(|| IoError::Keystore("Invalid queue entry format".to_string()))?;
 
             let path_str = String::from_utf8_lossy(&data[..newline_pos]).to_string();

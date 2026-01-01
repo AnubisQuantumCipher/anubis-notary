@@ -89,16 +89,14 @@ pub fn to_vec<T: serde::Serialize>(value: &T) -> Result<Vec<u8>, CiboriumError> 
 /// let receipt: Receipt = from_slice(cbor)?;
 /// ```
 pub fn from_slice<T: serde::de::DeserializeOwned>(bytes: &[u8]) -> Result<T, CiboriumError> {
-    ciborium::from_reader(bytes)
-        .map_err(|e| CiboriumError::Deserialize(e.to_string()))
+    ciborium::from_reader(bytes).map_err(|e| CiboriumError::Deserialize(e.to_string()))
 }
 
 /// Parse CBOR into a generic Value.
 ///
 /// Useful for inspecting CBOR structure without a specific type.
 pub fn parse_value(bytes: &[u8]) -> Result<Value, CiboriumError> {
-    ciborium::from_reader(bytes)
-        .map_err(|e| CiboriumError::Deserialize(e.to_string()))
+    ciborium::from_reader(bytes).map_err(|e| CiboriumError::Deserialize(e.to_string()))
 }
 
 /// Encode a generic Value to CBOR.
