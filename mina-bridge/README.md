@@ -44,8 +44,8 @@ class AnubisAnchor extends SmartContract {
 | Property | Value |
 |----------|-------|
 | **Network** | Mina Mainnet |
-| **zkApp Address** | `B62qmddzKWzKQmNYsxxJRU6kTHtKxBaCwECEGUtdsz1DCTTK57XFceW` |
-| **Deployment TX** | `5JuEBor5pLcfd2moQwFmACfscAn8JXdjYe1Nndjaqou8mfmug3WK` |
+| **zkApp Address** | `B62qnHLXkWxxJ4NwKgT8zwJ2JKZ8nymgrUyK7R7k5fm7ELPRgeEH8E3` |
+| **Deployment TX** | `5JvH2AvfsQDwXu41yAWJHosgadAtzEcqrRCeRYraSu43nriKoKe7` |
 
 ## Bridge Protocol
 
