@@ -91,7 +91,7 @@ impl Share {
 
     /// Get the share as bytes for storage/transmission.
     ///
-    /// Format: [version:1][threshold:1][index:1][data_len:2][data:N][checksum:4]
+    /// Format: `[version:1][threshold:1][index:1][data_len:2][data:N][checksum:4]`
     pub fn to_bytes(&self) -> Vec<u8> {
         let mut result = Vec::with_capacity(5 + self.data.len() + 4);
         result.push(1); // Version
