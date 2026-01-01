@@ -1,22 +1,33 @@
 # Anubis Notary
 
-**Post-Quantum Secure Notary CLI with Formal Proofs**
+**Post-Quantum Secure Notary CLI with Formal Proofs and Blockchain Anchoring**
 
-A command-line tool for cryptographic signing, timestamping, licensing, and multi-signature governance using NIST-approved post-quantum algorithms.
+A command-line tool for cryptographic signing, timestamping, licensing, and multi-signature governance using NIST-approved post-quantum algorithms with optional Mina Protocol blockchain anchoring.
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Rust](https://img.shields.io/badge/rust-1.75+-orange.svg)](https://www.rust-lang.org)
 [![Proofs](https://img.shields.io/badge/proofs-Rocq%2FCoq-blue.svg)](https://coq.inria.fr/)
+[![Mina](https://img.shields.io/badge/blockchain-Mina%20Protocol-9B4DCA.svg)](https://minaprotocol.com)
 
 ## Features
 
-- **ML-DSA-87** (FIPS 204) - Post-quantum digital signatures
-- **ML-KEM-1024** (FIPS 203) - Post-quantum key encapsulation
+### Core Cryptography
+- **ML-DSA-87** (FIPS 204) - Post-quantum digital signatures (NIST Level 5)
+- **ML-KEM-1024** (FIPS 203) - Post-quantum key encapsulation (NIST Level 5)
 - **SHA3-256/SHAKE256** (FIPS 202) - Cryptographic hashing
 - **ChaCha20Poly1305** (RFC 8439) - Authenticated encryption
 - **Argon2id** (RFC 9106) - Memory-hard key derivation (1-4 GiB)
 - **CBOR** (RFC 8949) - Canonical binary encoding
-- **Formal Proofs** - Rocq/Coq proofs for critical properties
+
+### Blockchain Integration
+- **Mina Protocol** - zkApp-based Merkle root anchoring on mainnet
+- **Timestamping** - Immutable blockchain-backed timestamps
+- **Proof Verification** - On-chain verification of document integrity
+
+### Formal Verification
+- **Rocq/Coq Proofs** - Mathematical proofs for critical properties
+- **RefinedRust Specs** - Separation logic specifications
+- **Iris Framework** - Advanced separation logic proofs
 
 ## Quick Start
 
@@ -28,8 +39,7 @@ Download pre-built binaries from [Releases](https://github.com/AnubisQuantumCiph
 |----------|----------|
 | Linux (x86_64) | `anubis-notary-linux-x86_64` |
 | macOS (Apple Silicon) | `anubis-notary-darwin-aarch64` |
-
-For other platforms (macOS Intel, Windows), build from source below.
+| macOS (Intel) | `anubis-notary-darwin-x86_64` |
 
 ```bash
 # Make executable (Linux/macOS)
@@ -61,6 +71,9 @@ anubis-notary key init
 
 # Low-memory mode (1 GiB instead of 4 GiB Argon2id)
 anubis-notary key init --low-memory
+
+# Show public key
+anubis-notary key show
 ```
 
 ### Sign & Verify Files
@@ -141,6 +154,69 @@ anubis-notary multisig execute --config multisig.config --proposal proposal.bin
 anubis-notary key rotate
 ```
 
+## Mina Blockchain Anchoring
+
+Anubis Notary integrates with [Mina Protocol](https://minaprotocol.com) for immutable blockchain timestamping using a deployed zkApp smart contract.
+
+### Setup Mina Integration
+
+```bash
+# Initialize Mina bridge (downloads o1js, compiles zkApp)
+anubis-notary anchor mina setup
+
+# Generate a Mina keypair for transactions
+anubis-notary anchor mina keygen
+
+# Show network information and costs
+anubis-notary anchor mina info
+```
+
+### Configure Mina
+
+```bash
+# Set zkApp address and network
+anubis-notary anchor mina config \
+  --zkapp "B62qmEptuweVvBJbv6dLBXC7QoVJqyUuQ8dkB4PZdjUyrxFUWhSnXBg" \
+  --network mainnet
+
+# Show current configuration
+anubis-notary anchor mina config --show
+```
+
+### Anchor Documents to Blockchain
+
+```bash
+# Create a receipt first
+anubis-notary attest document.pdf --receipt document.receipt
+
+# Anchor receipt's Merkle root to Mina blockchain
+export MINA_PRIVATE_KEY="your-mina-private-key"
+anubis-notary anchor mina anchor document.receipt
+
+# Get current blockchain time
+anubis-notary anchor mina time
+```
+
+### Deployed zkApp (Mainnet)
+
+The AnubisAnchor zkApp is deployed on Mina mainnet:
+
+| Property | Value |
+|----------|-------|
+| **zkApp Address** | `B62qmEptuweVvBJbv6dLBXC7QoVJqyUuQ8dkB4PZdjUyrxFUWhSnXBg` |
+| **Network** | Mina Mainnet |
+| **Deployment TX** | `5JvLVr1VrwarXoUFQcb3LWhZbGUTcDAFzMF8xxbBNK8VSLVQ6C8S` |
+| **Explorer** | [View on Minascan](https://minascan.io/mainnet/tx/5JvLVr1VrwarXoUFQcb3LWhZbGUTcDAFzMF8xxbBNK8VSLVQ6C8S) |
+
+### Mina Environment Variables
+
+| Variable | Description |
+|----------|-------------|
+| `MINA_PRIVATE_KEY` | Your Mina wallet private key (Base58) |
+| `MINA_NETWORK` | Network: `mainnet`, `devnet`, or `local` |
+| `MINA_ZKAPP_ADDRESS` | zkApp contract address |
+| `MINA_FEE` | Transaction fee in nanomina (default: 100000000) |
+
 ## Environment Variables
 
 For CI/CD pipelines and automated workflows:
@@ -173,22 +249,19 @@ This project includes Rocq/Coq proofs for critical cryptographic properties.
 ### Run Proofs with Docker (Recommended - Zero Setup)
 
 ```bash
-# One-command proof verification (requires Docker installed—free/one-time)
-./docker/run-proofs.sh
+# One-command proof verification (requires Docker installed)
+docker run -it ghcr.io/anubisquantumcipher/anubis-proofs
 
-# Inside container, choose what to verify:
-make help         # Show all proof categories
-make core         # Core crypto proofs (AEAD, CBOR, Merkle, ML-DSA)
-make refinedrust  # Separation logic specs (nonce injectivity, constant-time)
-make properties   # High-level property proofs
+# Inside container, verify proofs:
 make all          # Build everything
+make core         # Core crypto proofs
+make refinedrust  # Separation logic specs
 ```
 
-Or run directly:
+Or build locally:
+
 ```bash
-docker build -t anubis-proofs docker/
-docker run -it anubis-proofs
-# Inside: make prove
+./docker/run-proofs.sh
 ```
 
 ### Build Proofs Manually (Without Docker)
@@ -208,6 +281,7 @@ make all
 - **Merkle tree correctness** - Proof verification is sound
 - **AEAD correctness** - Decrypt(Encrypt(m)) = m
 - **Signature properties** - Verify(Sign(m)) = true
+- **Constant-time comparisons** - No timing side-channels
 
 ## Project Structure
 
@@ -217,6 +291,9 @@ anubis-notary/
 │   ├── anubis_core/     # Core cryptographic primitives
 │   ├── anubis_cli/      # Command-line interface
 │   └── anubis_io/       # I/O operations (keystore, seal)
+├── mina-bridge/         # Mina Protocol integration (TypeScript/o1js)
+│   ├── src/             # zkApp source (AnubisAnchor.ts)
+│   └── mina-bridge.js   # Node.js bridge for Rust CLI
 ├── proofs/              # Rocq/Coq formal proofs
 │   └── theories/        # Proof files (.v)
 ├── specs/               # RefinedRust specifications
@@ -245,7 +322,8 @@ anubis-notary/
 - **Zeroization** of all sensitive memory
 - **Memory-hard KDF** (Argon2id with 1-4 GiB)
 - **Atomic file operations** (fsync + rename)
-- **No unsafe code** without SAFETY comments
+- **Formal proofs** for critical properties
+- **Blockchain anchoring** for tamper-evident timestamps
 
 ### Reporting Vulnerabilities
 
@@ -280,6 +358,14 @@ cargo +nightly fuzz run fuzz_cbor
 cargo bench
 ```
 
+### Mina Bridge Development
+
+```bash
+cd mina-bridge
+npm install
+npm run build
+```
+
 ## License
 
 MIT License - see [LICENSE](LICENSE)
@@ -290,22 +376,25 @@ Contributions welcome! Please read [CONTRIBUTING.md](CONTRIBUTING.md) first.
 
 ### Supporting Development
 
-This project is developed independently for advancing post-quantum cryptography research and open-source security tooling. If you find this work valuable for your research, testing, or production use, consider supporting continued development:
+This project is developed independently for advancing post-quantum cryptography research and open-source security tooling. If you find this work valuable, consider supporting continued development:
 
 | Network | Address |
 |---------|---------|
 | **Bitcoin (BTC)** | `bc1qum8pp56ahlkrvcurrfmryyg0hxtay5jzfrlx9s` |
 | **Cardano (ADA)** | `addr1qxx5zwas6p53hnmnweua2ngdqx4x52ugatyqatcrn3yfjvmm99tf343tw7ldxg746f87cll4gfq5nc0dcm7f5f8mwq0qfwsl93` |
 | **Monero (XMR)** | `43SQ1nkaFybf8zQ1JFG2xphKxkf3QUZeEQ6q1rgrrL1g6PSYFqzJ8XEEzNTGEAVpjh9pSF4hEihkt3w2yHobJbMy496H19D` |
+| **Mina (MINA)** | `B62qpxzahqwoTULNHKegn4ExZ95XpprhjRMQGDPDhknkovTr45Migte` |
 
 Contributions support:
 - Ongoing security audits and formal verification efforts
 - Post-quantum cryptography research and testing infrastructure
+- Blockchain integration development and zkApp maintenance
 - Documentation, tooling, and community resources
-- Hardware security module (HSM) integration development
 
 ## Acknowledgments
 
 - [libcrux](https://github.com/cryspen/libcrux) - ML-DSA and ML-KEM implementations
 - [Rocq/Coq](https://coq.inria.fr/) - Proof assistant
 - [Iris](https://iris-project.org/) - Separation logic framework
+- [o1js](https://github.com/o1-labs/o1js) - Mina Protocol zkApp framework
+- [Mina Protocol](https://minaprotocol.com) - Blockchain infrastructure

@@ -1,0 +1,21 @@
+{
+  "name": "anubis-mina-bridge",
+  "version": "1.0.0",
+  "description": "Mina bridge for Anubis Notary",
+  "type": "module",
+  "main": "mina-bridge.js",
+  "scripts": {
+    "build": "tsc",
+    "start": "node mina-bridge.js"
+  },
+  "dependencies": {
+    "o1js": "^1.0.0"
+  },
+  "devDependencies": {
+    "typescript": "^5.3.0",
+    "@types/node": "^20.0.0"
+  },
+  "engines": {
+    "node": ">=18"
+  }
+}

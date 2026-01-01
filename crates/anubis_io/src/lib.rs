@@ -5,9 +5,44 @@
 //! - Time sources (system clock, RFC 3161 TSA)
 //! - Keystore management (Argon2id-sealed key storage)
 //! - Key sealing/unsealing with password protection
+//! - Mina Protocol integration for blockchain anchoring
 //!
 //! All cryptographic logic is in `anubis_core`; this crate only provides
 //! the I/O bridge.
+//!
+//! # Mina Protocol Integration
+//!
+//! The [`mina`] module provides integration with the Mina Protocol blockchain
+//! for timestamping and anchoring. This enables:
+//!
+//! - **Merkle Root Anchoring**: Store SHA3-256 Merkle roots on-chain
+//! - **Blockchain Timestamps**: Leverage Mina's block timestamps for proof-of-existence
+//! - **ZK Verification**: Generate proofs for offline verification
+//!
+//! ## Architecture
+//!
+//! Since there is no official Mina Rust SDK, this module uses a Node.js subprocess
+//! bridge that interfaces with the o1js library:
+//!
+//! ```text
+//! Rust (anubis_io) → stdin/stdout → Node.js (mina-bridge.js) → o1js → Mina Network
+//! ```
+//!
+//! ## Example
+//!
+//! ```ignore
+//! use anubis_io::mina::{MinaClient, MinaConfig};
+//!
+//! let config = MinaConfig::devnet("B62q...")
+//!     .with_fee(100_000_000);  // 0.1 MINA
+//!
+//! let mut client = MinaClient::new(config)?;
+//! client.connect()?;
+//!
+//! // Anchor a Merkle root
+//! let result = client.anchor(&merkle_root)?;
+//! println!("Anchored at block {}", result.block_height);
+//! ```
 
 use std::fs::{self, File, OpenOptions};
 use std::io::{self, Read, Write};
@@ -19,8 +54,12 @@ use thiserror::Error;
 pub use anubis_core;
 
 pub mod anchor;
+pub mod mina;
 pub mod rate_limit;
 pub mod seal;
+
+// Mina module exports
+pub use mina::{MinaAnchorResult, MinaClient, MinaConfig, MinaError, MinaNetwork, MinaTimeResult};
 
 pub use rate_limit::{format_delay, RateLimiter};
 pub use rate_limit::{
@@ -391,6 +430,11 @@ pub mod keystore {
         /// Check if a key exists.
         pub fn has_key(&self) -> bool {
             self.key_path().exists()
+        }
+
+        /// Get the keystore base path.
+        pub fn path(&self) -> &Path {
+            &self.path
         }
 
         /// Get the sealed key file path.

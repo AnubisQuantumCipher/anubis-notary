@@ -51,6 +51,15 @@ pub const MAX_OTS_PROOF_SIZE: usize = 512;
 /// Maximum size for HTTP log URLs.
 pub const MAX_URL_SIZE: usize = 256;
 
+/// Maximum size for Mina zkApp address (Base58 public key).
+pub const MAX_MINA_ADDRESS_SIZE: usize = 64;
+
+/// Maximum size for Mina transaction hash.
+pub const MAX_MINA_TX_HASH_SIZE: usize = 64;
+
+/// Maximum size for Mina ZK proof (compressed).
+pub const MAX_MINA_PROOF_SIZE: usize = 1024;
+
 /// Receipt error types.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum ReceiptError {
@@ -78,6 +87,12 @@ pub enum ReceiptError {
     OtsProofTooLarge(usize),
     /// URL exceeds maximum size (256 bytes).
     UrlTooLarge(usize),
+    /// Mina zkApp address exceeds maximum size (64 bytes).
+    MinaAddressTooLarge(usize),
+    /// Mina transaction hash exceeds maximum size (64 bytes).
+    MinaTxHashTooLarge(usize),
+    /// Mina proof exceeds maximum size (1024 bytes).
+    MinaProofTooLarge(usize),
 }
 
 impl From<CborError> for ReceiptError {
@@ -107,6 +122,20 @@ pub enum TimeSource {
         /// Actual proof length.
         len: usize,
     },
+    /// Mina Protocol blockchain timestamp.
+    ///
+    /// Uses Mina's on-chain timestamp and block height for trustless
+    /// timestamping via zkApp smart contracts.
+    Mina {
+        /// Block height when timestamped.
+        block_height: u64,
+        /// Mina network timestamp (milliseconds since UNIX epoch).
+        timestamp_ms: u64,
+        /// Transaction hash for verification.
+        tx_hash: [u8; MAX_MINA_TX_HASH_SIZE],
+        /// Actual transaction hash length.
+        tx_hash_len: usize,
+    },
 }
 
 impl TimeSource {
@@ -116,6 +145,7 @@ impl TimeSource {
             TimeSource::Local => "local",
             TimeSource::Rfc3161 { .. } => "rfc3161",
             TimeSource::Ots { .. } => "ots",
+            TimeSource::Mina { .. } => "mina",
         }
     }
 }
@@ -143,6 +173,29 @@ pub enum AnchorType {
         /// Log entry ID.
         entry_id: u64,
     },
+    /// Mina Protocol zkApp anchor.
+    ///
+    /// Provides on-chain anchoring via Mina's zkApp smart contracts.
+    /// The Merkle root is stored in the zkApp's on-chain state with
+    /// blockchain timestamp and block height for verification.
+    Mina {
+        /// zkApp contract address (Base58-encoded public key).
+        zkapp_address: [u8; MAX_MINA_ADDRESS_SIZE],
+        /// Actual address length.
+        zkapp_address_len: usize,
+        /// Transaction hash that anchored this root.
+        tx_hash: [u8; MAX_MINA_TX_HASH_SIZE],
+        /// Actual transaction hash length.
+        tx_hash_len: usize,
+        /// Block height when anchored.
+        block_height: u64,
+        /// Mina timestamp (milliseconds since UNIX epoch).
+        timestamp_ms: u64,
+        /// ZK proof for offline verification (optional, compressed).
+        proof: [u8; MAX_MINA_PROOF_SIZE],
+        /// Actual proof length (0 if no proof stored).
+        proof_len: usize,
+    },
 }
 
 impl AnchorType {
@@ -152,6 +205,7 @@ impl AnchorType {
             AnchorType::None => "none",
             AnchorType::Btc { .. } => "btc",
             AnchorType::HttpLog { .. } => "http-log",
+            AnchorType::Mina { .. } => "mina",
         }
     }
 }
@@ -329,6 +383,19 @@ impl Receipt {
                 enc.encode_text("ots")?;
                 enc.encode_bytes(&proof[..*len])?;
             }
+            TimeSource::Mina {
+                block_height,
+                timestamp_ms,
+                tx_hash,
+                tx_hash_len,
+            } => {
+                // ["mina", block_height, timestamp_ms, tx_hash]
+                enc.encode_array_header(4)?;
+                enc.encode_text("mina")?;
+                enc.encode_uint(*block_height)?;
+                enc.encode_uint(*timestamp_ms)?;
+                enc.encode_bytes(&tx_hash[..*tx_hash_len])?;
+            }
         }
         Ok(())
     }
@@ -354,6 +421,25 @@ impl Receipt {
                 enc.encode_text("http-log")?;
                 enc.encode_bytes(&url[..*url_len])?;
                 enc.encode_uint(*entry_id)?;
+            }
+            AnchorType::Mina {
+                zkapp_address,
+                zkapp_address_len,
+                tx_hash,
+                tx_hash_len,
+                block_height,
+                timestamp_ms,
+                proof,
+                proof_len,
+            } => {
+                // ["mina", zkapp_address, tx_hash, block_height, timestamp_ms, proof]
+                enc.encode_array_header(6)?;
+                enc.encode_text("mina")?;
+                enc.encode_bytes(&zkapp_address[..*zkapp_address_len])?;
+                enc.encode_bytes(&tx_hash[..*tx_hash_len])?;
+                enc.encode_uint(*block_height)?;
+                enc.encode_uint(*timestamp_ms)?;
+                enc.encode_bytes(&proof[..*proof_len])?;
             }
         }
         Ok(())
@@ -486,6 +572,27 @@ impl Receipt {
                 proof[..len].copy_from_slice(proof_bytes);
                 Ok(TimeSource::Ots { proof, len })
             }
+            "mina" => {
+                // ["mina", block_height, timestamp_ms, tx_hash]
+                if arr_len != 4 {
+                    return Err(ReceiptError::InvalidTimeSource);
+                }
+                let block_height = dec.decode_uint()?;
+                let timestamp_ms = dec.decode_uint()?;
+                let tx_hash_bytes = dec.decode_bytes()?;
+                if tx_hash_bytes.len() > MAX_MINA_TX_HASH_SIZE {
+                    return Err(ReceiptError::MinaTxHashTooLarge(tx_hash_bytes.len()));
+                }
+                let mut tx_hash = [0u8; MAX_MINA_TX_HASH_SIZE];
+                let tx_hash_len = tx_hash_bytes.len();
+                tx_hash[..tx_hash_len].copy_from_slice(tx_hash_bytes);
+                Ok(TimeSource::Mina {
+                    block_height,
+                    timestamp_ms,
+                    tx_hash,
+                    tx_hash_len,
+                })
+            }
             _ => Err(ReceiptError::InvalidTimeSource),
         }
     }
@@ -528,6 +635,53 @@ impl Receipt {
                     url,
                     url_len,
                     entry_id,
+                })
+            }
+            "mina" => {
+                // ["mina", zkapp_address, tx_hash, block_height, timestamp_ms, proof]
+                if arr_len != 6 {
+                    return Err(ReceiptError::InvalidAnchorType);
+                }
+                // Decode zkApp address
+                let addr_bytes = dec.decode_bytes()?;
+                if addr_bytes.len() > MAX_MINA_ADDRESS_SIZE {
+                    return Err(ReceiptError::MinaAddressTooLarge(addr_bytes.len()));
+                }
+                let mut zkapp_address = [0u8; MAX_MINA_ADDRESS_SIZE];
+                let zkapp_address_len = addr_bytes.len();
+                zkapp_address[..zkapp_address_len].copy_from_slice(addr_bytes);
+
+                // Decode transaction hash
+                let tx_bytes = dec.decode_bytes()?;
+                if tx_bytes.len() > MAX_MINA_TX_HASH_SIZE {
+                    return Err(ReceiptError::MinaTxHashTooLarge(tx_bytes.len()));
+                }
+                let mut tx_hash = [0u8; MAX_MINA_TX_HASH_SIZE];
+                let tx_hash_len = tx_bytes.len();
+                tx_hash[..tx_hash_len].copy_from_slice(tx_bytes);
+
+                // Decode block height and timestamp
+                let block_height = dec.decode_uint()?;
+                let timestamp_ms = dec.decode_uint()?;
+
+                // Decode ZK proof
+                let proof_bytes = dec.decode_bytes()?;
+                if proof_bytes.len() > MAX_MINA_PROOF_SIZE {
+                    return Err(ReceiptError::MinaProofTooLarge(proof_bytes.len()));
+                }
+                let mut proof = [0u8; MAX_MINA_PROOF_SIZE];
+                let proof_len = proof_bytes.len();
+                proof[..proof_len].copy_from_slice(proof_bytes);
+
+                Ok(AnchorType::Mina {
+                    zkapp_address,
+                    zkapp_address_len,
+                    tx_hash,
+                    tx_hash_len,
+                    block_height,
+                    timestamp_ms,
+                    proof,
+                    proof_len,
                 })
             }
             _ => Err(ReceiptError::InvalidAnchorType),
@@ -654,5 +808,212 @@ mod tests {
         } else {
             panic!("Expected Rfc3161 time source");
         }
+    }
+
+    #[test]
+    fn test_mina_time_source_encode_decode() {
+        // Create a Mina time source
+        let tx_hash = b"CkpTestHash12345";
+        let mut tx_arr = [0u8; MAX_MINA_TX_HASH_SIZE];
+        tx_arr[..tx_hash.len()].copy_from_slice(tx_hash);
+
+        let time_source = TimeSource::Mina {
+            block_height: 12345,
+            timestamp_ms: 1704067200000,
+            tx_hash: tx_arr,
+            tx_hash_len: tx_hash.len(),
+        };
+
+        // Create a receipt with this time source
+        let digest = [0x42u8; 32];
+        let mut receipt = Receipt::new(digest, 1703462400);
+        receipt.time_source = time_source;
+
+        // Encode the full receipt
+        let mut buf = [0u8; 1024];
+        let len = receipt.encode(&mut buf).unwrap();
+
+        // Decode
+        let decoded = Receipt::decode(&buf[..len]).unwrap();
+
+        match decoded.time_source {
+            TimeSource::Mina {
+                block_height,
+                timestamp_ms,
+                tx_hash: dec_hash,
+                tx_hash_len: dec_len,
+            } => {
+                assert_eq!(block_height, 12345);
+                assert_eq!(timestamp_ms, 1704067200000);
+                assert_eq!(dec_len, tx_hash.len());
+                assert_eq!(&dec_hash[..dec_len], tx_hash);
+            }
+            _ => panic!("Expected Mina time source"),
+        }
+    }
+
+    #[test]
+    fn test_mina_anchor_encode_decode() {
+        // Create a Mina anchor
+        let zkapp_addr = b"B62qtest123456789012345678901234567890123456789012";
+        let tx_hash = b"CkpTestTx123";
+        let proof = b"base64proofdata";
+
+        let mut addr_arr = [0u8; MAX_MINA_ADDRESS_SIZE];
+        addr_arr[..zkapp_addr.len()].copy_from_slice(zkapp_addr);
+        let mut tx_arr = [0u8; MAX_MINA_TX_HASH_SIZE];
+        tx_arr[..tx_hash.len()].copy_from_slice(tx_hash);
+        let mut proof_arr = [0u8; MAX_MINA_PROOF_SIZE];
+        proof_arr[..proof.len()].copy_from_slice(proof);
+
+        let anchor = AnchorType::Mina {
+            zkapp_address: addr_arr,
+            zkapp_address_len: zkapp_addr.len(),
+            tx_hash: tx_arr,
+            tx_hash_len: tx_hash.len(),
+            block_height: 67890,
+            timestamp_ms: 1704067200000,
+            proof: proof_arr,
+            proof_len: proof.len(),
+        };
+
+        // Create a receipt with this anchor
+        let digest = [0x42u8; 32];
+        let mut receipt = Receipt::new(digest, 1703462400);
+        receipt.anchor = anchor;
+
+        // Encode the full receipt
+        let mut buf = [0u8; 2048];
+        let len = receipt.encode(&mut buf).unwrap();
+
+        // Decode
+        let decoded = Receipt::decode(&buf[..len]).unwrap();
+
+        match decoded.anchor {
+            AnchorType::Mina {
+                zkapp_address: dec_addr,
+                zkapp_address_len: dec_addr_len,
+                tx_hash: dec_tx,
+                tx_hash_len: dec_tx_len,
+                block_height,
+                timestamp_ms,
+                proof: dec_proof,
+                proof_len: dec_proof_len,
+            } => {
+                assert_eq!(dec_addr_len, zkapp_addr.len());
+                assert_eq!(&dec_addr[..dec_addr_len], zkapp_addr);
+                assert_eq!(dec_tx_len, tx_hash.len());
+                assert_eq!(&dec_tx[..dec_tx_len], tx_hash);
+                assert_eq!(block_height, 67890);
+                assert_eq!(timestamp_ms, 1704067200000);
+                assert_eq!(dec_proof_len, proof.len());
+                assert_eq!(&dec_proof[..dec_proof_len], proof);
+            }
+            _ => panic!("Expected Mina anchor"),
+        }
+    }
+
+    #[test]
+    fn test_mina_time_source_id() {
+        let mut tx_arr = [0u8; MAX_MINA_TX_HASH_SIZE];
+        tx_arr[..10].copy_from_slice(b"CkpTest123");
+
+        let time_source = TimeSource::Mina {
+            block_height: 100,
+            timestamp_ms: 1704067200000,
+            tx_hash: tx_arr,
+            tx_hash_len: 10,
+        };
+
+        assert_eq!(time_source.id(), "mina");
+    }
+
+    #[test]
+    fn test_mina_anchor_id() {
+        let anchor = AnchorType::Mina {
+            zkapp_address: [0u8; MAX_MINA_ADDRESS_SIZE],
+            zkapp_address_len: 0,
+            tx_hash: [0u8; MAX_MINA_TX_HASH_SIZE],
+            tx_hash_len: 0,
+            block_height: 0,
+            timestamp_ms: 0,
+            proof: [0u8; MAX_MINA_PROOF_SIZE],
+            proof_len: 0,
+        };
+
+        assert_eq!(anchor.id(), "mina");
+    }
+
+    #[test]
+    fn test_mina_address_size_limit() {
+        use crate::cbor::Encoder;
+
+        // Create an anchor with oversized address
+        let oversized_addr = vec![0x61u8; MAX_MINA_ADDRESS_SIZE + 1];
+        let mut buf = [0u8; 2048];
+        let mut enc = Encoder::new(&mut buf);
+        enc.encode_array_header(6).unwrap();
+        enc.encode_text("mina").unwrap();
+        enc.encode_bytes(&oversized_addr).unwrap();
+        enc.encode_bytes(&[0u8; 10]).unwrap(); // tx_hash
+        enc.encode_uint(100u64).unwrap(); // block_height
+        enc.encode_uint(1704067200000u64).unwrap(); // timestamp_ms
+        enc.encode_bytes(&[0u8; 10]).unwrap(); // proof
+        let len = enc.position();
+
+        let mut dec = crate::cbor::Decoder::new(&buf[..len]);
+        let result = Receipt::decode_anchor(&mut dec);
+        assert_eq!(
+            result,
+            Err(ReceiptError::MinaAddressTooLarge(MAX_MINA_ADDRESS_SIZE + 1))
+        );
+    }
+
+    #[test]
+    fn test_mina_tx_hash_size_limit() {
+        use crate::cbor::Encoder;
+
+        // Create a time source with oversized tx hash
+        let oversized_tx = vec![0x62u8; MAX_MINA_TX_HASH_SIZE + 1];
+        let mut buf = [0u8; 256];
+        let mut enc = Encoder::new(&mut buf);
+        enc.encode_array_header(4).unwrap();
+        enc.encode_text("mina").unwrap();
+        enc.encode_uint(100u64).unwrap(); // block_height
+        enc.encode_uint(1704067200000u64).unwrap(); // timestamp_ms
+        enc.encode_bytes(&oversized_tx).unwrap();
+        let len = enc.position();
+
+        let mut dec = crate::cbor::Decoder::new(&buf[..len]);
+        let result = Receipt::decode_time_source(&mut dec);
+        assert_eq!(
+            result,
+            Err(ReceiptError::MinaTxHashTooLarge(MAX_MINA_TX_HASH_SIZE + 1))
+        );
+    }
+
+    #[test]
+    fn test_mina_proof_size_limit() {
+        use crate::cbor::Encoder;
+
+        // Create an anchor with oversized proof
+        let oversized_proof = vec![0x63u8; MAX_MINA_PROOF_SIZE + 1];
+        let mut buf = [0u8; 2048];
+        let mut enc = Encoder::new(&mut buf);
+        enc.encode_array_header(6).unwrap();
+        enc.encode_text("mina").unwrap();
+        enc.encode_bytes(&[0u8; 50]).unwrap(); // zkapp_address
+        enc.encode_bytes(&[0u8; 10]).unwrap(); // tx_hash
+        enc.encode_uint(100u64).unwrap(); // block_height
+        enc.encode_uint(1704067200000u64).unwrap(); // timestamp_ms
+        enc.encode_bytes(&oversized_proof).unwrap();
+        let len = enc.position();
+
+        let mut dec = crate::cbor::Decoder::new(&buf[..len]);
+        let result = Receipt::decode_anchor(&mut dec);
+        assert_eq!(
+            result,
+            Err(ReceiptError::MinaProofTooLarge(MAX_MINA_PROOF_SIZE + 1))
+        );
     }
 }
