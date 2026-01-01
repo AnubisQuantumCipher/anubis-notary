@@ -254,6 +254,14 @@ pub struct MlKemPublicKey {
     inner: LibcruxPublicKey<PUBLIC_KEY_SIZE>,
 }
 
+impl Clone for MlKemPublicKey {
+    fn clone(&self) -> Self {
+        // Clone by reconstructing from bytes
+        Self::from_bytes(self.as_bytes())
+            .expect("cloning valid public key should not fail")
+    }
+}
+
 impl MlKemPublicKey {
     /// Create from bytes.
     pub fn from_bytes(bytes: &[u8]) -> Result<Self, MlKemError> {

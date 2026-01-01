@@ -92,6 +92,10 @@ pub mod multisig;
 /// Memory-efficient processing of large data with progress tracking
 pub mod streaming;
 
+/// Privacy-preserving collaborative anchoring with forward-secure key shares
+/// Uses ML-KEM-1024 for ephemeral key encapsulation and Shamir for threshold decryption
+pub mod private_batch;
+
 /// Prelude with commonly used types
 pub mod prelude {
     // Unified error type
@@ -148,5 +152,11 @@ pub mod prelude {
     // Streaming interfaces
     pub use crate::streaming::{
         ChunkedData, StreamingError, StreamingHasher, StreamingSigner, StreamingVerifier,
+    };
+
+    // Privacy-preserving collaborative anchoring
+    pub use crate::private_batch::{
+        CollaborativeDecryptor, DecryptedShare, EncryptedLeaf, KeyShareEnvelope, PrivateBatch,
+        PrivateBatchError, RecipientKeyShare,
     };
 }

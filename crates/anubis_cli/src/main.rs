@@ -38,7 +38,9 @@ const ENV_ANUBIS_PASSWORD: &str = "ANUBIS_PASSWORD";
 const ENV_ANUBIS_PASSWORD_FILE: &str = "ANUBIS_PASSWORD_FILE";
 
 use anubis_core::mldsa::{KeyPair, PublicKey, Signature, SEED_SIZE};
+use anubis_core::mlkem::{MlKemKeyPair, MlKemPublicKey, MlKemSecretKey};
 use anubis_core::multisig::{Multisig, Proposal, ProposalType};
+use anubis_core::private_batch::{CollaborativeDecryptor, DecryptedShare, PrivateBatch};
 use anubis_core::streaming::{
     StreamingConfig, StreamingHasher, StreamingSigner, StreamingVerifier,
 };
@@ -118,6 +120,11 @@ enum Commands {
     Stream {
         #[command(subcommand)]
         action: StreamCommands,
+    },
+    /// Privacy-preserving collaborative anchoring with ML-KEM-1024.
+    PrivateBatch {
+        #[command(subcommand)]
+        action: PrivateBatchCommands,
     },
 }
 
@@ -429,6 +436,68 @@ enum StreamCommands {
     },
 }
 
+#[derive(Subcommand)]
+enum PrivateBatchCommands {
+    /// Generate ML-KEM-1024 keypair for private batch participation.
+    Keygen {
+        /// Output base path (will create <name>.mlkem.pub and <name>.mlkem.sec).
+        #[arg(long, short)]
+        out: PathBuf,
+    },
+    /// Create a private batch from receipts.
+    Create {
+        /// Receipt files to include in the batch.
+        #[arg(required = true)]
+        receipts: Vec<PathBuf>,
+        /// ML-KEM public key files for recipients (comma-separated or multiple --recipient flags).
+        #[arg(long, short, required = true)]
+        recipient: Vec<PathBuf>,
+        /// Threshold for decryption (minimum shares needed).
+        #[arg(long, short, default_value = "2")]
+        threshold: u8,
+        /// Output batch file.
+        #[arg(long, short)]
+        out: PathBuf,
+    },
+    /// Decrypt your share from a private batch.
+    DecryptShare {
+        /// Private batch file.
+        batch: PathBuf,
+        /// Your ML-KEM secret key file.
+        #[arg(long, short)]
+        key: PathBuf,
+        /// Output share file.
+        #[arg(long, short)]
+        out: PathBuf,
+    },
+    /// Combine shares to decrypt the batch.
+    Combine {
+        /// Private batch file.
+        batch: PathBuf,
+        /// Decrypted share files (comma-separated or multiple --share flags).
+        #[arg(long, short, required = true)]
+        share: Vec<PathBuf>,
+        /// Output directory for decrypted receipts.
+        #[arg(long, short)]
+        out: PathBuf,
+    },
+    /// Verify a decrypted receipt against the batch.
+    Verify {
+        /// Private batch file.
+        batch: PathBuf,
+        /// Decrypted receipt file.
+        receipt: PathBuf,
+        /// Index of the receipt in the batch.
+        #[arg(long, short)]
+        index: usize,
+    },
+    /// Show batch information.
+    Info {
+        /// Private batch file.
+        batch: PathBuf,
+    },
+}
+
 /// JSON output wrapper.
 #[derive(Serialize)]
 struct JsonOutput<T: Serialize> {
@@ -497,6 +566,7 @@ fn run_command(cli: &Cli) -> Result<(), Box<dyn std::error::Error>> {
         Commands::Anchor { action } => handle_anchor(action, cli.json),
         Commands::Multisig { action } => handle_multisig(action, cli.json),
         Commands::Stream { action } => handle_stream(action, cli.json),
+        Commands::PrivateBatch { action } => handle_private_batch(action, cli.json),
     }
 }
 
@@ -3707,6 +3777,349 @@ fn handle_stream(action: &StreamCommands, json: bool) -> Result<(), Box<dyn std:
                 println!("Hash: {}", hex::encode(hash));
                 println!("File: {}", file.display());
                 println!("Size: {} bytes", file_size);
+            }
+            Ok(())
+        }
+    }
+}
+
+fn handle_private_batch(
+    action: &PrivateBatchCommands,
+    json: bool,
+) -> Result<(), Box<dyn std::error::Error>> {
+    match action {
+        PrivateBatchCommands::Keygen { out } => {
+            // Generate ML-KEM-1024 keypair
+            let kp = MlKemKeyPair::generate()
+                .map_err(|e| format!("Failed to generate ML-KEM keypair: {:?}", e))?;
+
+            // Write public key
+            let pub_path = out.with_extension("mlkem.pub");
+            write_file_atomic(&pub_path, kp.public_key_bytes())?;
+
+            // Write secret key (this is sensitive!)
+            let sec_path = out.with_extension("mlkem.sec");
+            let (sk, _) = kp.into_parts();
+            write_file_atomic(&sec_path, sk.as_bytes())?;
+
+            // Set restrictive permissions on secret key (Unix only)
+            #[cfg(unix)]
+            {
+                use std::os::unix::fs::PermissionsExt;
+                let perms = std::fs::Permissions::from_mode(0o600);
+                std::fs::set_permissions(&sec_path, perms)?;
+            }
+
+            if json {
+                #[derive(Serialize)]
+                struct KeygenResult {
+                    public_key: String,
+                    secret_key: String,
+                    algorithm: &'static str,
+                }
+                let output = JsonOutput::success(KeygenResult {
+                    public_key: pub_path.display().to_string(),
+                    secret_key: sec_path.display().to_string(),
+                    algorithm: "ML-KEM-1024",
+                });
+                println!("{}", serde_json::to_string_pretty(&output)?);
+            } else {
+                println!("Generated ML-KEM-1024 keypair:");
+                println!("  Public key:  {}", pub_path.display());
+                println!("  Secret key:  {}", sec_path.display());
+                println!();
+                println!("IMPORTANT: Keep your secret key safe and private!");
+            }
+            Ok(())
+        }
+
+        PrivateBatchCommands::Create {
+            receipts,
+            recipient,
+            threshold,
+            out,
+        } => {
+            // Read receipt files
+            let mut leaf_data: Vec<Vec<u8>> = Vec::with_capacity(receipts.len());
+            for receipt_path in receipts {
+                let data = read_file(receipt_path)?;
+                leaf_data.push(data);
+            }
+
+            // Convert to slice of slices for API
+            let leaves: Vec<&[u8]> = leaf_data.iter().map(|v| v.as_slice()).collect();
+
+            // Read recipient public keys
+            let mut recipient_pks: Vec<MlKemPublicKey> = Vec::with_capacity(recipient.len());
+            for pk_path in recipient {
+                let pk_bytes = read_file(pk_path)?;
+                let pk = MlKemPublicKey::from_bytes(&pk_bytes)
+                    .map_err(|e| format!("Invalid ML-KEM public key in {}: {:?}", pk_path.display(), e))?;
+                recipient_pks.push(pk);
+            }
+
+            // Create private batch
+            let batch = PrivateBatch::create(&leaves, &recipient_pks, *threshold)
+                .map_err(|e| format!("Failed to create private batch: {:?}", e))?;
+
+            // Serialize and write
+            let batch_bytes = batch.to_bytes();
+            write_file_atomic(out, &batch_bytes)?;
+
+            if json {
+                #[derive(Serialize)]
+                struct CreateResult {
+                    batch_file: String,
+                    batch_id: String,
+                    merkle_root: String,
+                    num_leaves: usize,
+                    threshold: u8,
+                    total_recipients: usize,
+                }
+                let output = JsonOutput::success(CreateResult {
+                    batch_file: out.display().to_string(),
+                    batch_id: hex::encode(batch.batch_id),
+                    merkle_root: hex::encode(batch.merkle_root),
+                    num_leaves: batch.len(),
+                    threshold: *threshold,
+                    total_recipients: recipient_pks.len(),
+                });
+                println!("{}", serde_json::to_string_pretty(&output)?);
+            } else {
+                println!("Created private batch: {}", out.display());
+                println!("  Batch ID:     {}", hex::encode(batch.batch_id));
+                println!("  Merkle root:  {}", hex::encode(batch.merkle_root));
+                println!("  Leaves:       {}", batch.len());
+                println!("  Threshold:    {}-of-{}", threshold, recipient_pks.len());
+                println!();
+                println!("Distribute this batch file to recipients for collaborative decryption.");
+            }
+            Ok(())
+        }
+
+        PrivateBatchCommands::DecryptShare { batch, key, out } => {
+            // Read batch file
+            let batch_bytes = read_file(batch)?;
+            let private_batch = PrivateBatch::from_bytes(&batch_bytes)
+                .map_err(|e| format!("Failed to parse batch file: {:?}", e))?;
+
+            // Read secret key
+            let sk_bytes = read_file(key)?;
+            let sk = MlKemSecretKey::from_bytes(&sk_bytes)
+                .map_err(|e| format!("Invalid ML-KEM secret key: {:?}", e))?;
+
+            // Find our recipient index by trying each one
+            let mut found_share = None;
+            let mut found_index = 0u8;
+
+            for i in 0..private_batch.key_envelope.recipient_shares.len() {
+                match private_batch.key_envelope.decrypt_share(i, &sk) {
+                    Ok(share) => {
+                        found_share = Some(share);
+                        found_index = i as u8;
+                        break;
+                    }
+                    Err(_) => continue,
+                }
+            }
+
+            let share = found_share.ok_or("Your key is not a recipient of this batch")?;
+
+            // Create DecryptedShare for transmission
+            let decrypted = DecryptedShare::new(share, found_index, private_batch.batch_id);
+            let share_bytes = decrypted.to_bytes();
+            write_file_atomic(out, &share_bytes)?;
+
+            if json {
+                #[derive(Serialize)]
+                struct DecryptShareResult {
+                    share_file: String,
+                    batch_id: String,
+                    recipient_index: u8,
+                }
+                let output = JsonOutput::success(DecryptShareResult {
+                    share_file: out.display().to_string(),
+                    batch_id: hex::encode(private_batch.batch_id),
+                    recipient_index: found_index,
+                });
+                println!("{}", serde_json::to_string_pretty(&output)?);
+            } else {
+                println!("Decrypted share saved to: {}", out.display());
+                println!("  Batch ID:        {}", hex::encode(private_batch.batch_id));
+                println!("  Recipient index: {}", found_index);
+                println!();
+                println!("Send this share file to the coordinator for batch decryption.");
+            }
+            Ok(())
+        }
+
+        PrivateBatchCommands::Combine { batch, share, out } => {
+            // Read batch file
+            let batch_bytes = read_file(batch)?;
+            let private_batch = PrivateBatch::from_bytes(&batch_bytes)
+                .map_err(|e| format!("Failed to parse batch file: {:?}", e))?;
+
+            // Create decryptor
+            let mut decryptor = CollaborativeDecryptor::from_batch(&private_batch);
+
+            // Read and add shares
+            for share_path in share {
+                let share_bytes = read_file(share_path)?;
+                let decrypted = DecryptedShare::from_bytes(&share_bytes)
+                    .map_err(|e| format!("Failed to parse share file {}: {:?}", share_path.display(), e))?;
+
+                // Verify batch ID matches
+                if decrypted.batch_id != private_batch.batch_id {
+                    return Err(format!(
+                        "Share {} is for a different batch",
+                        share_path.display()
+                    ).into());
+                }
+
+                decryptor.add_share(decrypted.share)
+                    .map_err(|e| format!("Failed to add share: {:?}", e))?;
+            }
+
+            // Check if we have enough shares
+            if !decryptor.can_recover() {
+                return Err(format!(
+                    "Not enough shares. Have {}, need {}",
+                    decryptor.shares_collected(),
+                    decryptor.threshold()
+                ).into());
+            }
+
+            // Decrypt the batch
+            let plaintexts = decryptor.decrypt_private_batch(&private_batch)
+                .map_err(|e| format!("Failed to decrypt batch: {:?}", e))?;
+
+            // Create output directory
+            std::fs::create_dir_all(out)?;
+
+            // Write decrypted receipts
+            for (i, plaintext) in plaintexts.iter().enumerate() {
+                let receipt_path = out.join(format!("receipt_{}.anb", i));
+                write_file_atomic(&receipt_path, plaintext)?;
+            }
+
+            if json {
+                #[derive(Serialize)]
+                struct CombineResult {
+                    output_dir: String,
+                    batch_id: String,
+                    num_receipts: usize,
+                    shares_used: usize,
+                }
+                let output = JsonOutput::success(CombineResult {
+                    output_dir: out.display().to_string(),
+                    batch_id: hex::encode(private_batch.batch_id),
+                    num_receipts: plaintexts.len(),
+                    shares_used: decryptor.shares_collected(),
+                });
+                println!("{}", serde_json::to_string_pretty(&output)?);
+            } else {
+                println!("Batch decrypted successfully!");
+                println!("  Output directory: {}", out.display());
+                println!("  Receipts:         {}", plaintexts.len());
+                println!("  Shares used:      {}", decryptor.shares_collected());
+            }
+            Ok(())
+        }
+
+        PrivateBatchCommands::Verify { batch, receipt: _, index } => {
+            // Read batch file
+            let batch_bytes = read_file(batch)?;
+            let private_batch = PrivateBatch::from_bytes(&batch_bytes)
+                .map_err(|e| format!("Failed to parse batch file: {:?}", e))?;
+
+            // Verify leaf is in range
+            if *index >= private_batch.len() {
+                return Err(format!(
+                    "Index {} out of range (batch has {} leaves)",
+                    index,
+                    private_batch.len()
+                ).into());
+            }
+
+            // Verify Merkle proof
+            let valid = private_batch.verify_leaf(*index)
+                .map_err(|e| format!("Verification failed: {:?}", e))?;
+
+            if json {
+                #[derive(Serialize)]
+                struct VerifyResult {
+                    valid: bool,
+                    batch_id: String,
+                    merkle_root: String,
+                    index: usize,
+                }
+                let output = JsonOutput::success(VerifyResult {
+                    valid,
+                    batch_id: hex::encode(private_batch.batch_id),
+                    merkle_root: hex::encode(private_batch.merkle_root),
+                    index: *index,
+                });
+                println!("{}", serde_json::to_string_pretty(&output)?);
+            } else if valid {
+                println!("Verification PASSED");
+                println!("  Leaf {} is included in batch {}", index, hex::encode(private_batch.batch_id));
+            } else {
+                println!("Verification FAILED");
+                return Err("Merkle proof verification failed".into());
+            }
+            Ok(())
+        }
+
+        PrivateBatchCommands::Info { batch } => {
+            // Read batch file
+            let batch_bytes = read_file(batch)?;
+            let private_batch = PrivateBatch::from_bytes(&batch_bytes)
+                .map_err(|e| format!("Failed to parse batch file: {:?}", e))?;
+
+            if json {
+                #[derive(Serialize)]
+                struct InfoResult {
+                    batch_id: String,
+                    merkle_root: String,
+                    num_leaves: usize,
+                    threshold: u8,
+                    total_recipients: u8,
+                    created_at: u64,
+                    anchored: bool,
+                    recipient_fingerprints: Vec<String>,
+                }
+                let fingerprints: Vec<String> = private_batch.key_envelope.recipient_shares
+                    .iter()
+                    .map(|rs| hex::encode(rs.recipient_fingerprint))
+                    .collect();
+
+                let output = JsonOutput::success(InfoResult {
+                    batch_id: hex::encode(private_batch.batch_id),
+                    merkle_root: hex::encode(private_batch.merkle_root),
+                    num_leaves: private_batch.len(),
+                    threshold: private_batch.key_envelope.threshold,
+                    total_recipients: private_batch.key_envelope.total_shares,
+                    created_at: private_batch.created_at,
+                    anchored: private_batch.anchored,
+                    recipient_fingerprints: fingerprints,
+                });
+                println!("{}", serde_json::to_string_pretty(&output)?);
+            } else {
+                println!("Private Batch Information");
+                println!("========================");
+                println!("Batch ID:     {}", hex::encode(private_batch.batch_id));
+                println!("Merkle root:  {}", hex::encode(private_batch.merkle_root));
+                println!("Leaves:       {}", private_batch.len());
+                println!("Threshold:    {}-of-{}",
+                    private_batch.key_envelope.threshold,
+                    private_batch.key_envelope.total_shares);
+                println!("Created:      {} (Unix timestamp)", private_batch.created_at);
+                println!("Anchored:     {}", if private_batch.anchored { "Yes" } else { "No" });
+                println!();
+                println!("Recipients:");
+                for (i, rs) in private_batch.key_envelope.recipient_shares.iter().enumerate() {
+                    println!("  {}: {}", i, hex::encode(rs.recipient_fingerprint));
+                }
             }
             Ok(())
         }
