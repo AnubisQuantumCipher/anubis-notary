@@ -1982,12 +1982,27 @@ fn handle_mina(action: &MinaCommands, json: bool) -> Result<(), Box<dyn std::err
                             println!("  Fee: {} MINA", f);
                         }
                     }
-                } else if json {
-                    let output: JsonOutput<()> = JsonOutput::error("Mina not configured. Use 'anchor mina config --zkapp <address>' to configure.");
-                    println!("{}", serde_json::to_string_pretty(&output)?);
                 } else {
-                    println!("Mina not configured.");
-                    println!("Use 'anchor mina config --zkapp <address>' to configure.");
+                    // Show default mainnet configuration
+                    let default_config = serde_json::json!({
+                        "zkapp_address": anubis_io::mina::MAINNET_ZKAPP_ADDRESS,
+                        "network": "mainnet",
+                        "fee": 0.1,
+                        "status": "Using official Anubis zkApp on Mina mainnet"
+                    });
+
+                    if json {
+                        let output = JsonOutput::success(&default_config);
+                        println!("{}", serde_json::to_string_pretty(&output)?);
+                    } else {
+                        println!("Mina Configuration (defaults):");
+                        println!("  zkApp Address: {} (official)", anubis_io::mina::MAINNET_ZKAPP_ADDRESS);
+                        println!("  Network: mainnet");
+                        println!("  Fee: 0.1 MINA");
+                        println!();
+                        println!("Ready to anchor! Set MINA_PRIVATE_KEY and run:");
+                        println!("  anubis-notary anchor mina anchor <receipt>");
+                    }
                 }
             } else {
                 // Update configuration
@@ -2027,19 +2042,20 @@ fn handle_mina(action: &MinaCommands, json: bool) -> Result<(), Box<dyn std::err
             let parsed = Receipt::decode(&receipt_data)
                 .map_err(|e| format!("Invalid receipt: {:?}", e))?;
 
-            // Load Mina configuration
+            // Load Mina configuration or use defaults
             let config_path = ks.path().join("mina.json");
-            if !config_path.exists() {
-                return Err("Mina not configured. Use 'anchor mina config --zkapp <address>' first.".into());
-            }
-
-            let config_data = std::fs::read_to_string(&config_path)?;
-            let config: serde_json::Value = serde_json::from_str(&config_data)?;
-
-            let zkapp_address = config
-                .get("zkapp_address")
-                .and_then(|v| v.as_str())
-                .ok_or("zkApp address not configured")?;
+            let zkapp_address = if config_path.exists() {
+                let config_data = std::fs::read_to_string(&config_path)?;
+                let config: serde_json::Value = serde_json::from_str(&config_data)?;
+                config
+                    .get("zkapp_address")
+                    .and_then(|v| v.as_str())
+                    .unwrap_or(anubis_io::mina::MAINNET_ZKAPP_ADDRESS)
+                    .to_string()
+            } else {
+                // Use official mainnet zkApp by default
+                anubis_io::mina::MAINNET_ZKAPP_ADDRESS.to_string()
+            };
 
             // For now, just show what would be anchored
             // Full implementation would use MinaClient to submit
