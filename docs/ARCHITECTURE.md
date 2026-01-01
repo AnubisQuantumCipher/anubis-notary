@@ -293,7 +293,79 @@ RecipientKeyShare = {
 | ML-KEM encapsulate | ~1ms | ~2 MB |
 | ML-KEM decapsulate | ~1ms | ~2 MB |
 | SHA3-256 (1 MB) | ~5ms | ~1 KB |
-| Mina anchor | 30-60s | ~500 MB (zkApp proof) |
+| Mina anchor (first) | 40-120s | ~500 MB (zkApp proof) |
+| Mina anchor (cached) | ~1s | ~100 MB (cached artifacts) |
+
+## Mina Bridge Caching
+
+The Mina bridge uses o1js's built-in caching to dramatically improve performance on subsequent runs.
+
+### How Caching Works
+
+```
+┌──────────────────────────────────────────────────────────────────────┐
+│                    zkApp Compilation Cache                            │
+├──────────────────────────────────────────────────────────────────────┤
+│                                                                       │
+│  First Run (~175s):                                                   │
+│  ┌──────────┐    ┌──────────┐    ┌──────────┐    ┌──────────┐       │
+│  │ Parse    │───▶│ Compile  │───▶│ Generate │───▶│ Save to  │       │
+│  │ Contract │    │ Circuits │    │ Prover   │    │ ~/.cache │       │
+│  │          │    │          │    │ Keys     │    │ /o1js    │       │
+│  └──────────┘    └──────────┘    └──────────┘    └──────────┘       │
+│                                                                       │
+│  Cached Run (~1s):                                                    │
+│  ┌──────────┐    ┌──────────┐                                        │
+│  │ Load     │───▶│ Ready    │                                        │
+│  │ Cache    │    │ to Prove │                                        │
+│  │          │    │          │                                        │
+│  └──────────┘    └──────────┘                                        │
+│                                                                       │
+└──────────────────────────────────────────────────────────────────────┘
+```
+
+### Cache Location
+
+| OS | Cache Directory |
+|----|-----------------|
+| Linux/macOS | `~/.cache/o1js/` |
+| Windows | `%LOCALAPPDATA%/o1js/` |
+
+### Cache Contents
+
+The o1js cache stores:
+- **SRS (Structured Reference String)**: Shared across all o1js projects
+- **Circuit artifacts**: Compiled constraint systems
+- **Prover keys**: Keys for generating proofs
+- **Verification keys**: Keys for verifying proofs
+
+### Performance Impact
+
+| Scenario | Time | Improvement |
+|----------|------|-------------|
+| First run (no cache) | ~175s | - |
+| Cached run | ~1s | **175x faster** |
+| After circuit change | ~175s | Auto-invalidates |
+
+### Environment Variables
+
+```bash
+# Force recompilation (bypass cache)
+export MINA_FORCE_RECOMPILE=1
+
+# Enable debug logging
+export MINA_DEBUG=1
+```
+
+### Clearing Cache
+
+```bash
+# Clear o1js cache (forces recompilation)
+rm -rf ~/.cache/o1js
+
+# Next anchor command will recompile (~175s)
+anubis-notary anchor mina anchor receipt.anb
+```
 
 ## Extension Points
 
