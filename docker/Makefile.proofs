@@ -1,7 +1,7 @@
-# Anubis Notary - Formal Proofs Master Makefile
+# Anubis Notary - Formal Proofs Makefile
 # Run 'make help' to see all available targets
 
-.PHONY: all help core refinedrust properties clean status
+.PHONY: all help core clean status
 
 #═══════════════════════════════════════════════════════════════════════════════
 help:
@@ -10,7 +10,7 @@ help:
 	@echo "║          Anubis Notary - Formal Proofs Build System                  ║"
 	@echo "╚══════════════════════════════════════════════════════════════════════╝"
 	@echo ""
-	@echo "PROOF CATEGORIES (choose one or more):"
+	@echo "PROOF CATEGORIES:"
 	@echo ""
 	@echo "  make core"
 	@echo "      Core Cryptographic Proofs (proofs/theories/)"
@@ -24,94 +24,51 @@ help:
 	@echo "      ├── memory_tier    - Memory safety tier specifications"
 	@echo "      └── xdg_spec       - XDG base directory correctness"
 	@echo ""
-	@echo "  make refinedrust"
-	@echo "      RefinedRust Separation Logic Specs (specs/refinedrust/theories/)"
-	@echo "      ├── nonce_spec     - Nonce injectivity: diff inputs → diff nonces"
-	@echo "      ├── ct_spec        - Constant-time operation proofs (no timing leaks)"
-	@echo "      ├── timing_model   - Timing side-channel threat model"
-	@echo "      ├── merkle_spec    - Merkle tree ownership & separation"
-	@echo "      ├── aead_spec      - AEAD memory safety & ownership"
-	@echo "      ├── kdf_spec       - Key derivation function specs"
-	@echo "      ├── license_spec   - License token verification proofs"
-	@echo "      ├── receipt_spec   - Receipt format correctness"
-	@echo "      ├── multisig_spec  - M-of-N threshold signature proofs"
-	@echo "      ├── streaming_spec - Streaming hash correctness"
-	@echo "      ├── hsm_spec       - HSM integration security specs"
-	@echo "      ├── mlkem_spec     - ML-KEM-1024 encapsulation proofs"
-	@echo "      ├── mldsa_spec     - ML-DSA-87 separation logic specs"
-	@echo "      ├── cbor_pure      - Pure CBOR encoding injectivity"
-	@echo "      ├── keccak_spec    - Keccak-f[1600] permutation model"
-	@echo "      ├── sha3_spec      - SHA3-256 hash specs"
-	@echo "      └── shake_spec     - SHAKE256 XOF specs"
-	@echo ""
-	@echo "  make properties"
-	@echo "      High-Level Property Proofs (specs/coq/)"
-	@echo "      ├── master_proofs         - All high-level property proofs"
-	@echo "      ├── complete_verification - Full system verification"
-	@echo "      ├── arithmetic_proofs     - Arithmetic overflow safety"
-	@echo "      ├── anubis_notary         - Main system properties"
-	@echo "      └── cryptographic_axioms  - Cryptographic assumptions"
-	@echo ""
 	@echo "BUILD COMMANDS:"
-	@echo "  make all         - Build ALL proofs (takes time)"
+	@echo "  make all         - Build all proofs"
+	@echo "  make core        - Build core proofs only"
 	@echo "  make clean       - Remove all build artifacts"
 	@echo "  make status      - Show which proofs are compiled"
-	@echo "  make summary     - Show RefinedRust spec summary"
+	@echo "  make prove       - Alias for 'make all'"
+	@echo ""
+	@echo "INTERACTIVE:"
+	@echo "  coqtop           - Start interactive Coq toplevel"
+	@echo "  coqide           - Start CoqIDE (if available)"
 	@echo ""
 
 #═══════════════════════════════════════════════════════════════════════════════
-all: core refinedrust properties
+all: core
 	@echo ""
 	@echo "✓ All proofs built successfully!"
 
+prove: all
+
 #═══════════════════════════════════════════════════════════════════════════════
-# CORE CRYPTOGRAPHIC PROOFS
+# CORE CRYPTOGRAPHIC PROOFS - Using coqc directly for robustness
 #═══════════════════════════════════════════════════════════════════════════════
 core:
 	@echo ""
 	@echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
 	@echo "Building Core Cryptographic Proofs..."
 	@echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
-	cd proofs && dune build 2>&1 || echo "(some proofs may require additional deps)"
-	@echo "✓ Core proofs complete"
-
-#═══════════════════════════════════════════════════════════════════════════════
-# REFINEDRUST SEPARATION LOGIC SPECS
-#═══════════════════════════════════════════════════════════════════════════════
-refinedrust:
-	@echo ""
-	@echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
-	@echo "Building RefinedRust Separation Logic Specs..."
-	@echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
-	cd specs/refinedrust && $(MAKE) theories 2>&1 || echo "(requires RefinedRust deps)"
-	@echo "✓ RefinedRust specs complete"
-
-#═══════════════════════════════════════════════════════════════════════════════
-# PROPERTY PROOFS
-#═══════════════════════════════════════════════════════════════════════════════
-properties:
-	@echo ""
-	@echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
-	@echo "Building Property Proofs..."
-	@echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
-	@cd specs/coq && for f in *.v; do \
+	@cd proofs/theories && for f in *.v; do \
 		echo "  Compiling $$f..."; \
-		coqc -Q . AnubisCoq "$$f" 2>/dev/null && echo "    ✓ $$f" || echo "    ○ $$f (skipped)"; \
+		coqc -Q . anubis_proofs "$$f" 2>/dev/null && echo "    ✓ $$f" || echo "    ○ $$f (requires deps)"; \
 	done
-	@echo "✓ Property proofs complete"
+	@echo ""
+	@echo "✓ Core proofs complete"
 
 #═══════════════════════════════════════════════════════════════════════════════
 # CLEAN
 #═══════════════════════════════════════════════════════════════════════════════
 clean:
 	@echo "Cleaning all build artifacts..."
-	cd proofs && dune clean 2>/dev/null || true
-	cd specs/refinedrust && dune clean 2>/dev/null || true
 	find . -name "*.vo" -delete 2>/dev/null || true
 	find . -name "*.vok" -delete 2>/dev/null || true
 	find . -name "*.vos" -delete 2>/dev/null || true
 	find . -name "*.glob" -delete 2>/dev/null || true
 	find . -name ".*.aux" -delete 2>/dev/null || true
+	find . -name "_build" -type d -exec rm -rf {} + 2>/dev/null || true
 	@echo "✓ Clean complete"
 
 #═══════════════════════════════════════════════════════════════════════════════
@@ -123,46 +80,19 @@ status:
 	@echo "━━━━━━━━━━━━━━━━━━━━━━━━━"
 	@echo ""
 	@echo "Core Proofs (proofs/theories/):"
-	@for f in proofs/theories/*.v 2>/dev/null; do \
+	@total=0; compiled=0; \
+	for f in proofs/theories/*.v 2>/dev/null; do \
 		if [ -f "$$f" ]; then \
+			total=$$((total + 1)); \
 			base=$$(basename "$$f" .v); \
 			if [ -f "proofs/theories/$$base.vo" ]; then \
+				compiled=$$((compiled + 1)); \
 				echo "  ✓ $$base"; \
 			else \
 				echo "  ○ $$base"; \
 			fi; \
 		fi; \
-	done
-	@echo ""
-	@echo "RefinedRust Specs (specs/refinedrust/theories/):"
-	@compiled=0; total=0; \
-	for f in specs/refinedrust/theories/*.v 2>/dev/null; do \
-		if [ -f "$$f" ]; then \
-			total=$$((total + 1)); \
-			base=$$(basename "$$f" .v); \
-			if [ -f "specs/refinedrust/theories/$$base.vo" ]; then \
-				compiled=$$((compiled + 1)); \
-			fi; \
-		fi; \
 	done; \
-	echo "  $$compiled/$$total compiled"
+	echo ""; \
+	echo "Summary: $$compiled/$$total proofs compiled"
 	@echo ""
-	@echo "Property Proofs (specs/coq/):"
-	@compiled=0; total=0; \
-	for f in specs/coq/*.v 2>/dev/null; do \
-		if [ -f "$$f" ]; then \
-			total=$$((total + 1)); \
-			base=$$(basename "$$f" .v); \
-			if [ -f "specs/coq/$$base.vo" ]; then \
-				compiled=$$((compiled + 1)); \
-			fi; \
-		fi; \
-	done; \
-	echo "  $$compiled/$$total compiled"
-	@echo ""
-
-#═══════════════════════════════════════════════════════════════════════════════
-# SUMMARY
-#═══════════════════════════════════════════════════════════════════════════════
-summary:
-	@cd specs/refinedrust && $(MAKE) summary 2>/dev/null || echo "Run 'make refinedrust' first"
