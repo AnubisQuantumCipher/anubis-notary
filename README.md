@@ -202,10 +202,10 @@ The AnubisAnchor zkApp is deployed on Mina mainnet and configured by default:
 
 | Property | Value |
 |----------|-------|
-| **zkApp Address** | `B62qmddzKWzKQmNYsxxJRU6kTHtKxBaCwECEGUtdsz1DCTTK57XFceW` |
+| **zkApp Address** | `B62qnHLXkWxxJ4NwKgT8zwJ2JKZ8nymgrUyK7R7k5fm7ELPRgeEH8E3` |
 | **Network** | Mina Mainnet |
 | **Anchor Fee** | ~0.1 MINA |
-| **Deployment TX** | [View on Minascan](https://minascan.io/mainnet/tx/5JuEBor5pLcfd2moQwFmACfscAn8JXdjYe1Nndjaqou8mfmug3WK) |
+| **Deployment TX** | [View on Minascan](https://minascan.io/mainnet/tx/5JvH2AvfsQDwXu41yAWJHosgadAtzEcqrRCeRYraSu43nriKoKe7) |
 
 ### Environment Variables
 

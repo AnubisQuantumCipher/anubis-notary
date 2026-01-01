@@ -54,7 +54,7 @@ const NETWORKS = {
 };
 
 // Official AnubisAnchor zkApp on Mina mainnet (public use)
-const OFFICIAL_ZKAPP_ADDRESS = 'B62qmddzKWzKQmNYsxxJRU6kTHtKxBaCwECEGUtdsz1DCTTK57XFceW';
+const OFFICIAL_ZKAPP_ADDRESS = 'B62qnHLXkWxxJ4NwKgT8zwJ2JKZ8nymgrUyK7R7k5fm7ELPRgeEH8E3';
 
 // Configuration from environment (defaults to mainnet with official zkApp)
 const networkName = process.env.MINA_NETWORK || 'mainnet';

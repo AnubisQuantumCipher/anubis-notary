@@ -35,10 +35,10 @@
 /// Official AnubisAnchor zkApp address on Mina mainnet.
 /// This contract is deployed and maintained by the Anubis Notary project.
 /// Users can anchor documents to this contract by paying transaction fees.
-pub const MAINNET_ZKAPP_ADDRESS: &str = "B62qmddzKWzKQmNYsxxJRU6kTHtKxBaCwECEGUtdsz1DCTTK57XFceW";
+pub const MAINNET_ZKAPP_ADDRESS: &str = "B62qnHLXkWxxJ4NwKgT8zwJ2JKZ8nymgrUyK7R7k5fm7ELPRgeEH8E3";
 
 /// Deployment transaction hash for the official zkApp.
-pub const MAINNET_DEPLOY_TX: &str = "5JuEBor5pLcfd2moQwFmACfscAn8JXdjYe1Nndjaqou8mfmug3WK";
+pub const MAINNET_DEPLOY_TX: &str = "5JvH2AvfsQDwXu41yAWJHosgadAtzEcqrRCeRYraSu43nriKoKe7";
 
 /// Fee payer address that deployed the zkApp.
 pub const MAINNET_DEPLOYER: &str = "B62qpxzahqwoTULNHKegn4ExZ95XpprhjRMQGDPDhknkovTr45Migte";
