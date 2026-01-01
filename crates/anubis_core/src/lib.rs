@@ -33,7 +33,7 @@ pub mod ct;
 /// Byte manipulation utilities (LE load/store, zeroize types)
 pub mod bytes;
 
-/// Keccak-f[1600] permutation, SHA3-256, SHAKE256
+/// Keccak-f\[1600\] permutation, SHA3-256, SHAKE256
 /// Enable `sha3-audited` feature for RustCrypto implementation
 pub mod keccak;
 
