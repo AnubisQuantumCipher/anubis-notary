@@ -29,23 +29,24 @@ A command-line tool for cryptographic signing, timestamping, licensing, and mult
 - **RefinedRust Specs** - Separation logic specifications
 - **Iris Framework** - Advanced separation logic proofs
 
-## Quick Start
+## Download
 
-### One-Click Download (Recommended)
-
-Download pre-built binaries from [Releases](https://github.com/AnubisQuantumCipher/anubis-notary/releases):
+### One-Click Download
 
 | Platform | Download |
 |----------|----------|
-| Linux (x86_64) | `anubis-notary-linux-x86_64` |
-| macOS (Apple Silicon) | `anubis-notary-darwin-aarch64` |
-| macOS (Intel) | `anubis-notary-darwin-x86_64` |
+| **Linux (x86_64)** | [**Download anubis-notary-linux-x86_64**](https://github.com/AnubisQuantumCipher/anubis-notary/releases/download/v0.3.0/anubis-notary-linux-x86_64) |
+| **macOS (Apple Silicon)** | [**Download anubis-notary-darwin-aarch64**](https://github.com/AnubisQuantumCipher/anubis-notary/releases/download/v0.3.0/anubis-notary-darwin-aarch64) |
 
 ```bash
-# Make executable (Linux/macOS)
+# After downloading, make executable and run:
 chmod +x anubis-notary-*
 ./anubis-notary --help
 ```
+
+---
+
+## Quick Start
 
 ### Build from Source
 
