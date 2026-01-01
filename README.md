@@ -484,6 +484,15 @@ npm install
 npm run build
 ```
 
+## Documentation
+
+| Document | Description |
+|----------|-------------|
+| [Architecture Guide](docs/ARCHITECTURE.md) | System design, data flows, security model |
+| [Deployment Guide](docs/DEPLOYMENT.md) | Server setup, Docker, CI/CD, Mina configuration |
+| [Troubleshooting](docs/TROUBLESHOOTING.md) | Common issues and solutions |
+| [Multi-Signature Guide](docs/MULTISIG.md) | Governance and multi-party signing |
+
 ## License
 
 MIT License - see [LICENSE](LICENSE)
