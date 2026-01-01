@@ -86,6 +86,7 @@ dependencies = [
  "anubis_io",
  "assert_cmd",
  "clap",
+ "dirs",
  "getrandom 0.2.16",
  "hex",
  "predicates",

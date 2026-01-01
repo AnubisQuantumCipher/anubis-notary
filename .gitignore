@@ -70,3 +70,14 @@ crates.zip
 *.glob
 *.vo
 *.aux
+
+## Node.js (mina-bridge)
+node_modules/
+*.tsbuildinfo
+mina-bridge/build/
+
+## Release binaries (uploaded separately)
+releases/
+
+## Test deployment files
+mina-bridge/test-*.js
