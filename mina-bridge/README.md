@@ -32,12 +32,9 @@ The `AnubisAnchor` zkApp stores Merkle roots on-chain:
 ```typescript
 class AnubisAnchor extends SmartContract {
   @state(Field) merkleRoot = State<Field>();
-  @state(Field) anchorCount = State<Field>();
 
   @method async anchorRoot(root: Field) {
-    const count = this.anchorCount.getAndRequireEquals();
     this.merkleRoot.set(root);
-    this.anchorCount.set(count.add(1));
   }
 }
 ```
@@ -47,8 +44,8 @@ class AnubisAnchor extends SmartContract {
 | Property | Value |
 |----------|-------|
 | **Network** | Mina Mainnet |
-| **zkApp Address** | `B62qmEptuweVvBJbv6dLBXC7QoVJqyUuQ8dkB4PZdjUyrxFUWhSnXBg` |
-| **Deployment TX** | `5JvLVr1VrwarXoUFQcb3LWhZbGUTcDAFzMF8xxbBNK8VSLVQ6C8S` |
+| **zkApp Address** | `B62qmddzKWzKQmNYsxxJRU6kTHtKxBaCwECEGUtdsz1DCTTK57XFceW` |
+| **Deployment TX** | `5JuEBor5pLcfd2moQwFmACfscAn8JXdjYe1Nndjaqou8mfmug3WK` |
 
 ## Bridge Protocol
 
