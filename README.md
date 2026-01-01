@@ -382,7 +382,7 @@ This project is developed independently for advancing post-quantum cryptography 
 | **Bitcoin (BTC)** | `bc1qum8pp56ahlkrvcurrfmryyg0hxtay5jzfrlx9s` |
 | **Cardano (ADA)** | `addr1qxx5zwas6p53hnmnweua2ngdqx4x52ugatyqatcrn3yfjvmm99tf343tw7ldxg746f87cll4gfq5nc0dcm7f5f8mwq0qfwsl93` |
 | **Monero (XMR)** | `43SQ1nkaFybf8zQ1JFG2xphKxkf3QUZeEQ6q1rgrrL1g6PSYFqzJ8XEEzNTGEAVpjh9pSF4hEihkt3w2yHobJbMy496H19D` |
-| **Mina (MINA)** | `B62qpxzahqwoTULNHKegn4ExZ95XpprhjRMQGDPDhknkovTr45Migte` |
+| **Mina (MINA)** | `B62qidUYaNWRhTYdxx9djDBxMKSwqL9487MjX1x59bfGmeq4wq5sA1d` |
 
 Contributions support:
 - Ongoing security audits and formal verification efforts
