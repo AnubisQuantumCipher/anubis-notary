@@ -156,66 +156,65 @@ anubis-notary key rotate
 
 ## Mina Blockchain Anchoring
 
-Anubis Notary integrates with [Mina Protocol](https://minaprotocol.com) for immutable blockchain timestamping using a deployed zkApp smart contract.
+Anubis Notary integrates with [Mina Protocol](https://minaprotocol.com) for immutable blockchain timestamping. The official zkApp is **already deployed on mainnet** - you just need a Mina wallet with ~0.1 MINA to anchor documents.
 
-### Setup Mina Integration
+### Quick Start (3 Steps)
 
 ```bash
-# Initialize Mina bridge (downloads o1js, compiles zkApp)
+# 1. One-time setup (installs Mina bridge)
 anubis-notary anchor mina setup
 
-# Generate a Mina keypair for transactions
+# 2. Get a Mina wallet (or use existing)
 anubis-notary anchor mina keygen
+# Fund with ~0.1 MINA from any exchange
 
-# Show network information and costs
-anubis-notary anchor mina info
+# 3. Anchor your documents!
+export MINA_PRIVATE_KEY="your-key-from-step-2"
+anubis-notary attest document.pdf --receipt document.receipt
+anubis-notary anchor mina anchor document.receipt
 ```
 
-### Configure Mina
+**Cost:** ~0.1 MINA per anchor (~$0.01 USD)
+
+### Detailed Usage
 
 ```bash
-# Set zkApp address and network
-anubis-notary anchor mina config \
-  --zkapp "B62qmEptuweVvBJbv6dLBXC7QoVJqyUuQ8dkB4PZdjUyrxFUWhSnXBg" \
-  --network mainnet
-
-# Show current configuration
+# Show configuration (pre-configured for mainnet)
 anubis-notary anchor mina config --show
-```
 
-### Anchor Documents to Blockchain
-
-```bash
-# Create a receipt first
+# Create a receipt for a document
 anubis-notary attest document.pdf --receipt document.receipt
 
-# Anchor receipt's Merkle root to Mina blockchain
+# Anchor the receipt to blockchain
 export MINA_PRIVATE_KEY="your-mina-private-key"
 anubis-notary anchor mina anchor document.receipt
 
 # Get current blockchain time
 anubis-notary anchor mina time
+
+# Check your wallet balance
+anubis-notary anchor mina balance
 ```
 
-### Deployed zkApp (Mainnet)
+### Official zkApp (Pre-Configured)
 
-The AnubisAnchor zkApp is deployed on Mina mainnet:
+The AnubisAnchor zkApp is deployed on Mina mainnet and configured by default:
 
 | Property | Value |
 |----------|-------|
 | **zkApp Address** | `B62qmEptuweVvBJbv6dLBXC7QoVJqyUuQ8dkB4PZdjUyrxFUWhSnXBg` |
 | **Network** | Mina Mainnet |
-| **Deployment TX** | `5JvLVr1VrwarXoUFQcb3LWhZbGUTcDAFzMF8xxbBNK8VSLVQ6C8S` |
-| **Explorer** | [View on Minascan](https://minascan.io/mainnet/tx/5JvLVr1VrwarXoUFQcb3LWhZbGUTcDAFzMF8xxbBNK8VSLVQ6C8S) |
+| **Anchor Fee** | ~0.1 MINA (~$0.01 USD) |
+| **Deployment TX** | [View on Minascan](https://minascan.io/mainnet/tx/5JvLVr1VrwarXoUFQcb3LWhZbGUTcDAFzMF8xxbBNK8VSLVQ6C8S) |
 
-### Mina Environment Variables
+### Environment Variables
 
-| Variable | Description |
-|----------|-------------|
-| `MINA_PRIVATE_KEY` | Your Mina wallet private key (Base58) |
-| `MINA_NETWORK` | Network: `mainnet`, `devnet`, or `local` |
-| `MINA_ZKAPP_ADDRESS` | zkApp contract address |
-| `MINA_FEE` | Transaction fee in nanomina (default: 100000000) |
+| Variable | Description | Required |
+|----------|-------------|----------|
+| `MINA_PRIVATE_KEY` | Your Mina wallet private key (Base58) | **Yes** |
+| `MINA_NETWORK` | Network: `mainnet`, `devnet`, or `local` | No (default: mainnet) |
+| `MINA_ZKAPP_ADDRESS` | Custom zkApp address | No (default: official) |
+| `MINA_FEE` | Transaction fee in nanomina | No (default: 100000000) |
 
 ## Environment Variables
 

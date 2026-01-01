@@ -53,16 +53,20 @@ const NETWORKS = {
   },
 };
 
-// Configuration from environment
-const networkName = process.env.MINA_NETWORK || 'devnet';
-const networkConfig = NETWORKS[networkName] || NETWORKS.devnet;
+// Official AnubisAnchor zkApp on Mina mainnet (public use)
+const OFFICIAL_ZKAPP_ADDRESS = 'B62qmEptuweVvBJbv6dLBXC7QoVJqyUuQ8dkB4PZdjUyrxFUWhSnXBg';
+
+// Configuration from environment (defaults to mainnet with official zkApp)
+const networkName = process.env.MINA_NETWORK || 'mainnet';
+const networkConfig = NETWORKS[networkName] || NETWORKS.mainnet;
 
 const config = {
   network: networkName,
   graphqlUrl: process.env.MINA_GRAPHQL_URL || networkConfig.graphqlUrl,
   archiveUrl: networkConfig.archiveUrl,
   explorerUrl: networkConfig.explorerUrl,
-  zkappAddress: process.env.MINA_ZKAPP_ADDRESS || '',
+  // Default to official zkApp on mainnet - users just need MINA_PRIVATE_KEY
+  zkappAddress: process.env.MINA_ZKAPP_ADDRESS || OFFICIAL_ZKAPP_ADDRESS,
   privateKey: process.env.MINA_PRIVATE_KEY || '',
   fee: BigInt(process.env.MINA_FEE || '100000000'),
   accountCreationFee: networkConfig.accountCreationFee,

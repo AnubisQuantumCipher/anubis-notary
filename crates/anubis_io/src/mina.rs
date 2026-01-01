@@ -11,18 +11,37 @@
 //! Rust (anubis_io) → stdin/stdout → Node.js (mina-bridge.js) → o1js → Mina Network
 //! ```
 //!
+//! # Quick Start (Public Users)
+//!
+//! The AnubisAnchor zkApp is already deployed on Mina mainnet. Users only need:
+//! 1. A Mina wallet with ~0.1 MINA for transaction fees
+//! 2. Run `anubis-notary anchor mina setup` to initialize
+//! 3. Set `MINA_PRIVATE_KEY` environment variable
+//! 4. Anchor documents with `anubis-notary anchor mina anchor <receipt>`
+//!
 //! # Requirements
 //!
 //! - Node.js v18+ with npm
-//! - The `mina-bridge` script must be installed (typically in `~/.anubis/mina-bridge/`)
-//! - A Mina wallet with sufficient funds for transactions
+//! - The `mina-bridge` script (auto-installed by `anchor mina setup`)
+//! - A Mina wallet with sufficient funds for transactions (~0.1 MINA per anchor)
 //!
 //! # Features
 //!
-//! - **Anchoring**: Submit Merkle roots to a zkApp smart contract
+//! - **Anchoring**: Submit Merkle roots to the official zkApp smart contract
 //! - **Timestamping**: Retrieve blockchain timestamps for receipts
 //! - **Verification**: Verify anchor existence on-chain
 //! - **ZK Proofs**: Generate and verify zero-knowledge proofs for offline verification
+
+/// Official AnubisAnchor zkApp address on Mina mainnet.
+/// This contract is deployed and maintained by the Anubis Notary project.
+/// Users can anchor documents to this contract by paying transaction fees.
+pub const MAINNET_ZKAPP_ADDRESS: &str = "B62qmEptuweVvBJbv6dLBXC7QoVJqyUuQ8dkB4PZdjUyrxFUWhSnXBg";
+
+/// Deployment transaction hash for the official zkApp.
+pub const MAINNET_DEPLOY_TX: &str = "5JvLVr1VrwarXoUFQcb3LWhZbGUTcDAFzMF8xxbBNK8VSLVQ6C8S";
+
+/// Fee payer address that deployed the zkApp.
+pub const MAINNET_DEPLOYER: &str = "B62qpxzahqwoTULNHKegn4ExZ95XpprhjRMQGDPDhknkovTr45Migte";
 
 use std::io::{BufRead, BufReader, Write};
 use std::path::PathBuf;
@@ -188,8 +207,9 @@ impl Default for MinaConfig {
                 .unwrap_or_else(|| PathBuf::from("."))
                 .join(".anubis")
                 .join("mina-bridge"),
-            network: MinaNetwork::Devnet,
-            zkapp_address: String::new(),
+            // Default to mainnet with official zkApp for public use
+            network: MinaNetwork::Mainnet,
+            zkapp_address: MAINNET_ZKAPP_ADDRESS.to_string(),
             wallet_private_key: None,
             fee_nanomina: 100_000_000, // 0.1 MINA
             timeout_secs: 120,
@@ -679,7 +699,9 @@ mod tests {
     #[test]
     fn test_config_default() {
         let config = MinaConfig::default();
-        assert_eq!(config.network, MinaNetwork::Devnet);
+        // Default to mainnet with official zkApp for public use
+        assert_eq!(config.network, MinaNetwork::Mainnet);
+        assert_eq!(config.zkapp_address, MAINNET_ZKAPP_ADDRESS);
         assert_eq!(config.fee_nanomina, 100_000_000);
         assert_eq!(config.timeout_secs, 120);
     }
