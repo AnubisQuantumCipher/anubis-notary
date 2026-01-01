@@ -174,7 +174,7 @@ anubis-notary attest document.pdf --receipt document.receipt
 anubis-notary anchor mina anchor document.receipt
 ```
 
-**Cost:** ~0.1 MINA per anchor (~$0.01 USD)
+**Cost:** ~0.1 MINA per anchor
 
 ### Detailed Usage
 
