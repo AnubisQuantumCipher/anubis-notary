@@ -378,19 +378,47 @@ make all
 ```
 anubis-notary/
 ├── crates/
-│   ├── anubis_core/     # Core cryptographic primitives
-│   ├── anubis_cli/      # Command-line interface
-│   └── anubis_io/       # I/O operations (keystore, seal)
-├── mina-bridge/         # Mina Protocol integration (TypeScript/o1js)
-│   ├── src/             # zkApp source (AnubisAnchor.ts)
-│   └── mina-bridge.js   # Node.js bridge for Rust CLI
-├── proofs/              # Rocq/Coq formal proofs
-│   └── theories/        # Proof files (.v)
-├── specs/               # RefinedRust specifications
-├── fuzz/                # Fuzzing targets
-├── benches/             # Performance benchmarks
-├── docker/              # Docker setup for proofs
-└── docs/                # Documentation
+│   ├── anubis_core/           # Core cryptographic primitives
+│   │   ├── aead/              # ChaCha20Poly1305 authenticated encryption
+│   │   ├── cbor/              # CBOR encoding/decoding (RFC 8949)
+│   │   ├── ct/                # Constant-time operations
+│   │   ├── kdf/               # Argon2id key derivation (RFC 9106)
+│   │   ├── keccak/            # SHA3-256/SHAKE256 (FIPS 202)
+│   │   ├── merkle/            # Merkle tree construction & proofs
+│   │   ├── mldsa/             # ML-DSA-87 signatures (FIPS 204)
+│   │   ├── mlkem/             # ML-KEM-1024 key encapsulation (FIPS 203)
+│   │   ├── private_batch/     # Privacy-preserving collaborative anchoring
+│   │   │   ├── encrypted_leaf.rs    # ChaCha20Poly1305 encrypted leaves
+│   │   │   ├── key_envelope.rs      # ML-KEM key share envelopes
+│   │   │   ├── private_batch.rs     # Batch orchestration
+│   │   │   └── collaborative.rs     # Threshold decryption
+│   │   ├── recovery/          # Shamir secret sharing
+│   │   ├── license/           # Software licensing
+│   │   ├── multisig/          # Multi-signature governance
+│   │   ├── receipt/           # Timestamped attestation receipts
+│   │   ├── nonce/             # Deterministic nonce derivation
+│   │   ├── streaming/         # Large file streaming operations
+│   │   └── hsm/               # Hardware security module support
+│   ├── anubis_cli/            # Command-line interface
+│   │   └── src/main.rs        # CLI commands & subcommands
+│   └── anubis_io/             # I/O operations
+│       ├── lib.rs             # Keystore management
+│       ├── seal.rs            # Sealed file encryption
+│       ├── mina.rs            # Mina Protocol client
+│       ├── anchor.rs          # Blockchain anchoring
+│       └── rate_limit.rs      # API rate limiting
+├── mina-zkapp/                # Mina zkApp (TypeScript/o1js)
+│   └── src/AnubisAnchor.ts    # On-chain anchor contract
+├── mina-bridge/               # Node.js bridge for Rust CLI
+│   ├── src/                   # Bridge source
+│   └── mina-bridge.js         # Compiled bridge script
+├── proofs/                    # Rocq/Coq formal proofs
+│   └── theories/              # Proof files (.v)
+├── specs/                     # RefinedRust specifications
+├── fuzz/                      # Fuzzing targets
+├── benches/                   # Performance benchmarks
+├── docker/                    # Docker setup for proofs
+└── docs/                      # Documentation
 ```
 
 ## Security
