@@ -13,11 +13,18 @@ A command-line tool for cryptographic signing, timestamping, licensing, and mult
 
 ### Core Cryptography
 - **ML-DSA-87** (FIPS 204) - Post-quantum digital signatures (NIST Level 5)
-- **ML-KEM-1024** (FIPS 203) - Post-quantum key encapsulation (NIST Level 5)
+- **ML-KEM-1024** (FIPS 203) - Post-quantum key encapsulation & private batches (NIST Level 5)
 - **SHA3-256/SHAKE256** (FIPS 202) - Cryptographic hashing
 - **ChaCha20Poly1305** (RFC 8439) - Authenticated encryption
 - **Argon2id** (RFC 9106) - Memory-hard key derivation (1-4 GiB)
+- **Shamir Secret Sharing** - Information-theoretic threshold cryptography
 - **CBOR** (RFC 8949) - Canonical binary encoding
+
+### Privacy-Preserving Collaborative Anchoring
+- **Forward-Secure Batches** - Ephemeral ML-KEM keys protect past batches
+- **Threshold Decryption** - t-of-n parties required to unlock encrypted receipts
+- **Merkle Proofs** - Verifiable proofs work on encrypted data
+- **Zeroization** - All session keys securely cleared from memory
 
 ### Blockchain Integration
 - **Mina Protocol** - zkApp-based Merkle root anchoring on mainnet
@@ -35,8 +42,8 @@ A command-line tool for cryptographic signing, timestamping, licensing, and mult
 
 | Platform | Download |
 |----------|----------|
-| **Linux (x86_64)** | [**Download anubis-notary-linux-x86_64**](https://github.com/AnubisQuantumCipher/anubis-notary/releases/download/v0.3.0/anubis-notary-linux-x86_64) |
-| **macOS (Apple Silicon)** | [**Download anubis-notary-darwin-aarch64**](https://github.com/AnubisQuantumCipher/anubis-notary/releases/download/v0.3.0/anubis-notary-darwin-aarch64) |
+| **Linux (x86_64)** | [**Download anubis-notary-linux-x86_64**](https://github.com/AnubisQuantumCipher/anubis-notary/releases/download/v0.3.2/anubis-notary-linux-x86_64) |
+| **macOS (Apple Silicon)** | [**Download anubis-notary-darwin-aarch64**](https://github.com/AnubisQuantumCipher/anubis-notary/releases/download/v0.3.2/anubis-notary-darwin-aarch64) |
 
 ```bash
 # After downloading, make executable and run:
@@ -154,6 +161,89 @@ anubis-notary multisig execute --config multisig.config --proposal proposal.bin
 # Rotate keys (archives old key)
 anubis-notary key rotate
 ```
+
+## Privacy-Preserving Collaborative Anchoring (ML-KEM-1024)
+
+Anubis Notary supports **forward-secure, threshold-decryption batch anchoring** using ML-KEM-1024 for ephemeral key encapsulation and Shamir secret sharing. This allows multiple parties to collaboratively control access to encrypted receipts.
+
+### How It Works
+
+```
++---------------------------------------------------------------------+
+|                    Private Batch Creation                            |
++---------------------------------------------------------------------+
+| 1. Generate ephemeral session key (32 bytes)                        |
+| 2. Encrypt each receipt leaf with ChaCha20Poly1305                  |
+| 3. Build Merkle tree over encrypted leaf hashes                     |
+| 4. Split session key using Shamir (t-of-n)                          |
+| 5. For each recipient:                                              |
+|    - ML-KEM-1024 encapsulate -> ephemeral shared secret             |
+|    - Encrypt Shamir share with shared secret                        |
+| 6. Anchor Merkle root to blockchain/log                             |
+| 7. Zeroize session key                                              |
++---------------------------------------------------------------------+
+```
+
+### Generate Recipient Keypairs
+
+```bash
+# Generate ML-KEM-1024 keypairs for each recipient
+anubis-notary private-batch keygen -o alice
+anubis-notary private-batch keygen -o bob
+anubis-notary private-batch keygen -o carol
+
+# Creates: alice.mlkem.pub, alice.mlkem.sec (and same for bob, carol)
+```
+
+### Create Private Batch
+
+```bash
+# Create a 2-of-3 threshold encrypted batch
+anubis-notary private-batch create receipt1.anb receipt2.anb \
+    -r alice.mlkem.pub \
+    -r bob.mlkem.pub \
+    -r carol.mlkem.pub \
+    -t 2 \
+    -o batch.private
+
+# View batch information
+anubis-notary private-batch info batch.private
+```
+
+### Collaborative Decryption
+
+```bash
+# Each recipient decrypts their share (run by each party)
+anubis-notary private-batch decrypt-share batch.private \
+    -k alice.mlkem.sec -o alice.share
+
+anubis-notary private-batch decrypt-share batch.private \
+    -k carol.mlkem.sec -o carol.share
+
+# Coordinator combines shares (only needs t shares)
+anubis-notary private-batch combine batch.private \
+    -s alice.share -s carol.share \
+    -o decrypted/
+```
+
+### Security Properties
+
+| Property | Description |
+|----------|-------------|
+| **Forward Secrecy** | Ephemeral ML-KEM keys ensure past batches remain secure even if long-term keys are compromised |
+| **Privacy** | Encrypted leaves hide receipt contents while Merkle proofs still work |
+| **Threshold Access** | t-of-n recipients must collaborate to decrypt |
+| **Information-Theoretic Security** | t-1 shares reveal absolutely nothing (Shamir) |
+| **Post-Quantum Security** | ML-KEM-1024 provides NIST Level 5 security against quantum attacks |
+| **Zeroization** | All session keys and shares are securely cleared from memory |
+
+### Use Cases
+
+- **Multi-party escrow** - Legal documents requiring multiple parties to unlock
+- **Corporate governance** - Board approval for sensitive documents
+- **Dead man's switch** - Time-locked inheritance with trusted parties
+- **Regulatory compliance** - Audit trails with controlled disclosure
+- **Collaborative research** - Shared access to confidential data
 
 ## Mina Blockchain Anchoring
 
