@@ -29,5 +29,10 @@ serde_json = { workspace = true }
 # Platform-specific home directory
 dirs = "5"
 
+# Starknet Protocol integration (core types only, no async runtime)
+# Uses ureq for blocking JSON-RPC calls to avoid tokio dependency
+starknet-core = "0.16"
+starknet-crypto = "0.8"
+
 [dev-dependencies]
 tempfile = "3"

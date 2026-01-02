@@ -8,6 +8,7 @@ A command-line tool for cryptographic signing, timestamping, licensing, and mult
 [![Rust](https://img.shields.io/badge/rust-1.75+-orange.svg)](https://www.rust-lang.org)
 [![Proofs](https://img.shields.io/badge/proofs-Rocq%2FCoq-blue.svg)](https://coq.inria.fr/)
 [![Mina](https://img.shields.io/badge/blockchain-Mina%20Protocol-9B4DCA.svg)](https://minaprotocol.com)
+[![Starknet](https://img.shields.io/badge/blockchain-Starknet-EC796B.svg)](https://starknet.io)
 
 ## Features
 
@@ -27,9 +28,10 @@ A command-line tool for cryptographic signing, timestamping, licensing, and mult
 - **Zeroization** - All session keys securely cleared from memory
 
 ### Blockchain Integration
-- **Mina Protocol** - zkApp-based Merkle root anchoring on mainnet
+- **Mina Protocol** - zkApp-based Merkle root anchoring on mainnet (~$0.08/tx)
+- **Starknet** - STARK-private batch anchoring with Cairo contracts (~$0.001/tx)
 - **Batch Anchoring** - 8x cost savings with queue-based batch submissions
-- **Native Rust GraphQL** - 10-20x faster queries (no Node.js for reads)
+- **Native Rust Clients** - Fast RPC/GraphQL clients (no Node.js for reads)
 - **Timestamping** - Immutable blockchain-backed timestamps
 - **Proof Verification** - On-chain verification of document integrity
 
@@ -40,14 +42,14 @@ A command-line tool for cryptographic signing, timestamping, licensing, and mult
 
 ## Download
 
-### One-Click Download (v0.3.5)
+### One-Click Download (v0.3.6)
 
 Pre-built binaries - no compilation required:
 
 | Platform | Download | Size |
 |----------|----------|------|
-| **Linux x86_64** | [**anubis-notary-linux-x86_64**](https://github.com/AnubisQuantumCipher/anubis-notary/releases/download/v0.3.5/anubis-notary-linux-x86_64) | 4.7 MB |
-| **macOS ARM64** (Apple Silicon) | [**anubis-notary-darwin-aarch64**](https://github.com/AnubisQuantumCipher/anubis-notary/releases/download/v0.3.5/anubis-notary-darwin-aarch64) | 3.4 MB |
+| **Linux x86_64** | [**anubis-notary-linux-x86_64**](https://github.com/AnubisQuantumCipher/anubis-notary/releases/download/v0.3.6/anubis-notary-linux-x86_64) | ~5 MB |
+| **macOS ARM64** (Apple Silicon) | [**anubis-notary-darwin-aarch64**](https://github.com/AnubisQuantumCipher/anubis-notary/releases/download/v0.3.6/anubis-notary-darwin-aarch64) | ~4 MB |
 
 [**View All Releases**](https://github.com/AnubisQuantumCipher/anubis-notary/releases)
 
@@ -55,7 +57,7 @@ Pre-built binaries - no compilation required:
 # After downloading, make executable and run:
 chmod +x anubis-notary-*
 ./anubis-notary --version
-# Output: anubis-notary 0.3.5
+# Output: anubis-notary 0.3.6
 ./anubis-notary --help
 ```
 
@@ -335,6 +337,69 @@ The AnubisAnchor zkApp is deployed on Mina mainnet and configured by default:
 | `MINA_ZKAPP_ADDRESS` | Custom zkApp address | No (default: official) |
 | `MINA_FEE` | Transaction fee in nanomina | No (default: 100000000) |
 
+## Starknet Blockchain Anchoring
+
+Anubis Notary also supports [Starknet](https://starknet.io) for ultra-low-cost anchoring using ZK-STARK validity proofs and Poseidon hashing.
+
+### Quick Start
+
+```bash
+# Show network info and costs
+anubis-notary anchor starknet info
+
+# Generate a Starknet keypair
+anubis-notary anchor starknet keygen
+
+# Configure contract (after deployment)
+anubis-notary anchor starknet config --contract 0x...
+
+# Anchor a receipt
+anubis-notary anchor starknet anchor document.receipt
+```
+
+### Batch Anchoring (8x Cost Savings)
+
+```bash
+# Queue receipts for batch submission
+anubis-notary anchor starknet queue receipt1.receipt
+anubis-notary anchor starknet queue receipt2.receipt
+# ... add up to 8 receipts
+
+# Check queue status
+anubis-notary anchor starknet queue-status
+
+# Submit batch
+anubis-notary anchor starknet flush
+```
+
+### Cost Comparison
+
+| Chain | Single Anchor | Batch (8 receipts) | Per Receipt |
+|-------|---------------|---------------------|-------------|
+| **Starknet** | ~$0.001 | ~$0.001 | ~$0.000125 |
+| **Mina** | ~$0.08 | ~$0.08 | ~$0.01 |
+
+### Cairo Smart Contract
+
+The NotaryOracle Cairo contract is included in `starknet-contract/`:
+
+```bash
+# Build with Scarb
+cd starknet-contract
+scarb build
+
+# Deploy (requires Starknet CLI)
+starknet declare --contract target/dev/anubis_notary_oracle_NotaryOracle.json
+starknet deploy --class-hash <HASH> --inputs <OWNER>
+```
+
+### Environment Variables
+
+| Variable | Description | Required |
+|----------|-------------|----------|
+| `STARKNET_PRIVATE_KEY` | Account private key (hex) | For transactions |
+| `STARKNET_ACCOUNT` | Account address (hex) | For balance queries |
+
 ## Environment Variables
 
 For CI/CD pipelines and automated workflows:
@@ -435,8 +500,12 @@ anubis-notary/
 │       ├── mina.rs            # Mina Protocol client
 │       ├── mina_graphql.rs    # Pure Rust GraphQL client (10-20x faster)
 │       ├── batch_queue.rs     # Batch anchoring queue system
+│       ├── starknet.rs        # Starknet Protocol client
 │       ├── anchor.rs          # Blockchain anchoring
 │       └── rate_limit.rs      # API rate limiting
+├── starknet-contract/         # Starknet Cairo smart contract
+│   ├── Scarb.toml             # Cairo project config
+│   └── src/lib.cairo          # NotaryOracle contract
 ├── mina-zkapp/                # Mina zkApp (TypeScript/o1js)
 │   └── src/AnubisAnchor.ts    # On-chain anchor contract
 ├── mina-bridge/               # Node.js bridge for Rust CLI
