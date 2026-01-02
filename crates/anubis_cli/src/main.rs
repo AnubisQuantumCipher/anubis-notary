@@ -2432,6 +2432,7 @@ fn handle_starknet(action: &StarknetCommands, json: bool) -> Result<(), Box<dyn 
         StarknetCommands::Keygen => {
             // Generate a new Starknet keypair using starknet-crypto
             use starknet_crypto::get_public_key;
+            use zeroize::Zeroize;
 
             // Generate random private key
             let mut private_key_bytes = [0u8; 32];
@@ -2440,6 +2441,10 @@ fn handle_starknet(action: &StarknetCommands, json: bool) -> Result<(), Box<dyn 
 
             // Convert to felt252
             let private_key = starknet_core::types::Felt::from_bytes_be(&private_key_bytes);
+
+            // Zeroize the raw bytes immediately after conversion
+            private_key_bytes.zeroize();
+
             let public_key = get_public_key(&private_key);
 
             if json {
