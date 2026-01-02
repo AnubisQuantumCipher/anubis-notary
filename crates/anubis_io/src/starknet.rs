@@ -38,7 +38,6 @@
 use serde::{Deserialize, Serialize};
 use starknet_core::types::Felt;
 use starknet_crypto::poseidon_hash_many;
-use subtle::ConstantTimeEq;
 use thiserror::Error;
 use std::process::Command;
 
