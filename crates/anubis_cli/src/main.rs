@@ -2629,12 +2629,33 @@ fn handle_starknet(action: &StarknetCommands, json: bool) -> Result<(), Box<dyn 
                 .map(String::from)
                 .or_else(|| std::env::var("STARKNET_ACCOUNT").ok());
 
-            // Check if we have credentials for native submission
-            let has_private_key = std::env::var("STARKNET_PRIVATE_KEY").is_ok();
+            // Check if we have valid credentials for native submission
+            // Validate private key format: must start with 0x and be valid hex
+            let private_key = std::env::var("STARKNET_PRIVATE_KEY").ok()
+                .filter(|k| k.starts_with("0x") && k.len() >= 10 && k[2..].chars().all(|c| c.is_ascii_hexdigit()));
+            let has_private_key = private_key.is_some();
 
             // Convert digest to fixed-size array (needed for both branches)
             let mut digest_bytes = [0u8; 32];
             digest_bytes.copy_from_slice(&parsed.digest);
+
+            // Define AnchorResult struct once for JSON output
+            #[derive(Serialize)]
+            struct AnchorResultJson {
+                success: bool,
+                tx_hash: String,
+                contract: String,
+                network: String,
+                digest: String,
+                poseidon_root: Option<String>,
+                explorer_url: String,
+                #[serde(skip_serializing_if = "Option::is_none")]
+                confirmed: Option<bool>,
+                #[serde(skip_serializing_if = "Option::is_none")]
+                finality_status: Option<String>,
+                #[serde(skip_serializing_if = "Option::is_none")]
+                execution_status: Option<String>,
+            }
 
             if has_private_key {
                 // Native transaction submission
@@ -2661,46 +2682,82 @@ fn handle_starknet(action: &StarknetCommands, json: bool) -> Result<(), Box<dyn 
 
                 match client.anchor_root(&digest_bytes) {
                     Ok(result) => {
-                        if json {
-                            #[derive(Serialize)]
-                            struct AnchorResult {
-                                success: bool,
-                                tx_hash: String,
-                                contract: String,
-                                network: String,
-                                digest: String,
-                                explorer_url: String,
-                            }
-                            let explorer_base = match network {
-                                StarknetNetwork::Mainnet => "https://starkscan.co",
-                                StarknetNetwork::Sepolia => "https://sepolia.starkscan.co",
-                                StarknetNetwork::Devnet => "http://localhost:5050",
-                            };
-                            let output = JsonOutput::success(AnchorResult {
-                                success: true,
-                                tx_hash: result.tx_hash.clone(),
-                                contract: result.contract_address.clone(),
-                                network: format!("{:?}", network).to_lowercase(),
-                                digest: digest_hex.clone(),
-                                explorer_url: format!("{}/tx/{}", explorer_base, result.tx_hash),
-                            });
-                            println!("{}", serde_json::to_string_pretty(&output)?);
-                        } else {
-                            let explorer_base = match network {
-                                StarknetNetwork::Mainnet => "https://starkscan.co",
-                                StarknetNetwork::Sepolia => "https://sepolia.starkscan.co",
-                                StarknetNetwork::Devnet => "http://localhost:5050",
-                            };
+                        let explorer_base = match network {
+                            StarknetNetwork::Mainnet => "https://starkscan.co",
+                            StarknetNetwork::Sepolia => "https://sepolia.starkscan.co",
+                            StarknetNetwork::Devnet => "http://localhost:5050",
+                        };
+
+                        if !json {
                             println!();
                             println!("✓ Transaction submitted successfully!");
                             println!("  Transaction Hash: {}", result.tx_hash);
+                            if let Some(ref poseidon) = result.poseidon_root {
+                                println!("  Poseidon Root: {}", poseidon);
+                            }
                             println!("  Explorer: {}/tx/{}", explorer_base, result.tx_hash);
-                            println!();
-                            println!("The receipt digest {} has been anchored to Starknet.", digest_hex);
+                        }
 
-                            if *wait {
+                        // Wait for confirmation if --wait flag is set
+                        if *wait {
+                            if !json {
                                 println!();
-                                println!("Note: Check the explorer for confirmation status.");
+                                println!("Waiting for transaction confirmation...");
+                            }
+
+                            // Poll for up to 5 minutes (60 attempts, 5 seconds each)
+                            match client.wait_for_transaction(&result.tx_hash, 60, 5) {
+                                Ok(status) => {
+                                    if json {
+                                        let output = JsonOutput::success(AnchorResultJson {
+                                            success: true,
+                                            tx_hash: result.tx_hash.clone(),
+                                            contract: result.contract_address.clone(),
+                                            network: format!("{:?}", network).to_lowercase(),
+                                            digest: digest_hex.clone(),
+                                            poseidon_root: result.poseidon_root.clone(),
+                                            explorer_url: format!("{}/tx/{}", explorer_base, result.tx_hash),
+                                            confirmed: Some(true),
+                                            finality_status: Some(status.finality_status.clone()),
+                                            execution_status: status.execution_status.clone(),
+                                        });
+                                        println!("{}", serde_json::to_string_pretty(&output)?);
+                                    } else {
+                                        println!();
+                                        println!("✓ Transaction confirmed on L2!");
+                                        println!("  Status: {} / {:?}", status.finality_status, status.execution_status);
+                                        println!();
+                                        println!("The receipt digest {} has been anchored to Starknet.", digest_hex);
+                                    }
+                                }
+                                Err(e) => {
+                                    if !json {
+                                        println!();
+                                        println!("⚠ Transaction submitted but confirmation timed out: {}", e);
+                                        println!("  Check status manually: {}/tx/{}", explorer_base, result.tx_hash);
+                                    }
+                                }
+                            }
+                        } else {
+                            // Not waiting - just show success
+                            if json {
+                                let output = JsonOutput::success(AnchorResultJson {
+                                    success: true,
+                                    tx_hash: result.tx_hash.clone(),
+                                    contract: result.contract_address.clone(),
+                                    network: format!("{:?}", network).to_lowercase(),
+                                    digest: digest_hex.clone(),
+                                    poseidon_root: result.poseidon_root.clone(),
+                                    explorer_url: format!("{}/tx/{}", explorer_base, result.tx_hash),
+                                    confirmed: None,
+                                    finality_status: None,
+                                    execution_status: None,
+                                });
+                                println!("{}", serde_json::to_string_pretty(&output)?);
+                            } else {
+                                println!();
+                                println!("The receipt digest {} has been anchored to Starknet.", digest_hex);
+                                println!("Use --wait to wait for confirmation.");
                             }
                         }
                     }

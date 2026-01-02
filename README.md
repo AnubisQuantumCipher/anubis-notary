@@ -42,14 +42,14 @@ A command-line tool for cryptographic signing, timestamping, licensing, and mult
 
 ## Download
 
-### One-Click Download (v0.3.6)
+### One-Click Download (v0.3.7)
 
 Pre-built binaries - no compilation required:
 
 | Platform | Download | Size |
 |----------|----------|------|
-| **Linux x86_64** | [**anubis-notary-linux-x86_64**](https://github.com/AnubisQuantumCipher/anubis-notary/releases/download/v0.3.6/anubis-notary-linux-x86_64) | ~5 MB |
-| **macOS ARM64** (Apple Silicon) | [**anubis-notary-darwin-aarch64**](https://github.com/AnubisQuantumCipher/anubis-notary/releases/download/v0.3.6/anubis-notary-darwin-aarch64) | ~4 MB |
+| **Linux x86_64** | [**anubis-notary-linux-x86_64**](https://github.com/AnubisQuantumCipher/anubis-notary/releases/download/v0.3.7/anubis-notary-linux-x86_64) | ~5 MB |
+| **macOS ARM64** (Apple Silicon) | [**anubis-notary-darwin-aarch64**](https://github.com/AnubisQuantumCipher/anubis-notary/releases/download/v0.3.7/anubis-notary-darwin-aarch64) | ~4 MB |
 
 [**View All Releases**](https://github.com/AnubisQuantumCipher/anubis-notary/releases)
 
@@ -57,7 +57,7 @@ Pre-built binaries - no compilation required:
 # After downloading, make executable and run:
 chmod +x anubis-notary-*
 ./anubis-notary --version
-# Output: anubis-notary 0.3.6
+# Output: anubis-notary 0.3.7
 ./anubis-notary --help
 ```
 
@@ -339,23 +339,29 @@ The AnubisAnchor zkApp is deployed on Mina mainnet and configured by default:
 
 ## Starknet Blockchain Anchoring
 
-Anubis Notary also supports [Starknet](https://starknet.io) for ultra-low-cost anchoring using ZK-STARK validity proofs and Poseidon hashing.
+Anubis Notary supports [Starknet](https://starknet.io) for ultra-low-cost anchoring using ZK-STARK validity proofs and Poseidon hashing.
 
-### Quick Start
+**Full documentation**: [docs/STARKNET.md](docs/STARKNET.md) | [docs/MAINNET.md](docs/MAINNET.md)
+
+### Quick Start (3 Steps)
 
 ```bash
-# Show network info and costs
-anubis-notary anchor starknet info
+# 1. Install Starknet Foundry
+curl -L https://raw.githubusercontent.com/foundry-rs/starknet-foundry/master/scripts/install.sh | sh
 
-# Generate a Starknet keypair
-anubis-notary anchor starknet keygen
+# 2. Create and fund an account
+sncast account create --name myaccount --network sepolia
+# Fund via https://starknet-faucet.vercel.app/
+sncast account deploy --name myaccount --network sepolia
 
-# Configure contract (after deployment)
-anubis-notary anchor starknet config --contract 0x...
-
-# Anchor a receipt
+# 3. Anchor your documents!
+export STARKNET_ACCOUNT_NAME="myaccount"
+anubis-notary anchor starknet config --contract 0x04aa72f8dc65247389378621b6ff3e61852d56ddf571b522d03f02dc7f827606
+anubis-notary attest document.pdf --receipt document.receipt
 anubis-notary anchor starknet anchor document.receipt
 ```
+
+**Cost**: ~$0.001 per anchor (~$0.000125 with batch anchoring)
 
 ### Batch Anchoring (8x Cost Savings)
 
@@ -363,42 +369,32 @@ anubis-notary anchor starknet anchor document.receipt
 # Queue receipts for batch submission
 anubis-notary anchor starknet queue receipt1.receipt
 anubis-notary anchor starknet queue receipt2.receipt
-# ... add up to 8 receipts
-
-# Check queue status
-anubis-notary anchor starknet queue-status
 
 # Submit batch
 anubis-notary anchor starknet flush
 ```
 
+### Pre-Deployed Contract (Sepolia)
+
+| Property | Value |
+|----------|-------|
+| **Contract** | `0x04aa72f8dc65247389378621b6ff3e61852d56ddf571b522d03f02dc7f827606` |
+| **Network** | Starknet Sepolia |
+| **Explorer** | [View on Voyager](https://sepolia.voyager.online/contract/0x04aa72f8dc65247389378621b6ff3e61852d56ddf571b522d03f02dc7f827606) |
+
 ### Cost Comparison
 
-| Chain | Single Anchor | Batch (8 receipts) | Per Receipt |
-|-------|---------------|---------------------|-------------|
-| **Starknet** | ~$0.001 | ~$0.001 | ~$0.000125 |
-| **Mina** | ~$0.08 | ~$0.08 | ~$0.01 |
-
-### Cairo Smart Contract
-
-The NotaryOracle Cairo contract is included in `starknet-contract/`:
-
-```bash
-# Build with Scarb
-cd starknet-contract
-scarb build
-
-# Deploy (requires Starknet CLI)
-starknet declare --contract target/dev/anubis_notary_oracle_NotaryOracle.json
-starknet deploy --class-hash <HASH> --inputs <OWNER>
-```
+| Chain | Single Anchor | Per Receipt (Batch) |
+|-------|---------------|---------------------|
+| **Starknet** | ~$0.001 | ~$0.000125 |
+| **Mina** | ~$0.08 | ~$0.01 |
 
 ### Environment Variables
 
-| Variable | Description | Required |
-|----------|-------------|----------|
-| `STARKNET_PRIVATE_KEY` | Account private key (hex) | For transactions |
-| `STARKNET_ACCOUNT` | Account address (hex) | For balance queries |
+| Variable | Description | Default |
+|----------|-------------|---------|
+| `STARKNET_ACCOUNT_NAME` | sncast account name | `anubis-deployer` |
+| `STARKNET_NETWORK` | `mainnet`, `sepolia`, `devnet` | `mainnet` |
 
 ## Environment Variables
 
@@ -589,8 +585,10 @@ npm run build
 
 | Document | Description |
 |----------|-------------|
+| [Starknet Anchoring](docs/STARKNET.md) | Complete Starknet blockchain anchoring guide |
+| [Mainnet Deployment](docs/MAINNET.md) | Production deployment for Starknet & Mina |
 | [Architecture Guide](docs/ARCHITECTURE.md) | System design, data flows, security model |
-| [Deployment Guide](docs/DEPLOYMENT.md) | Server setup, Docker, CI/CD, Mina configuration |
+| [Deployment Guide](docs/DEPLOYMENT.md) | Server setup, Docker, CI/CD configuration |
 | [Troubleshooting](docs/TROUBLESHOOTING.md) | Common issues and solutions |
 | [Multi-Signature Guide](docs/MULTISIG.md) | Governance and multi-party signing |
 

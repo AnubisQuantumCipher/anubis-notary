@@ -1,0 +1,16 @@
+{
+  "name": "starknet-bridge",
+  "version": "1.0.0",
+  "description": "Node.js subprocess bridge for Anubis Notary Starknet integration",
+  "type": "module",
+  "main": "starknet-bridge.js",
+  "scripts": {
+    "start": "node starknet-bridge.js"
+  },
+  "dependencies": {
+    "starknet": "^6.17.0"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  }
+}
