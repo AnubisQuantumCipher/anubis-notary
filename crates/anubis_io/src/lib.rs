@@ -6,6 +6,7 @@
 //! - Keystore management (Argon2id-sealed key storage)
 //! - Key sealing/unsealing with password protection
 //! - Mina Protocol integration for blockchain anchoring
+//! - Starknet Protocol integration for low-cost STARK anchoring
 //!
 //! All cryptographic logic is in `anubis_core`; this crate only provides
 //! the I/O bridge.
@@ -59,11 +60,18 @@ pub mod mina;
 pub mod mina_graphql;
 pub mod rate_limit;
 pub mod seal;
+pub mod starknet;
 
 // Mina module exports
 pub use mina::{MinaAnchorResult, MinaClient, MinaConfig, MinaError, MinaNetwork, MinaTimeResult};
 pub use mina_graphql::MinaGraphQL;
 pub use batch_queue::{BatchQueue, BatchQueueEntry};
+
+// Starknet module exports
+pub use starknet::{
+    AnchorRecord as StarknetAnchorRecord, StarknetAnchorResult, StarknetBatchResult,
+    StarknetClient, StarknetConfig, StarknetError, StarknetNetwork, StarknetTimeResult,
+};
 
 pub use rate_limit::{format_delay, RateLimiter};
 pub use rate_limit::{

@@ -66,6 +66,18 @@ pub const MAX_MINA_BATCH_WITNESS_SIZE: usize = 96;
 /// Maximum size for Mina batch root (Poseidon hash output = 32 bytes).
 pub const MINA_BATCH_ROOT_SIZE: usize = 32;
 
+/// Maximum size for Starknet contract address (felt252 = 32 bytes).
+pub const MAX_STARKNET_ADDRESS_SIZE: usize = 32;
+
+/// Maximum size for Starknet transaction hash (felt252 = 32 bytes).
+pub const MAX_STARKNET_TX_HASH_SIZE: usize = 32;
+
+/// Maximum size for Starknet batch Merkle witness (3 levels * 32 bytes = 96 bytes).
+pub const MAX_STARKNET_BATCH_WITNESS_SIZE: usize = 96;
+
+/// Maximum size for Starknet batch root (Poseidon hash output = 32 bytes).
+pub const STARKNET_BATCH_ROOT_SIZE: usize = 32;
+
 /// Receipt error types.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum ReceiptError {
@@ -103,6 +115,12 @@ pub enum ReceiptError {
     MinaBatchWitnessTooLarge(usize),
     /// Invalid batch index (must be 0-7).
     InvalidBatchIndex(u64),
+    /// Starknet contract address exceeds maximum size (32 bytes).
+    StarknetAddressTooLarge(usize),
+    /// Starknet transaction hash exceeds maximum size (32 bytes).
+    StarknetTxHashTooLarge(usize),
+    /// Starknet batch Merkle witness exceeds maximum size (96 bytes).
+    StarknetBatchWitnessTooLarge(usize),
 }
 
 impl From<CborError> for ReceiptError {
@@ -235,6 +253,60 @@ pub enum AnchorType {
         /// Actual witness length.
         witness_len: usize,
     },
+    /// Starknet Protocol anchor.
+    ///
+    /// Provides on-chain anchoring via Starknet's Cairo smart contracts.
+    /// Uses ZK-STARK proofs for scalable, low-cost anchoring with
+    /// Poseidon hashing for STARK-efficient Merkle proofs.
+    ///
+    /// Cost: ~$0.001 per anchor (extremely cost-efficient).
+    Starknet {
+        /// Contract address (felt252, hex-encoded, 32 bytes max).
+        contract_addr: [u8; MAX_STARKNET_ADDRESS_SIZE],
+        /// Actual address length.
+        contract_addr_len: usize,
+        /// Transaction hash (felt252, 32 bytes).
+        tx_hash: [u8; MAX_STARKNET_TX_HASH_SIZE],
+        /// Actual transaction hash length.
+        tx_hash_len: usize,
+        /// Block number when anchored.
+        block_number: u64,
+        /// Starknet timestamp (seconds since UNIX epoch).
+        timestamp: u64,
+        /// Root ID assigned by the NotaryOracle contract.
+        root_id: u64,
+    },
+    /// Starknet Protocol batch anchor.
+    ///
+    /// Provides cost-efficient batch anchoring where multiple receipts are
+    /// combined into a single transaction. Each receipt stores a Merkle witness
+    /// proving inclusion in the batch root stored on-chain via Poseidon hashing.
+    ///
+    /// Cost savings: 8x (~$0.001 per batch vs per receipt).
+    StarknetBatch {
+        /// Contract address (felt252, hex-encoded, 32 bytes max).
+        contract_addr: [u8; MAX_STARKNET_ADDRESS_SIZE],
+        /// Actual address length.
+        contract_addr_len: usize,
+        /// Transaction hash (felt252, 32 bytes).
+        tx_hash: [u8; MAX_STARKNET_TX_HASH_SIZE],
+        /// Actual transaction hash length.
+        tx_hash_len: usize,
+        /// Block number when anchored.
+        block_number: u64,
+        /// Starknet timestamp (seconds since UNIX epoch).
+        timestamp: u64,
+        /// Root ID assigned by the NotaryOracle contract.
+        root_id: u64,
+        /// Index of this receipt within the batch (0-7).
+        batch_index: u8,
+        /// Combined batch root (Poseidon hash of all 8 roots).
+        batch_root: [u8; STARKNET_BATCH_ROOT_SIZE],
+        /// Merkle witness for proving inclusion (3 sibling hashes).
+        merkle_witness: [u8; MAX_STARKNET_BATCH_WITNESS_SIZE],
+        /// Actual witness length.
+        witness_len: usize,
+    },
 }
 
 impl AnchorType {
@@ -246,6 +318,8 @@ impl AnchorType {
             AnchorType::HttpLog { .. } => "http-log",
             AnchorType::Mina { .. } => "mina",
             AnchorType::MinaBatch { .. } => "mina-batch",
+            AnchorType::Starknet { .. } => "starknet",
+            AnchorType::StarknetBatch { .. } => "starknet-batch",
         }
     }
 }
@@ -501,6 +575,50 @@ impl Receipt {
                 enc.encode_bytes(&tx_hash[..*tx_hash_len])?;
                 enc.encode_uint(*block_height)?;
                 enc.encode_uint(*timestamp_ms)?;
+                enc.encode_uint(u64::from(*batch_index))?;
+                enc.encode_bytes(batch_root)?;
+                enc.encode_bytes(&merkle_witness[..*witness_len])?;
+            }
+            AnchorType::Starknet {
+                contract_addr,
+                contract_addr_len,
+                tx_hash,
+                tx_hash_len,
+                block_number,
+                timestamp,
+                root_id,
+            } => {
+                // ["starknet", contract_addr, tx_hash, block_number, timestamp, root_id]
+                enc.encode_array_header(6)?;
+                enc.encode_text("starknet")?;
+                enc.encode_bytes(&contract_addr[..*contract_addr_len])?;
+                enc.encode_bytes(&tx_hash[..*tx_hash_len])?;
+                enc.encode_uint(*block_number)?;
+                enc.encode_uint(*timestamp)?;
+                enc.encode_uint(*root_id)?;
+            }
+            AnchorType::StarknetBatch {
+                contract_addr,
+                contract_addr_len,
+                tx_hash,
+                tx_hash_len,
+                block_number,
+                timestamp,
+                root_id,
+                batch_index,
+                batch_root,
+                merkle_witness,
+                witness_len,
+            } => {
+                // ["starknet-batch", contract_addr, tx_hash, block_number, timestamp,
+                //  root_id, batch_index, batch_root, merkle_witness]
+                enc.encode_array_header(9)?;
+                enc.encode_text("starknet-batch")?;
+                enc.encode_bytes(&contract_addr[..*contract_addr_len])?;
+                enc.encode_bytes(&tx_hash[..*tx_hash_len])?;
+                enc.encode_uint(*block_number)?;
+                enc.encode_uint(*timestamp)?;
+                enc.encode_uint(*root_id)?;
                 enc.encode_uint(u64::from(*batch_index))?;
                 enc.encode_bytes(batch_root)?;
                 enc.encode_bytes(&merkle_witness[..*witness_len])?;
@@ -807,6 +925,111 @@ impl Receipt {
                     tx_hash_len,
                     block_height,
                     timestamp_ms,
+                    batch_index,
+                    batch_root,
+                    merkle_witness,
+                    witness_len,
+                })
+            }
+            "starknet" => {
+                // ["starknet", contract_addr, tx_hash, block_number, timestamp, root_id]
+                if arr_len != 6 {
+                    return Err(ReceiptError::InvalidAnchorType);
+                }
+                // Decode contract address
+                let addr_bytes = dec.decode_bytes()?;
+                if addr_bytes.len() > MAX_STARKNET_ADDRESS_SIZE {
+                    return Err(ReceiptError::StarknetAddressTooLarge(addr_bytes.len()));
+                }
+                let mut contract_addr = [0u8; MAX_STARKNET_ADDRESS_SIZE];
+                let contract_addr_len = addr_bytes.len();
+                contract_addr[..contract_addr_len].copy_from_slice(addr_bytes);
+
+                // Decode transaction hash
+                let tx_bytes = dec.decode_bytes()?;
+                if tx_bytes.len() > MAX_STARKNET_TX_HASH_SIZE {
+                    return Err(ReceiptError::StarknetTxHashTooLarge(tx_bytes.len()));
+                }
+                let mut tx_hash = [0u8; MAX_STARKNET_TX_HASH_SIZE];
+                let tx_hash_len = tx_bytes.len();
+                tx_hash[..tx_hash_len].copy_from_slice(tx_bytes);
+
+                // Decode block number, timestamp, and root ID
+                let block_number = dec.decode_uint()?;
+                let timestamp = dec.decode_uint()?;
+                let root_id = dec.decode_uint()?;
+
+                Ok(AnchorType::Starknet {
+                    contract_addr,
+                    contract_addr_len,
+                    tx_hash,
+                    tx_hash_len,
+                    block_number,
+                    timestamp,
+                    root_id,
+                })
+            }
+            "starknet-batch" => {
+                // ["starknet-batch", contract_addr, tx_hash, block_number, timestamp,
+                //  root_id, batch_index, batch_root, merkle_witness]
+                if arr_len != 9 {
+                    return Err(ReceiptError::InvalidAnchorType);
+                }
+                // Decode contract address
+                let addr_bytes = dec.decode_bytes()?;
+                if addr_bytes.len() > MAX_STARKNET_ADDRESS_SIZE {
+                    return Err(ReceiptError::StarknetAddressTooLarge(addr_bytes.len()));
+                }
+                let mut contract_addr = [0u8; MAX_STARKNET_ADDRESS_SIZE];
+                let contract_addr_len = addr_bytes.len();
+                contract_addr[..contract_addr_len].copy_from_slice(addr_bytes);
+
+                // Decode transaction hash
+                let tx_bytes = dec.decode_bytes()?;
+                if tx_bytes.len() > MAX_STARKNET_TX_HASH_SIZE {
+                    return Err(ReceiptError::StarknetTxHashTooLarge(tx_bytes.len()));
+                }
+                let mut tx_hash = [0u8; MAX_STARKNET_TX_HASH_SIZE];
+                let tx_hash_len = tx_bytes.len();
+                tx_hash[..tx_hash_len].copy_from_slice(tx_bytes);
+
+                // Decode block number, timestamp, and root ID
+                let block_number = dec.decode_uint()?;
+                let timestamp = dec.decode_uint()?;
+                let root_id = dec.decode_uint()?;
+
+                // Decode batch index (0-7)
+                let batch_index_u64 = dec.decode_uint()?;
+                if batch_index_u64 > 7 {
+                    return Err(ReceiptError::InvalidBatchIndex(batch_index_u64));
+                }
+                let batch_index = batch_index_u64 as u8;
+
+                // Decode batch root (32 bytes)
+                let root_bytes = dec.decode_bytes()?;
+                if root_bytes.len() != STARKNET_BATCH_ROOT_SIZE {
+                    return Err(ReceiptError::InvalidAnchorType);
+                }
+                let mut batch_root = [0u8; STARKNET_BATCH_ROOT_SIZE];
+                batch_root.copy_from_slice(root_bytes);
+
+                // Decode Merkle witness
+                let witness_bytes = dec.decode_bytes()?;
+                if witness_bytes.len() > MAX_STARKNET_BATCH_WITNESS_SIZE {
+                    return Err(ReceiptError::StarknetBatchWitnessTooLarge(witness_bytes.len()));
+                }
+                let mut merkle_witness = [0u8; MAX_STARKNET_BATCH_WITNESS_SIZE];
+                let witness_len = witness_bytes.len();
+                merkle_witness[..witness_len].copy_from_slice(witness_bytes);
+
+                Ok(AnchorType::StarknetBatch {
+                    contract_addr,
+                    contract_addr_len,
+                    tx_hash,
+                    tx_hash_len,
+                    block_number,
+                    timestamp,
+                    root_id,
                     batch_index,
                     batch_root,
                     merkle_witness,
@@ -1144,5 +1367,274 @@ mod tests {
             result,
             Err(ReceiptError::MinaProofTooLarge(MAX_MINA_PROOF_SIZE + 1))
         );
+    }
+
+    #[test]
+    fn test_starknet_anchor_encode_decode() {
+        // Create a Starknet anchor with felt252 addresses (32 bytes max)
+        // Using raw bytes for addresses (would be hex-decoded in practice)
+        let contract_addr = [0x04u8; 20]; // 20-byte address
+        let tx_hash = [0xABu8; 32]; // 32-byte tx hash
+
+        let mut addr_arr = [0u8; MAX_STARKNET_ADDRESS_SIZE];
+        addr_arr[..contract_addr.len()].copy_from_slice(&contract_addr);
+        let mut tx_arr = [0u8; MAX_STARKNET_TX_HASH_SIZE];
+        tx_arr[..tx_hash.len()].copy_from_slice(&tx_hash);
+
+        let anchor = AnchorType::Starknet {
+            contract_addr: addr_arr,
+            contract_addr_len: contract_addr.len(),
+            tx_hash: tx_arr,
+            tx_hash_len: tx_hash.len(),
+            block_number: 123456,
+            timestamp: 1704067200,
+            root_id: 42,
+        };
+
+        // Create a receipt with this anchor
+        let digest = [0x42u8; 32];
+        let mut receipt = Receipt::new(digest, 1703462400);
+        receipt.anchor = anchor;
+
+        // Encode the full receipt
+        let mut buf = [0u8; 2048];
+        let len = receipt.encode(&mut buf).unwrap();
+
+        // Decode
+        let decoded = Receipt::decode(&buf[..len]).unwrap();
+
+        match decoded.anchor {
+            AnchorType::Starknet {
+                contract_addr: dec_addr,
+                contract_addr_len: dec_addr_len,
+                tx_hash: dec_tx,
+                tx_hash_len: dec_tx_len,
+                block_number,
+                timestamp,
+                root_id,
+            } => {
+                assert_eq!(dec_addr_len, contract_addr.len());
+                assert_eq!(&dec_addr[..dec_addr_len], &contract_addr[..]);
+                assert_eq!(dec_tx_len, tx_hash.len());
+                assert_eq!(&dec_tx[..dec_tx_len], &tx_hash[..]);
+                assert_eq!(block_number, 123456);
+                assert_eq!(timestamp, 1704067200);
+                assert_eq!(root_id, 42);
+            }
+            _ => panic!("Expected Starknet anchor"),
+        }
+    }
+
+    #[test]
+    fn test_starknet_batch_anchor_encode_decode() {
+        // Create a Starknet batch anchor with felt252 addresses (32 bytes max)
+        let contract_addr = [0x05u8; 20]; // 20-byte address
+        let tx_hash = [0xBCu8; 32]; // 32-byte tx hash
+        let batch_root = [0xAB; STARKNET_BATCH_ROOT_SIZE];
+        let witness = [0xCD; 96]; // 3 levels * 32 bytes
+
+        let mut addr_arr = [0u8; MAX_STARKNET_ADDRESS_SIZE];
+        addr_arr[..contract_addr.len()].copy_from_slice(&contract_addr);
+        let mut tx_arr = [0u8; MAX_STARKNET_TX_HASH_SIZE];
+        tx_arr[..tx_hash.len()].copy_from_slice(&tx_hash);
+        let mut witness_arr = [0u8; MAX_STARKNET_BATCH_WITNESS_SIZE];
+        witness_arr[..witness.len()].copy_from_slice(&witness);
+
+        let anchor = AnchorType::StarknetBatch {
+            contract_addr: addr_arr,
+            contract_addr_len: contract_addr.len(),
+            tx_hash: tx_arr,
+            tx_hash_len: tx_hash.len(),
+            block_number: 789012,
+            timestamp: 1704153600,
+            root_id: 99,
+            batch_index: 3,
+            batch_root,
+            merkle_witness: witness_arr,
+            witness_len: witness.len(),
+        };
+
+        // Create a receipt with this anchor
+        let digest = [0x42u8; 32];
+        let mut receipt = Receipt::new(digest, 1703462400);
+        receipt.anchor = anchor;
+
+        // Encode the full receipt
+        let mut buf = [0u8; 2048];
+        let len = receipt.encode(&mut buf).unwrap();
+
+        // Decode
+        let decoded = Receipt::decode(&buf[..len]).unwrap();
+
+        match decoded.anchor {
+            AnchorType::StarknetBatch {
+                contract_addr: dec_addr,
+                contract_addr_len: dec_addr_len,
+                tx_hash: dec_tx,
+                tx_hash_len: dec_tx_len,
+                block_number,
+                timestamp,
+                root_id,
+                batch_index,
+                batch_root: dec_root,
+                merkle_witness: dec_witness,
+                witness_len: dec_witness_len,
+            } => {
+                assert_eq!(dec_addr_len, contract_addr.len());
+                assert_eq!(&dec_addr[..dec_addr_len], &contract_addr[..]);
+                assert_eq!(dec_tx_len, tx_hash.len());
+                assert_eq!(&dec_tx[..dec_tx_len], &tx_hash[..]);
+                assert_eq!(block_number, 789012);
+                assert_eq!(timestamp, 1704153600);
+                assert_eq!(root_id, 99);
+                assert_eq!(batch_index, 3);
+                assert_eq!(dec_root, batch_root);
+                assert_eq!(dec_witness_len, witness.len());
+                assert_eq!(&dec_witness[..dec_witness_len], &witness[..]);
+            }
+            _ => panic!("Expected StarknetBatch anchor"),
+        }
+    }
+
+    #[test]
+    fn test_starknet_anchor_id() {
+        let anchor = AnchorType::Starknet {
+            contract_addr: [0u8; MAX_STARKNET_ADDRESS_SIZE],
+            contract_addr_len: 0,
+            tx_hash: [0u8; MAX_STARKNET_TX_HASH_SIZE],
+            tx_hash_len: 0,
+            block_number: 0,
+            timestamp: 0,
+            root_id: 0,
+        };
+
+        assert_eq!(anchor.id(), "starknet");
+    }
+
+    #[test]
+    fn test_starknet_batch_anchor_id() {
+        let anchor = AnchorType::StarknetBatch {
+            contract_addr: [0u8; MAX_STARKNET_ADDRESS_SIZE],
+            contract_addr_len: 0,
+            tx_hash: [0u8; MAX_STARKNET_TX_HASH_SIZE],
+            tx_hash_len: 0,
+            block_number: 0,
+            timestamp: 0,
+            root_id: 0,
+            batch_index: 0,
+            batch_root: [0u8; STARKNET_BATCH_ROOT_SIZE],
+            merkle_witness: [0u8; MAX_STARKNET_BATCH_WITNESS_SIZE],
+            witness_len: 0,
+        };
+
+        assert_eq!(anchor.id(), "starknet-batch");
+    }
+
+    #[test]
+    fn test_starknet_address_size_limit() {
+        use crate::cbor::Encoder;
+
+        // Create an anchor with oversized address
+        let oversized_addr = vec![0x61u8; MAX_STARKNET_ADDRESS_SIZE + 1];
+        let mut buf = [0u8; 256];
+        let mut enc = Encoder::new(&mut buf);
+        enc.encode_array_header(6).unwrap();
+        enc.encode_text("starknet").unwrap();
+        enc.encode_bytes(&oversized_addr).unwrap();
+        enc.encode_bytes(&[0u8; 10]).unwrap(); // tx_hash
+        enc.encode_uint(100u64).unwrap(); // block_number
+        enc.encode_uint(1704067200u64).unwrap(); // timestamp
+        enc.encode_uint(1u64).unwrap(); // root_id
+        let len = enc.position();
+
+        let mut dec = crate::cbor::Decoder::new(&buf[..len]);
+        let result = Receipt::decode_anchor(&mut dec);
+        assert_eq!(
+            result,
+            Err(ReceiptError::StarknetAddressTooLarge(
+                MAX_STARKNET_ADDRESS_SIZE + 1
+            ))
+        );
+    }
+
+    #[test]
+    fn test_starknet_tx_hash_size_limit() {
+        use crate::cbor::Encoder;
+
+        // Create an anchor with oversized tx hash
+        let oversized_tx = vec![0x62u8; MAX_STARKNET_TX_HASH_SIZE + 1];
+        let mut buf = [0u8; 256];
+        let mut enc = Encoder::new(&mut buf);
+        enc.encode_array_header(6).unwrap();
+        enc.encode_text("starknet").unwrap();
+        enc.encode_bytes(&[0u8; 20]).unwrap(); // contract_addr
+        enc.encode_bytes(&oversized_tx).unwrap();
+        enc.encode_uint(100u64).unwrap(); // block_number
+        enc.encode_uint(1704067200u64).unwrap(); // timestamp
+        enc.encode_uint(1u64).unwrap(); // root_id
+        let len = enc.position();
+
+        let mut dec = crate::cbor::Decoder::new(&buf[..len]);
+        let result = Receipt::decode_anchor(&mut dec);
+        assert_eq!(
+            result,
+            Err(ReceiptError::StarknetTxHashTooLarge(
+                MAX_STARKNET_TX_HASH_SIZE + 1
+            ))
+        );
+    }
+
+    #[test]
+    fn test_starknet_batch_witness_size_limit() {
+        use crate::cbor::Encoder;
+
+        // Create an anchor with oversized Merkle witness
+        let oversized_witness = vec![0x63u8; MAX_STARKNET_BATCH_WITNESS_SIZE + 1];
+        let mut buf = [0u8; 512];
+        let mut enc = Encoder::new(&mut buf);
+        enc.encode_array_header(9).unwrap();
+        enc.encode_text("starknet-batch").unwrap();
+        enc.encode_bytes(&[0u8; 20]).unwrap(); // contract_addr
+        enc.encode_bytes(&[0u8; 20]).unwrap(); // tx_hash
+        enc.encode_uint(100u64).unwrap(); // block_number
+        enc.encode_uint(1704067200u64).unwrap(); // timestamp
+        enc.encode_uint(1u64).unwrap(); // root_id
+        enc.encode_uint(0u64).unwrap(); // batch_index
+        enc.encode_bytes(&[0u8; STARKNET_BATCH_ROOT_SIZE]).unwrap(); // batch_root
+        enc.encode_bytes(&oversized_witness).unwrap();
+        let len = enc.position();
+
+        let mut dec = crate::cbor::Decoder::new(&buf[..len]);
+        let result = Receipt::decode_anchor(&mut dec);
+        assert_eq!(
+            result,
+            Err(ReceiptError::StarknetBatchWitnessTooLarge(
+                MAX_STARKNET_BATCH_WITNESS_SIZE + 1
+            ))
+        );
+    }
+
+    #[test]
+    fn test_starknet_batch_invalid_index() {
+        use crate::cbor::Encoder;
+
+        // Create an anchor with invalid batch index (> 7)
+        let mut buf = [0u8; 512];
+        let mut enc = Encoder::new(&mut buf);
+        enc.encode_array_header(9).unwrap();
+        enc.encode_text("starknet-batch").unwrap();
+        enc.encode_bytes(&[0u8; 20]).unwrap(); // contract_addr
+        enc.encode_bytes(&[0u8; 20]).unwrap(); // tx_hash
+        enc.encode_uint(100u64).unwrap(); // block_number
+        enc.encode_uint(1704067200u64).unwrap(); // timestamp
+        enc.encode_uint(1u64).unwrap(); // root_id
+        enc.encode_uint(8u64).unwrap(); // invalid batch_index > 7
+        enc.encode_bytes(&[0u8; STARKNET_BATCH_ROOT_SIZE]).unwrap(); // batch_root
+        enc.encode_bytes(&[0u8; 96]).unwrap(); // merkle_witness
+        let len = enc.position();
+
+        let mut dec = crate::cbor::Decoder::new(&buf[..len]);
+        let result = Receipt::decode_anchor(&mut dec);
+        assert_eq!(result, Err(ReceiptError::InvalidBatchIndex(8)));
     }
 }

@@ -24,6 +24,9 @@ rpassword = "7"
 zeroize = { workspace = true }
 # Platform-specific home directory (for Mina bridge setup)
 dirs = "5"
+# Starknet crypto for keygen (same versions as anubis_io)
+starknet-core = "0.16"
+starknet-crypto = "0.8"
 
 [dev-dependencies]
 assert_cmd = "2.0"
