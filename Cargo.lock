@@ -140,6 +140,7 @@ dependencies = [
  "hex",
  "serde",
  "serde_json",
+ "sha3",
  "starknet-core",
  "starknet-crypto",
  "subtle",

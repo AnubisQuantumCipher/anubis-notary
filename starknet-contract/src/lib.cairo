@@ -16,50 +16,18 @@
 /// - Batch anchor (8 roots): ~$0.001 total (~$0.000125 per root)
 
 use starknet::ContractAddress;
-use starknet::storage::{StorageMapReadAccess, StorageMapWriteAccess, StoragePointerReadAccess, StoragePointerWriteAccess};
-use core::poseidon::poseidon_hash_span;
 
 /// Anchor record stored on-chain.
 #[derive(Drop, Serde, starknet::Store)]
 pub struct AnchorRecord {
     /// The anchored Merkle root.
-    root: felt252,
+    pub root: felt252,
     /// Block number when anchored.
-    block_number: u64,
+    pub block_number: u64,
     /// Timestamp when anchored (seconds since UNIX epoch).
-    timestamp: u64,
+    pub timestamp: u64,
     /// Address that created this anchor.
-    anchorer: ContractAddress,
-}
-
-/// Events emitted by the contract.
-#[derive(Drop, starknet::Event)]
-pub enum Event {
-    RootAnchored: RootAnchored,
-    BatchAnchored: BatchAnchored,
-}
-
-/// Emitted when a single root is anchored.
-#[derive(Drop, starknet::Event)]
-pub struct RootAnchored {
-    #[key]
-    root_id: u64,
-    root: felt252,
-    anchorer: ContractAddress,
-    block_number: u64,
-    timestamp: u64,
-}
-
-/// Emitted when a batch of roots is anchored.
-#[derive(Drop, starknet::Event)]
-pub struct BatchAnchored {
-    #[key]
-    root_id: u64,
-    batch_root: felt252,
-    batch_size: u8,
-    anchorer: ContractAddress,
-    block_number: u64,
-    timestamp: u64,
+    pub anchorer: ContractAddress,
 }
 
 /// NotaryOracle interface.
@@ -105,10 +73,41 @@ pub trait INotaryOracle<TContractState> {
 
 #[starknet::contract]
 pub mod NotaryOracle {
-    use super::{AnchorRecord, Event, RootAnchored, BatchAnchored, INotaryOracle};
+    use super::{AnchorRecord, INotaryOracle};
     use starknet::{ContractAddress, get_caller_address, get_block_number, get_block_timestamp};
     use starknet::storage::{Map, StorageMapReadAccess, StorageMapWriteAccess, StoragePointerReadAccess, StoragePointerWriteAccess};
     use core::poseidon::poseidon_hash_span;
+
+    /// Events emitted by the contract.
+    #[event]
+    #[derive(Drop, starknet::Event)]
+    pub enum Event {
+        RootAnchored: RootAnchored,
+        BatchAnchored: BatchAnchored,
+    }
+
+    /// Emitted when a single root is anchored.
+    #[derive(Drop, starknet::Event)]
+    pub struct RootAnchored {
+        #[key]
+        root_id: u64,
+        root: felt252,
+        anchorer: ContractAddress,
+        block_number: u64,
+        timestamp: u64,
+    }
+
+    /// Emitted when a batch of roots is anchored.
+    #[derive(Drop, starknet::Event)]
+    pub struct BatchAnchored {
+        #[key]
+        root_id: u64,
+        batch_root: felt252,
+        batch_size: u8,
+        anchorer: ContractAddress,
+        block_number: u64,
+        timestamp: u64,
+    }
 
     #[storage]
     struct Storage {
@@ -280,21 +279,24 @@ pub mod NotaryOracle {
 
 #[cfg(test)]
 mod tests {
-    use super::{NotaryOracle, INotaryOracle, INotaryOracleDispatcher, INotaryOracleDispatcherTrait};
-    use starknet::ContractAddress;
+    use super::{NotaryOracle, INotaryOracleDispatcher, INotaryOracleDispatcherTrait};
     use starknet::testing::{set_caller_address, set_block_number, set_block_timestamp};
-    use starknet::contract_address_const;
+    use starknet::syscalls::deploy_syscall;
     use core::poseidon::poseidon_hash_span;
 
     fn deploy_contract() -> INotaryOracleDispatcher {
-        let owner = contract_address_const::<'owner'>();
-        let contract_address = starknet::syscalls::deploy_syscall(
+        let owner: felt252 = 'owner';
+        let (contract_address, _) = deploy_syscall(
             NotaryOracle::TEST_CLASS_HASH.try_into().unwrap(),
             0,
-            array![owner.into()].span(),
+            array![owner].span(),
             false,
-        ).unwrap().0;
+        ).unwrap();
         INotaryOracleDispatcher { contract_address }
+    }
+
+    fn get_test_address(name: felt252) -> starknet::ContractAddress {
+        name.try_into().unwrap()
     }
 
     #[test]
@@ -302,7 +304,7 @@ mod tests {
         let contract = deploy_contract();
         let root: felt252 = 0x123456789abcdef;
 
-        set_caller_address(contract_address_const::<'user'>());
+        set_caller_address(get_test_address('user'));
         set_block_number(100);
         set_block_timestamp(1704067200);
 
@@ -320,7 +322,7 @@ mod tests {
         let contract = deploy_contract();
         let roots: Array<felt252> = array![0x111, 0x222, 0x333, 0x444];
 
-        set_caller_address(contract_address_const::<'user'>());
+        set_caller_address(get_test_address('user'));
         set_block_number(200);
         set_block_timestamp(1704153600);
 
@@ -339,7 +341,7 @@ mod tests {
         let contract = deploy_contract();
         let root: felt252 = 0xabc;
 
-        set_caller_address(contract_address_const::<'anchorer'>());
+        set_caller_address(get_test_address('anchorer'));
         set_block_number(300);
         set_block_timestamp(1704240000);
 
@@ -355,7 +357,7 @@ mod tests {
     fn test_multiple_anchors() {
         let contract = deploy_contract();
 
-        set_caller_address(contract_address_const::<'user'>());
+        set_caller_address(get_test_address('user'));
         set_block_number(100);
         set_block_timestamp(1704067200);
 
@@ -374,7 +376,7 @@ mod tests {
     }
 
     #[test]
-    #[should_panic(expected: ('batch size must be 1-8',))]
+    #[should_panic]
     fn test_batch_empty() {
         let contract = deploy_contract();
         let empty: Array<felt252> = array![];

@@ -69,8 +69,9 @@ pub use batch_queue::{BatchQueue, BatchQueueEntry};
 
 // Starknet module exports
 pub use starknet::{
-    AnchorRecord as StarknetAnchorRecord, StarknetAnchorResult, StarknetBatchResult,
-    StarknetClient, StarknetConfig, StarknetError, StarknetNetwork, StarknetTimeResult,
+    sha256_to_poseidon_felt, AnchorRecord as StarknetAnchorRecord, StarknetAnchorResult,
+    StarknetBatchResult, StarknetClient, StarknetConfig, StarknetError, StarknetNetwork,
+    StarknetTimeResult,
 };
 
 pub use rate_limit::{format_delay, RateLimiter};
