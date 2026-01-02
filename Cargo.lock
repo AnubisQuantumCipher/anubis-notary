@@ -142,6 +142,7 @@ dependencies = [
  "serde_json",
  "starknet-core",
  "starknet-crypto",
+ "subtle",
  "tempfile",
  "thiserror",
  "ureq",

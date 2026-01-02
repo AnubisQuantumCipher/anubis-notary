@@ -38,6 +38,7 @@
 use serde::{Deserialize, Serialize};
 use starknet_core::types::Felt;
 use starknet_crypto::poseidon_hash_many;
+use subtle::ConstantTimeEq;
 use thiserror::Error;
 
 /// Starknet error types.
@@ -130,7 +131,7 @@ impl StarknetNetwork {
     }
 
     /// Parse network from string.
-    pub fn from_str(s: &str) -> Option<Self> {
+    pub fn parse(s: &str) -> Option<Self> {
         match s.to_lowercase().as_str() {
             "mainnet" | "main" => Some(StarknetNetwork::Mainnet),
             "sepolia" | "testnet" | "test" => Some(StarknetNetwork::Sepolia),
@@ -428,11 +429,20 @@ impl StarknetClient {
             return Ok(false);
         }
 
-        // Compare roots
+        // Compare roots using constant-time comparison to prevent timing attacks
         let stored_root = result[0].trim_start_matches("0x");
         let expected_hex = hex::encode(expected_root);
 
-        Ok(stored_root == expected_hex)
+        // Pad to same length for constant-time comparison
+        let stored_bytes = stored_root.as_bytes();
+        let expected_bytes = expected_hex.as_bytes();
+
+        // Ensure equal length comparison (constant-time)
+        if stored_bytes.len() != expected_bytes.len() {
+            return Ok(false);
+        }
+
+        Ok(stored_bytes.ct_eq(expected_bytes).into())
     }
 
     /// Get anchor status/info.
@@ -612,7 +622,7 @@ pub fn parse_address(addr: &str) -> Result<[u8; 32], StarknetError> {
 
     // Pad with leading zeros if necessary
     let hex_len = addr.len();
-    let start = 32 - (hex_len + 1) / 2;
+    let start = 32 - hex_len.div_ceil(2);
 
     hex::decode_to_slice(addr, &mut bytes[start..])
         .map_err(|e| StarknetError::InvalidAddress(format!("Hex decode error: {}", e)))?;
@@ -643,18 +653,18 @@ mod tests {
     #[test]
     fn test_network_from_str() {
         assert_eq!(
-            StarknetNetwork::from_str("mainnet"),
+            StarknetNetwork::parse("mainnet"),
             Some(StarknetNetwork::Mainnet)
         );
         assert_eq!(
-            StarknetNetwork::from_str("sepolia"),
+            StarknetNetwork::parse("sepolia"),
             Some(StarknetNetwork::Sepolia)
         );
         assert_eq!(
-            StarknetNetwork::from_str("devnet"),
+            StarknetNetwork::parse("devnet"),
             Some(StarknetNetwork::Devnet)
         );
-        assert_eq!(StarknetNetwork::from_str("invalid"), None);
+        assert_eq!(StarknetNetwork::parse("invalid"), None);
     }
 
     #[test]

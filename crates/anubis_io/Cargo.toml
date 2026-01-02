@@ -11,6 +11,7 @@ anubis_core = { path = "../anubis_core" }
 thiserror = { workspace = true }
 hex = { workspace = true }
 zeroize = { workspace = true }
+subtle = { workspace = true }
 
 # Argon2id password hashing - RFC 9106, OWASP recommended
 # Part of password-hash ecosystem (audited by Cryptography Services)
