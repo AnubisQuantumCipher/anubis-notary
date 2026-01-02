@@ -40,16 +40,22 @@ A command-line tool for cryptographic signing, timestamping, licensing, and mult
 
 ## Download
 
-### One-Click Download
+### One-Click Download (v0.3.4)
 
-| Platform | Download |
-|----------|----------|
-| **Linux (x86_64)** | [**Download anubis-notary-linux-x86_64**](https://github.com/AnubisQuantumCipher/anubis-notary/releases/download/v0.3.3/anubis-notary-linux-x86_64) |
-| **macOS (Apple Silicon)** | [**Download anubis-notary-darwin-aarch64**](https://github.com/AnubisQuantumCipher/anubis-notary/releases/download/v0.3.3/anubis-notary-darwin-aarch64) |
+Pre-built binaries - no compilation required:
+
+| Platform | Download | Size |
+|----------|----------|------|
+| **Linux x86_64** | [**anubis-notary-linux-x86_64**](https://github.com/AnubisQuantumCipher/anubis-notary/releases/download/v0.3.4/anubis-notary-linux-x86_64) | 4.7 MB |
+| **macOS ARM64** (Apple Silicon) | [**anubis-notary-darwin-aarch64**](https://github.com/AnubisQuantumCipher/anubis-notary/releases/download/v0.3.4/anubis-notary-darwin-aarch64) | 3.4 MB |
+
+[**View All Releases**](https://github.com/AnubisQuantumCipher/anubis-notary/releases)
 
 ```bash
 # After downloading, make executable and run:
 chmod +x anubis-notary-*
+./anubis-notary --version
+# Output: anubis-notary 0.3.4
 ./anubis-notary --help
 ```
 
