@@ -54,12 +54,16 @@ use thiserror::Error;
 pub use anubis_core;
 
 pub mod anchor;
+pub mod batch_queue;
 pub mod mina;
+pub mod mina_graphql;
 pub mod rate_limit;
 pub mod seal;
 
 // Mina module exports
 pub use mina::{MinaAnchorResult, MinaClient, MinaConfig, MinaError, MinaNetwork, MinaTimeResult};
+pub use mina_graphql::MinaGraphQL;
+pub use batch_queue::{BatchQueue, BatchQueueEntry};
 
 pub use rate_limit::{format_delay, RateLimiter};
 pub use rate_limit::{

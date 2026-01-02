@@ -60,6 +60,12 @@ pub const MAX_MINA_TX_HASH_SIZE: usize = 64;
 /// Maximum size for Mina ZK proof (compressed).
 pub const MAX_MINA_PROOF_SIZE: usize = 1024;
 
+/// Maximum size for Mina batch Merkle witness (3 levels * 32 bytes = 96 bytes).
+pub const MAX_MINA_BATCH_WITNESS_SIZE: usize = 96;
+
+/// Maximum size for Mina batch root (Poseidon hash output = 32 bytes).
+pub const MINA_BATCH_ROOT_SIZE: usize = 32;
+
 /// Receipt error types.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum ReceiptError {
@@ -93,6 +99,10 @@ pub enum ReceiptError {
     MinaTxHashTooLarge(usize),
     /// Mina proof exceeds maximum size (1024 bytes).
     MinaProofTooLarge(usize),
+    /// Mina batch Merkle witness exceeds maximum size (96 bytes).
+    MinaBatchWitnessTooLarge(usize),
+    /// Invalid batch index (must be 0-7).
+    InvalidBatchIndex(u64),
 }
 
 impl From<CborError> for ReceiptError {
@@ -196,6 +206,35 @@ pub enum AnchorType {
         /// Actual proof length (0 if no proof stored).
         proof_len: usize,
     },
+    /// Mina Protocol batch anchor.
+    ///
+    /// Provides cost-efficient batch anchoring where multiple receipts are
+    /// combined into a single transaction. Each receipt stores a Merkle witness
+    /// proving inclusion in the batch root stored on-chain.
+    ///
+    /// Cost savings: 8x (0.1 MINA per batch vs per receipt).
+    MinaBatch {
+        /// zkApp contract address (Base58-encoded public key).
+        zkapp_address: [u8; MAX_MINA_ADDRESS_SIZE],
+        /// Actual address length.
+        zkapp_address_len: usize,
+        /// Transaction hash that anchored this batch.
+        tx_hash: [u8; MAX_MINA_TX_HASH_SIZE],
+        /// Actual transaction hash length.
+        tx_hash_len: usize,
+        /// Block height when anchored.
+        block_height: u64,
+        /// Mina timestamp (milliseconds since UNIX epoch).
+        timestamp_ms: u64,
+        /// Index of this receipt within the batch (0-7).
+        batch_index: u8,
+        /// Combined batch root (Poseidon hash of all 8 roots).
+        batch_root: [u8; MINA_BATCH_ROOT_SIZE],
+        /// Merkle witness for proving inclusion (3 sibling hashes).
+        merkle_witness: [u8; MAX_MINA_BATCH_WITNESS_SIZE],
+        /// Actual witness length.
+        witness_len: usize,
+    },
 }
 
 impl AnchorType {
@@ -206,6 +245,7 @@ impl AnchorType {
             AnchorType::Btc { .. } => "btc",
             AnchorType::HttpLog { .. } => "http-log",
             AnchorType::Mina { .. } => "mina",
+            AnchorType::MinaBatch { .. } => "mina-batch",
         }
     }
 }
@@ -440,6 +480,30 @@ impl Receipt {
                 enc.encode_uint(*block_height)?;
                 enc.encode_uint(*timestamp_ms)?;
                 enc.encode_bytes(&proof[..*proof_len])?;
+            }
+            AnchorType::MinaBatch {
+                zkapp_address,
+                zkapp_address_len,
+                tx_hash,
+                tx_hash_len,
+                block_height,
+                timestamp_ms,
+                batch_index,
+                batch_root,
+                merkle_witness,
+                witness_len,
+            } => {
+                // ["mina-batch", zkapp_address, tx_hash, block_height, timestamp_ms,
+                //  batch_index, batch_root, merkle_witness]
+                enc.encode_array_header(8)?;
+                enc.encode_text("mina-batch")?;
+                enc.encode_bytes(&zkapp_address[..*zkapp_address_len])?;
+                enc.encode_bytes(&tx_hash[..*tx_hash_len])?;
+                enc.encode_uint(*block_height)?;
+                enc.encode_uint(*timestamp_ms)?;
+                enc.encode_uint(u64::from(*batch_index))?;
+                enc.encode_bytes(batch_root)?;
+                enc.encode_bytes(&merkle_witness[..*witness_len])?;
             }
         }
         Ok(())
@@ -682,6 +746,71 @@ impl Receipt {
                     timestamp_ms,
                     proof,
                     proof_len,
+                })
+            }
+            "mina-batch" => {
+                // ["mina-batch", zkapp_address, tx_hash, block_height, timestamp_ms,
+                //  batch_index, batch_root, merkle_witness]
+                if arr_len != 8 {
+                    return Err(ReceiptError::InvalidAnchorType);
+                }
+                // Decode zkApp address
+                let addr_bytes = dec.decode_bytes()?;
+                if addr_bytes.len() > MAX_MINA_ADDRESS_SIZE {
+                    return Err(ReceiptError::MinaAddressTooLarge(addr_bytes.len()));
+                }
+                let mut zkapp_address = [0u8; MAX_MINA_ADDRESS_SIZE];
+                let zkapp_address_len = addr_bytes.len();
+                zkapp_address[..zkapp_address_len].copy_from_slice(addr_bytes);
+
+                // Decode transaction hash
+                let tx_bytes = dec.decode_bytes()?;
+                if tx_bytes.len() > MAX_MINA_TX_HASH_SIZE {
+                    return Err(ReceiptError::MinaTxHashTooLarge(tx_bytes.len()));
+                }
+                let mut tx_hash = [0u8; MAX_MINA_TX_HASH_SIZE];
+                let tx_hash_len = tx_bytes.len();
+                tx_hash[..tx_hash_len].copy_from_slice(tx_bytes);
+
+                // Decode block height and timestamp
+                let block_height = dec.decode_uint()?;
+                let timestamp_ms = dec.decode_uint()?;
+
+                // Decode batch index (0-7)
+                let batch_index_u64 = dec.decode_uint()?;
+                if batch_index_u64 > 7 {
+                    return Err(ReceiptError::InvalidBatchIndex(batch_index_u64));
+                }
+                let batch_index = batch_index_u64 as u8;
+
+                // Decode batch root (32 bytes)
+                let root_bytes = dec.decode_bytes()?;
+                if root_bytes.len() != MINA_BATCH_ROOT_SIZE {
+                    return Err(ReceiptError::InvalidAnchorType);
+                }
+                let mut batch_root = [0u8; MINA_BATCH_ROOT_SIZE];
+                batch_root.copy_from_slice(root_bytes);
+
+                // Decode Merkle witness
+                let witness_bytes = dec.decode_bytes()?;
+                if witness_bytes.len() > MAX_MINA_BATCH_WITNESS_SIZE {
+                    return Err(ReceiptError::MinaBatchWitnessTooLarge(witness_bytes.len()));
+                }
+                let mut merkle_witness = [0u8; MAX_MINA_BATCH_WITNESS_SIZE];
+                let witness_len = witness_bytes.len();
+                merkle_witness[..witness_len].copy_from_slice(witness_bytes);
+
+                Ok(AnchorType::MinaBatch {
+                    zkapp_address,
+                    zkapp_address_len,
+                    tx_hash,
+                    tx_hash_len,
+                    block_height,
+                    timestamp_ms,
+                    batch_index,
+                    batch_root,
+                    merkle_witness,
+                    witness_len,
                 })
             }
             _ => Err(ReceiptError::InvalidAnchorType),

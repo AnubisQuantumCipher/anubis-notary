@@ -1,69 +1,117 @@
-
-_build/
-_opam/
-._*
-.*.aux
-.#*
-.coqdeps.d
-.dev-notes/
-.DS_Store
-.filesystem-clock
-.idea/
-.lia.cache
-.lock
-.merlin
-.vscode/
-*_build/
-*.aux
-*.bak
-*.cache
-*.d
-*.d.anubis_proofs.theory.d
-*.dylib
-*.glob
-*.log
-*.orig
-*.private.md
-*.profdata
-*.profraw
+# ===========================
+# Rust Build Artifacts
+# ===========================
+/target/
+**/*.rs.bk
 *.rlib
 *.rmeta
+*.dylib
 *.so
-*.swo
-*.swp
-*.temp
-*.tmp
-*.tsbuildinfo
-*.vio
+Cargo.lock.bak
+
+# ===========================
+# Rocq/Coq Build Outputs
+# ===========================
 *.vo
 *.vok
 *.vos
+*.vio
+*.glob
+*.aux
+.lia.cache
+.coqdeps.d
+_CoqProject.local
+_build/
 **/_build/
-**/.coqdeps.d
+
+# ===========================
+# Dune Build System
+# ===========================
+_opam/
+.dune/
 **/.dune/
-**/.lia.cache
-*~
-/tmp/
-\#*\#
-# Cargo.lock - keeping for reproducible builds
-## Coq/Rocq build outputs
-## Dune build
-## Editor backup files
-## IDE files
-## Logs
-## Node.js (mina-bridge)
-## OS files
-## Private configuration
-## Release binaries (uploaded separately)
-## Rust build artifacts
-## Temporary files
-## Test artifacts
-## Test deployment files
-CLAUDE.md
-crates.zip
-mina-bridge/build/
-mina-bridge/test-*.js
+dune.lock
+
+# ===========================
+# Node.js (mina-bridge)
+# ===========================
 node_modules/
-releases/
-target/
+mina-bridge/build/
+mina-bridge/dist/
+mina-bridge/*.js
+!mina-bridge/mina-bridge.js
+mina-bridge/*.d.ts
+*.tsbuildinfo
+
+# ===========================
+# IDE and Editor Files
+# ===========================
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+\#*\#
+.#*
+
+# ===========================
+# OS Generated Files
+# ===========================
+.DS_Store
+._*
 Thumbs.db
+Desktop.ini
+
+# ===========================
+# Test and Temporary Files
+# ===========================
+*.tmp
+*.temp
+*.bak
+*.orig
+*.log
+/tmp/
+test-output/
+coverage/
+
+# ===========================
+# Profiling and Debug
+# ===========================
+*.profdata
+*.profraw
+perf.data
+perf.data.old
+flamegraph.svg
+
+# ===========================
+# Release Binaries
+# ===========================
+# Binaries are uploaded to GitHub Releases separately
+/releases/
+
+# ===========================
+# Private Configuration
+# ===========================
+*.private.md
+.env
+.env.local
+.env.*.local
+secrets/
+*.key
+*.pem
+!*.pub
+
+# ===========================
+# Claude/AI Development
+# ===========================
+CLAUDE.md
+
+# ===========================
+# Miscellaneous
+# ===========================
+*.cache
+*.d
+.filesystem-clock
+.lock
+.merlin
+crates.zip

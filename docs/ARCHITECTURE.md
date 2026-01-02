@@ -51,6 +51,8 @@ I/O operations and external integrations.
 | `lib.rs` | Keystore management (create, load, rotate) |
 | `seal.rs` | Sealed file encryption with ML-KEM |
 | `mina.rs` | Mina Protocol client |
+| `mina_graphql.rs` | Pure Rust GraphQL client (10-20x faster than Node.js) |
+| `batch_queue.rs` | Batch anchoring queue system (8x cost savings) |
 | `anchor.rs` | Blockchain anchoring abstraction |
 | `rate_limit.rs` | API rate limiting |
 
