@@ -565,6 +565,14 @@ impl<T: Serialize> JsonOutput<T> {
             error: Some(msg.into()),
         }
     }
+
+    fn error_with_data(msg: impl Into<String>, data: T) -> Self {
+        Self {
+            success: false,
+            data: Some(data),
+            error: Some(msg.into()),
+        }
+    }
 }
 
 fn main() -> ExitCode {
@@ -2992,7 +3000,7 @@ fn handle_mina(action: &MinaCommands, json: bool) -> Result<(), Box<dyn std::err
                 }
             }
         }
-        MinaCommands::Flush { force, wait } => {
+        MinaCommands::Flush { force, wait: _wait } => {
             use anubis_io::BatchQueue;
 
             let queue_path = ks.path().join("mina-batch-queue");
