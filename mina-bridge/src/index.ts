@@ -9,3 +9,11 @@ export {
   AnubisAnchor,
   hexToField,
 } from './AnubisAnchor.js';
+
+export {
+  AnubisBatchVault,
+  VaultMerkleWitness,
+  RootBatch,
+  computeBatchRootFromHex,
+  emptyWitness,
+} from './AnubisBatchVault.js';

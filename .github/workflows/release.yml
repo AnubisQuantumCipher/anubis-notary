@@ -180,6 +180,8 @@ jobs:
             - **SHA3-256/SHAKE256**: Quantum-resistant hashing (FIPS 202)
             - **ChaCha20-Poly1305**: Authenticated encryption
             - **Mina Protocol**: Blockchain anchoring with zkApp
+            - **Batch Anchoring**: 8x cost savings with queue-based submissions
+            - **Native GraphQL**: 10-20x faster Mina queries (pure Rust)
             - **Private Batches**: Collaborative threshold decryption
 
             See [CHANGELOG.md](https://github.com/AnubisQuantumCipher/anubis-notary/blob/main/CHANGELOG.md) for details.

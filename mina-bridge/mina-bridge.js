@@ -29,8 +29,8 @@
  * - MINA_DEBUG: Set to "1" to enable debug logging
  */
 
-import { Mina, PrivateKey, PublicKey, Field, fetchAccount, AccountUpdate } from 'o1js';
-import { AnubisAnchor, hexToField } from './build/index.js';
+import { Mina, PrivateKey, PublicKey, Field, fetchAccount, AccountUpdate, Bool } from 'o1js';
+import { AnubisAnchor, hexToField, AnubisBatchVault, RootBatch, VaultMerkleWitness, computeBatchRootFromHex, emptyWitness } from './build/index.js';
 import * as readline from 'readline';
 
 // Network configuration
@@ -194,7 +194,7 @@ async function handleAnchor(request) {
   tx.sign([senderKey]);
   const pendingTx = await tx.send();
 
-  if (!pendingTx.status === 'pending') {
+  if (pendingTx.status !== 'pending') {
     throw new Error('Transaction failed to send');
   }
 
@@ -443,6 +443,109 @@ async function handleNetworkInfo() {
 }
 
 /**
+ * Submit a batch of roots to the BatchVault zkApp.
+ *
+ * This enables batching multiple receipt anchors into a single transaction.
+ */
+async function handleSubmitBatch(request) {
+  await initialize();
+  await compileContract();
+
+  if (!senderKey || !senderAddress) {
+    throw new Error('Wallet not configured - set MINA_PRIVATE_KEY');
+  }
+
+  const roots = request.roots;
+  if (!roots || !Array.isArray(roots) || roots.length === 0) {
+    throw new Error('No roots provided for batch');
+  }
+  if (roots.length > 8) {
+    throw new Error('Batch cannot exceed 8 roots');
+  }
+
+  // Validate all roots are valid hex strings
+  for (const root of roots) {
+    if (!root || root.length !== 64) {
+      throw new Error(`Invalid root: must be 64 hex characters (32 bytes)`);
+    }
+  }
+
+  // Get BatchVault address (defaults to a separate address or same as zkApp)
+  const batchVaultAddress = request.vaultAddress
+    ? PublicKey.fromBase58(request.vaultAddress)
+    : zkAppAddress;
+
+  // Create BatchVault instance
+  const batchVault = new AnubisBatchVault(batchVaultAddress);
+
+  logDebug('Fetching account state...');
+  await fetchAccount({ publicKey: batchVaultAddress });
+  await fetchAccount({ publicKey: senderAddress });
+
+  // Build the batch
+  const paddedRoots = [];
+  for (let i = 0; i < 8; i++) {
+    if (i < roots.length) {
+      paddedRoots.push(hexToField(roots[i]));
+    } else {
+      paddedRoots.push(Field(0));
+    }
+  }
+
+  const batch = new RootBatch({
+    roots: paddedRoots,
+    count: Field(roots.length),
+  });
+
+  // Get empty witness for now (simplified - full implementation would track tree state)
+  const witness = emptyWitness();
+
+  logDebug(`Creating batch transaction with ${roots.length} roots...`);
+  const tx = await Mina.transaction(
+    { sender: senderAddress, fee: config.fee },
+    async () => {
+      await batchVault.submitBatch(batch, witness);
+    }
+  );
+
+  logDebug('Proving batch transaction...');
+  await tx.prove();
+
+  logDebug('Signing and sending batch transaction...');
+  tx.sign([senderKey]);
+  const pendingTx = await tx.send();
+
+  if (pendingTx.status !== 'pending') {
+    throw new Error('Batch transaction failed to send');
+  }
+
+  const txHash = pendingTx.hash;
+  logDebug(`Batch transaction sent: ${txHash}`);
+
+  // Compute the batch root for reference
+  const batchRoot = computeBatchRootFromHex(roots);
+
+  if (request.wait) {
+    logDebug('Waiting for batch transaction inclusion...');
+    try {
+      await pendingTx.wait();
+      logDebug('Batch transaction included');
+    } catch (e) {
+      logDebug(`Wait failed (may still be pending): ${e.message}`);
+    }
+  }
+
+  return {
+    ok: true,
+    address: batchVaultAddress.toBase58(),
+    tx: txHash,
+    batchRoot: batchRoot.toString(),
+    rootCount: roots.length,
+    timestamp: Date.now(),
+  };
+}
+
+/**
  * Process a single command.
  */
 async function processCommand(line) {
@@ -472,6 +575,9 @@ async function processCommand(line) {
         break;
       case 'networkinfo':
         result = await handleNetworkInfo();
+        break;
+      case 'submitbatch':
+        result = await handleSubmitBatch(request);
         break;
       case 'shutdown':
         console.log(JSON.stringify({ ok: true, message: 'shutting down' }));

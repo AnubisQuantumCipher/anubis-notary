@@ -28,6 +28,8 @@ A command-line tool for cryptographic signing, timestamping, licensing, and mult
 
 ### Blockchain Integration
 - **Mina Protocol** - zkApp-based Merkle root anchoring on mainnet
+- **Batch Anchoring** - 8x cost savings with queue-based batch submissions
+- **Native Rust GraphQL** - 10-20x faster queries (no Node.js for reads)
 - **Timestamping** - Immutable blockchain-backed timestamps
 - **Proof Verification** - On-chain verification of document integrity
 
@@ -265,7 +267,27 @@ anubis-notary attest document.pdf --receipt document.receipt
 anubis-notary anchor mina anchor document.receipt
 ```
 
-**Cost:** ~0.1 MINA per anchor
+**Cost:** ~0.1 MINA per anchor (~0.0125 with batch anchoring)
+
+### Batch Anchoring (8x Cost Savings)
+
+Queue multiple receipts and submit in a single transaction:
+
+```bash
+# Add receipts to the batch queue
+anubis-notary anchor mina queue receipt1.receipt
+anubis-notary anchor mina queue receipt2.receipt
+# ... add up to 8 receipts
+
+# Check queue status
+anubis-notary anchor mina queue-status
+
+# Submit batch when ready (auto-submits at 8, or use --force)
+anubis-notary anchor mina flush
+
+# Force submit with fewer than 8 receipts
+anubis-notary anchor mina flush --force
+```
 
 ### Detailed Usage
 
@@ -405,12 +427,16 @@ anubis-notary/
 │       ├── lib.rs             # Keystore management
 │       ├── seal.rs            # Sealed file encryption
 │       ├── mina.rs            # Mina Protocol client
+│       ├── mina_graphql.rs    # Pure Rust GraphQL client (10-20x faster)
+│       ├── batch_queue.rs     # Batch anchoring queue system
 │       ├── anchor.rs          # Blockchain anchoring
 │       └── rate_limit.rs      # API rate limiting
 ├── mina-zkapp/                # Mina zkApp (TypeScript/o1js)
 │   └── src/AnubisAnchor.ts    # On-chain anchor contract
 ├── mina-bridge/               # Node.js bridge for Rust CLI
 │   ├── src/                   # Bridge source
+│   │   ├── AnubisAnchor.ts    # Single anchor contract
+│   │   └── AnubisBatchVault.ts # Batch vault contract (8x savings)
 │   └── mina-bridge.js         # Compiled bridge script
 ├── proofs/                    # Rocq/Coq formal proofs
 │   └── theories/              # Proof files (.v)

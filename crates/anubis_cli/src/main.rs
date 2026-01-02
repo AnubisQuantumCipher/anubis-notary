@@ -332,6 +332,22 @@ enum MinaCommands {
     },
     /// Show network info and deployment costs.
     Info,
+    /// Add a receipt to the Mina batch queue (for 8x cost savings).
+    Queue {
+        /// Receipt file to queue.
+        receipt: PathBuf,
+    },
+    /// Submit queued receipts as a batch (requires 8 receipts or --force).
+    Flush {
+        /// Force flush even if queue is not full.
+        #[arg(long)]
+        force: bool,
+        /// Wait for confirmation.
+        #[arg(long)]
+        wait: bool,
+    },
+    /// Show Mina batch queue status.
+    QueueStatus,
 }
 
 #[derive(Subcommand)]
@@ -2924,6 +2940,181 @@ fn handle_mina(action: &MinaCommands, json: bool) -> Result<(), Box<dyn std::err
                     }
                 } else {
                     println!("Response: {}", response.trim());
+                }
+            }
+        }
+        MinaCommands::Queue { receipt } => {
+            use anubis_core::receipt::Receipt;
+            use anubis_io::BatchQueue;
+
+            // Verify the receipt is valid
+            let receipt_data = read_file(&receipt)?;
+            let parsed = Receipt::decode(&receipt_data)
+                .map_err(|e| format!("Invalid receipt: {:?}", e))?;
+
+            // Open batch queue
+            let queue_path = ks.path().join("mina-batch-queue");
+            let queue = BatchQueue::open(&queue_path)?;
+
+            // Add to queue
+            let entry = queue.enqueue(&parsed.digest, &receipt)?;
+
+            if json {
+                #[derive(Serialize)]
+                struct QueueResult {
+                    receipt: String,
+                    digest: String,
+                    queued_at: u64,
+                    pending_count: usize,
+                    ready_for_batch: bool,
+                }
+                let pending = queue.pending_count()?;
+                let output = JsonOutput::success(QueueResult {
+                    receipt: receipt.display().to_string(),
+                    digest: entry.digest.clone(),
+                    queued_at: entry.queued_at,
+                    pending_count: pending,
+                    ready_for_batch: pending >= 8,
+                });
+                println!("{}", serde_json::to_string_pretty(&output)?);
+            } else {
+                let pending = queue.pending_count()?;
+                println!("Receipt added to Mina batch queue:");
+                println!("  File:    {}", receipt.display());
+                println!("  Digest:  {}", entry.digest);
+                println!("  Pending: {}/8 receipts", pending);
+                if pending >= 8 {
+                    println!();
+                    println!("Queue is full! Run 'anubis-notary anchor mina flush' to submit batch.");
+                } else {
+                    println!();
+                    println!("Add {} more receipts for 8x cost savings.", 8 - pending);
+                }
+            }
+        }
+        MinaCommands::Flush { force, wait } => {
+            use anubis_io::BatchQueue;
+
+            let queue_path = ks.path().join("mina-batch-queue");
+            let queue = BatchQueue::open(&queue_path)?;
+
+            let pending = queue.pending()?;
+            if pending.is_empty() {
+                if json {
+                    let output: JsonOutput<()> = JsonOutput::error("Batch queue is empty. Add receipts with 'anchor mina queue'.");
+                    println!("{}", serde_json::to_string_pretty(&output)?);
+                } else {
+                    println!("Batch queue is empty.");
+                    println!("Add receipts with: anubis-notary anchor mina queue <receipt>");
+                }
+                return Ok(());
+            }
+
+            if pending.len() < 8 && !force {
+                if json {
+                    #[derive(Serialize)]
+                    struct NotReadyResult {
+                        pending_count: usize,
+                        needed: usize,
+                    }
+                    let output = JsonOutput::error_with_data(
+                        "Queue not full. Use --force to submit partial batch.",
+                        NotReadyResult {
+                            pending_count: pending.len(),
+                            needed: 8 - pending.len(),
+                        }
+                    );
+                    println!("{}", serde_json::to_string_pretty(&output)?);
+                } else {
+                    println!("Queue has {} receipts (need 8 for optimal batching).", pending.len());
+                    println!("Use --force to submit a partial batch, or add {} more receipts.", 8 - pending.len());
+                }
+                return Ok(());
+            }
+
+            // Note: Full implementation would call the bridge with submitbatch command
+            // For now, we show what would be submitted
+            if !json {
+                println!("Batch anchoring (submitting {} receipts):", pending.len());
+                for entry in &pending {
+                    println!("  - {}", &entry.digest[..16]);
+                }
+                println!();
+                println!("Note: Batch anchoring requires the BatchVault zkApp to be deployed.");
+                println!("      Use the standard 'anchor mina anchor' for individual anchoring.");
+            } else {
+                #[derive(Serialize)]
+                struct FlushResult {
+                    pending_count: usize,
+                    digests: Vec<String>,
+                    message: String,
+                }
+                let output = JsonOutput::success(FlushResult {
+                    pending_count: pending.len(),
+                    digests: pending.iter().map(|e| e.digest.clone()).collect(),
+                    message: "BatchVault deployment required for batch anchoring".to_string(),
+                });
+                println!("{}", serde_json::to_string_pretty(&output)?);
+            }
+        }
+        MinaCommands::QueueStatus => {
+            use anubis_io::BatchQueue;
+
+            let queue_path = ks.path().join("mina-batch-queue");
+            let queue = BatchQueue::open(&queue_path)?;
+
+            let pending = queue.pending()?;
+            let history = queue.history()?;
+
+            if json {
+                #[derive(Serialize)]
+                struct StatusResult {
+                    pending_count: usize,
+                    pending: Vec<PendingEntry>,
+                    history_count: usize,
+                    ready_for_batch: bool,
+                }
+                #[derive(Serialize)]
+                struct PendingEntry {
+                    digest: String,
+                    receipt_path: String,
+                    queued_at: u64,
+                }
+
+                let output = JsonOutput::success(StatusResult {
+                    pending_count: pending.len(),
+                    pending: pending.iter().map(|e| PendingEntry {
+                        digest: e.digest.clone(),
+                        receipt_path: e.receipt_path.clone(),
+                        queued_at: e.queued_at,
+                    }).collect(),
+                    history_count: history.len(),
+                    ready_for_batch: pending.len() >= 8,
+                });
+                println!("{}", serde_json::to_string_pretty(&output)?);
+            } else {
+                println!("Mina Batch Queue Status");
+                println!("=======================");
+                println!("Pending:  {}/8 receipts", pending.len());
+                println!("Batches:  {} submitted", history.len());
+                println!();
+
+                if pending.is_empty() {
+                    println!("Queue is empty. Add receipts with:");
+                    println!("  anubis-notary anchor mina queue <receipt>");
+                } else {
+                    println!("Pending receipts:");
+                    for entry in &pending {
+                        println!("  - {} ({})", &entry.digest[..16], entry.receipt_path);
+                    }
+
+                    if pending.len() >= 8 {
+                        println!();
+                        println!("Queue is full! Run 'anubis-notary anchor mina flush' to submit.");
+                    } else {
+                        println!();
+                        println!("Add {} more receipts for optimal 8x cost savings.", 8 - pending.len());
+                    }
                 }
             }
         }

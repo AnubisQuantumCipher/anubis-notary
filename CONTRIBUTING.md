@@ -65,6 +65,20 @@ cd proofs
 make all
 ```
 
+### Mina Bridge Development
+
+```bash
+# Build the TypeScript zkApp contracts
+cd mina-bridge
+npm install
+npm run build
+
+# Key files:
+# - src/AnubisAnchor.ts    - Single anchor contract
+# - src/AnubisBatchVault.ts - Batch vault contract (8x savings)
+# - mina-bridge.js         - Compiled bridge script
+```
+
 ## Making Contributions
 
 ### Types of Contributions
