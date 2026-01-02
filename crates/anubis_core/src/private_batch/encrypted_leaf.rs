@@ -6,7 +6,7 @@
 use crate::aead::{ChaCha20Poly1305, KEY_SIZE, NONCE_SIZE, TAG_SIZE};
 use crate::ct::ct_eq;
 use crate::keccak::sha3::sha3_256;
-use zeroize::Zeroize;
+use zeroize::{Zeroize, Zeroizing};
 
 use super::error::PrivateBatchError;
 
@@ -95,7 +95,15 @@ impl EncryptedLeaf {
     ///
     /// - `DecryptionFailed`: AEAD authentication failed
     /// - `CommitmentMismatch`: Decrypted data doesn't match commitment
-    pub fn decrypt(&self, session_key: &[u8; KEY_SIZE]) -> Result<Vec<u8>, PrivateBatchError> {
+    ///
+    /// # Security
+    ///
+    /// Returns `Zeroizing<Vec<u8>>` to ensure plaintext is automatically zeroized
+    /// when dropped, preventing sensitive data from lingering in memory.
+    pub fn decrypt(
+        &self,
+        session_key: &[u8; KEY_SIZE],
+    ) -> Result<Zeroizing<Vec<u8>>, PrivateBatchError> {
         let cipher = ChaCha20Poly1305::from_key(session_key);
         let plaintext = cipher
             .open_fixed(&self.nonce, &[], &self.ciphertext)
@@ -213,7 +221,7 @@ mod tests {
         let encrypted = EncryptedLeaf::encrypt(&session_key, plaintext, &batch_id, 0).unwrap();
         let decrypted = encrypted.decrypt(&session_key).unwrap();
 
-        assert_eq!(decrypted, plaintext);
+        assert_eq!(&*decrypted, plaintext);
     }
 
     #[test]
@@ -283,7 +291,7 @@ mod tests {
 
         // Verify decryption still works
         let decrypted = parsed.decrypt(&session_key).unwrap();
-        assert_eq!(decrypted, plaintext);
+        assert_eq!(&*decrypted, plaintext);
     }
 
     #[test]
@@ -296,6 +304,6 @@ mod tests {
         assert_eq!(encrypted.plaintext_size(), 0);
 
         let decrypted = encrypted.decrypt(&session_key).unwrap();
-        assert_eq!(decrypted, plaintext);
+        assert_eq!(&*decrypted, plaintext.as_slice());
     }
 }

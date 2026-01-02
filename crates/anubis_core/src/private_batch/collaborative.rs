@@ -5,7 +5,7 @@
 
 use crate::aead::KEY_SIZE;
 use crate::recovery::{RecoveryCoordinator, Share};
-use zeroize::Zeroize;
+use zeroize::{Zeroize, Zeroizing};
 
 use super::batch::PrivateBatch;
 use super::encrypted_leaf::EncryptedLeaf;
@@ -135,10 +135,15 @@ impl CollaborativeDecryptor {
     /// - `InsufficientShares`: Not enough shares collected
     /// - `DecryptionFailed`: AEAD authentication failure
     /// - `CommitmentMismatch`: Decrypted data doesn't match commitment
+    ///
+    /// # Security
+    ///
+    /// Returns `Vec<Zeroizing<Vec<u8>>>` to ensure all decrypted plaintexts
+    /// are automatically zeroized when dropped.
     pub fn decrypt_batch(
         &self,
         leaves: &[EncryptedLeaf],
-    ) -> Result<Vec<Vec<u8>>, PrivateBatchError> {
+    ) -> Result<Vec<Zeroizing<Vec<u8>>>, PrivateBatchError> {
         let mut session_key = self.recover_session_key()?;
 
         let mut plaintext_leaves = Vec::with_capacity(leaves.len());
@@ -156,10 +161,14 @@ impl CollaborativeDecryptor {
     /// Decrypt a private batch completely.
     ///
     /// Convenience method that takes the full batch and returns decrypted leaves.
+    ///
+    /// # Security
+    ///
+    /// Returns `Vec<Zeroizing<Vec<u8>>>` for automatic plaintext zeroization.
     pub fn decrypt_private_batch(
         &self,
         batch: &PrivateBatch,
-    ) -> Result<Vec<Vec<u8>>, PrivateBatchError> {
+    ) -> Result<Vec<Zeroizing<Vec<u8>>>, PrivateBatchError> {
         // Verify batch ID matches
         if batch.batch_id != self.batch_id {
             return Err(PrivateBatchError::BatchIdMismatch);
@@ -277,8 +286,8 @@ mod tests {
 
         // Decrypt batch
         let decrypted = decryptor.decrypt_private_batch(&batch).unwrap();
-        assert_eq!(decrypted[0], plaintext1);
-        assert_eq!(decrypted[1], plaintext2);
+        assert_eq!(&*decrypted[0], plaintext1);
+        assert_eq!(&*decrypted[1], plaintext2);
     }
 
     #[test]

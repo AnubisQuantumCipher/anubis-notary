@@ -27,7 +27,7 @@
 //! - 128-bit authentication tag
 //! - Constant-time implementation (from libcrux)
 
-use zeroize::Zeroize;
+use zeroize::{Zeroize, Zeroizing};
 
 /// Key size for ChaCha20Poly1305 (256 bits).
 pub const KEY_SIZE: usize = 32;
@@ -259,22 +259,27 @@ impl ChaCha20Poly1305 {
     }
 
     /// Type-safe decryption with fixed-size nonce.
+    ///
+    /// # Security
+    ///
+    /// Returns `Zeroizing<Vec<u8>>` to ensure plaintext is automatically zeroized
+    /// when dropped, preventing sensitive data from lingering in memory.
     pub fn open_fixed(
         &self,
         nonce: &[u8; NONCE_SIZE],
         ad: &[u8],
         ciphertext: &[u8],
-    ) -> Result<Vec<u8>, AeadError> {
+    ) -> Result<Zeroizing<Vec<u8>>, AeadError> {
         if ciphertext.len() < TAG_SIZE {
             return Err(AeadError::BufferTooSmall);
         }
         let pt_len = ciphertext.len() - TAG_SIZE;
-        let mut plaintext = vec![0u8; pt_len];
+        let mut plaintext = Zeroizing::new(vec![0u8; pt_len]);
 
         match libcrux_chacha20poly1305::decrypt(&self.key, &mut plaintext, ciphertext, ad, nonce) {
             Ok(_) => Ok(plaintext),
             Err(_) => {
-                plaintext.zeroize();
+                // plaintext is automatically zeroized via Zeroizing wrapper
                 Err(AeadError::AuthenticationFailed)
             }
         }
@@ -504,7 +509,7 @@ mod tests {
         let ciphertext = cipher.seal_fixed(&nonce, b"", plaintext);
         let decrypted = cipher.open_fixed(&nonce, b"", &ciphertext).unwrap();
 
-        assert_eq!(decrypted, plaintext);
+        assert_eq!(&*decrypted, plaintext);
     }
 
     // ========================================================================
@@ -523,7 +528,7 @@ mod tests {
 
         // Should decrypt successfully
         let decrypted = cipher.open_fixed(&nonce, ad, &ciphertext).unwrap();
-        assert_eq!(decrypted, plaintext);
+        assert_eq!(&*decrypted, plaintext);
     }
 
     #[test]
@@ -543,7 +548,7 @@ mod tests {
 
         // Should decrypt successfully
         let decrypted = cipher.open_fixed(&nonce, ad, &ciphertext).unwrap();
-        assert_eq!(decrypted, plaintext);
+        assert_eq!(&*decrypted, plaintext);
     }
 
     #[test]
@@ -568,7 +573,7 @@ mod tests {
         let ciphertext = cipher.seal_verified(&nonce, b"", &plaintext).unwrap();
 
         let decrypted = cipher.open_fixed(&nonce, b"", &ciphertext).unwrap();
-        assert_eq!(decrypted, plaintext);
+        assert_eq!(&*decrypted, plaintext.as_slice());
     }
 
     #[test]
