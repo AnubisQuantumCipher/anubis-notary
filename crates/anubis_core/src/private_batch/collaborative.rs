@@ -106,14 +106,17 @@ impl CollaborativeDecryptor {
             return Err(PrivateBatchError::InsufficientShares);
         }
 
-        let recovered = self.coordinator.recover()?;
+        let mut recovered = self.coordinator.recover()?;
 
         if recovered.len() != KEY_SIZE {
+            recovered.zeroize();
             return Err(PrivateBatchError::InvalidSessionKey);
         }
 
         let mut key = [0u8; KEY_SIZE];
         key.copy_from_slice(&recovered);
+        // Zeroize intermediate buffer containing session key
+        recovered.zeroize();
         Ok(key)
     }
 

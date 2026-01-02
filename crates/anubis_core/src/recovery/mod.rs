@@ -439,12 +439,17 @@ impl ShamirSharing {
         #[allow(clippy::needless_range_loop)]
         // Index needed for parallel access to secret and share.data
         for byte_idx in 0..data_len {
-            let points: Vec<(u8, u8)> = shares_to_use
+            let mut points: Vec<(u8, u8)> = shares_to_use
                 .iter()
                 .map(|s| (s.index, s.data[byte_idx]))
                 .collect();
 
             secret[byte_idx] = gf256::interpolate_at_zero(&points);
+
+            // Zeroize intermediate points containing share data
+            for (_, y) in &mut points {
+                *y = 0;
+            }
         }
 
         Ok(secret)
