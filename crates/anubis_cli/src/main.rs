@@ -150,6 +150,28 @@ enum Commands {
         #[command(subcommand)]
         action: PrivateBatchCommands,
     },
+    /// Encrypt a file using ML-KEM-1024 post-quantum encryption.
+    Seal {
+        /// File to encrypt.
+        file: PathBuf,
+        /// Recipient's ML-KEM-1024 public key file.
+        #[arg(long, short)]
+        recipient: PathBuf,
+        /// Output encrypted file.
+        #[arg(long, short)]
+        out: PathBuf,
+    },
+    /// Decrypt a file using ML-KEM-1024 post-quantum decryption.
+    Unseal {
+        /// Encrypted file to decrypt.
+        file: PathBuf,
+        /// Your ML-KEM-1024 secret key file.
+        #[arg(long, short = 'k')]
+        secret_key: PathBuf,
+        /// Output decrypted file.
+        #[arg(long, short)]
+        out: PathBuf,
+    },
 }
 
 #[derive(Subcommand)]
@@ -690,6 +712,16 @@ fn run_command(cli: &Cli) -> Result<(), Box<dyn std::error::Error>> {
         Commands::Multisig { action } => handle_multisig(action, cli.json),
         Commands::Stream { action } => handle_stream(action, cli.json),
         Commands::PrivateBatch { action } => handle_private_batch(action, cli.json),
+        Commands::Seal {
+            file,
+            recipient,
+            out,
+        } => handle_seal(file, recipient, out, cli.json),
+        Commands::Unseal {
+            file,
+            secret_key,
+            out,
+        } => handle_unseal(file, secret_key, out, cli.json),
     }
 }
 
@@ -5821,4 +5853,173 @@ fn load_keypair_with_password(ks: &Keystore) -> Result<KeyPair, Box<dyn std::err
             }
         }
     }
+}
+
+/// Handle the seal command - encrypt a file using ML-KEM-1024.
+///
+/// # Sealed File Format
+///
+/// ```text
+/// [4 bytes]  Version (0x414E5531 = "ANU1")
+/// [1568 bytes] ML-KEM-1024 ciphertext (encapsulated shared secret)
+/// [12 bytes] Nonce for ChaCha20Poly1305
+/// [N bytes]  ChaCha20Poly1305 ciphertext (encrypted file + 16-byte tag)
+/// ```
+fn handle_seal(
+    file: &PathBuf,
+    recipient: &PathBuf,
+    out: &PathBuf,
+    json: bool,
+) -> Result<(), Box<dyn std::error::Error>> {
+    use anubis_core::aead::ChaCha20Poly1305;
+    use anubis_core::mlkem::{MlKemPublicKey, CIPHERTEXT_SIZE};
+
+    // Magic bytes for sealed file format
+    const SEAL_MAGIC: &[u8; 4] = b"ANU1";
+
+    // Read the recipient's public key
+    let pk_bytes = read_file(recipient)?;
+    let public_key = MlKemPublicKey::from_bytes(&pk_bytes)
+        .map_err(|e| format!("Invalid public key: {:?}", e))?;
+
+    // Read the file to encrypt
+    let plaintext = read_file(file)?;
+
+    // Encapsulate to get shared secret and ciphertext
+    let (kem_ciphertext, shared_secret) = public_key
+        .encapsulate()
+        .map_err(|e| format!("ML-KEM encapsulation failed: {:?}", e))?;
+
+    // Generate random nonce for ChaCha20Poly1305
+    let mut nonce = [0u8; 12];
+    getrandom::getrandom(&mut nonce).map_err(|e| format!("RNG failed: {}", e))?;
+
+    // Encrypt the file with ChaCha20Poly1305
+    let cipher = ChaCha20Poly1305::from_key(&shared_secret);
+    let ciphertext = cipher.seal_fixed(&nonce, &[], &plaintext);
+
+    // Build the sealed file
+    let mut sealed = Vec::with_capacity(4 + CIPHERTEXT_SIZE + 12 + ciphertext.len());
+    sealed.extend_from_slice(SEAL_MAGIC);
+    sealed.extend_from_slice(&kem_ciphertext);
+    sealed.extend_from_slice(&nonce);
+    sealed.extend_from_slice(&ciphertext);
+
+    // Write the sealed file
+    write_file_atomic(out, &sealed)?;
+
+    if json {
+        #[derive(Serialize)]
+        struct SealResult {
+            input_file: String,
+            output_file: String,
+            input_size: usize,
+            output_size: usize,
+            algorithm: String,
+        }
+        let output = JsonOutput::success(SealResult {
+            input_file: file.display().to_string(),
+            output_file: out.display().to_string(),
+            input_size: plaintext.len(),
+            output_size: sealed.len(),
+            algorithm: "ML-KEM-1024 + ChaCha20Poly1305".to_string(),
+        });
+        println!("{}", serde_json::to_string_pretty(&output)?);
+    } else {
+        println!("Sealed: {}", file.display());
+        println!("  Output: {}", out.display());
+        println!("  Input size: {} bytes", plaintext.len());
+        println!("  Sealed size: {} bytes", sealed.len());
+        println!("  Algorithm: ML-KEM-1024 + ChaCha20Poly1305");
+        println!();
+        println!("Only the holder of the corresponding secret key can unseal this file.");
+    }
+
+    Ok(())
+}
+
+/// Handle the unseal command - decrypt a file using ML-KEM-1024.
+fn handle_unseal(
+    file: &PathBuf,
+    secret_key: &PathBuf,
+    out: &PathBuf,
+    json: bool,
+) -> Result<(), Box<dyn std::error::Error>> {
+    use anubis_core::aead::ChaCha20Poly1305;
+    use anubis_core::mlkem::{MlKemSecretKey, CIPHERTEXT_SIZE};
+
+    // Magic bytes for sealed file format
+    const SEAL_MAGIC: &[u8; 4] = b"ANU1";
+
+    // Read the secret key
+    let sk_bytes = read_file(secret_key)?;
+    let secret = MlKemSecretKey::from_bytes(&sk_bytes)
+        .map_err(|e| format!("Invalid secret key: {:?}", e))?;
+
+    // Read the sealed file
+    let sealed = read_file(file)?;
+
+    // Verify minimum size: magic(4) + kem_ct(1568) + nonce(12) + tag(16)
+    let min_size = 4 + CIPHERTEXT_SIZE + 12 + 16;
+    if sealed.len() < min_size {
+        return Err(format!(
+            "Invalid sealed file: too small ({} bytes, need at least {})",
+            sealed.len(),
+            min_size
+        )
+        .into());
+    }
+
+    // Verify magic bytes
+    if &sealed[0..4] != SEAL_MAGIC {
+        return Err("Invalid sealed file: wrong magic bytes (not an Anubis sealed file)".into());
+    }
+
+    // Extract components
+    let kem_ciphertext = &sealed[4..4 + CIPHERTEXT_SIZE];
+    let nonce: [u8; 12] = sealed[4 + CIPHERTEXT_SIZE..4 + CIPHERTEXT_SIZE + 12]
+        .try_into()
+        .unwrap();
+    let ciphertext = &sealed[4 + CIPHERTEXT_SIZE + 12..];
+
+    // Decapsulate to recover shared secret
+    let shared_secret = secret
+        .decapsulate(kem_ciphertext)
+        .map_err(|e| format!("ML-KEM decapsulation failed: {:?}", e))?;
+
+    // Decrypt with ChaCha20Poly1305
+    let cipher = ChaCha20Poly1305::from_key(&shared_secret);
+    let plaintext = cipher
+        .open_fixed(&nonce, &[], ciphertext)
+        .map_err(|_| "Decryption failed: authentication error (wrong key or corrupted file)")?;
+
+    // Write the decrypted file
+    write_file_atomic(out, &plaintext)?;
+
+    if json {
+        #[derive(Serialize)]
+        struct UnsealResult {
+            input_file: String,
+            output_file: String,
+            sealed_size: usize,
+            output_size: usize,
+            algorithm: String,
+        }
+        let output = JsonOutput::success(UnsealResult {
+            input_file: file.display().to_string(),
+            output_file: out.display().to_string(),
+            sealed_size: sealed.len(),
+            output_size: plaintext.len(),
+            algorithm: "ML-KEM-1024 + ChaCha20Poly1305".to_string(),
+        });
+        println!("{}", serde_json::to_string_pretty(&output)?);
+    } else {
+        println!("Unsealed: {}", file.display());
+        println!("  Output: {}", out.display());
+        println!("  Sealed size: {} bytes", sealed.len());
+        println!("  Output size: {} bytes", plaintext.len());
+        println!("  Algorithm: ML-KEM-1024 + ChaCha20Poly1305");
+    }
+
+    Ok(())
 }

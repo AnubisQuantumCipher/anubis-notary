@@ -121,6 +121,12 @@ tarpaulin-report.html
 # sncast stores accounts locally - don't commit
 .starknet/
 snfoundry.toml
+starknet-contract/target/
+
+# ===========================
+# Development Files
+# ===========================
+CLAUDE.md
 
 # ===========================
 # Mina zkApp
