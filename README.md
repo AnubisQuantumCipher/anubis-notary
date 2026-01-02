@@ -42,23 +42,29 @@ A command-line tool for cryptographic signing, timestamping, licensing, and mult
 
 ## Download
 
-### One-Click Download (v0.3.7)
+### One-Click Download (v0.3.8)
 
 Pre-built binaries - no compilation required:
 
-| Platform | Download | Size |
-|----------|----------|------|
-| **Linux x86_64** | [**anubis-notary-linux-x86_64**](https://github.com/AnubisQuantumCipher/anubis-notary/releases/download/v0.3.7/anubis-notary-linux-x86_64) | ~5 MB |
-| **macOS ARM64** (Apple Silicon) | [**anubis-notary-darwin-aarch64**](https://github.com/AnubisQuantumCipher/anubis-notary/releases/download/v0.3.7/anubis-notary-darwin-aarch64) | ~4 MB |
+| Platform | Architecture | Download |
+|----------|--------------|----------|
+| **Linux** | x86_64 | [anubis-notary-linux-x86_64](https://github.com/AnubisQuantumCipher/anubis-notary/releases/download/v0.3.8/anubis-notary-linux-x86_64) |
+| **Linux** | ARM64 | [anubis-notary-linux-aarch64](https://github.com/AnubisQuantumCipher/anubis-notary/releases/download/v0.3.8/anubis-notary-linux-aarch64) |
+| **macOS** | Apple Silicon | [anubis-notary-darwin-aarch64](https://github.com/AnubisQuantumCipher/anubis-notary/releases/download/v0.3.8/anubis-notary-darwin-aarch64) |
+| **macOS** | Intel | [anubis-notary-darwin-x86_64](https://github.com/AnubisQuantumCipher/anubis-notary/releases/download/v0.3.8/anubis-notary-darwin-x86_64) |
+| **Windows** | x86_64 | [anubis-notary-windows-x86_64.exe](https://github.com/AnubisQuantumCipher/anubis-notary/releases/download/v0.3.8/anubis-notary-windows-x86_64.exe) |
 
-[**View All Releases**](https://github.com/AnubisQuantumCipher/anubis-notary/releases)
+[**View All Releases**](https://github.com/AnubisQuantumCipher/anubis-notary/releases) | [SHA256 Checksums](https://github.com/AnubisQuantumCipher/anubis-notary/releases/download/v0.3.8/SHA256SUMS.txt)
 
 ```bash
-# After downloading, make executable and run:
-chmod +x anubis-notary-*
-./anubis-notary --version
-# Output: anubis-notary 0.3.7
-./anubis-notary --help
+# Linux/macOS: Download, make executable, and run
+curl -LO https://github.com/AnubisQuantumCipher/anubis-notary/releases/download/v0.3.8/anubis-notary-linux-x86_64
+chmod +x anubis-notary-linux-x86_64
+./anubis-notary-linux-x86_64 --version
+# Output: anubis-notary 0.3.8
+
+# Verify checksum (optional but recommended)
+sha256sum anubis-notary-linux-x86_64
 ```
 
 ---
@@ -171,6 +177,30 @@ anubis-notary multisig execute --config multisig.config --proposal proposal.bin
 # Rotate keys (archives old key)
 anubis-notary key rotate
 ```
+
+### Single-User File Encryption (ML-KEM-1024)
+
+Encrypt files for yourself or a single recipient using post-quantum ML-KEM-1024 key encapsulation with ChaCha20Poly1305 symmetric encryption.
+
+```bash
+# Generate ML-KEM-1024 keypair
+anubis-notary private-batch keygen --out mykey
+# Creates: mykey.mlkem.pub (public key) and mykey.mlkem.sec (secret key)
+
+# Seal (encrypt) a file to a recipient's public key
+anubis-notary seal document.pdf --recipient mykey.mlkem.pub --out document.sealed
+
+# Unseal (decrypt) with your secret key
+anubis-notary unseal document.sealed --secret-key mykey.mlkem.sec --out document-decrypted.pdf
+```
+
+**Sealed File Format:**
+- 4 bytes: Magic ("ANU1")
+- 1568 bytes: ML-KEM-1024 ciphertext (encapsulated shared secret)
+- 12 bytes: ChaCha20Poly1305 nonce
+- N bytes: Encrypted file + 16-byte authentication tag
+
+**Security:** Only the holder of the corresponding secret key can unseal the file. Uses NIST Level 5 post-quantum security.
 
 ## Privacy-Preserving Collaborative Anchoring (ML-KEM-1024)
 
