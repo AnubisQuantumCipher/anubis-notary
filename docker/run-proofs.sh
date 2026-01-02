@@ -1,80 +1,66 @@
 #!/bin/bash
 # Anubis Notary - One-command proof verification
 #
-# Usage:
-#   ./run-proofs.sh              # Interactive shell
-#   ./run-proofs.sh make all     # Build all proofs
-#   ./run-proofs.sh make prove   # Verify proofs
+# This script builds and runs the Docker container for verifying
+# all Rocq/Coq proofs in the Anubis Notary project.
 #
-# Inside container:
-#   make prove                   # Compile all proofs
-#   make status                  # Show compilation status
-#   coqtop                       # Interactive Coq toplevel
+# Usage:
+#   ./docker/run-proofs.sh          # Build and run interactively
+#   ./docker/run-proofs.sh --build  # Force rebuild
+#   ./docker/run-proofs.sh --check  # Build only (non-interactive)
 
 set -e
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 PROJECT_DIR="$(dirname "$SCRIPT_DIR")"
-
 IMAGE_NAME="anubis-proofs"
-NETWORK_FLAG=""
 
-echo ""
-echo "╔══════════════════════════════════════════════════════════════╗"
-echo "║       Anubis Notary - Formal Proof Verification              ║"
-echo "╚══════════════════════════════════════════════════════════════╝"
+cd "$PROJECT_DIR"
+
+# Parse arguments
+BUILD_ONLY=false
+FORCE_BUILD=false
+
+for arg in "$@"; do
+    case $arg in
+        --build)
+            FORCE_BUILD=true
+            shift
+            ;;
+        --check)
+            BUILD_ONLY=true
+            shift
+            ;;
+        *)
+            ;;
+    esac
+done
+
+echo "=== Anubis Notary Proof Verification ==="
 echo ""
 
-# Check if Docker is installed
-if ! command -v docker &> /dev/null; then
-    echo "Error: Docker is not installed."
+# Check if image exists and if we need to rebuild
+if [[ "$FORCE_BUILD" == "true" ]] || ! docker image inspect "$IMAGE_NAME" &> /dev/null; then
+    echo "Building Docker image (this may take a few minutes)..."
     echo ""
-    echo "Please install Docker from https://docker.com (free/one-time install)"
+    docker build -t "$IMAGE_NAME" -f docker/Dockerfile .
     echo ""
-    echo "Alternative without Docker:"
-    echo "  opam install coq coq-stdpp coq-equations"
-    echo "  cd proofs/theories"
-    echo "  for f in *.v; do coqc -Q . anubis_proofs \"\$f\"; done"
-    exit 1
+    echo "Build complete!"
 fi
 
-# Check if Docker daemon is running
-if ! docker info &> /dev/null 2>&1; then
-    echo "Error: Docker daemon is not running."
+if [[ "$BUILD_ONLY" == "true" ]]; then
     echo ""
-    echo "Please start Docker:"
-    echo "  Linux:  sudo systemctl start docker"
-    echo "  macOS:  open -a Docker"
-    exit 1
-fi
-
-# Detect if we're in a containerized environment (Docker-in-Docker)
-# This helps avoid iptables errors in nested containers
-if [ -f "/.dockerenv" ] || grep -q docker /proc/1/cgroup 2>/dev/null; then
-    echo "Note: Detected containerized environment, using --network=host"
-    NETWORK_FLAG="--network=host"
-fi
-
-# Build the Docker image
-echo "Building Docker image (first run takes a few minutes)..."
-echo ""
-
-if ! docker build $NETWORK_FLAG -t "$IMAGE_NAME" -f "$SCRIPT_DIR/Dockerfile" "$PROJECT_DIR"; then
-    echo ""
-    echo "Build failed. Trying with --network=host..."
-    NETWORK_FLAG="--network=host"
-    docker build $NETWORK_FLAG -t "$IMAGE_NAME" -f "$SCRIPT_DIR/Dockerfile" "$PROJECT_DIR"
+    echo "Proof verification complete (build only mode)."
+    echo "All proofs compiled successfully during Docker build."
+    exit 0
 fi
 
 echo ""
-echo "Starting proof environment..."
+echo "Starting interactive proof environment..."
 echo ""
 
-# Run container
-if [ $# -eq 0 ]; then
-    # Interactive mode
-    docker run -it --rm $NETWORK_FLAG "$IMAGE_NAME"
-else
-    # Run specific command
-    docker run -it --rm $NETWORK_FLAG "$IMAGE_NAME" bash -c "eval \$(opam env) && $*"
-fi
+# Run interactively
+docker run -it --rm \
+    -v "$PROJECT_DIR/proofs:/home/coq/anubis-notary/proofs:ro" \
+    -v "$PROJECT_DIR/specs:/home/coq/anubis-notary/specs:ro" \
+    "$IMAGE_NAME"

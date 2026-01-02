@@ -1,40 +1,46 @@
-# Anubis Notary - Proof Verification Container
-# Build: docker build -t anubis-proofs .
-# Run:   docker run -it anubis-proofs
+# Anubis Notary - Proof Verification Docker Image
+# Provides a complete environment for verifying Rocq/Coq proofs
 #
-# One-command proof verification - no manual install needed!
+# Usage:
+#   docker build -t anubis-proofs docker/
+#   docker run -it anubis-proofs
+#
+# Or use the convenience script:
+#   ./docker/run-proofs.sh
 
-FROM coqorg/coq:8.18
+FROM coqorg/coq:8.19.0-ocaml-4.14.1-flambda
 
-LABEL maintainer="AnubisQuantumCipher <sic.tau@pm.me>"
-LABEL description="Anubis Notary formal proofs verification environment"
+LABEL org.opencontainers.image.title="Anubis Notary Proofs"
+LABEL org.opencontainers.image.description="Formal proof verification for Anubis Notary"
+LABEL org.opencontainers.image.source="https://github.com/AnubisQuantumCipher/anubis-notary"
+LABEL org.opencontainers.image.licenses="MIT"
 
-# Install system dependencies and SSL certificates
+# Install additional packages
 USER root
 RUN apt-get update && apt-get install -y \
     make \
-    m4 \
-    time \
-    ca-certificates \
-    curl \
-    && update-ca-certificates \
+    git \
     && rm -rf /var/lib/apt/lists/*
 
 USER coq
 
-# Set up project directory
-WORKDIR /home/coq/anubis-notary
-
-# Copy proof files
-COPY --chown=coq:coq proofs/ ./proofs/
-COPY --chown=coq:coq docker/Makefile.proofs ./Makefile
-
-# The base coqorg/coq:8.18 image already has Coq installed
-# We skip opam install to avoid network issues
-# The core proofs don't require external libraries
+# Install Iris and stdpp via opam
+RUN opam update && \
+    opam install -y coq-stdpp coq-iris && \
+    opam clean -a -c -s --logs
 
 # Set working directory
 WORKDIR /home/coq/anubis-notary
 
-# Show help by default
-CMD ["bash", "-c", "echo '' && echo '╔══════════════════════════════════════════════════════════════╗' && echo '║       Anubis Notary - Formal Proof Verification              ║' && echo '╚══════════════════════════════════════════════════════════════╝' && echo '' && echo 'Commands:' && echo '  make all      - Compile all proofs' && echo '  make status   - Show compilation status' && echo '  make clean    - Remove build artifacts' && echo '  coqtop        - Interactive Coq toplevel' && echo '' && exec bash"]
+# Copy proof files
+COPY --chown=coq:coq proofs/ ./proofs/
+COPY --chown=coq:coq specs/ ./specs/
+
+# Build proofs
+WORKDIR /home/coq/anubis-notary/proofs
+
+# Verify all proofs on build
+RUN eval $(opam env) && make all
+
+# Default command shows status and starts interactive shell
+CMD ["/bin/bash", "-c", "eval $(opam env) && echo '=== Anubis Notary Proof Verification ===' && make status && echo '' && echo 'Run \"make all\" to rebuild proofs' && echo 'Run \"make clean\" to clean artifacts' && /bin/bash"]

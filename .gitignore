@@ -110,3 +110,40 @@ secrets/
 .lock
 .merlin
 crates.zip
+tarpaulin-report.html
+.lia.cache
+.lia 2.cache
+.nia.cache
+
+# ===========================
+# Starknet (sncast accounts)
+# ===========================
+# sncast stores accounts locally - don't commit
+.starknet/
+snfoundry.toml
+
+# ===========================
+# Mina zkApp
+# ===========================
+mina-zkapp/node_modules/
+mina-zkapp/build/
+mina-zkapp/*.js
+mina-zkapp/*.d.ts
+
+# ===========================
+# Starknet Bridge
+# ===========================
+starknet-bridge/node_modules/
+starknet-bridge/dist/
+
+# ===========================
+# Verified Rust (development)
+# ===========================
+verified/target/
+
+# ===========================
+# Fuzz targets
+# ===========================
+fuzz/target/
+fuzz/corpus/
+fuzz/artifacts/

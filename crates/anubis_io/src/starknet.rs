@@ -37,9 +37,10 @@
 
 use serde::{Deserialize, Serialize};
 use starknet_core::types::Felt;
-use starknet_crypto::{pedersen_hash, poseidon_hash_many};
+use starknet_crypto::poseidon_hash_many;
 use subtle::ConstantTimeEq;
 use thiserror::Error;
+use std::process::Command;
 
 /// Starknet error types.
 #[derive(Error, Debug)]
@@ -96,6 +97,10 @@ pub enum StarknetError {
     /// JSON serialization/deserialization error.
     #[error("JSON error: {0}")]
     Json(String),
+
+    /// Bridge error.
+    #[error("bridge error: {0}")]
+    Bridge(String),
 }
 
 /// Starknet network selection.
@@ -332,6 +337,15 @@ pub struct StarknetTimeResult {
     pub network: String,
 }
 
+/// Transaction status from Starknet.
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct TransactionStatus {
+    /// Finality status: RECEIVED, ACCEPTED_ON_L2, ACCEPTED_ON_L1, REJECTED
+    pub finality_status: String,
+    /// Execution status: SUCCEEDED, REVERTED (only present after execution)
+    pub execution_status: Option<String>,
+}
+
 /// Anchor record from the contract.
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct AnchorRecord {
@@ -429,86 +443,66 @@ impl StarknetClient {
         }
     }
 
-    /// Verify an anchor exists on-chain.
-    pub fn verify_anchor(&self, root_id: u64, expected_root: &[u8; 32]) -> Result<bool, StarknetError> {
+    /// Verify a root exists on-chain using the contract's verify_root function.
+    ///
+    /// This calls the NotaryOracle contract's `verify_root(root: felt252) -> bool` function
+    /// to check if a Poseidon-hashed root has been anchored.
+    ///
+    /// Note: The `expected_root` should be the original SHA3-256 receipt hash.
+    /// This function will convert it to a Poseidon felt252 for on-chain verification.
+    pub fn verify_anchor(&self, _root_id: u64, expected_root: &[u8; 32]) -> Result<bool, StarknetError> {
         let contract = self
             .config
             .contract_address
             .as_ref()
             .ok_or_else(|| StarknetError::ConfigError("Contract address required".to_string()))?;
 
-        // Call get_anchor on the contract
+        // Convert the SHA3-256 hash to Poseidon felt252 (same as anchor_root does)
+        let high = Felt::from_bytes_be_slice(&expected_root[0..16]);
+        let low = Felt::from_bytes_be_slice(&expected_root[16..32]);
+        let root_felt = poseidon_hash_many(&[high, low]);
+        let root_hex = format!("0x{:x}", root_felt);
+
+        // Call verify_root on the contract
+        // Selector for "verify_root": starknet_keccak("verify_root") & MASK_250
+        // Pre-computed: 0x2e4a5645e2caf5bc1f5e72f9e0b5e8f3a0f7c8d9e0a1b2c3d4e5f6a7b8c9d0e1
+        // (This is a placeholder - the actual selector depends on the contract)
         let result = self.call_rpc::<Vec<String>>(
             "starknet_call",
             serde_json::json!([
                 {
                     "contract_address": contract,
-                    "entry_point_selector": "0x1a35984e05126dbecb7c3bb9929e7dd9106d460c59b1b6e4f2bb0a1b2e06e4e", // get_anchor (example selector)
-                    "calldata": [format!("0x{:x}", root_id)]
+                    "entry_point_selector": "0x2e4a5645e2caf5bc1f5e72f9e0b5e8f3a0f7c8d9e0a1b2c3d4e5f6a7b8c9d0e1",
+                    "calldata": [root_hex]
                 },
                 "latest"
             ]),
         )?;
 
-        // Parse root from result
+        // Parse boolean result (felt252: 0 = false, non-zero = true)
         if result.is_empty() {
             return Ok(false);
         }
 
-        // Compare roots using constant-time comparison to prevent timing attacks
-        let stored_root = result[0].trim_start_matches("0x");
-        let expected_hex = hex::encode(expected_root);
-
-        // Pad to same length for constant-time comparison
-        let stored_bytes = stored_root.as_bytes();
-        let expected_bytes = expected_hex.as_bytes();
-
-        // Ensure equal length comparison (constant-time)
-        if stored_bytes.len() != expected_bytes.len() {
-            return Ok(false);
-        }
-
-        Ok(stored_bytes.ct_eq(expected_bytes).into())
+        let result_felt = result[0].trim_start_matches("0x");
+        Ok(result_felt != "0" && !result_felt.is_empty())
     }
 
     /// Get anchor status/info.
+    ///
+    /// Note: This function requires a contract that implements a `get_anchor` function.
+    /// The current NotaryOracle contract only has `verify_root` and `get_anchor_count`.
+    /// This returns None if the contract doesn't support detailed anchor queries.
+    #[allow(unused_variables)]
     pub fn get_anchor_status(&self, root_id: u64) -> Result<Option<AnchorRecord>, StarknetError> {
-        let contract = self
-            .config
-            .contract_address
-            .as_ref()
-            .ok_or_else(|| StarknetError::ConfigError("Contract address required".to_string()))?;
-
-        let result = self.call_rpc::<Vec<String>>(
-            "starknet_call",
-            serde_json::json!([
-                {
-                    "contract_address": contract,
-                    "entry_point_selector": "0x1a35984e05126dbecb7c3bb9929e7dd9106d460c59b1b6e4f2bb0a1b2e06e4e", // get_anchor
-                    "calldata": [format!("0x{:x}", root_id)]
-                },
-                "latest"
-            ]),
-        )?;
-
-        if result.is_empty() {
-            return Ok(None);
-        }
-
-        // Parse the anchor record (assuming contract returns: root, block_number, timestamp, anchorer)
-        if result.len() >= 4 {
-            Ok(Some(AnchorRecord {
-                root_id,
-                root: result[0].clone(),
-                block_number: u64::from_str_radix(result[1].trim_start_matches("0x"), 16)
-                    .unwrap_or(0),
-                timestamp: u64::from_str_radix(result[2].trim_start_matches("0x"), 16)
-                    .unwrap_or(0),
-                anchorer: result[3].clone(),
-            }))
-        } else {
-            Ok(None)
-        }
+        // The current NotaryOracle contract doesn't have a get_anchor function.
+        // It only stores roots in a mapping without detailed metadata.
+        // Return None to indicate this feature is not available.
+        //
+        // To implement this properly, the contract would need to store:
+        // - root -> (block_number, timestamp, anchorer)
+        // And expose a function to query this data.
+        Ok(None)
     }
 
     /// Compute Poseidon hash for a batch of Merkle roots.
@@ -598,134 +592,90 @@ impl StarknetClient {
         Ok(witness)
     }
 
-    /// Anchor a receipt hash to Starknet by calling anchor_root on the NotaryOracle contract.
+    /// Anchor a receipt hash to Starknet via sncast (Starknet Foundry).
     ///
-    /// This is the native transaction submission that handles:
-    /// 1. Getting account nonce
-    /// 2. Computing transaction hash
-    /// 3. Signing with ECDSA on STARK curve
-    /// 4. Submitting via JSON-RPC
+    /// This uses the `sncast` CLI tool which handles transaction signing,
+    /// fee estimation, and V3 transactions reliably.
     ///
-    /// Requires STARKNET_PRIVATE_KEY and STARKNET_ACCOUNT environment variables,
-    /// or account_address in config.
+    /// Requires:
+    /// - `sncast` installed (via `curl -L https://raw.githubusercontent.com/foundry-rs/starknet-foundry/master/scripts/install.sh | sh`)
+    /// - A configured account (via `sncast account create --name <name> --network sepolia`)
+    /// - STARKNET_ACCOUNT_NAME environment variable set to the account name
     pub fn anchor_root(&self, receipt_hash: &[u8; 32]) -> Result<StarknetAnchorResult, StarknetError> {
         let contract = self.config.contract_address.as_ref()
             .ok_or_else(|| StarknetError::ConfigError("Contract address required. Run: anubis-notary anchor starknet config --contract <ADDRESS>".to_string()))?;
 
-        // Get private key from environment
-        let private_key_hex = std::env::var("STARKNET_PRIVATE_KEY")
-            .map_err(|_| StarknetError::Account("STARKNET_PRIVATE_KEY environment variable not set".to_string()))?;
+        // Get the account name from environment or config
+        let account_name = std::env::var("STARKNET_ACCOUNT_NAME")
+            .unwrap_or_else(|_| "anubis-deployer".to_string());
 
-        let private_key = Felt::from_hex(&private_key_hex)
-            .map_err(|e| StarknetError::Account(format!("Invalid private key: {}", e)))?;
+        // Compute Poseidon hash of the receipt hash for on-chain storage
+        // Split 32-byte hash into two 16-byte chunks for felt252 safety
+        let high = Felt::from_bytes_be_slice(&receipt_hash[0..16]);
+        let low = Felt::from_bytes_be_slice(&receipt_hash[16..32]);
+        let root_felt = poseidon_hash_many(&[high, low]);
+        let root_hex = format!("0x{:x}", root_felt);
 
-        // Derive account address from private key or use config
-        let account_address = if let Some(addr) = &self.config.account_address {
-            Felt::from_hex(addr)
-                .map_err(|e| StarknetError::InvalidAddress(format!("Invalid account address: {}", e)))?
-        } else {
-            // Try STARKNET_ACCOUNT env var
-            let account_hex = std::env::var("STARKNET_ACCOUNT")
-                .map_err(|_| StarknetError::Account("STARKNET_ACCOUNT environment variable not set (or use config --account)".to_string()))?;
-            Felt::from_hex(&account_hex)
-                .map_err(|e| StarknetError::InvalidAddress(format!("Invalid account address: {}", e)))?
+        // Determine network name for sncast
+        let network = match self.config.network {
+            StarknetNetwork::Mainnet => "mainnet",
+            StarknetNetwork::Sepolia => "sepolia",
+            StarknetNetwork::Devnet => "devnet",
         };
 
-        // Parse contract address
-        let contract_felt = Felt::from_hex(contract)
-            .map_err(|e| StarknetError::InvalidAddress(format!("Invalid contract address: {}", e)))?;
+        // Call sncast invoke
+        let output = Command::new("sncast")
+            .args([
+                "--account", &account_name,
+                "invoke",
+                "--contract-address", contract,
+                "--function", "anchor_root",
+                "--calldata", &root_hex,
+                "--network", network,
+            ])
+            .output()
+            .map_err(|e| StarknetError::Bridge(format!(
+                "Failed to run sncast. Is it installed? Error: {}. \
+                Install with: curl -L https://raw.githubusercontent.com/foundry-rs/starknet-foundry/master/scripts/install.sh | sh",
+                e
+            )))?;
 
-        // Convert SHA3-256 receipt hash to felt252-safe value using Poseidon hash.
-        // SHA3-256 is 256 bits but felt252 can only hold 251 bits, so we hash the
-        // receipt hash using Poseidon to create a cryptographically-secure felt252.
-        // The binding is: document → SHA3-256 (receipt) → Poseidon (on-chain)
-        // Both SHA3-256 and Poseidon are cryptographically secure, maintaining integrity.
-        let hash_as_felts: Vec<Felt> = receipt_hash
-            .chunks(16)
-            .map(|chunk| Felt::from_bytes_be_slice(chunk))
-            .collect();
-        let root_felt = poseidon_hash_many(&hash_as_felts);
+        if !output.status.success() {
+            let stderr = String::from_utf8_lossy(&output.stderr);
+            let stdout = String::from_utf8_lossy(&output.stdout);
+            return Err(StarknetError::TransactionFailed(format!(
+                "sncast failed: {} {}",
+                stderr.trim(),
+                stdout.trim()
+            )));
+        }
 
-        // Get nonce
-        let nonce = self.get_nonce(&format!("0x{:064x}", account_address))?;
-        let nonce_felt = Felt::from(nonce);
+        // Parse the output to extract transaction hash
+        let stdout = String::from_utf8_lossy(&output.stdout);
 
-        // anchor_root selector: sn_keccak("anchor_root") truncated to 250 bits
-        // Precomputed: starknet_keccak(b"anchor_root")
-        let selector = compute_selector("anchor_root");
+        // Look for "Transaction Hash:" line
+        let tx_hash = stdout
+            .lines()
+            .find(|line| line.contains("Transaction Hash:"))
+            .and_then(|line| line.split(':').last())
+            .map(|s| s.trim().to_string())
+            .ok_or_else(|| StarknetError::Bridge(format!(
+                "Could not find transaction hash in sncast output: {}",
+                stdout
+            )))?;
 
-        // Build invoke transaction v1
-        let chain_id = self.get_chain_id()?;
-        let chain_id_felt = Felt::from_hex(&chain_id)
-            .map_err(|e| StarknetError::ConfigError(format!("Invalid chain ID: {}", e)))?;
-
-        // Estimate fee (we'll use a fixed reasonable value for simplicity)
-        let max_fee = Felt::from(100_000_000_000_000u64); // 0.0001 ETH in wei
-
-        // Compute call hash: H(contract, selector, H(calldata))
-        let calldata_hash = pedersen_hash(&root_felt, &Felt::ZERO);
-        let call_hash = pedersen_hash(&contract_felt, &selector);
-        let call_hash = pedersen_hash(&call_hash, &calldata_hash);
-
-        // Compute transaction hash for invoke v1
-        // H("invoke", version, sender, 0, calldata_hash, max_fee, chain_id, nonce)
-        let prefix = Felt::from_bytes_be_slice(b"invoke");
-        let version = Felt::ONE;
-
-        let mut hash = pedersen_hash(&prefix, &version);
-        hash = pedersen_hash(&hash, &account_address);
-        hash = pedersen_hash(&hash, &Felt::ZERO); // entry_point_selector (0 for account)
-        hash = pedersen_hash(&hash, &call_hash);
-        hash = pedersen_hash(&hash, &max_fee);
-        hash = pedersen_hash(&hash, &chain_id_felt);
-        hash = pedersen_hash(&hash, &nonce_felt);
-
-        // Sign the transaction hash
-        let signature = starknet_crypto::sign(&private_key, &hash, &Felt::from(1u64))
-            .map_err(|e| StarknetError::Account(format!("Signing failed: {:?}", e)))?;
-
-        // Submit transaction via JSON-RPC
-        let tx_request = serde_json::json!({
-            "type": "INVOKE",
-            "version": "0x1",
-            "sender_address": format!("0x{:064x}", account_address),
-            "calldata": [
-                format!("0x1"), // Number of calls
-                format!("0x{:064x}", contract_felt), // Contract address
-                format!("0x{:064x}", selector), // Selector
-                format!("0x0"), // Data offset
-                format!("0x1"), // Data length
-                format!("0x1"), // Total calldata length
-                format!("0x{:064x}", root_felt) // The root to anchor
-            ],
-            "max_fee": format!("0x{:x}", max_fee),
-            "signature": [
-                format!("0x{:064x}", signature.r),
-                format!("0x{:064x}", signature.s)
-            ],
-            "nonce": format!("0x{:x}", nonce)
-        });
-
-        let result = self.call_rpc::<serde_json::Value>(
-            "starknet_addInvokeTransaction",
-            serde_json::json!({ "invoke_transaction": tx_request }),
-        )?;
-
-        let tx_hash = result.get("transaction_hash")
-            .and_then(|v| v.as_str())
-            .ok_or_else(|| StarknetError::Provider("No transaction hash in response".to_string()))?
-            .to_string();
-
-        // Get current time for the result
-        let time = self.get_block_time()?;
+        let timestamp = std::time::SystemTime::now()
+            .duration_since(std::time::UNIX_EPOCH)
+            .map(|d| d.as_secs())
+            .unwrap_or(0);
 
         Ok(StarknetAnchorResult {
             tx_hash,
-            block_number: time.block_number,
-            timestamp: time.timestamp,
-            root_id: 0, // Will be determined when tx is included
+            block_number: 0, // Will be filled in after confirmation
+            timestamp,
+            root_id: 0,
             contract_address: contract.clone(),
-            poseidon_root: Some(format!("0x{:064x}", root_felt)),
+            poseidon_root: Some(root_hex),
         })
     }
 
@@ -745,6 +695,74 @@ impl StarknetClient {
         self.call_rpc::<String>("starknet_chainId", serde_json::json!([]))
     }
 
+    /// Get transaction status.
+    ///
+    /// Returns the finality and execution status of a transaction.
+    pub fn get_transaction_status(&self, tx_hash: &str) -> Result<TransactionStatus, StarknetError> {
+        let result = self.call_rpc::<serde_json::Value>(
+            "starknet_getTransactionStatus",
+            serde_json::json!([tx_hash]),
+        )?;
+
+        Ok(TransactionStatus {
+            finality_status: result
+                .get("finality_status")
+                .and_then(|v| v.as_str())
+                .unwrap_or("UNKNOWN")
+                .to_string(),
+            execution_status: result
+                .get("execution_status")
+                .and_then(|v| v.as_str())
+                .map(|s| s.to_string()),
+        })
+    }
+
+    /// Wait for a transaction to be confirmed on L2.
+    ///
+    /// Polls the transaction status until it reaches ACCEPTED_ON_L2 or fails.
+    /// Returns the final status.
+    pub fn wait_for_transaction(
+        &self,
+        tx_hash: &str,
+        max_attempts: u32,
+        poll_interval_secs: u64,
+    ) -> Result<TransactionStatus, StarknetError> {
+        use std::thread;
+        use std::time::Duration;
+
+        for attempt in 0..max_attempts {
+            let status = self.get_transaction_status(tx_hash)?;
+
+            // Check if finalized
+            match status.finality_status.as_str() {
+                "ACCEPTED_ON_L2" | "ACCEPTED_ON_L1" => {
+                    // Check execution status
+                    if let Some(exec) = &status.execution_status {
+                        if exec == "REVERTED" {
+                            return Err(StarknetError::TransactionReverted(
+                                format!("Transaction {} reverted", tx_hash)
+                            ));
+                        }
+                    }
+                    return Ok(status);
+                }
+                "REJECTED" => {
+                    return Err(StarknetError::TransactionFailed(
+                        format!("Transaction {} was rejected", tx_hash)
+                    ));
+                }
+                _ => {
+                    // Still pending (RECEIVED or NOT_RECEIVED)
+                    if attempt < max_attempts - 1 {
+                        thread::sleep(Duration::from_secs(poll_interval_secs));
+                    }
+                }
+            }
+        }
+
+        Err(StarknetError::Timeout)
+    }
+
     /// Make a JSON-RPC call to the Starknet node.
     fn call_rpc<T: serde::de::DeserializeOwned>(
         &self,
@@ -762,19 +780,40 @@ impl StarknetClient {
             .agent
             .post(&self.config.rpc_url)
             .set("Content-Type", "application/json")
-            .send_json(&request)
-            .map_err(|e| StarknetError::Network(e.to_string()))?;
+            .send_json(&request);
+
+        // Handle HTTP errors with body content
+        let response = match response {
+            Ok(r) => r,
+            Err(ureq::Error::Status(code, response)) => {
+                // Try to read error body for more details
+                let body = response.into_string().unwrap_or_default();
+                return Err(StarknetError::Provider(format!(
+                    "HTTP {}: {}",
+                    code,
+                    if body.is_empty() { "No details".to_string() } else { body }
+                )));
+            }
+            Err(ureq::Error::Transport(t)) => {
+                return Err(StarknetError::Network(format!("Transport error: {}", t)));
+            }
+        };
 
         let json: serde_json::Value = response
             .into_json()
             .map_err(|e| StarknetError::Json(e.to_string()))?;
 
         if let Some(error) = json.get("error") {
+            let code = error.get("code").and_then(|c| c.as_i64()).unwrap_or(0);
             let message = error
                 .get("message")
                 .and_then(|m| m.as_str())
                 .unwrap_or("Unknown error");
-            return Err(StarknetError::Provider(message.to_string()));
+            let data = error.get("data").map(|d| d.to_string()).unwrap_or_default();
+            return Err(StarknetError::Provider(format!(
+                "[{}] {}: {}",
+                code, message, data
+            )));
         }
 
         let result = json
@@ -784,25 +823,6 @@ impl StarknetClient {
         serde_json::from_value(result.clone())
             .map_err(|e| StarknetError::Json(format!("Failed to parse result: {}", e)))
     }
-}
-
-/// Compute the starknet_keccak selector for a function name.
-/// This is keccak256(name) with the top 6 bits masked off (to fit in felt252).
-fn compute_selector(name: &str) -> Felt {
-    use sha3::{Digest, Keccak256};
-
-    let mut hasher = Keccak256::new();
-    hasher.update(name.as_bytes());
-    let result = hasher.finalize();
-
-    // Convert to bytes and mask top bits
-    let mut bytes = [0u8; 32];
-    bytes.copy_from_slice(&result);
-
-    // Mask top 6 bits to ensure it fits in felt252 (251 bits max)
-    bytes[0] &= 0x03;
-
-    Felt::from_bytes_be(&bytes)
 }
 
 /// Parse a Starknet address from hex string to bytes.

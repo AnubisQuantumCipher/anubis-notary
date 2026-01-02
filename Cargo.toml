@@ -10,11 +10,17 @@ members = [
 exclude = ["verified"]
 
 [workspace.package]
-version = "0.3.6"
+version = "0.3.7"
 edition = "2021"
 authors = ["Anubis Notary Contributors"]
 license = "Apache-2.0 OR MIT"
 rust-version = "1.75"
+repository = "https://github.com/AnubisQuantumCipher/anubis-notary"
+homepage = "https://github.com/AnubisQuantumCipher/anubis-notary"
+documentation = "https://github.com/AnubisQuantumCipher/anubis-notary/tree/main/docs"
+description = "Post-quantum secure notary CLI with formal proofs and blockchain anchoring"
+keywords = ["cryptography", "post-quantum", "notary", "starknet", "mina"]
+categories = ["cryptography", "command-line-utilities"]
 
 [workspace.dependencies]
 subtle = "2"

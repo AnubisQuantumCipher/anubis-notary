@@ -3,6 +3,12 @@ name = "anubis_notary_oracle"
 version = "0.1.0"
 edition = "2024_07"
 cairo-version = "2.9.0"
+description = "STARK-Private Batch Oracle for Anubis Notary - Post-quantum secure document notarization using ZK-STARK proofs. Enables scalable, privacy-preserving cryptographic proof-of-existence for documents, files, and digital assets via Poseidon Merkle roots."
+authors = ["Anubis Notary Team"]
+keywords = ["notary", "oracle", "stark", "zk-proof", "post-quantum", "merkle", "timestamping"]
+license = "MIT"
+repository = "https://github.com/AnubisQuantumCipher/anubis-notary"
+homepage = "https://github.com/AnubisQuantumCipher/anubis-notary"
 
 # See more keys and their definitions at https://docs.swmansion.com/scarb/docs/reference/manifest.html
 

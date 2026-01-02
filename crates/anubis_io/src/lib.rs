@@ -71,7 +71,7 @@ pub use batch_queue::{BatchQueue, BatchQueueEntry};
 pub use starknet::{
     sha256_to_poseidon_felt, AnchorRecord as StarknetAnchorRecord, StarknetAnchorResult,
     StarknetBatchResult, StarknetClient, StarknetConfig, StarknetError, StarknetNetwork,
-    StarknetTimeResult,
+    StarknetTimeResult, TransactionStatus as StarknetTransactionStatus,
 };
 
 pub use rate_limit::{format_delay, RateLimiter};
