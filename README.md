@@ -374,13 +374,12 @@ anubis-notary anchor starknet queue receipt2.receipt
 anubis-notary anchor starknet flush
 ```
 
-### Pre-Deployed Contract (Sepolia)
+### Pre-Deployed Contracts
 
-| Property | Value |
-|----------|-------|
-| **Contract** | `0x04aa72f8dc65247389378621b6ff3e61852d56ddf571b522d03f02dc7f827606` |
-| **Network** | Starknet Sepolia |
-| **Explorer** | [View on Voyager](https://sepolia.voyager.online/contract/0x04aa72f8dc65247389378621b6ff3e61852d56ddf571b522d03f02dc7f827606) |
+| Network | Contract | Explorer |
+|---------|----------|----------|
+| **Mainnet** | `0x01dc1e7ebd8383c27e4620bb724409e2b9258d50ed33d60ce0fcaa4e169c93dc` | [View on Starkscan](https://starkscan.co/contract/0x01dc1e7ebd8383c27e4620bb724409e2b9258d50ed33d60ce0fcaa4e169c93dc) |
+| **Sepolia** | `0x04aa72f8dc65247389378621b6ff3e61852d56ddf571b522d03f02dc7f827606` | [View on Voyager](https://sepolia.voyager.online/contract/0x04aa72f8dc65247389378621b6ff3e61852d56ddf571b522d03f02dc7f827606) |
 
 ### Cost Comparison
 
