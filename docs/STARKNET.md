@@ -60,19 +60,21 @@ sncast account create --name myaccount --network sepolia
 # Output shows your account address - fund it before deployment
 # Address: 0x...
 
-# Deploy the account (requires ~0.001 ETH for gas)
+# Deploy the account (requires ~1 STRK for gas)
 sncast account deploy --name myaccount --network sepolia
 ```
 
 ### 3. Fund Your Account
 
+Starknet uses **STRK** (the native Starknet token) for gas fees.
+
 For **Sepolia testnet**:
-- Use the [Starknet Faucet](https://starknet-faucet.vercel.app/) or
-- Bridge ETH from Ethereum Sepolia via the [Starknet Bridge](https://sepolia.starkgate.starknet.io/)
+- Use the [Starknet Faucet](https://starknet-faucet.vercel.app/)
 
 For **Mainnet**:
-- Bridge ETH from Ethereum mainnet via [StarkGate](https://starkgate.starknet.io/)
-- Or purchase STRK via exchanges and bridge
+- Purchase STRK from exchanges (Binance, OKX, Bybit, Gate.io)
+- Withdraw directly to your Starknet address
+- Or bridge via [StarkGate](https://starkgate.starknet.io/)
 
 ### 4. Set Environment Variables
 
@@ -228,7 +230,7 @@ Output:
 Starknet Batch Queue
 ━━━━━━━━━━━━━━━━━━━
 Queued receipts: 4/8
-Estimated cost:  ~0.000125 ETH per receipt (vs 0.001 single)
+Estimated cost:  ~0.1 STRK per receipt (vs 0.8 STRK single)
 
 Receipts:
   1. receipt1.anb (added 2024-01-15T14:30:00Z)
@@ -276,21 +278,23 @@ Batch anchored at block 847789 (2024-01-15T15:00:00Z)
 
 ## Cost Analysis
 
+Gas fees on Starknet are paid in **STRK** (the native Starknet token).
+
 ### Transaction Costs
 
-| Operation | Sepolia (testnet) | Mainnet (est.) |
-|-----------|-------------------|----------------|
-| Single Anchor | ~0.0001 ETH | ~$0.001 |
-| Batch (8 receipts) | ~0.0001 ETH | ~$0.001 |
-| **Per Receipt (batch)** | ~0.0000125 ETH | ~$0.000125 |
+| Operation | STRK Cost | USD (est.) |
+|-----------|-----------|------------|
+| Single Anchor | ~0.8 STRK | ~$0.001 |
+| Batch (8 receipts) | ~0.8 STRK | ~$0.001 |
+| **Per Receipt (batch)** | ~0.1 STRK | ~$0.000125 |
 
 ### Comparison with Other Chains
 
-| Chain | Single Anchor | Per Receipt (Batch) | Settlement |
-|-------|---------------|---------------------|------------|
-| **Starknet** | ~$0.001 | ~$0.000125 | L1 (Ethereum) |
-| **Mina** | ~$0.08 | ~$0.01 | L1 (Mina) |
-| **Ethereum L1** | ~$5-50 | ~$0.60-6 | L1 |
+| Chain | Single Anchor | Per Receipt (Batch) | Fee Token |
+|-------|---------------|---------------------|-----------|
+| **Starknet** | ~$0.001 | ~$0.000125 | STRK |
+| **Mina** | ~$0.08 | ~$0.01 | MINA |
+| **Ethereum L1** | ~$5-50 | ~$0.60-6 | ETH |
 
 ---
 
@@ -345,7 +349,7 @@ sncast verify \
 - [ ] Set up account monitoring for unexpected transactions
 - [ ] Consider using a multisig for contract ownership
 - [ ] Test thoroughly on Sepolia before mainnet deployment
-- [ ] Budget for gas costs (recommend maintaining 0.01 ETH minimum)
+- [ ] Budget for gas costs (recommend maintaining 10 STRK minimum)
 
 ---
 
@@ -442,7 +446,7 @@ anubis-notary anchor starknet config \
 
 Check that:
 1. Contract is deployed and accessible
-2. You have sufficient ETH for gas
+2. You have sufficient STRK for gas
 3. The root hasn't already been anchored (duplicates are rejected)
 
 ### "Timeout waiting for confirmation"
