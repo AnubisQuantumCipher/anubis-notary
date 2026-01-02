@@ -165,10 +165,10 @@ mod tests {
         // Decrypt all leaves
         let decrypted = decryptor.decrypt_private_batch(&batch).unwrap();
 
-        // Verify content
-        assert_eq!(decrypted[0], receipt1);
-        assert_eq!(decrypted[1], receipt2);
-        assert_eq!(decrypted[2], receipt3);
+        // Verify content (use &* to deref Zeroizing<Vec<u8>> to &[u8])
+        assert_eq!(&*decrypted[0], receipt1);
+        assert_eq!(&*decrypted[1], receipt2);
+        assert_eq!(&*decrypted[2], receipt3);
 
         // Verify Merkle proofs still work
         assert!(batch.verify_leaf(0).unwrap());
@@ -213,6 +213,6 @@ mod tests {
         decryptor.add_share(share2).unwrap();
 
         let decrypted = decryptor.decrypt_private_batch(&restored).unwrap();
-        assert_eq!(decrypted[0], b"test data");
+        assert_eq!(&*decrypted[0], b"test data");
     }
 }

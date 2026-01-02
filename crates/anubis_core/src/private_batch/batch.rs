@@ -379,7 +379,7 @@ mod tests {
         let decrypted1 = batch.leaves[0].decrypt(&session_key).unwrap();
         let decrypted2 = batch.leaves[1].decrypt(&session_key).unwrap();
 
-        assert_eq!(decrypted1, plaintext1);
-        assert_eq!(decrypted2, plaintext2);
+        assert_eq!(&*decrypted1, plaintext1);
+        assert_eq!(&*decrypted2, plaintext2);
     }
 }

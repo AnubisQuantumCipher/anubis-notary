@@ -224,7 +224,7 @@ impl KeyShareEnvelope {
 
         // Decrypt the Shamir share
         let cipher = ChaCha20Poly1305::from_key(&shared_secret);
-        let mut share_bytes = cipher
+        let share_bytes = cipher
             .open_fixed(
                 &recipient_share.nonce,
                 &self.batch_id, // Associated data
@@ -235,10 +235,8 @@ impl KeyShareEnvelope {
         // Zeroize shared secret
         shared_secret.zeroize();
 
-        // Deserialize share, then zeroize the intermediate buffer
-        let result = Share::from_bytes(&share_bytes).map_err(PrivateBatchError::from);
-        share_bytes.zeroize();
-        result
+        // Deserialize share - share_bytes (Zeroizing<Vec<u8>>) auto-zeroizes on drop
+        Share::from_bytes(&share_bytes).map_err(PrivateBatchError::from)
     }
 
     /// Serialize to bytes.
