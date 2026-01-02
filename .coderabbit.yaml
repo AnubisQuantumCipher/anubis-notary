@@ -7,11 +7,7 @@ early_access: true
 enable_free_tier: false
 
 # BRUTAL TONE - No sugarcoating for cryptographic code
-tone_instructions: |
-  Be BRUTALLY HONEST and UNFORGIVING. This is post-quantum cryptographic security software.
-  ANY bug could compromise user security. Point out EVERY issue, no matter how small.
-  Treat this as a hostile security audit. Assume attackers will exploit any weakness.
-  Do NOT praise code - only identify problems. Be direct and technical.
+tone_instructions: "Be BRUTALLY HONEST. This is cryptographic security software. Point out ALL issues. Assume hostile attackers. No praise, only problems."
 
 # =============================================================================
 # REVIEWS CONFIGURATION - ALL FEATURES ENABLED
@@ -32,13 +28,7 @@ reviews:
   profile: "assertive"
   request_changes_workflow: true
   high_level_summary: true
-  high_level_summary_instructions: |
-    Provide executive summary of security posture. Highlight:
-    - Critical vulnerabilities found
-    - Cryptographic implementation issues
-    - Memory safety concerns
-    - Side-channel attack vectors
-    - Missing or incomplete verification
+  high_level_summary_instructions: "Summarize security posture: critical vulns, crypto issues, memory safety, side-channels, missing verification."
   high_level_summary_placeholder: "@coderabbitai summary"
   high_level_summary_in_walkthrough: true
   review_status: true
