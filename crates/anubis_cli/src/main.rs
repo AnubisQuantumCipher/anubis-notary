@@ -2617,43 +2617,159 @@ fn handle_starknet(action: &StarknetCommands, json: bool) -> Result<(), Box<dyn 
                 _ => StarknetNetwork::Mainnet,
             };
 
-            if !json {
-                println!("Starknet Anchor:");
-                println!("  Receipt: {}", receipt.display());
-                println!("  Digest: {}", digest_hex);
-                println!("  Contract: {}", contract_address.unwrap());
-                println!("  Network: {:?}", network);
-                println!();
-                println!("Note: Transaction submission requires starknet CLI.");
-                println!("Use: starknet invoke --address {} --function anchor_root --inputs {}",
-                    contract_address.unwrap(), digest_hex);
-            } else {
-                #[derive(Serialize)]
-                struct AnchorInfo {
-                    receipt: String,
-                    digest: String,
-                    contract: String,
-                    network: String,
-                    invoke_command: String,
-                }
-                let output = JsonOutput::success(AnchorInfo {
-                    receipt: receipt.display().to_string(),
-                    digest: digest_hex.clone(),
-                    contract: contract_address.unwrap().to_string(),
-                    network: format!("{:?}", network).to_lowercase(),
-                    invoke_command: format!(
-                        "starknet invoke --address {} --function anchor_root --inputs {}",
-                        contract_address.unwrap(),
-                        digest_hex
-                    ),
-                });
-                println!("{}", serde_json::to_string_pretty(&output)?);
-            }
+            let rpc_url = config_json
+                .get("rpc_url")
+                .and_then(|v| v.as_str())
+                .map(String::from)
+                .unwrap_or_else(|| network.default_rpc_url().to_string());
 
-            if *wait {
+            let account_address = config_json
+                .get("account_address")
+                .and_then(|v| v.as_str())
+                .map(String::from)
+                .or_else(|| std::env::var("STARKNET_ACCOUNT").ok());
+
+            // Check if we have credentials for native submission
+            let has_private_key = std::env::var("STARKNET_PRIVATE_KEY").is_ok();
+
+            // Convert digest to fixed-size array (needed for both branches)
+            let mut digest_bytes = [0u8; 32];
+            digest_bytes.copy_from_slice(&parsed.digest);
+
+            if has_private_key {
+                // Native transaction submission
                 if !json {
+                    println!("Starknet Anchor (Native Submission):");
+                    println!("  Receipt: {}", receipt.display());
+                    println!("  Digest: {}", digest_hex);
+                    println!("  Contract: {}", contract_address.unwrap());
+                    println!("  Network: {:?}", network);
                     println!();
-                    println!("Note: --wait flag requires transaction hash. Submit via starknet CLI and check explorer.");
+                    println!("Submitting transaction...");
+                }
+
+                let config = StarknetConfig {
+                    network,
+                    rpc_url,
+                    contract_address: Some(contract_address.unwrap().to_string()),
+                    account_address,
+                    fee_multiplier: 1.5,
+                    timeout_secs: 60,
+                };
+
+                let client = StarknetClient::new(config)?;
+
+                match client.anchor_root(&digest_bytes) {
+                    Ok(result) => {
+                        if json {
+                            #[derive(Serialize)]
+                            struct AnchorResult {
+                                success: bool,
+                                tx_hash: String,
+                                contract: String,
+                                network: String,
+                                digest: String,
+                                explorer_url: String,
+                            }
+                            let explorer_base = match network {
+                                StarknetNetwork::Mainnet => "https://starkscan.co",
+                                StarknetNetwork::Sepolia => "https://sepolia.starkscan.co",
+                                StarknetNetwork::Devnet => "http://localhost:5050",
+                            };
+                            let output = JsonOutput::success(AnchorResult {
+                                success: true,
+                                tx_hash: result.tx_hash.clone(),
+                                contract: result.contract_address.clone(),
+                                network: format!("{:?}", network).to_lowercase(),
+                                digest: digest_hex.clone(),
+                                explorer_url: format!("{}/tx/{}", explorer_base, result.tx_hash),
+                            });
+                            println!("{}", serde_json::to_string_pretty(&output)?);
+                        } else {
+                            let explorer_base = match network {
+                                StarknetNetwork::Mainnet => "https://starkscan.co",
+                                StarknetNetwork::Sepolia => "https://sepolia.starkscan.co",
+                                StarknetNetwork::Devnet => "http://localhost:5050",
+                            };
+                            println!();
+                            println!("✓ Transaction submitted successfully!");
+                            println!("  Transaction Hash: {}", result.tx_hash);
+                            println!("  Explorer: {}/tx/{}", explorer_base, result.tx_hash);
+                            println!();
+                            println!("The receipt digest {} has been anchored to Starknet.", digest_hex);
+
+                            if *wait {
+                                println!();
+                                println!("Note: Check the explorer for confirmation status.");
+                            }
+                        }
+                    }
+                    Err(e) => {
+                        if json {
+                            let output: JsonOutput<()> = JsonOutput::error(&format!("Transaction failed: {}", e));
+                            println!("{}", serde_json::to_string_pretty(&output)?);
+                        } else {
+                            println!();
+                            println!("✗ Transaction failed: {}", e);
+                            println!();
+                            println!("Possible causes:");
+                            println!("  - Insufficient funds in account");
+                            println!("  - Invalid private key");
+                            println!("  - Network connectivity issues");
+                            println!("  - Contract not deployed on this network");
+                        }
+                        return Err(Box::new(std::io::Error::new(
+                            std::io::ErrorKind::Other,
+                            format!("Starknet transaction failed: {}", e),
+                        )));
+                    }
+                }
+            } else {
+                // No private key - compute Poseidon hash and show manual instructions
+                // The Poseidon hash fits in felt252 and is what gets anchored on-chain
+                let poseidon_hash = anubis_io::sha256_to_poseidon_felt(&digest_bytes);
+                let poseidon_hex = format!("0x{}", hex::encode(poseidon_hash));
+
+                if !json {
+                    println!("Starknet Anchor:");
+                    println!("  Receipt: {}", receipt.display());
+                    println!("  SHA3-256 Digest: {}", digest_hex);
+                    println!("  Poseidon Hash (on-chain): {}", poseidon_hex);
+                    println!("  Contract: {}", contract_address.unwrap());
+                    println!("  Network: {:?}", network);
+                    println!();
+                    println!("To submit natively, set STARKNET_PRIVATE_KEY and STARKNET_ACCOUNT:");
+                    println!("  export STARKNET_PRIVATE_KEY=0x...");
+                    println!("  export STARKNET_ACCOUNT=0x...");
+                    println!();
+                    println!("Or submit manually via sncast:");
+                    println!("  sncast invoke --contract-address {} --function anchor_root --calldata {}",
+                        contract_address.unwrap(), poseidon_hex);
+                } else {
+                    #[derive(Serialize)]
+                    struct AnchorInfo {
+                        receipt: String,
+                        digest: String,
+                        poseidon_hash: String,
+                        contract: String,
+                        network: String,
+                        manual_required: bool,
+                        invoke_command: String,
+                    }
+                    let output = JsonOutput::success(AnchorInfo {
+                        receipt: receipt.display().to_string(),
+                        digest: digest_hex.clone(),
+                        poseidon_hash: poseidon_hex.clone(),
+                        contract: contract_address.unwrap().to_string(),
+                        network: format!("{:?}", network).to_lowercase(),
+                        manual_required: true,
+                        invoke_command: format!(
+                            "sncast invoke --contract-address {} --function anchor_root --calldata {}",
+                            contract_address.unwrap(),
+                            poseidon_hex
+                        ),
+                    });
+                    println!("{}", serde_json::to_string_pretty(&output)?);
                 }
             }
         }

@@ -37,7 +37,7 @@
 
 use serde::{Deserialize, Serialize};
 use starknet_core::types::Felt;
-use starknet_crypto::poseidon_hash_many;
+use starknet_crypto::{pedersen_hash, poseidon_hash_many};
 use subtle::ConstantTimeEq;
 use thiserror::Error;
 
@@ -115,8 +115,9 @@ impl StarknetNetwork {
     /// Get the default RPC URL for this network.
     pub fn default_rpc_url(&self) -> &'static str {
         match self {
-            StarknetNetwork::Mainnet => "https://starknet-mainnet.public.blastapi.io",
-            StarknetNetwork::Sepolia => "https://starknet-sepolia.public.blastapi.io",
+            // Using dRPC's free public endpoints (reliable and fast)
+            StarknetNetwork::Mainnet => "https://starknet-mainnet.drpc.org",
+            StarknetNetwork::Sepolia => "https://starknet-sepolia.drpc.org",
             StarknetNetwork::Devnet => "http://localhost:5050",
         }
     }
@@ -274,6 +275,31 @@ pub struct StarknetAnchorResult {
     pub root_id: u64,
     /// Contract address used.
     pub contract_address: String,
+    /// The Poseidon hash of the receipt (felt252-safe) that was anchored on-chain.
+    /// This is derived from the SHA3-256 receipt hash.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub poseidon_root: Option<String>,
+}
+
+/// Convert a SHA3-256 hash to a felt252-safe Poseidon hash for Starknet anchoring.
+///
+/// SHA3-256 produces 256-bit hashes, but Starknet's felt252 can only hold values
+/// up to 2^251 - 1. This function securely converts the hash using Poseidon.
+///
+/// The binding chain is: document → SHA3-256 (in receipt) → Poseidon (on-chain)
+/// Both hashes are cryptographically secure, maintaining full integrity guarantees.
+pub fn sha256_to_poseidon_felt(hash: &[u8; 32]) -> [u8; 32] {
+    // Split the 32-byte hash into two 16-byte chunks and convert to felts
+    let hash_as_felts: Vec<Felt> = hash
+        .chunks(16)
+        .map(|chunk| Felt::from_bytes_be_slice(chunk))
+        .collect();
+
+    // Compute Poseidon hash
+    let poseidon_result = poseidon_hash_many(&hash_as_felts);
+
+    // Convert back to bytes
+    poseidon_result.to_bytes_be()
 }
 
 /// Result of a batch anchor operation.
@@ -572,6 +598,153 @@ impl StarknetClient {
         Ok(witness)
     }
 
+    /// Anchor a receipt hash to Starknet by calling anchor_root on the NotaryOracle contract.
+    ///
+    /// This is the native transaction submission that handles:
+    /// 1. Getting account nonce
+    /// 2. Computing transaction hash
+    /// 3. Signing with ECDSA on STARK curve
+    /// 4. Submitting via JSON-RPC
+    ///
+    /// Requires STARKNET_PRIVATE_KEY and STARKNET_ACCOUNT environment variables,
+    /// or account_address in config.
+    pub fn anchor_root(&self, receipt_hash: &[u8; 32]) -> Result<StarknetAnchorResult, StarknetError> {
+        let contract = self.config.contract_address.as_ref()
+            .ok_or_else(|| StarknetError::ConfigError("Contract address required. Run: anubis-notary anchor starknet config --contract <ADDRESS>".to_string()))?;
+
+        // Get private key from environment
+        let private_key_hex = std::env::var("STARKNET_PRIVATE_KEY")
+            .map_err(|_| StarknetError::Account("STARKNET_PRIVATE_KEY environment variable not set".to_string()))?;
+
+        let private_key = Felt::from_hex(&private_key_hex)
+            .map_err(|e| StarknetError::Account(format!("Invalid private key: {}", e)))?;
+
+        // Derive account address from private key or use config
+        let account_address = if let Some(addr) = &self.config.account_address {
+            Felt::from_hex(addr)
+                .map_err(|e| StarknetError::InvalidAddress(format!("Invalid account address: {}", e)))?
+        } else {
+            // Try STARKNET_ACCOUNT env var
+            let account_hex = std::env::var("STARKNET_ACCOUNT")
+                .map_err(|_| StarknetError::Account("STARKNET_ACCOUNT environment variable not set (or use config --account)".to_string()))?;
+            Felt::from_hex(&account_hex)
+                .map_err(|e| StarknetError::InvalidAddress(format!("Invalid account address: {}", e)))?
+        };
+
+        // Parse contract address
+        let contract_felt = Felt::from_hex(contract)
+            .map_err(|e| StarknetError::InvalidAddress(format!("Invalid contract address: {}", e)))?;
+
+        // Convert SHA3-256 receipt hash to felt252-safe value using Poseidon hash.
+        // SHA3-256 is 256 bits but felt252 can only hold 251 bits, so we hash the
+        // receipt hash using Poseidon to create a cryptographically-secure felt252.
+        // The binding is: document → SHA3-256 (receipt) → Poseidon (on-chain)
+        // Both SHA3-256 and Poseidon are cryptographically secure, maintaining integrity.
+        let hash_as_felts: Vec<Felt> = receipt_hash
+            .chunks(16)
+            .map(|chunk| Felt::from_bytes_be_slice(chunk))
+            .collect();
+        let root_felt = poseidon_hash_many(&hash_as_felts);
+
+        // Get nonce
+        let nonce = self.get_nonce(&format!("0x{:064x}", account_address))?;
+        let nonce_felt = Felt::from(nonce);
+
+        // anchor_root selector: sn_keccak("anchor_root") truncated to 250 bits
+        // Precomputed: starknet_keccak(b"anchor_root")
+        let selector = compute_selector("anchor_root");
+
+        // Build invoke transaction v1
+        let chain_id = self.get_chain_id()?;
+        let chain_id_felt = Felt::from_hex(&chain_id)
+            .map_err(|e| StarknetError::ConfigError(format!("Invalid chain ID: {}", e)))?;
+
+        // Estimate fee (we'll use a fixed reasonable value for simplicity)
+        let max_fee = Felt::from(100_000_000_000_000u64); // 0.0001 ETH in wei
+
+        // Compute call hash: H(contract, selector, H(calldata))
+        let calldata_hash = pedersen_hash(&root_felt, &Felt::ZERO);
+        let call_hash = pedersen_hash(&contract_felt, &selector);
+        let call_hash = pedersen_hash(&call_hash, &calldata_hash);
+
+        // Compute transaction hash for invoke v1
+        // H("invoke", version, sender, 0, calldata_hash, max_fee, chain_id, nonce)
+        let prefix = Felt::from_bytes_be_slice(b"invoke");
+        let version = Felt::ONE;
+
+        let mut hash = pedersen_hash(&prefix, &version);
+        hash = pedersen_hash(&hash, &account_address);
+        hash = pedersen_hash(&hash, &Felt::ZERO); // entry_point_selector (0 for account)
+        hash = pedersen_hash(&hash, &call_hash);
+        hash = pedersen_hash(&hash, &max_fee);
+        hash = pedersen_hash(&hash, &chain_id_felt);
+        hash = pedersen_hash(&hash, &nonce_felt);
+
+        // Sign the transaction hash
+        let signature = starknet_crypto::sign(&private_key, &hash, &Felt::from(1u64))
+            .map_err(|e| StarknetError::Account(format!("Signing failed: {:?}", e)))?;
+
+        // Submit transaction via JSON-RPC
+        let tx_request = serde_json::json!({
+            "type": "INVOKE",
+            "version": "0x1",
+            "sender_address": format!("0x{:064x}", account_address),
+            "calldata": [
+                format!("0x1"), // Number of calls
+                format!("0x{:064x}", contract_felt), // Contract address
+                format!("0x{:064x}", selector), // Selector
+                format!("0x0"), // Data offset
+                format!("0x1"), // Data length
+                format!("0x1"), // Total calldata length
+                format!("0x{:064x}", root_felt) // The root to anchor
+            ],
+            "max_fee": format!("0x{:x}", max_fee),
+            "signature": [
+                format!("0x{:064x}", signature.r),
+                format!("0x{:064x}", signature.s)
+            ],
+            "nonce": format!("0x{:x}", nonce)
+        });
+
+        let result = self.call_rpc::<serde_json::Value>(
+            "starknet_addInvokeTransaction",
+            serde_json::json!({ "invoke_transaction": tx_request }),
+        )?;
+
+        let tx_hash = result.get("transaction_hash")
+            .and_then(|v| v.as_str())
+            .ok_or_else(|| StarknetError::Provider("No transaction hash in response".to_string()))?
+            .to_string();
+
+        // Get current time for the result
+        let time = self.get_block_time()?;
+
+        Ok(StarknetAnchorResult {
+            tx_hash,
+            block_number: time.block_number,
+            timestamp: time.timestamp,
+            root_id: 0, // Will be determined when tx is included
+            contract_address: contract.clone(),
+            poseidon_root: Some(format!("0x{:064x}", root_felt)),
+        })
+    }
+
+    /// Get the nonce for an account.
+    pub fn get_nonce(&self, address: &str) -> Result<u64, StarknetError> {
+        let result = self.call_rpc::<String>(
+            "starknet_getNonce",
+            serde_json::json!(["latest", address]),
+        )?;
+
+        u64::from_str_radix(result.trim_start_matches("0x"), 16)
+            .map_err(|e| StarknetError::Provider(format!("Failed to parse nonce: {}", e)))
+    }
+
+    /// Get the chain ID.
+    pub fn get_chain_id(&self) -> Result<String, StarknetError> {
+        self.call_rpc::<String>("starknet_chainId", serde_json::json!([]))
+    }
+
     /// Make a JSON-RPC call to the Starknet node.
     fn call_rpc<T: serde::de::DeserializeOwned>(
         &self,
@@ -611,6 +784,25 @@ impl StarknetClient {
         serde_json::from_value(result.clone())
             .map_err(|e| StarknetError::Json(format!("Failed to parse result: {}", e)))
     }
+}
+
+/// Compute the starknet_keccak selector for a function name.
+/// This is keccak256(name) with the top 6 bits masked off (to fit in felt252).
+fn compute_selector(name: &str) -> Felt {
+    use sha3::{Digest, Keccak256};
+
+    let mut hasher = Keccak256::new();
+    hasher.update(name.as_bytes());
+    let result = hasher.finalize();
+
+    // Convert to bytes and mask top bits
+    let mut bytes = [0u8; 32];
+    bytes.copy_from_slice(&result);
+
+    // Mask top 6 bits to ensure it fits in felt252 (251 bits max)
+    bytes[0] &= 0x03;
+
+    Felt::from_bytes_be(&bytes)
 }
 
 /// Parse a Starknet address from hex string to bytes.

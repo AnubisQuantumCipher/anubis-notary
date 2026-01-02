@@ -35,5 +35,8 @@ dirs = "5"
 starknet-core = "0.16"
 starknet-crypto = "0.8"
 
+# SHA3/Keccak for Starknet selector computation
+sha3 = "0.10"
+
 [dev-dependencies]
 tempfile = "3"
