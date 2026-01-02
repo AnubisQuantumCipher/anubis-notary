@@ -13,7 +13,7 @@ This guide covers deploying Anubis Notary anchoring infrastructure to production
 ### Prerequisites
 
 1. **Production Account**: A funded Starknet mainnet account
-2. **ETH Balance**: Minimum 0.01 ETH recommended for operations
+2. **STRK Balance**: Minimum 10 STRK recommended for operations
 3. **sncast**: Starknet Foundry CLI installed
 
 ### Step 1: Create Mainnet Account
@@ -25,7 +25,7 @@ sncast account create --name anubis-mainnet --network mainnet
 # Output shows account address - fund it before deployment
 # Address: 0x...
 
-# Send 0.01 ETH to this address via StarkGate or exchange
+# Send 10 STRK to this address from an exchange (Binance, OKX, Bybit, Gate.io)
 ```
 
 ### Step 2: Deploy Account
@@ -95,14 +95,16 @@ anubis-notary anchor starknet info
 
 ### Mainnet Costs (Estimated)
 
-| Operation | ETH Cost | USD (@ $3,000/ETH) |
-|-----------|----------|-------------------|
-| Account Deployment | ~0.0005 | ~$1.50 |
-| Contract Declaration | ~0.001 | ~$3.00 |
-| Contract Deployment | ~0.0005 | ~$1.50 |
-| Single Anchor | ~0.00003 | ~$0.09 |
-| Batch Anchor (8 roots) | ~0.00003 | ~$0.09 |
-| **Per Receipt (batch)** | ~0.000004 | ~$0.01 |
+Gas fees on Starknet are paid in **STRK** (the native Starknet token).
+
+| Operation | STRK Cost | USD (@ $1.20/STRK) |
+|-----------|-----------|-------------------|
+| Account Deployment | ~2 STRK | ~$2.40 |
+| Contract Declaration | ~3 STRK | ~$3.60 |
+| Contract Deployment | ~2 STRK | ~$2.40 |
+| Single Anchor | ~0.8 STRK | ~$0.96 |
+| Batch Anchor (8 roots) | ~0.8 STRK | ~$0.96 |
+| **Per Receipt (batch)** | ~0.1 STRK | ~$0.12 |
 
 ---
 
@@ -272,12 +274,12 @@ docker run -e STARKNET_NETWORK=mainnet \
 #!/bin/bash
 # check-balance.sh
 
-MIN_BALANCE="10000000000000000"  # 0.01 ETH in wei
+MIN_BALANCE="10000000000000000000"  # 10 STRK in FRI (smallest unit)
 
-BALANCE=$(anubis-notary anchor starknet balance --json | jq -r '.balance_wei')
+BALANCE=$(anubis-notary anchor starknet balance --json | jq -r '.balance_fri')
 
 if [ "$BALANCE" -lt "$MIN_BALANCE" ]; then
-    echo "WARNING: Low balance: $BALANCE wei"
+    echo "WARNING: Low STRK balance: $BALANCE FRI"
     # Send alert (Slack, email, PagerDuty, etc.)
 fi
 ```
