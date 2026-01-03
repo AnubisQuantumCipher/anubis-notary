@@ -9,6 +9,7 @@ A command-line tool for cryptographic signing, timestamping, licensing, and mult
 [![Proofs](https://img.shields.io/badge/proofs-Rocq%2FCoq-blue.svg)](https://coq.inria.fr/)
 [![Mina](https://img.shields.io/badge/blockchain-Mina%20Protocol-9B4DCA.svg)](https://minaprotocol.com)
 [![Starknet](https://img.shields.io/badge/blockchain-Starknet-EC796B.svg)](https://starknet.io)
+[![Ztarknet](https://img.shields.io/badge/blockchain-Ztarknet-F4B728.svg)](https://ztarknet.cash)
 
 ## Features
 
@@ -30,6 +31,8 @@ A command-line tool for cryptographic signing, timestamping, licensing, and mult
 ### Blockchain Integration
 - **Mina Protocol** - zkApp-based Merkle root anchoring on mainnet (~$0.08/tx)
 - **Starknet** - STARK-private batch anchoring with Cairo contracts (~$0.001/tx)
+- **Ztarknet** - Privacy-preserving anchoring with Zcash L1 settlement (~$0.0005/tx)
+- **Pedersen Commitments** - Hide document hashes on-chain (ZK proofs of existence)
 - **Batch Anchoring** - 8x cost savings with queue-based batch submissions
 - **Native Rust Clients** - Fast RPC/GraphQL clients (no Node.js for reads)
 - **Timestamping** - Immutable blockchain-backed timestamps
@@ -481,6 +484,100 @@ anubis-notary anchor starknet flush
 | `STARKNET_ACCOUNT_NAME` | sncast account name | `anubis-deployer` |
 | `STARKNET_NETWORK` | `mainnet`, `sepolia`, `devnet` | `mainnet` |
 
+## Ztarknet Privacy-Preserving Anchoring
+
+Anubis Notary supports [Ztarknet](https://ztarknet.cash) for **privacy-preserving blockchain anchoring**. Ztarknet is a Starknet-compatible L2 that settles to Zcash L1, inheriting native shielded pool privacy.
+
+### Privacy Modes
+
+| Mode | Description | Use Case |
+|------|-------------|----------|
+| **Public** | Document hash visible on-chain | Open-source attestations, public records |
+| **Selective** | Viewing key required to see hash | Regulatory compliance, audited documents |
+| **Committed** | Only Pedersen commitment on-chain (ZK) | Trade secrets, NDAs, confidential contracts |
+
+### Quick Start
+
+```bash
+# 1. Configure Ztarknet
+anubis-notary anchor ztarknet config --network testnet --contract 0x01dc...
+
+# 2. Anchor with privacy (committed mode - hash hidden)
+anubis-notary attest document.pdf --receipt document.anb
+anubis-notary anchor ztarknet anchor document.anb --mode committed
+
+# Output:
+# Commitment ID: 42
+# Blinding Factor: 05b99557... (SAVE THIS!)
+
+# 3. Later: Reveal if needed
+anubis-notary anchor ztarknet reveal \
+  --commitment-id 42 \
+  --blinding 05b99557... \
+  --original-hash <hash>
+
+# 4. Or grant time-limited disclosure to auditor
+anubis-notary anchor ztarknet disclose \
+  --commitment-id 42 \
+  --recipient 0x123... \
+  --duration 86400  # 24 hours
+```
+
+### Commands
+
+| Command | Description |
+|---------|-------------|
+| `config` | Configure Ztarknet connection |
+| `anchor` | Anchor receipt with privacy mode |
+| `verify` | Verify anchor or commitment |
+| `reveal` | Reveal committed anchor (makes hash public) |
+| `disclose` | Grant time-limited disclosure to auditor |
+| `revoke` | Revoke a disclosure token |
+| `commitment` | Get commitment info by ID |
+| `time` | Get current blockchain time |
+| `balance` | Get account balance |
+| `info` | Show network info and privacy features |
+
+### How Pedersen Commitments Work
+
+```
+Document Hash: H = SHA3-256(document)
+Blinding Factor: r = random 32 bytes
+Commitment: C = Poseidon(H, r)
+
+On-chain: Only C is stored (hash H is hidden)
+To verify: Prover reveals (H, r), verifier checks Poseidon(H, r) == C
+```
+
+**Properties:**
+- **Binding**: Cannot change H after committing (computationally infeasible)
+- **Hiding**: C reveals nothing about H (information-theoretic)
+- **Cairo-compatible**: Uses Poseidon hash for Starknet/Ztarknet compatibility
+
+### Cost Comparison
+
+| Chain | Public Anchor | Committed Anchor | Reveal |
+|-------|---------------|------------------|--------|
+| **Ztarknet** | ~$0.0005 | ~$0.0008 | ~$0.0005 |
+| **Starknet** | ~$0.001 | N/A | N/A |
+| **Mina** | ~$0.08 | N/A | N/A |
+
+### Environment Variables
+
+| Variable | Description | Default |
+|----------|-------------|---------|
+| `ZTARKNET_ACCOUNT` | Account address for signing | - |
+| `ZTARKNET_NETWORK` | `mainnet` or `testnet` | `mainnet` |
+
+### Network Status
+
+Ztarknet is currently in development. The CLI is ready and will work when the network launches.
+
+| Network | RPC URL | L1 Settlement |
+|---------|---------|---------------|
+| **Mainnet** | `https://rpc.ztarknet.cash` | Zcash mainnet |
+| **Testnet** | `https://testnet-rpc.ztarknet.cash` | Zcash testnet |
+
 ## Environment Variables
 
 For CI/CD pipelines and automated workflows:
@@ -582,11 +679,14 @@ anubis-notary/
 │       ├── mina_graphql.rs    # Pure Rust GraphQL client (10-20x faster)
 │       ├── batch_queue.rs     # Batch anchoring queue system
 │       ├── starknet.rs        # Starknet Protocol client
+│       ├── ztarknet.rs        # Ztarknet privacy-preserving client
 │       ├── anchor.rs          # Blockchain anchoring
 │       └── rate_limit.rs      # API rate limiting
-├── starknet-contract/         # Starknet Cairo smart contract
+├── starknet-contract/         # Starknet/Ztarknet Cairo smart contracts
 │   ├── Scarb.toml             # Cairo project config
-│   └── src/lib.cairo          # NotaryOracle contract
+│   └── src/
+│       ├── lib.cairo          # NotaryOracle contract
+│       └── privacy_oracle.cairo # PrivacyOracle for Ztarknet commitments
 ├── mina-zkapp/                # Mina zkApp (TypeScript/o1js)
 │   └── src/AnubisAnchor.ts    # On-chain anchor contract
 ├── mina-bridge/               # Node.js bridge for Rust CLI
