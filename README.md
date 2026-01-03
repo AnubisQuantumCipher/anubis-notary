@@ -42,26 +42,26 @@ A command-line tool for cryptographic signing, timestamping, licensing, and mult
 
 ## Download
 
-### One-Click Download (v0.3.9)
+### One-Click Download (v0.4.0)
 
 Pre-built binaries - no compilation required:
 
 | Platform | Architecture | Download |
 |----------|--------------|----------|
-| **Linux** | x86_64 | [anubis-notary-linux-x86_64](https://github.com/AnubisQuantumCipher/anubis-notary/releases/download/v0.3.9/anubis-notary-linux-x86_64) |
-| **Linux** | ARM64 | [anubis-notary-linux-aarch64](https://github.com/AnubisQuantumCipher/anubis-notary/releases/download/v0.3.9/anubis-notary-linux-aarch64) |
-| **macOS** | Apple Silicon | [anubis-notary-darwin-aarch64](https://github.com/AnubisQuantumCipher/anubis-notary/releases/download/v0.3.9/anubis-notary-darwin-aarch64) |
-| **macOS** | Intel | [anubis-notary-darwin-x86_64](https://github.com/AnubisQuantumCipher/anubis-notary/releases/download/v0.3.9/anubis-notary-darwin-x86_64) |
-| **Windows** | x86_64 | [anubis-notary-windows-x86_64.exe](https://github.com/AnubisQuantumCipher/anubis-notary/releases/download/v0.3.9/anubis-notary-windows-x86_64.exe) |
+| **Linux** | x86_64 | [anubis-notary-linux-x86_64](https://github.com/AnubisQuantumCipher/anubis-notary/releases/download/v0.4.0/anubis-notary-linux-x86_64) |
+| **Linux** | ARM64 | [anubis-notary-linux-aarch64](https://github.com/AnubisQuantumCipher/anubis-notary/releases/download/v0.4.0/anubis-notary-linux-aarch64) |
+| **macOS** | Apple Silicon | [anubis-notary-darwin-aarch64](https://github.com/AnubisQuantumCipher/anubis-notary/releases/download/v0.4.0/anubis-notary-darwin-aarch64) |
+| **macOS** | Intel | [anubis-notary-darwin-x86_64](https://github.com/AnubisQuantumCipher/anubis-notary/releases/download/v0.4.0/anubis-notary-darwin-x86_64) |
+| **Windows** | x86_64 | [anubis-notary-windows-x86_64.exe](https://github.com/AnubisQuantumCipher/anubis-notary/releases/download/v0.4.0/anubis-notary-windows-x86_64.exe) |
 
-[**View All Releases**](https://github.com/AnubisQuantumCipher/anubis-notary/releases) | [SHA256 Checksums](https://github.com/AnubisQuantumCipher/anubis-notary/releases/download/v0.3.9/SHA256SUMS.txt)
+[**View All Releases**](https://github.com/AnubisQuantumCipher/anubis-notary/releases) | [SHA256 Checksums](https://github.com/AnubisQuantumCipher/anubis-notary/releases/download/v0.4.0/SHA256SUMS.txt)
 
 ```bash
 # Linux/macOS: Download, make executable, and run
-curl -LO https://github.com/AnubisQuantumCipher/anubis-notary/releases/download/v0.3.9/anubis-notary-linux-x86_64
+curl -LO https://github.com/AnubisQuantumCipher/anubis-notary/releases/download/v0.4.0/anubis-notary-linux-x86_64
 chmod +x anubis-notary-linux-x86_64
 ./anubis-notary-linux-x86_64 --version
-# Output: anubis-notary 0.3.9
+# Output: anubis-notary 0.4.0
 
 # Verify checksum (optional but recommended)
 sha256sum anubis-notary-linux-x86_64
@@ -177,6 +177,46 @@ anubis-notary multisig execute --config multisig.config --proposal proposal.bin
 # Rotate keys (archives old key)
 anubis-notary key rotate
 ```
+
+### Blockchain-Anchored Marriage System
+
+Create legally binding, post-quantum secure marriage contracts on the blockchain with NFT wedding rings.
+
+```bash
+# Initialize marriage document (monogamy or polygamy template)
+anubis-notary marriage init \
+  --template monogamy \
+  --parties "Alice,Bob" \
+  --jurisdiction "US-CA" \
+  -o marriage.json
+
+# Each party signs with optional vows
+anubis-notary marriage sign marriage.json --party 0 --vows "I take thee..."
+anubis-notary marriage sign marriage.json --party 1 --vows "With this ring..."
+
+# Verify all signatures
+anubis-notary marriage verify marriage.json
+
+# Create on-chain marriage with NFT rings
+anubis-notary marriage create marriage.json --network mainnet --mint-rings
+
+# Manage NFT rings
+anubis-notary marriage rings supply --network mainnet
+anubis-notary marriage rings show 1000 --network mainnet
+
+# Divorce (burns rings automatically)
+anubis-notary marriage divorce --marriage-id 1 --reason "Mutual consent"
+```
+
+**Features:**
+- **Multi-party consent**: All parties must sign before blockchain creation
+- **Personal vows**: SHA3-256 hashed vows stored on-chain in NFT metadata
+- **Polygamy support**: Up to 10 parties (template: `polygamy`)
+- **NFT wedding rings**: ERC721 tokens minted for each party
+- **Automatic ring burning**: Rings burned on divorce
+- **Post-quantum security**: ML-DSA-87 signatures
+
+**Templates:** `simple`, `monogamy`, `polygamy`
 
 ### Single-User File Encryption (ML-KEM-1024)
 
@@ -406,10 +446,26 @@ anubis-notary anchor starknet flush
 
 ### Pre-Deployed Contracts
 
+**NotaryOracle (Timestamping & Anchoring):**
+
 | Network | Contract | Explorer |
 |---------|----------|----------|
 | **Mainnet** | `0x01dc1e7ebd8383c27e4620bb724409e2b9258d50ed33d60ce0fcaa4e169c93dc` | [View on Starkscan](https://starkscan.co/contract/0x01dc1e7ebd8383c27e4620bb724409e2b9258d50ed33d60ce0fcaa4e169c93dc) |
 | **Sepolia** | `0x04aa72f8dc65247389378621b6ff3e61852d56ddf571b522d03f02dc7f827606` | [View on Voyager](https://sepolia.voyager.online/contract/0x04aa72f8dc65247389378621b6ff3e61852d56ddf571b522d03f02dc7f827606) |
+
+**MarriageOracle (Marriage Contracts):**
+
+| Network | Contract | Explorer |
+|---------|----------|----------|
+| **Mainnet** | `0x005d0a4cc5757e6d63dd6f7835c11a373af002e4c2603f040e2f5bf702a71ff8` | [View on Starkscan](https://starkscan.co/contract/0x005d0a4cc5757e6d63dd6f7835c11a373af002e4c2603f040e2f5bf702a71ff8) |
+| **Sepolia** | `0x0457be1c094b09a3f27690388b8a4d70c908fec9b7de45bfb5d152488acd2181` | [View on Voyager](https://sepolia.voyager.online/contract/0x0457be1c094b09a3f27690388b8a4d70c908fec9b7de45bfb5d152488acd2181) |
+
+**AnubisMarriageRing (NFT Wedding Rings):**
+
+| Network | Contract | Explorer |
+|---------|----------|----------|
+| **Mainnet** | `0x00884842791e3542c42140d581edd7ab0327bf6ec276ca9d6201c9168c9f63d3` | [View on Starkscan](https://starkscan.co/contract/0x00884842791e3542c42140d581edd7ab0327bf6ec276ca9d6201c9168c9f63d3) |
+| **Sepolia** | `0x07f579e725cbd8dbac8974245d05824f1024bc0c041d98e0a6133dbd5cdc7090` | [View on Voyager](https://sepolia.voyager.online/contract/0x07f579e725cbd8dbac8974245d05824f1024bc0c041d98e0a6133dbd5cdc7090) |
 
 ### Cost Comparison
 
