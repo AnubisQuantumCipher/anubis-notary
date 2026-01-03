@@ -42,26 +42,26 @@ A command-line tool for cryptographic signing, timestamping, licensing, and mult
 
 ## Download
 
-### One-Click Download (v0.3.8)
+### One-Click Download (v0.3.9)
 
 Pre-built binaries - no compilation required:
 
 | Platform | Architecture | Download |
 |----------|--------------|----------|
-| **Linux** | x86_64 | [anubis-notary-linux-x86_64](https://github.com/AnubisQuantumCipher/anubis-notary/releases/download/v0.3.8/anubis-notary-linux-x86_64) |
-| **Linux** | ARM64 | [anubis-notary-linux-aarch64](https://github.com/AnubisQuantumCipher/anubis-notary/releases/download/v0.3.8/anubis-notary-linux-aarch64) |
-| **macOS** | Apple Silicon | [anubis-notary-darwin-aarch64](https://github.com/AnubisQuantumCipher/anubis-notary/releases/download/v0.3.8/anubis-notary-darwin-aarch64) |
-| **macOS** | Intel | [anubis-notary-darwin-x86_64](https://github.com/AnubisQuantumCipher/anubis-notary/releases/download/v0.3.8/anubis-notary-darwin-x86_64) |
-| **Windows** | x86_64 | [anubis-notary-windows-x86_64.exe](https://github.com/AnubisQuantumCipher/anubis-notary/releases/download/v0.3.8/anubis-notary-windows-x86_64.exe) |
+| **Linux** | x86_64 | [anubis-notary-linux-x86_64](https://github.com/AnubisQuantumCipher/anubis-notary/releases/download/v0.3.9/anubis-notary-linux-x86_64) |
+| **Linux** | ARM64 | [anubis-notary-linux-aarch64](https://github.com/AnubisQuantumCipher/anubis-notary/releases/download/v0.3.9/anubis-notary-linux-aarch64) |
+| **macOS** | Apple Silicon | [anubis-notary-darwin-aarch64](https://github.com/AnubisQuantumCipher/anubis-notary/releases/download/v0.3.9/anubis-notary-darwin-aarch64) |
+| **macOS** | Intel | [anubis-notary-darwin-x86_64](https://github.com/AnubisQuantumCipher/anubis-notary/releases/download/v0.3.9/anubis-notary-darwin-x86_64) |
+| **Windows** | x86_64 | [anubis-notary-windows-x86_64.exe](https://github.com/AnubisQuantumCipher/anubis-notary/releases/download/v0.3.9/anubis-notary-windows-x86_64.exe) |
 
-[**View All Releases**](https://github.com/AnubisQuantumCipher/anubis-notary/releases) | [SHA256 Checksums](https://github.com/AnubisQuantumCipher/anubis-notary/releases/download/v0.3.8/SHA256SUMS.txt)
+[**View All Releases**](https://github.com/AnubisQuantumCipher/anubis-notary/releases) | [SHA256 Checksums](https://github.com/AnubisQuantumCipher/anubis-notary/releases/download/v0.3.9/SHA256SUMS.txt)
 
 ```bash
 # Linux/macOS: Download, make executable, and run
-curl -LO https://github.com/AnubisQuantumCipher/anubis-notary/releases/download/v0.3.8/anubis-notary-linux-x86_64
+curl -LO https://github.com/AnubisQuantumCipher/anubis-notary/releases/download/v0.3.9/anubis-notary-linux-x86_64
 chmod +x anubis-notary-linux-x86_64
 ./anubis-notary-linux-x86_64 --version
-# Output: anubis-notary 0.3.8
+# Output: anubis-notary 0.3.9
 
 # Verify checksum (optional but recommended)
 sha256sum anubis-notary-linux-x86_64

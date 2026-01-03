@@ -499,6 +499,65 @@ anubis-notary anchor starknet flush [--force]
 
 # Check account balance
 anubis-notary anchor starknet balance
+
+# Embed anchor proof into receipt after manual sncast submission
+anubis-notary anchor starknet embed <RECEIPT> --tx-hash <TX_HASH>
+```
+
+---
+
+## Embedding Anchor Proof After Manual sncast
+
+If you submitted an anchor transaction manually via sncast (e.g., for custom fee settings or debugging), you can embed the blockchain proof back into your receipt:
+
+### Step 1: Submit via sncast
+
+```bash
+# Get the Poseidon hash for your receipt
+anubis-notary anchor starknet anchor document.receipt
+# Note the Poseidon hash shown
+
+# Submit manually with sncast
+sncast --account myaccount invoke \
+  --contract-address 0x01dc1e7ebd8383c27e4620bb724409e2b9258d50ed33d60ce0fcaa4e169c93dc \
+  --function anchor_root \
+  --calldata 0x<POSEIDON_HASH> \
+  --url https://rpc.starknet.lava.build
+```
+
+### Step 2: Embed the Proof
+
+```bash
+# Once confirmed, embed the blockchain proof into your receipt
+anubis-notary anchor starknet embed document.receipt \
+  --tx-hash 0x<TX_HASH_FROM_SNCAST>
+```
+
+Output:
+```
+Embedding anchor proof into receipt...
+  TX: 0x042171273526c62b8a023e8f35d8c5df8c8d5679670e7cffaff745d642aa4045
+✓ Receipt updated with Starknet anchor proof!
+  TX: 0x042171273526c62b8a023e8f35d8c5df8c8d5679670e7cffaff745d642aa4045
+  Block: 5095510
+
+The receipt now contains cryptographic proof of when it was anchored.
+```
+
+### Step 3: Verify the Embedded Proof
+
+```bash
+anubis-notary anchor starknet verify document.receipt
+```
+
+Output:
+```
+Starknet Anchor Verification:
+  Contract: 0x01dc1e7ebd8383c27e4620bb724409e2b9258d50ed33d60ce0fcaa4e169c93dc
+  Transaction: 0x042171273526c62b8a023e8f35d8c5df8c8d5679670e7cffaff745d642aa4045
+  Block: 5095510
+  Timestamp: 1735847234
+  Explorer: https://starkscan.co/tx/0x042171273526c62b8a023e8f35d8c5df8c8d5679670e7cffaff745d642aa4045
 ```
 
 ---
