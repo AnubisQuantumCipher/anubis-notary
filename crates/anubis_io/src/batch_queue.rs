@@ -258,7 +258,9 @@ impl BatchQueue {
     /// Find which batch contains a given digest.
     pub fn find_batch(&self, digest: &str) -> Result<Option<BatchRecord>> {
         let history = self.read_history()?;
-        Ok(history.into_iter().find(|b| b.digests.contains(&digest.to_string())))
+        Ok(history
+            .into_iter()
+            .find(|b| b.digests.contains(&digest.to_string())))
     }
 
     /// Read queue entries from file.
@@ -353,7 +355,10 @@ fn serialize_queue_entries(entries: &[BatchQueueEntry]) -> String {
         json.push_str(&format!(
             r#"  {{"digest":"{}","receipt_path":"{}","queued_at":{}}}"#,
             entry.digest,
-            entry.receipt_path.replace('\\', "\\\\").replace('"', "\\\""),
+            entry
+                .receipt_path
+                .replace('\\', "\\\\")
+                .replace('"', "\\\""),
             entry.queued_at
         ));
     }
@@ -421,7 +426,11 @@ fn serialize_batch_records(records: &[BatchRecord]) -> String {
         if i > 0 {
             json.push_str(",\n");
         }
-        let digests_json: Vec<String> = record.digests.iter().map(|d| format!(r#""{}""#, d)).collect();
+        let digests_json: Vec<String> = record
+            .digests
+            .iter()
+            .map(|d| format!(r#""{}""#, d))
+            .collect();
         json.push_str(&format!(
             r#"  {{"batch_id":"{}","digests":[{}],"tx_hash":"{}","block_height":{},"submitted_at":{}}}"#,
             record.batch_id,
@@ -591,10 +600,7 @@ mod tests {
 
     #[test]
     fn test_batch_id_computation() {
-        let digests = vec![
-            hex::encode([1u8; 32]),
-            hex::encode([2u8; 32]),
-        ];
+        let digests = vec![hex::encode([1u8; 32]), hex::encode([2u8; 32])];
 
         let batch_id = compute_batch_id(&digests);
         assert_eq!(batch_id.len(), 64); // 32 bytes hex
@@ -602,13 +608,11 @@ mod tests {
 
     #[test]
     fn test_serialize_parse_entries() {
-        let entries = vec![
-            BatchQueueEntry {
-                digest: "abc123".to_string(),
-                receipt_path: "/path/to/receipt".to_string(),
-                queued_at: 1234567890000,
-            },
-        ];
+        let entries = vec![BatchQueueEntry {
+            digest: "abc123".to_string(),
+            receipt_path: "/path/to/receipt".to_string(),
+            queued_at: 1234567890000,
+        }];
 
         let json = serialize_queue_entries(&entries);
         let parsed = parse_queue_entries(&json).unwrap();

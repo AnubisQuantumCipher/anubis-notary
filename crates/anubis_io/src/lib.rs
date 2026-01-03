@@ -63,9 +63,9 @@ pub mod seal;
 pub mod starknet;
 
 // Mina module exports
+pub use batch_queue::{BatchQueue, BatchQueueEntry};
 pub use mina::{MinaAnchorResult, MinaClient, MinaConfig, MinaError, MinaNetwork, MinaTimeResult};
 pub use mina_graphql::MinaGraphQL;
-pub use batch_queue::{BatchQueue, BatchQueueEntry};
 
 // Starknet module exports
 pub use starknet::{

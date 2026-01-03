@@ -7,7 +7,7 @@ use crate::aead::{ChaCha20Poly1305, KEY_SIZE, NONCE_SIZE};
 use crate::ct::ct_eq;
 use crate::keccak::sha3::sha3_256;
 use crate::mlkem::{MlKemPublicKey, MlKemSecretKey, CIPHERTEXT_SIZE};
-use crate::recovery::{Share, ShamirSharing};
+use crate::recovery::{ShamirSharing, Share};
 use zeroize::Zeroize;
 
 use super::error::PrivateBatchError;
@@ -282,7 +282,8 @@ impl KeyShareEnvelope {
                     "envelope truncated".to_string(),
                 ));
             }
-            let share_len = u32::from_le_bytes(bytes[offset..offset + 4].try_into().unwrap()) as usize;
+            let share_len =
+                u32::from_le_bytes(bytes[offset..offset + 4].try_into().unwrap()) as usize;
             offset += 4;
 
             if offset + share_len > bytes.len() {

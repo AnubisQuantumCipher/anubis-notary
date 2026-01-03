@@ -134,14 +134,18 @@ impl core::fmt::Display for MarriageError {
             MarriageError::InvalidVersion(v) => write!(f, "Invalid version: {}", v),
             MarriageError::TooFewParties => write!(f, "Need at least 2 parties"),
             MarriageError::TooManyParties => write!(f, "Too many parties (max {})", MAX_PARTIES),
-            MarriageError::NameTooLong => write!(f, "Name too long (max {} bytes)", MAX_NAME_LENGTH),
+            MarriageError::NameTooLong => {
+                write!(f, "Name too long (max {} bytes)", MAX_NAME_LENGTH)
+            }
             MarriageError::ClauseTooLong => {
                 write!(f, "Clause too long (max {} bytes)", MAX_CLAUSE_LENGTH)
             }
             MarriageError::TooManyClauses => write!(f, "Too many clauses (max {})", MAX_CLAUSES),
             MarriageError::MissingSignature => write!(f, "Missing required signature"),
             MarriageError::InvalidSignature => write!(f, "Invalid signature format"),
-            MarriageError::SignatureVerificationFailed => write!(f, "Signature verification failed"),
+            MarriageError::SignatureVerificationFailed => {
+                write!(f, "Signature verification failed")
+            }
             MarriageError::PartyNotFound => write!(f, "Party not found"),
             MarriageError::NotFullySigned => write!(f, "Document not fully signed by all parties"),
             MarriageError::InvalidAssetSplit => write!(f, "Invalid asset split format"),
@@ -380,7 +384,11 @@ impl MarriageDocument {
     /// # Arguments
     /// * `party_index` - Index of the signing party
     /// * `secret_key` - Party's ML-DSA-87 secret key
-    pub fn sign(&mut self, party_index: usize, secret_key: &SecretKey) -> Result<(), MarriageError> {
+    pub fn sign(
+        &mut self,
+        party_index: usize,
+        secret_key: &SecretKey,
+    ) -> Result<(), MarriageError> {
         if party_index >= self.parties.len() {
             return Err(MarriageError::PartyNotFound);
         }
@@ -471,7 +479,11 @@ fn encode_marriage_document(doc: &MarriageDocument) -> Vec<u8> {
     let _ = encoder.encode_text("parties");
     let _ = encoder.encode_array_header(doc.parties.len());
     for party in &doc.parties {
-        let map_size = if party.starknet_address.is_some() { 3 } else { 2 };
+        let map_size = if party.starknet_address.is_some() {
+            3
+        } else {
+            2
+        };
         let _ = encoder.encode_map_header(map_size);
         let _ = encoder.encode_text("name");
         let _ = encoder.encode_text(&party.name);
@@ -713,8 +725,7 @@ mod tests {
             custom_clauses: vec![],
         };
 
-        let mut doc =
-            MarriageDocument::new(parties, terms, "NL".to_string(), 1704067200).unwrap();
+        let mut doc = MarriageDocument::new(parties, terms, "NL".to_string(), 1704067200).unwrap();
 
         assert_eq!(doc.parties.len(), 3);
 

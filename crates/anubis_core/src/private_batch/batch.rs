@@ -90,8 +90,7 @@ impl PrivateBatch {
         // Encrypt each leaf
         let mut encrypted_leaves = Vec::with_capacity(plaintext_leaves.len());
         for (index, leaf) in plaintext_leaves.iter().enumerate() {
-            let encrypted =
-                EncryptedLeaf::encrypt(&session_key, leaf, &batch_id, index as u32)?;
+            let encrypted = EncryptedLeaf::encrypt(&session_key, leaf, &batch_id, index as u32)?;
             encrypted_leaves.push(encrypted);
         }
 
@@ -104,13 +103,8 @@ impl PrivateBatch {
         let merkle_root = tree.compute_root()?;
 
         // Create key envelope (splits session key using Shamir + ML-KEM)
-        let key_envelope = KeyShareEnvelope::create(
-            &session_key,
-            batch_id,
-            recipients,
-            threshold,
-            created_at,
-        )?;
+        let key_envelope =
+            KeyShareEnvelope::create(&session_key, batch_id, recipients, threshold, created_at)?;
 
         // Zeroize session key after use
         session_key.zeroize();

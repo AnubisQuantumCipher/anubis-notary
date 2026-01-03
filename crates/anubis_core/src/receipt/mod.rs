@@ -1016,7 +1016,9 @@ impl Receipt {
                 // Decode Merkle witness
                 let witness_bytes = dec.decode_bytes()?;
                 if witness_bytes.len() > MAX_STARKNET_BATCH_WITNESS_SIZE {
-                    return Err(ReceiptError::StarknetBatchWitnessTooLarge(witness_bytes.len()));
+                    return Err(ReceiptError::StarknetBatchWitnessTooLarge(
+                        witness_bytes.len(),
+                    ));
                 }
                 let mut merkle_witness = [0u8; MAX_STARKNET_BATCH_WITNESS_SIZE];
                 let witness_len = witness_bytes.len();

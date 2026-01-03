@@ -257,8 +257,7 @@ pub struct MlKemPublicKey {
 impl Clone for MlKemPublicKey {
     fn clone(&self) -> Self {
         // Clone by reconstructing from bytes
-        Self::from_bytes(self.as_bytes())
-            .expect("cloning valid public key should not fail")
+        Self::from_bytes(self.as_bytes()).expect("cloning valid public key should not fail")
     }
 }
 
