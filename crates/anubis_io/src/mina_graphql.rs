@@ -91,17 +91,13 @@ impl MinaGraphQL {
         let block = extract_json_path(&response, &["data", "bestChain", "0"])
             .ok_or_else(|| MinaError::NetworkError("No block data in response".to_string()))?;
 
-        let height_str = extract_json_path(
-            &block,
-            &["protocolState", "consensusState", "blockHeight"],
-        )
-        .ok_or_else(|| MinaError::InvalidResponse("Missing blockHeight".to_string()))?;
+        let height_str =
+            extract_json_path(&block, &["protocolState", "consensusState", "blockHeight"])
+                .ok_or_else(|| MinaError::InvalidResponse("Missing blockHeight".to_string()))?;
 
-        let timestamp_str = extract_json_path(
-            &block,
-            &["protocolState", "blockchainState", "utcDate"],
-        )
-        .ok_or_else(|| MinaError::InvalidResponse("Missing utcDate".to_string()))?;
+        let timestamp_str =
+            extract_json_path(&block, &["protocolState", "blockchainState", "utcDate"])
+                .ok_or_else(|| MinaError::InvalidResponse("Missing utcDate".to_string()))?;
 
         // Parse numeric values (they come as strings in GraphQL)
         let height: u64 = height_str
@@ -265,11 +261,7 @@ fn bytes_to_field_string(bytes: &[u8; 32]) -> String {
 
     // For now, return as decimal string (matches o1js Field.toString())
     // This is a simplification - full implementation would use proper field arithmetic
-    format!(
-        "{}",
-        value[0] as u128
-            + ((value[1] as u128) << 64)
-    )
+    format!("{}", value[0] as u128 + ((value[1] as u128) << 64))
 }
 
 /// Escape a string for JSON embedding.
@@ -446,10 +438,7 @@ mod tests {
             extract_json_path(json, &["name"]),
             Some(r#""test""#.to_string())
         );
-        assert_eq!(
-            extract_json_path(json, &["value"]),
-            Some("42".to_string())
-        );
+        assert_eq!(extract_json_path(json, &["value"]), Some("42".to_string()));
     }
 
     #[test]

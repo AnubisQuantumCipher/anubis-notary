@@ -38,8 +38,8 @@
 use serde::{Deserialize, Serialize};
 use starknet_core::types::Felt;
 use starknet_crypto::poseidon_hash_many;
-use thiserror::Error;
 use std::process::Command;
+use thiserror::Error;
 
 /// Starknet error types.
 #[derive(Error, Debug)]
@@ -226,7 +226,9 @@ impl StarknetConfig {
     pub fn validate(&self) -> Result<(), StarknetError> {
         // Validate RPC URL
         if self.rpc_url.is_empty() {
-            return Err(StarknetError::ConfigError("RPC URL is required".to_string()));
+            return Err(StarknetError::ConfigError(
+                "RPC URL is required".to_string(),
+            ));
         }
 
         // Validate contract address format if provided
@@ -399,10 +401,7 @@ impl StarknetClient {
             serde_json::json!([{"block_number": block_number}]),
         )?;
 
-        let timestamp = block
-            .get("timestamp")
-            .and_then(|v| v.as_u64())
-            .unwrap_or(0);
+        let timestamp = block.get("timestamp").and_then(|v| v.as_u64()).unwrap_or(0);
 
         Ok(StarknetTimeResult {
             block_number,
@@ -451,12 +450,15 @@ impl StarknetClient {
     ///
     /// Note: The `expected_root` should be the original SHA3-256 receipt hash.
     /// This function will convert it to a Poseidon felt252 for on-chain verification.
-    pub fn verify_anchor(&self, _root_id: u64, expected_root: &[u8; 32]) -> Result<bool, StarknetError> {
-        let contract = self
-            .config
-            .contract_address
-            .as_ref()
-            .ok_or_else(|| StarknetError::ConfigError("Contract address required".to_string()))?;
+    pub fn verify_anchor(
+        &self,
+        _root_id: u64,
+        expected_root: &[u8; 32],
+    ) -> Result<bool, StarknetError> {
+        let contract =
+            self.config.contract_address.as_ref().ok_or_else(|| {
+                StarknetError::ConfigError("Contract address required".to_string())
+            })?;
 
         // Convert the SHA3-256 hash to Poseidon felt252 (same as anchor_root does)
         let high = Felt::from_bytes_be_slice(&expected_root[0..16]);
@@ -516,10 +518,7 @@ impl StarknetClient {
         }
 
         // Convert roots to Felts
-        let felts: Vec<Felt> = roots
-            .iter()
-            .map(|r| Felt::from_bytes_be_slice(r))
-            .collect();
+        let felts: Vec<Felt> = roots.iter().map(|r| Felt::from_bytes_be_slice(r)).collect();
 
         // Compute Poseidon hash
         let hash = poseidon_hash_many(&felts);
@@ -602,7 +601,10 @@ impl StarknetClient {
     /// - `sncast` installed (via `curl -L https://raw.githubusercontent.com/foundry-rs/starknet-foundry/master/scripts/install.sh | sh`)
     /// - A configured account (via `sncast account create --name <name> --network sepolia`)
     /// - STARKNET_ACCOUNT_NAME environment variable set to the account name
-    pub fn anchor_root(&self, receipt_hash: &[u8; 32]) -> Result<StarknetAnchorResult, StarknetError> {
+    pub fn anchor_root(
+        &self,
+        receipt_hash: &[u8; 32],
+    ) -> Result<StarknetAnchorResult, StarknetError> {
         let contract = self.config.contract_address.as_ref()
             .ok_or_else(|| StarknetError::ConfigError("Contract address required. Run: anubis-notary anchor starknet config --contract <ADDRESS>".to_string()))?;
 
@@ -660,10 +662,12 @@ impl StarknetClient {
             .find(|line| line.contains("Transaction Hash:"))
             .and_then(|line| line.split(':').last())
             .map(|s| s.trim().to_string())
-            .ok_or_else(|| StarknetError::Bridge(format!(
-                "Could not find transaction hash in sncast output: {}",
-                stdout
-            )))?;
+            .ok_or_else(|| {
+                StarknetError::Bridge(format!(
+                    "Could not find transaction hash in sncast output: {}",
+                    stdout
+                ))
+            })?;
 
         let timestamp = std::time::SystemTime::now()
             .duration_since(std::time::UNIX_EPOCH)
@@ -682,10 +686,8 @@ impl StarknetClient {
 
     /// Get the nonce for an account.
     pub fn get_nonce(&self, address: &str) -> Result<u64, StarknetError> {
-        let result = self.call_rpc::<String>(
-            "starknet_getNonce",
-            serde_json::json!(["latest", address]),
-        )?;
+        let result =
+            self.call_rpc::<String>("starknet_getNonce", serde_json::json!(["latest", address]))?;
 
         u64::from_str_radix(result.trim_start_matches("0x"), 16)
             .map_err(|e| StarknetError::Provider(format!("Failed to parse nonce: {}", e)))
@@ -699,7 +701,10 @@ impl StarknetClient {
     /// Get transaction status.
     ///
     /// Returns the finality and execution status of a transaction.
-    pub fn get_transaction_status(&self, tx_hash: &str) -> Result<TransactionStatus, StarknetError> {
+    pub fn get_transaction_status(
+        &self,
+        tx_hash: &str,
+    ) -> Result<TransactionStatus, StarknetError> {
         let result = self.call_rpc::<serde_json::Value>(
             "starknet_getTransactionStatus",
             serde_json::json!([tx_hash]),
@@ -717,19 +722,17 @@ impl StarknetClient {
             .map(|s| s.to_string());
 
         // Try to get block number from transaction receipt if confirmed
-        let block_number = if finality_status == "ACCEPTED_ON_L2" || finality_status == "ACCEPTED_ON_L1" {
-            self.call_rpc::<serde_json::Value>(
-                "starknet_getTransactionReceipt",
-                serde_json::json!([tx_hash]),
-            )
-            .ok()
-            .and_then(|receipt| {
-                receipt.get("block_number")
-                    .and_then(|v| v.as_u64())
-            })
-        } else {
-            None
-        };
+        let block_number =
+            if finality_status == "ACCEPTED_ON_L2" || finality_status == "ACCEPTED_ON_L1" {
+                self.call_rpc::<serde_json::Value>(
+                    "starknet_getTransactionReceipt",
+                    serde_json::json!([tx_hash]),
+                )
+                .ok()
+                .and_then(|receipt| receipt.get("block_number").and_then(|v| v.as_u64()))
+            } else {
+                None
+            };
 
         Ok(TransactionStatus {
             finality_status,
@@ -760,17 +763,19 @@ impl StarknetClient {
                     // Check execution status
                     if let Some(exec) = &status.execution_status {
                         if exec == "REVERTED" {
-                            return Err(StarknetError::TransactionReverted(
-                                format!("Transaction {} reverted", tx_hash)
-                            ));
+                            return Err(StarknetError::TransactionReverted(format!(
+                                "Transaction {} reverted",
+                                tx_hash
+                            )));
                         }
                     }
                     return Ok(status);
                 }
                 "REJECTED" => {
-                    return Err(StarknetError::TransactionFailed(
-                        format!("Transaction {} was rejected", tx_hash)
-                    ));
+                    return Err(StarknetError::TransactionFailed(format!(
+                        "Transaction {} was rejected",
+                        tx_hash
+                    )));
                 }
                 _ => {
                     // Still pending (RECEIVED or NOT_RECEIVED)
@@ -812,7 +817,11 @@ impl StarknetClient {
                 return Err(StarknetError::Provider(format!(
                     "HTTP {}: {}",
                     code,
-                    if body.is_empty() { "No details".to_string() } else { body }
+                    if body.is_empty() {
+                        "No details".to_string()
+                    } else {
+                        body
+                    }
                 )));
             }
             Err(ureq::Error::Transport(t)) => {
@@ -880,7 +889,9 @@ mod tests {
         assert!(StarknetNetwork::Sepolia
             .default_rpc_url()
             .contains("sepolia"));
-        assert!(StarknetNetwork::Devnet.default_rpc_url().contains("localhost"));
+        assert!(StarknetNetwork::Devnet
+            .default_rpc_url()
+            .contains("localhost"));
     }
 
     #[test]
@@ -908,8 +919,8 @@ mod tests {
         let config_with_contract = config.with_contract("0x049d36570d4e46f48e99674bd3fcc8");
         assert!(config_with_contract.validate().is_ok());
 
-        let invalid_config = StarknetConfig::new(StarknetNetwork::Mainnet)
-            .with_contract("not_a_valid_hex");
+        let invalid_config =
+            StarknetConfig::new(StarknetNetwork::Mainnet).with_contract("not_a_valid_hex");
         assert!(invalid_config.validate().is_err());
     }
 
@@ -928,17 +939,15 @@ mod tests {
     fn test_parse_address() {
         let addr = "0x049d36570d4e46f48e99674bd3fcc8";
         let bytes = parse_address(addr).unwrap();
-        assert_eq!(&bytes[bytes.len() - 15..], &hex::decode("049d36570d4e46f48e99674bd3fcc8").unwrap()[..]);
+        assert_eq!(
+            &bytes[bytes.len() - 15..],
+            &hex::decode("049d36570d4e46f48e99674bd3fcc8").unwrap()[..]
+        );
     }
 
     #[test]
     fn test_batch_root_computation() {
-        let roots = [
-            [0x11u8; 32],
-            [0x22u8; 32],
-            [0x33u8; 32],
-            [0x44u8; 32],
-        ];
+        let roots = [[0x11u8; 32], [0x22u8; 32], [0x33u8; 32], [0x44u8; 32]];
 
         let batch_root = StarknetClient::compute_batch_root(&roots);
 
@@ -957,12 +966,7 @@ mod tests {
 
     #[test]
     fn test_batch_witness_computation() {
-        let roots = [
-            [0x11u8; 32],
-            [0x22u8; 32],
-            [0x33u8; 32],
-            [0x44u8; 32],
-        ];
+        let roots = [[0x11u8; 32], [0x22u8; 32], [0x33u8; 32], [0x44u8; 32]];
 
         // Should be able to compute witness for valid indices
         let witness = StarknetClient::compute_batch_witness(&roots, 0).unwrap();

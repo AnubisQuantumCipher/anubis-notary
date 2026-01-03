@@ -2331,7 +2331,10 @@ fn handle_anchor(action: &AnchorCommands, json: bool) -> Result<(), Box<dyn std:
     Ok(())
 }
 
-fn handle_starknet(action: &StarknetCommands, json: bool) -> Result<(), Box<dyn std::error::Error>> {
+fn handle_starknet(
+    action: &StarknetCommands,
+    json: bool,
+) -> Result<(), Box<dyn std::error::Error>> {
     use anubis_core::receipt::{AnchorType, Receipt};
     use anubis_io::{StarknetClient, StarknetConfig, StarknetNetwork};
 
@@ -2357,7 +2360,8 @@ fn handle_starknet(action: &StarknetCommands, json: bool) -> Result<(), Box<dyn 
                         println!("{}", serde_json::to_string_pretty(&output)?);
                     } else {
                         println!("Starknet Configuration:");
-                        if let Some(addr) = config.get("contract_address").and_then(|v| v.as_str()) {
+                        if let Some(addr) = config.get("contract_address").and_then(|v| v.as_str())
+                        {
                             println!("  Contract Address: {}", addr);
                         }
                         if let Some(net) = config.get("network").and_then(|v| v.as_str()) {
@@ -2499,18 +2503,21 @@ fn handle_starknet(action: &StarknetCommands, json: bool) -> Result<(), Box<dyn 
                 (StarknetNetwork::Mainnet, None)
             };
 
-            let account_addr = account.clone().or_else(|| {
-                std::env::var("STARKNET_ACCOUNT").ok()
-            });
+            let account_addr = account
+                .clone()
+                .or_else(|| std::env::var("STARKNET_ACCOUNT").ok());
 
             if account_addr.is_none() {
                 if json {
-                    let output: JsonOutput<()> =
-                        JsonOutput::error("No account specified. Use --account or set STARKNET_ACCOUNT.");
+                    let output: JsonOutput<()> = JsonOutput::error(
+                        "No account specified. Use --account or set STARKNET_ACCOUNT.",
+                    );
                     println!("{}", serde_json::to_string_pretty(&output)?);
                 } else {
                     println!("Error: No account specified.");
-                    println!("Use --account <address> or set STARKNET_ACCOUNT environment variable.");
+                    println!(
+                        "Use --account <address> or set STARKNET_ACCOUNT environment variable."
+                    );
                 }
                 return Ok(());
             }
@@ -2588,34 +2595,81 @@ fn handle_starknet(action: &StarknetCommands, json: bool) -> Result<(), Box<dyn 
                         batch_anchor_usd: "~$0.001".to_string(),
                         per_receipt_usd: "~$0.000125 (batch of 8)".to_string(),
                     },
-                    contract_requirements: "Requires STARKNET_PRIVATE_KEY for deployment".to_string(),
+                    contract_requirements: "Requires STARKNET_PRIVATE_KEY for deployment"
+                        .to_string(),
                 });
                 println!("{}", serde_json::to_string_pretty(&output)?);
             } else {
-                println!("╔══════════════════════════════════════════════════════════════════════════╗");
-                println!("║                      STARKNET ANCHORING INFO                             ║");
-                println!("╠══════════════════════════════════════════════════════════════════════════╣");
-                println!("║  NETWORKS                                                                ║");
-                println!("║  ────────                                                                ║");
+                println!(
+                    "╔══════════════════════════════════════════════════════════════════════════╗"
+                );
+                println!(
+                    "║                      STARKNET ANCHORING INFO                             ║"
+                );
+                println!(
+                    "╠══════════════════════════════════════════════════════════════════════════╣"
+                );
+                println!(
+                    "║  NETWORKS                                                                ║"
+                );
+                println!(
+                    "║  ────────                                                                ║"
+                );
                 println!("║  mainnet  - https://rpc.starknet.lava.build                  ║");
-                println!("║            Explorer: https://starkscan.co                                ║");
-                println!("║  sepolia  - https://starknet-sepolia.public.blastapi.io                  ║");
-                println!("║            Explorer: https://sepolia.starkscan.co                        ║");
-                println!("║  devnet   - http://localhost:5050                                        ║");
-                println!("╟──────────────────────────────────────────────────────────────────────────╢");
-                println!("║  COSTS (STARK-efficient, ~100x cheaper than Ethereum L1)                 ║");
-                println!("║  ─────                                                                   ║");
-                println!("║  Single Anchor:  ~$0.001 per transaction                                 ║");
-                println!("║  Batch Anchor:   ~$0.001 for 8 receipts                                  ║");
-                println!("║  Per Receipt:    ~$0.000125 (batch mode)                                 ║");
-                println!("╟──────────────────────────────────────────────────────────────────────────╢");
-                println!("║  FEATURES                                                                ║");
-                println!("║  ────────                                                                ║");
-                println!("║  • ZK-STARK validity proofs (quantum-resistant)                          ║");
-                println!("║  • Poseidon hash for efficient on-chain verification                     ║");
-                println!("║  • Batch anchoring with Merkle witnesses                                 ║");
-                println!("║  • Cairo smart contract for NotaryOracle                                 ║");
-                println!("╚══════════════════════════════════════════════════════════════════════════╝");
+                println!(
+                    "║            Explorer: https://starkscan.co                                ║"
+                );
+                println!(
+                    "║  sepolia  - https://starknet-sepolia.public.blastapi.io                  ║"
+                );
+                println!(
+                    "║            Explorer: https://sepolia.starkscan.co                        ║"
+                );
+                println!(
+                    "║  devnet   - http://localhost:5050                                        ║"
+                );
+                println!(
+                    "╟──────────────────────────────────────────────────────────────────────────╢"
+                );
+                println!(
+                    "║  COSTS (STARK-efficient, ~100x cheaper than Ethereum L1)                 ║"
+                );
+                println!(
+                    "║  ─────                                                                   ║"
+                );
+                println!(
+                    "║  Single Anchor:  ~$0.001 per transaction                                 ║"
+                );
+                println!(
+                    "║  Batch Anchor:   ~$0.001 for 8 receipts                                  ║"
+                );
+                println!(
+                    "║  Per Receipt:    ~$0.000125 (batch mode)                                 ║"
+                );
+                println!(
+                    "╟──────────────────────────────────────────────────────────────────────────╢"
+                );
+                println!(
+                    "║  FEATURES                                                                ║"
+                );
+                println!(
+                    "║  ────────                                                                ║"
+                );
+                println!(
+                    "║  • ZK-STARK validity proofs (quantum-resistant)                          ║"
+                );
+                println!(
+                    "║  • Poseidon hash for efficient on-chain verification                     ║"
+                );
+                println!(
+                    "║  • Batch anchoring with Merkle witnesses                                 ║"
+                );
+                println!(
+                    "║  • Cairo smart contract for NotaryOracle                                 ║"
+                );
+                println!(
+                    "╚══════════════════════════════════════════════════════════════════════════╝"
+                );
                 println!();
                 println!("To get started:");
                 println!("  1. Set STARKNET_PRIVATE_KEY environment variable");
@@ -2651,21 +2705,41 @@ fn handle_starknet(action: &StarknetCommands, json: bool) -> Result<(), Box<dyn 
                 let output = JsonOutput::success(KeygenResult {
                     private_key: format!("{:#x}", private_key),
                     public_key: format!("{:#x}", public_key),
-                    note: "Save the private key securely. Set as STARKNET_PRIVATE_KEY for operations.".to_string(),
+                    note:
+                        "Save the private key securely. Set as STARKNET_PRIVATE_KEY for operations."
+                            .to_string(),
                 });
                 println!("{}", serde_json::to_string_pretty(&output)?);
             } else {
-                println!("╔══════════════════════════════════════════════════════════════════════════╗");
-                println!("║                    STARKNET KEYPAIR GENERATED                            ║");
-                println!("╠══════════════════════════════════════════════════════════════════════════╣");
-                println!("║  Private Key:                                                            ║");
+                println!(
+                    "╔══════════════════════════════════════════════════════════════════════════╗"
+                );
+                println!(
+                    "║                    STARKNET KEYPAIR GENERATED                            ║"
+                );
+                println!(
+                    "╠══════════════════════════════════════════════════════════════════════════╣"
+                );
+                println!(
+                    "║  Private Key:                                                            ║"
+                );
                 println!("║    {:#x}", private_key);
-                println!("║                                                                          ║");
-                println!("║  Public Key:                                                             ║");
+                println!(
+                    "║                                                                          ║"
+                );
+                println!(
+                    "║  Public Key:                                                             ║"
+                );
                 println!("║    {:#x}", public_key);
-                println!("╠══════════════════════════════════════════════════════════════════════════╣");
-                println!("║  ⚠️  SAVE THE PRIVATE KEY SECURELY - IT CANNOT BE RECOVERED              ║");
-                println!("╚══════════════════════════════════════════════════════════════════════════╝");
+                println!(
+                    "╠══════════════════════════════════════════════════════════════════════════╣"
+                );
+                println!(
+                    "║  ⚠️  SAVE THE PRIVATE KEY SECURELY - IT CANNOT BE RECOVERED              ║"
+                );
+                println!(
+                    "╚══════════════════════════════════════════════════════════════════════════╝"
+                );
                 println!();
                 println!("Next steps:");
                 println!("  1. Fund the account with ETH on Starknet");
@@ -2687,7 +2761,9 @@ fn handle_starknet(action: &StarknetCommands, json: bool) -> Result<(), Box<dyn 
                     println!("{}", serde_json::to_string_pretty(&output)?);
                 } else {
                     println!("Error: No private key provided.");
-                    println!("Use --account-key <key> or set STARKNET_PRIVATE_KEY environment variable.");
+                    println!(
+                        "Use --account-key <key> or set STARKNET_PRIVATE_KEY environment variable."
+                    );
                 }
                 return Ok(());
             }
@@ -2710,7 +2786,10 @@ fn handle_starknet(action: &StarknetCommands, json: bool) -> Result<(), Box<dyn 
             };
 
             if !json {
-                println!("Deploying NotaryOracle contract to Starknet {:?}...", network);
+                println!(
+                    "Deploying NotaryOracle contract to Starknet {:?}...",
+                    network
+                );
                 println!("This requires a funded account and may take a few minutes.");
                 println!();
             }
@@ -2736,24 +2815,60 @@ fn handle_starknet(action: &StarknetCommands, json: bool) -> Result<(), Box<dyn 
                 });
                 println!("{}", serde_json::to_string_pretty(&output)?);
             } else {
-                println!("╔══════════════════════════════════════════════════════════════════════════╗");
-                println!("║                    STARKNET CONTRACT DEPLOYMENT                          ║");
-                println!("╠══════════════════════════════════════════════════════════════════════════╣");
-                println!("║  The NotaryOracle Cairo contract requires manual deployment via Scarb:   ║");
-                println!("║                                                                          ║");
-                println!("║  1. Build the contract:                                                  ║");
-                println!("║     cd starknet-contract && scarb build                                  ║");
-                println!("║                                                                          ║");
-                println!("║  2. Declare the contract class:                                          ║");
-                println!("║     starknet declare \\                                                   ║");
-                println!("║       --contract target/dev/anubis_notary_oracle_NotaryOracle.json       ║");
-                println!("║                                                                          ║");
-                println!("║  3. Deploy an instance:                                                  ║");
-                println!("║     starknet deploy --class-hash <HASH> --inputs <OWNER>                 ║");
-                println!("║                                                                          ║");
-                println!("║  4. Configure Anubis:                                                    ║");
-                println!("║     anubis-notary anchor starknet config --contract <ADDRESS>            ║");
-                println!("╚══════════════════════════════════════════════════════════════════════════╝");
+                println!(
+                    "╔══════════════════════════════════════════════════════════════════════════╗"
+                );
+                println!(
+                    "║                    STARKNET CONTRACT DEPLOYMENT                          ║"
+                );
+                println!(
+                    "╠══════════════════════════════════════════════════════════════════════════╣"
+                );
+                println!(
+                    "║  The NotaryOracle Cairo contract requires manual deployment via Scarb:   ║"
+                );
+                println!(
+                    "║                                                                          ║"
+                );
+                println!(
+                    "║  1. Build the contract:                                                  ║"
+                );
+                println!(
+                    "║     cd starknet-contract && scarb build                                  ║"
+                );
+                println!(
+                    "║                                                                          ║"
+                );
+                println!(
+                    "║  2. Declare the contract class:                                          ║"
+                );
+                println!(
+                    "║     starknet declare \\                                                   ║"
+                );
+                println!(
+                    "║       --contract target/dev/anubis_notary_oracle_NotaryOracle.json       ║"
+                );
+                println!(
+                    "║                                                                          ║"
+                );
+                println!(
+                    "║  3. Deploy an instance:                                                  ║"
+                );
+                println!(
+                    "║     starknet deploy --class-hash <HASH> --inputs <OWNER>                 ║"
+                );
+                println!(
+                    "║                                                                          ║"
+                );
+                println!(
+                    "║  4. Configure Anubis:                                                    ║"
+                );
+                println!(
+                    "║     anubis-notary anchor starknet config --contract <ADDRESS>            ║"
+                );
+                println!(
+                    "╚══════════════════════════════════════════════════════════════════════════╝"
+                );
                 if *wait {
                     println!();
                     println!("Note: --wait flag acknowledged but deployment is manual.");
@@ -2763,8 +2878,8 @@ fn handle_starknet(action: &StarknetCommands, json: bool) -> Result<(), Box<dyn 
         StarknetCommands::Anchor { receipt, wait } => {
             // Load receipt
             let receipt_data = read_file(receipt)?;
-            let parsed = Receipt::decode(&receipt_data)
-                .map_err(|e| format!("Invalid receipt: {:?}", e))?;
+            let parsed =
+                Receipt::decode(&receipt_data).map_err(|e| format!("Invalid receipt: {:?}", e))?;
 
             let digest_hex = hex::encode(parsed.digest);
 
@@ -2772,8 +2887,9 @@ fn handle_starknet(action: &StarknetCommands, json: bool) -> Result<(), Box<dyn 
             let config_path = ks.path().join("starknet.json");
             if !config_path.exists() {
                 if json {
-                    let output: JsonOutput<()> =
-                        JsonOutput::error("Starknet not configured. Run 'anchor starknet config' first.");
+                    let output: JsonOutput<()> = JsonOutput::error(
+                        "Starknet not configured. Run 'anchor starknet config' first.",
+                    );
                     println!("{}", serde_json::to_string_pretty(&output)?);
                 } else {
                     println!("Error: Starknet not configured.");
@@ -2785,14 +2901,13 @@ fn handle_starknet(action: &StarknetCommands, json: bool) -> Result<(), Box<dyn 
             let config_data = std::fs::read_to_string(&config_path)?;
             let config_json: serde_json::Value = serde_json::from_str(&config_data)?;
 
-            let contract_address = config_json
-                .get("contract_address")
-                .and_then(|v| v.as_str());
+            let contract_address = config_json.get("contract_address").and_then(|v| v.as_str());
 
             if contract_address.is_none() {
                 if json {
-                    let output: JsonOutput<()> =
-                        JsonOutput::error("No contract address configured. Run 'anchor starknet deploy' first.");
+                    let output: JsonOutput<()> = JsonOutput::error(
+                        "No contract address configured. Run 'anchor starknet deploy' first.",
+                    );
                     println!("{}", serde_json::to_string_pretty(&output)?);
                 } else {
                     println!("Error: No contract address configured.");
@@ -2825,8 +2940,11 @@ fn handle_starknet(action: &StarknetCommands, json: bool) -> Result<(), Box<dyn 
 
             // Check if we have valid credentials for native submission
             // Validate private key format: must start with 0x and be valid hex
-            let private_key = std::env::var("STARKNET_PRIVATE_KEY").ok()
-                .filter(|k| k.starts_with("0x") && k.len() >= 10 && k[2..].chars().all(|c| c.is_ascii_hexdigit()));
+            let private_key = std::env::var("STARKNET_PRIVATE_KEY").ok().filter(|k| {
+                k.starts_with("0x")
+                    && k.len() >= 10
+                    && k[2..].chars().all(|c| c.is_ascii_hexdigit())
+            });
             let has_private_key = private_key.is_some();
 
             // Convert digest to fixed-size array (needed for both branches)
@@ -2912,7 +3030,10 @@ fn handle_starknet(action: &StarknetCommands, json: bool) -> Result<(), Box<dyn 
                                             network: format!("{:?}", network).to_lowercase(),
                                             digest: digest_hex.clone(),
                                             poseidon_root: result.poseidon_root.clone(),
-                                            explorer_url: format!("{}/tx/{}", explorer_base, result.tx_hash),
+                                            explorer_url: format!(
+                                                "{}/tx/{}",
+                                                explorer_base, result.tx_hash
+                                            ),
                                             confirmed: Some(true),
                                             finality_status: Some(status.finality_status.clone()),
                                             execution_status: status.execution_status.clone(),
@@ -2921,7 +3042,10 @@ fn handle_starknet(action: &StarknetCommands, json: bool) -> Result<(), Box<dyn 
                                     } else {
                                         println!();
                                         println!("✓ Transaction confirmed on L2!");
-                                        println!("  Status: {} / {:?}", status.finality_status, status.execution_status);
+                                        println!(
+                                            "  Status: {} / {:?}",
+                                            status.finality_status, status.execution_status
+                                        );
                                         if let Some(block) = status.block_number {
                                             println!("  Block: {}", block);
                                         }
@@ -2931,7 +3055,10 @@ fn handle_starknet(action: &StarknetCommands, json: bool) -> Result<(), Box<dyn 
                                     if !json {
                                         println!();
                                         println!("⚠ Transaction submitted but confirmation timed out: {}", e);
-                                        println!("  Check status manually: {}/tx/{}", explorer_base, result.tx_hash);
+                                        println!(
+                                            "  Check status manually: {}/tx/{}",
+                                            explorer_base, result.tx_hash
+                                        );
                                     }
                                 }
                             }
@@ -2945,7 +3072,10 @@ fn handle_starknet(action: &StarknetCommands, json: bool) -> Result<(), Box<dyn 
                                     network: format!("{:?}", network).to_lowercase(),
                                     digest: digest_hex.clone(),
                                     poseidon_root: result.poseidon_root.clone(),
-                                    explorer_url: format!("{}/tx/{}", explorer_base, result.tx_hash),
+                                    explorer_url: format!(
+                                        "{}/tx/{}",
+                                        explorer_base, result.tx_hash
+                                    ),
                                     confirmed: None,
                                     finality_status: None,
                                     execution_status: None,
@@ -2975,7 +3105,8 @@ fn handle_starknet(action: &StarknetCommands, json: bool) -> Result<(), Box<dyn 
                         }
                         if let Ok(contract_decoded) = hex::decode(contract_str) {
                             contract_addr_len = contract_decoded.len().min(32);
-                            contract_addr_arr[..contract_addr_len].copy_from_slice(&contract_decoded[..contract_addr_len]);
+                            contract_addr_arr[..contract_addr_len]
+                                .copy_from_slice(&contract_decoded[..contract_addr_len]);
                         }
 
                         // Get current timestamp
@@ -2995,8 +3126,8 @@ fn handle_starknet(action: &StarknetCommands, json: bool) -> Result<(), Box<dyn 
                             root_id: 0, // Not available from RPC directly
                         };
 
-                        let updated_receipt = Receipt::new(parsed.digest, parsed.created)
-                            .with_anchor(anchor);
+                        let updated_receipt =
+                            Receipt::new(parsed.digest, parsed.created).with_anchor(anchor);
 
                         // Re-sign the receipt
                         let kp = load_keypair_with_password(&ks)?;
@@ -3020,7 +3151,9 @@ fn handle_starknet(action: &StarknetCommands, json: bool) -> Result<(), Box<dyn 
 
                         // Write updated receipt
                         let mut buf = [0u8; 8192];
-                        let len = signed_receipt.encode(&mut buf).map_err(|e| format!("{:?}", e))?;
+                        let len = signed_receipt
+                            .encode(&mut buf)
+                            .map_err(|e| format!("{:?}", e))?;
                         write_file_atomic(receipt, &buf[..len])?;
 
                         if !json {
@@ -3035,7 +3168,8 @@ fn handle_starknet(action: &StarknetCommands, json: bool) -> Result<(), Box<dyn 
                     }
                     Err(e) => {
                         if json {
-                            let output: JsonOutput<()> = JsonOutput::error(&format!("Transaction failed: {}", e));
+                            let output: JsonOutput<()> =
+                                JsonOutput::error(&format!("Transaction failed: {}", e));
                             println!("{}", serde_json::to_string_pretty(&output)?);
                         } else {
                             println!();
@@ -3105,8 +3239,8 @@ fn handle_starknet(action: &StarknetCommands, json: bool) -> Result<(), Box<dyn 
         StarknetCommands::Verify { receipt } => {
             // Load receipt
             let receipt_data = read_file(receipt)?;
-            let parsed = Receipt::decode(&receipt_data)
-                .map_err(|e| format!("Invalid receipt: {:?}", e))?;
+            let parsed =
+                Receipt::decode(&receipt_data).map_err(|e| format!("Invalid receipt: {:?}", e))?;
 
             // Check if receipt has Starknet anchor
             match &parsed.anchor {
@@ -3225,8 +3359,8 @@ fn handle_starknet(action: &StarknetCommands, json: bool) -> Result<(), Box<dyn 
 
             // Verify the receipt is valid
             let receipt_data = read_file(&receipt)?;
-            let parsed = Receipt::decode(&receipt_data)
-                .map_err(|e| format!("Invalid receipt: {:?}", e))?;
+            let parsed =
+                Receipt::decode(&receipt_data).map_err(|e| format!("Invalid receipt: {:?}", e))?;
 
             // Open batch queue
             let queue_path = ks.path().join("starknet-batch-queue");
@@ -3261,7 +3395,9 @@ fn handle_starknet(action: &StarknetCommands, json: bool) -> Result<(), Box<dyn 
                 println!("  Pending: {}/8 receipts", pending);
                 if pending >= 8 {
                     println!();
-                    println!("Queue is full! Run 'anubis-notary anchor starknet flush' to submit batch.");
+                    println!(
+                        "Queue is full! Run 'anubis-notary anchor starknet flush' to submit batch."
+                    );
                 } else {
                     println!();
                     println!("Add {} more receipts for 8x cost savings.", 8 - pending);
@@ -3277,8 +3413,9 @@ fn handle_starknet(action: &StarknetCommands, json: bool) -> Result<(), Box<dyn 
             let pending = queue.pending()?;
             if pending.is_empty() {
                 if json {
-                    let output: JsonOutput<()> =
-                        JsonOutput::error("Batch queue is empty. Add receipts with 'anchor starknet queue'.");
+                    let output: JsonOutput<()> = JsonOutput::error(
+                        "Batch queue is empty. Add receipts with 'anchor starknet queue'.",
+                    );
                     println!("{}", serde_json::to_string_pretty(&output)?);
                 } else {
                     println!("Batch queue is empty.");
@@ -3303,8 +3440,14 @@ fn handle_starknet(action: &StarknetCommands, json: bool) -> Result<(), Box<dyn 
                     );
                     println!("{}", serde_json::to_string_pretty(&output)?);
                 } else {
-                    println!("Queue has {} receipts (need 8 for optimal batching).", pending.len());
-                    println!("Use --force to submit a partial batch, or add {} more receipts.", 8 - pending.len());
+                    println!(
+                        "Queue has {} receipts (need 8 for optimal batching).",
+                        pending.len()
+                    );
+                    println!(
+                        "Use --force to submit a partial batch, or add {} more receipts.",
+                        8 - pending.len()
+                    );
                 }
                 return Ok(());
             }
@@ -3327,7 +3470,8 @@ fn handle_starknet(action: &StarknetCommands, json: bool) -> Result<(), Box<dyn 
                     status: "ready_for_submission".to_string(),
                     batch_size: pending.len(),
                     roots: roots.clone(),
-                    invoke_hint: "Use 'starknet invoke --function anchor_batch --inputs <roots>'".to_string(),
+                    invoke_hint: "Use 'starknet invoke --function anchor_batch --inputs <roots>'"
+                        .to_string(),
                 });
                 println!("{}", serde_json::to_string_pretty(&output)?);
             } else {
@@ -3339,7 +3483,10 @@ fn handle_starknet(action: &StarknetCommands, json: bool) -> Result<(), Box<dyn 
                 }
                 println!();
                 println!("Submit batch via starknet CLI:");
-                println!("  starknet invoke --function anchor_batch --inputs {}", roots.join(" "));
+                println!(
+                    "  starknet invoke --function anchor_batch --inputs {}",
+                    roots.join(" ")
+                );
             }
         }
         StarknetCommands::QueueStatus => {
@@ -3428,8 +3575,8 @@ fn handle_starknet(action: &StarknetCommands, json: bool) -> Result<(), Box<dyn 
 
             // Load and parse the receipt
             let receipt_data = read_file(receipt)?;
-            let parsed = Receipt::decode(&receipt_data)
-                .map_err(|e| format!("Invalid receipt: {:?}", e))?;
+            let parsed =
+                Receipt::decode(&receipt_data).map_err(|e| format!("Invalid receipt: {:?}", e))?;
 
             if !json {
                 println!("Embedding anchor proof into receipt...");
@@ -3451,8 +3598,14 @@ fn handle_starknet(action: &StarknetCommands, json: bool) -> Result<(), Box<dyn 
             // Check transaction status
             let status = client.get_transaction_status(tx_hash)?;
 
-            if status.finality_status != "ACCEPTED_ON_L2" && status.finality_status != "ACCEPTED_ON_L1" {
-                return Err(format!("Transaction not confirmed yet. Status: {}", status.finality_status).into());
+            if status.finality_status != "ACCEPTED_ON_L2"
+                && status.finality_status != "ACCEPTED_ON_L1"
+            {
+                return Err(format!(
+                    "Transaction not confirmed yet. Status: {}",
+                    status.finality_status
+                )
+                .into());
             }
 
             // Parse tx_hash and contract to bytes
@@ -3470,7 +3623,8 @@ fn handle_starknet(action: &StarknetCommands, json: bool) -> Result<(), Box<dyn 
             }
             if let Ok(contract_decoded) = hex::decode(contract_str) {
                 contract_addr_len = contract_decoded.len().min(32);
-                contract_addr_arr[..contract_addr_len].copy_from_slice(&contract_decoded[..contract_addr_len]);
+                contract_addr_arr[..contract_addr_len]
+                    .copy_from_slice(&contract_decoded[..contract_addr_len]);
             }
 
             // Get timestamp
@@ -3490,8 +3644,7 @@ fn handle_starknet(action: &StarknetCommands, json: bool) -> Result<(), Box<dyn 
                 root_id: 0,
             };
 
-            let updated_receipt = Receipt::new(parsed.digest, parsed.created)
-                .with_anchor(anchor);
+            let updated_receipt = Receipt::new(parsed.digest, parsed.created).with_anchor(anchor);
 
             // Re-sign the receipt
             let kp = load_keypair_with_password(&ks)?;
@@ -3515,7 +3668,9 @@ fn handle_starknet(action: &StarknetCommands, json: bool) -> Result<(), Box<dyn 
 
             // Write updated receipt
             let mut buf = [0u8; 8192];
-            let len = signed_receipt.encode(&mut buf).map_err(|e| format!("{:?}", e))?;
+            let len = signed_receipt
+                .encode(&mut buf)
+                .map_err(|e| format!("{:?}", e))?;
             write_file_atomic(receipt, &buf[..len])?;
 
             if json {
@@ -3563,7 +3718,9 @@ fn handle_mina(action: &MinaCommands, json: bool) -> Result<(), Box<dyn std::err
         } => {
             let config_path = ks.path().join("mina.json");
 
-            if *show || (zkapp.is_none() && network.is_none() && bridge_path.is_none() && fee.is_none()) {
+            if *show
+                || (zkapp.is_none() && network.is_none() && bridge_path.is_none() && fee.is_none())
+            {
                 // Show current configuration
                 if config_path.exists() {
                     let config_data = std::fs::read_to_string(&config_path)?;
@@ -3601,7 +3758,10 @@ fn handle_mina(action: &MinaCommands, json: bool) -> Result<(), Box<dyn std::err
                         println!("{}", serde_json::to_string_pretty(&output)?);
                     } else {
                         println!("Mina Configuration (defaults):");
-                        println!("  zkApp Address: {} (official)", anubis_io::mina::MAINNET_ZKAPP_ADDRESS);
+                        println!(
+                            "  zkApp Address: {} (official)",
+                            anubis_io::mina::MAINNET_ZKAPP_ADDRESS
+                        );
                         println!("  Network: mainnet");
                         println!("  Fee: 0.1 MINA");
                         println!();
@@ -3642,15 +3802,15 @@ fn handle_mina(action: &MinaCommands, json: bool) -> Result<(), Box<dyn std::err
             }
         }
         MinaCommands::Anchor { receipt, wait } => {
-            use std::process::{Command, Stdio};
             use std::io::{BufRead, BufReader, Write as IoWrite};
+            use std::process::{Command, Stdio};
             use std::thread;
             use std::time::Duration;
 
             // Load receipt
             let receipt_data = read_file(receipt)?;
-            let parsed = Receipt::decode(&receipt_data)
-                .map_err(|e| format!("Invalid receipt: {:?}", e))?;
+            let parsed =
+                Receipt::decode(&receipt_data).map_err(|e| format!("Invalid receipt: {:?}", e))?;
 
             let digest_hex = hex::encode(parsed.digest);
 
@@ -3670,7 +3830,9 @@ fn handle_mina(action: &MinaCommands, json: bool) -> Result<(), Box<dyn std::err
 
             if !bridge_script.exists() {
                 if json {
-                    let output: JsonOutput<()> = JsonOutput::error("Mina bridge not installed. Run 'anchor mina setup' first.");
+                    let output: JsonOutput<()> = JsonOutput::error(
+                        "Mina bridge not installed. Run 'anchor mina setup' first.",
+                    );
                     println!("{}", serde_json::to_string_pretty(&output)?);
                 } else {
                     println!("Mina Anchor:");
@@ -3717,24 +3879,28 @@ fn handle_mina(action: &MinaCommands, json: bool) -> Result<(), Box<dyn std::err
             // Wait for bridge to initialize (o1js needs time to load WASM)
             // Compilation is cached after first run, so subsequent anchors are faster
             if !json {
-                println!("  Loading zkApp circuit (first run compiles, ~30-60s; cached runs ~5s)...");
+                println!(
+                    "  Loading zkApp circuit (first run compiles, ~30-60s; cached runs ~5s)..."
+                );
             }
             thread::sleep(Duration::from_millis(2000));
 
             // Send anchor command
             let wait_flag = if *wait { "true" } else { "false" };
-            let cmd = format!(r#"{{"cmd":"anchor","root":"{}","wait":{}}}"#, digest_hex, wait_flag);
+            let cmd = format!(
+                r#"{{"cmd":"anchor","root":"{}","wait":{}}}"#,
+                digest_hex, wait_flag
+            );
             {
-                let stdin = child.stdin.as_mut()
-                    .ok_or("Failed to get stdin")?;
-                writeln!(stdin, "{}", cmd)
-                    .map_err(|e| format!("Failed to send command: {}", e))?;
-                stdin.flush().map_err(|e| format!("Failed to flush: {}", e))?;
+                let stdin = child.stdin.as_mut().ok_or("Failed to get stdin")?;
+                writeln!(stdin, "{}", cmd).map_err(|e| format!("Failed to send command: {}", e))?;
+                stdin
+                    .flush()
+                    .map_err(|e| format!("Failed to flush: {}", e))?;
             }
 
             // Read response with timeout (anchor can take a while due to proof generation)
-            let stdout = child.stdout.take()
-                .ok_or("Failed to get stdout")?;
+            let stdout = child.stdout.take().ok_or("Failed to get stdout")?;
             let mut reader = BufReader::new(stdout);
             let mut response = String::new();
 
@@ -3778,11 +3944,13 @@ fn handle_mina(action: &MinaCommands, json: bool) -> Result<(), Box<dyn std::err
             // Parse response
             if response.contains(r#""ok":true"#) {
                 // Bridge returns "tx" for anchor, "txHash" for deploy
-                let tx_hash: String = response.split(r#""tx":""#)
+                let tx_hash: String = response
+                    .split(r#""tx":""#)
                     .nth(1)
                     .and_then(|s| s.split('"').next())
                     .or_else(|| {
-                        response.split(r#""txHash":""#)
+                        response
+                            .split(r#""txHash":""#)
                             .nth(1)
                             .and_then(|s| s.split('"').next())
                     })
@@ -3822,12 +3990,14 @@ fn handle_mina(action: &MinaCommands, json: bool) -> Result<(), Box<dyn std::err
                     }
                 }
             } else {
-                let err = response.split(r#""error":""#)
+                let err = response
+                    .split(r#""error":""#)
                     .nth(1)
                     .and_then(|s| s.split('"').next())
                     .unwrap_or("Unknown error");
                 if json {
-                    let output: JsonOutput<()> = JsonOutput::error(&format!("Anchor failed: {}", err));
+                    let output: JsonOutput<()> =
+                        JsonOutput::error(&format!("Anchor failed: {}", err));
                     println!("{}", serde_json::to_string_pretty(&output)?);
                 } else {
                     println!();
@@ -3838,8 +4008,8 @@ fn handle_mina(action: &MinaCommands, json: bool) -> Result<(), Box<dyn std::err
         MinaCommands::Verify { receipt } => {
             // Load receipt
             let receipt_data = read_file(receipt)?;
-            let parsed = Receipt::decode(&receipt_data)
-                .map_err(|e| format!("Invalid receipt: {:?}", e))?;
+            let parsed =
+                Receipt::decode(&receipt_data).map_err(|e| format!("Invalid receipt: {:?}", e))?;
 
             // Check if receipt has Mina anchor
             match &parsed.anchor {
@@ -3854,8 +4024,8 @@ fn handle_mina(action: &MinaCommands, json: bool) -> Result<(), Box<dyn std::err
                 } => {
                     let addr_str = std::str::from_utf8(&zkapp_address[..*zkapp_address_len])
                         .unwrap_or("(invalid)");
-                    let tx_str = std::str::from_utf8(&tx_hash[..*tx_hash_len])
-                        .unwrap_or("(invalid)");
+                    let tx_str =
+                        std::str::from_utf8(&tx_hash[..*tx_hash_len]).unwrap_or("(invalid)");
 
                     if json {
                         #[derive(Serialize)]
@@ -3899,7 +4069,9 @@ fn handle_mina(action: &MinaCommands, json: bool) -> Result<(), Box<dyn std::err
 
             if !bridge_script.exists() {
                 if json {
-                    let output: JsonOutput<()> = JsonOutput::error("Mina bridge not installed. Run 'anchor mina setup' first.");
+                    let output: JsonOutput<()> = JsonOutput::error(
+                        "Mina bridge not installed. Run 'anchor mina setup' first.",
+                    );
                     println!("{}", serde_json::to_string_pretty(&output)?);
                 } else {
                     println!("Mina Time:");
@@ -3908,8 +4080,8 @@ fn handle_mina(action: &MinaCommands, json: bool) -> Result<(), Box<dyn std::err
                     println!("Run 'anchor mina setup' to install the Mina bridge.");
                 }
             } else {
-                use std::process::{Command, Stdio};
                 use std::io::{BufRead, BufReader, Write as IoWrite};
+                use std::process::{Command, Stdio};
                 use std::thread;
                 use std::time::Duration;
 
@@ -3927,19 +4099,20 @@ fn handle_mina(action: &MinaCommands, json: bool) -> Result<(), Box<dyn std::err
 
                 // Send time command and flush
                 {
-                    let stdin = child.stdin.as_mut()
-                        .ok_or("Failed to get stdin")?;
+                    let stdin = child.stdin.as_mut().ok_or("Failed to get stdin")?;
                     writeln!(stdin, r#"{{"cmd":"time"}}"#)
                         .map_err(|e| format!("Failed to send command: {}", e))?;
-                    stdin.flush().map_err(|e| format!("Failed to flush: {}", e))?;
+                    stdin
+                        .flush()
+                        .map_err(|e| format!("Failed to flush: {}", e))?;
                 }
 
                 // Read response
-                let stdout = child.stdout.take()
-                    .ok_or("Failed to get stdout")?;
+                let stdout = child.stdout.take().ok_or("Failed to get stdout")?;
                 let mut reader = BufReader::new(stdout);
                 let mut response = String::new();
-                reader.read_line(&mut response)
+                reader
+                    .read_line(&mut response)
                     .map_err(|e| format!("Failed to read response: {}", e))?;
 
                 // Kill the bridge process
@@ -3947,12 +4120,14 @@ fn handle_mina(action: &MinaCommands, json: bool) -> Result<(), Box<dyn std::err
 
                 // Parse response
                 if response.contains(r#""ok":true"#) {
-                    let height: u64 = response.split(r#""height":"#)
+                    let height: u64 = response
+                        .split(r#""height":"#)
                         .nth(1)
                         .and_then(|s| s.split([',', '}']).next())
                         .and_then(|s| s.trim().parse().ok())
                         .unwrap_or(0);
-                    let timestamp: u64 = response.split(r#""timestamp":"#)
+                    let timestamp: u64 = response
+                        .split(r#""timestamp":"#)
                         .nth(1)
                         .and_then(|s| s.split([',', '}']).next())
                         .and_then(|s| s.trim().parse().ok())
@@ -3978,12 +4153,14 @@ fn handle_mina(action: &MinaCommands, json: bool) -> Result<(), Box<dyn std::err
                         println!("  Network: devnet");
                     }
                 } else {
-                    let err = response.split(r#""error":""#)
+                    let err = response
+                        .split(r#""error":""#)
                         .nth(1)
                         .and_then(|s| s.split('"').next())
                         .unwrap_or("Unknown error");
                     if json {
-                        let output: JsonOutput<()> = JsonOutput::error(&format!("Bridge error: {}", err));
+                        let output: JsonOutput<()> =
+                            JsonOutput::error(&format!("Bridge error: {}", err));
                         println!("{}", serde_json::to_string_pretty(&output)?);
                     } else {
                         println!("Mina Time:");
@@ -3995,7 +4172,8 @@ fn handle_mina(action: &MinaCommands, json: bool) -> Result<(), Box<dyn std::err
         MinaCommands::Balance => {
             // Would use MinaClient to get wallet balance
             if json {
-                let output: JsonOutput<()> = JsonOutput::error("Mina bridge not connected. Run 'anchor mina setup' first.");
+                let output: JsonOutput<()> =
+                    JsonOutput::error("Mina bridge not connected. Run 'anchor mina setup' first.");
                 println!("{}", serde_json::to_string_pretty(&output)?);
             } else {
                 println!("Mina Wallet:");
@@ -4070,7 +4248,9 @@ fn handle_mina(action: &MinaCommands, json: bool) -> Result<(), Box<dyn std::err
                     println!("Next steps:");
                     println!("  1. cd {}", bridge_path.display());
                     println!("  2. npm install");
-                    println!("  3. Copy mina-bridge.js from the anubis-notary/mina-zkapp/ directory");
+                    println!(
+                        "  3. Copy mina-bridge.js from the anubis-notary/mina-zkapp/ directory"
+                    );
                     println!();
                     println!("Then configure with:");
                     println!("  anubis-notary anchor mina config --zkapp <your-zkapp-address>");
@@ -4086,8 +4266,9 @@ fn handle_mina(action: &MinaCommands, json: bool) -> Result<(), Box<dyn std::err
 
             if !bridge_script.exists() {
                 if json {
-                    let output: JsonOutput<()> =
-                        JsonOutput::error("Mina bridge not installed. Run 'anchor mina setup' first.");
+                    let output: JsonOutput<()> = JsonOutput::error(
+                        "Mina bridge not installed. Run 'anchor mina setup' first.",
+                    );
                     println!("{}", serde_json::to_string_pretty(&output)?);
                 } else {
                     println!("Mina bridge not installed.");
@@ -4169,7 +4350,10 @@ fn handle_mina(action: &MinaCommands, json: bool) -> Result<(), Box<dyn std::err
                 }
             }
         }
-        MinaCommands::Deploy { fee_payer_key, wait } => {
+        MinaCommands::Deploy {
+            fee_payer_key,
+            wait,
+        } => {
             let bridge_path = dirs::home_dir()
                 .unwrap_or_else(|| PathBuf::from("."))
                 .join(".anubis")
@@ -4178,8 +4362,9 @@ fn handle_mina(action: &MinaCommands, json: bool) -> Result<(), Box<dyn std::err
 
             if !bridge_script.exists() {
                 if json {
-                    let output: JsonOutput<()> =
-                        JsonOutput::error("Mina bridge not installed. Run 'anchor mina setup' first.");
+                    let output: JsonOutput<()> = JsonOutput::error(
+                        "Mina bridge not installed. Run 'anchor mina setup' first.",
+                    );
                     println!("{}", serde_json::to_string_pretty(&output)?);
                 } else {
                     println!("Mina bridge not installed.");
@@ -4334,10 +4519,14 @@ fn handle_mina(action: &MinaCommands, json: bool) -> Result<(), Box<dyn std::err
                                 "zkapp_address": addr,
                                 "fee_mina": 0.1,
                             });
-                            if std::fs::write(&config_path, serde_json::to_string_pretty(&config)?).is_ok() {
+                            if std::fs::write(&config_path, serde_json::to_string_pretty(&config)?)
+                                .is_ok()
+                            {
                                 println!("Configuration saved to: {}", config_path.display());
                                 println!();
-                                println!("You can now use: anubis-notary anchor mina anchor <receipt>");
+                                println!(
+                                    "You can now use: anubis-notary anchor mina anchor <receipt>"
+                                );
                             }
                         }
                     } else if let Some(err) = parsed.get("error").and_then(|v| v.as_str()) {
@@ -4357,8 +4546,9 @@ fn handle_mina(action: &MinaCommands, json: bool) -> Result<(), Box<dyn std::err
 
             if !bridge_script.exists() {
                 if json {
-                    let output: JsonOutput<()> =
-                        JsonOutput::error("Mina bridge not installed. Run 'anchor mina setup' first.");
+                    let output: JsonOutput<()> = JsonOutput::error(
+                        "Mina bridge not installed. Run 'anchor mina setup' first.",
+                    );
                     println!("{}", serde_json::to_string_pretty(&output)?);
                 } else {
                     println!("Mina bridge not installed.");
@@ -4409,13 +4599,16 @@ fn handle_mina(action: &MinaCommands, json: bool) -> Result<(), Box<dyn std::err
                         println!("╟────────────────────────────────────────────────────────────────────────╢");
                         println!("║  DEPLOYMENT COSTS                                                      ║");
                         println!("║  ─────────────────                                                     ║");
-                        if let Some(fee) = parsed.get("accountCreationFee").and_then(|v| v.as_f64()) {
+                        if let Some(fee) = parsed.get("accountCreationFee").and_then(|v| v.as_f64())
+                        {
                             println!("║  Account Creation Fee: {} MINA                                         ║", fee);
                         }
                         if let Some(fee) = parsed.get("transactionFee").and_then(|v| v.as_f64()) {
                             println!("║  Transaction Fee:      {} MINA                                         ║", fee);
                         }
-                        if let Some(total) = parsed.get("totalDeploymentCost").and_then(|v| v.as_f64()) {
+                        if let Some(total) =
+                            parsed.get("totalDeploymentCost").and_then(|v| v.as_f64())
+                        {
                             println!("║  ─────────────────────────────                                         ║");
                             println!("║  TOTAL DEPLOYMENT:     {} MINA                                         ║", total);
                         }
@@ -4428,7 +4621,9 @@ fn handle_mina(action: &MinaCommands, json: bool) -> Result<(), Box<dyn std::err
                         println!("To deploy:");
                         println!("  1. Run: anubis-notary anchor mina keygen");
                         println!("  2. Fund the generated address with 1.1+ MINA");
-                        println!("  3. Run: anubis-notary anchor mina deploy --fee-payer-key <key>");
+                        println!(
+                            "  3. Run: anubis-notary anchor mina deploy --fee-payer-key <key>"
+                        );
                     } else if let Some(err) = parsed.get("error").and_then(|v| v.as_str()) {
                         println!("Error: {}", err);
                     }
@@ -4443,8 +4638,8 @@ fn handle_mina(action: &MinaCommands, json: bool) -> Result<(), Box<dyn std::err
 
             // Verify the receipt is valid
             let receipt_data = read_file(&receipt)?;
-            let parsed = Receipt::decode(&receipt_data)
-                .map_err(|e| format!("Invalid receipt: {:?}", e))?;
+            let parsed =
+                Receipt::decode(&receipt_data).map_err(|e| format!("Invalid receipt: {:?}", e))?;
 
             // Open batch queue
             let queue_path = ks.path().join("mina-batch-queue");
@@ -4479,7 +4674,9 @@ fn handle_mina(action: &MinaCommands, json: bool) -> Result<(), Box<dyn std::err
                 println!("  Pending: {}/8 receipts", pending);
                 if pending >= 8 {
                     println!();
-                    println!("Queue is full! Run 'anubis-notary anchor mina flush' to submit batch.");
+                    println!(
+                        "Queue is full! Run 'anubis-notary anchor mina flush' to submit batch."
+                    );
                 } else {
                     println!();
                     println!("Add {} more receipts for 8x cost savings.", 8 - pending);
@@ -4495,7 +4692,9 @@ fn handle_mina(action: &MinaCommands, json: bool) -> Result<(), Box<dyn std::err
             let pending = queue.pending()?;
             if pending.is_empty() {
                 if json {
-                    let output: JsonOutput<()> = JsonOutput::error("Batch queue is empty. Add receipts with 'anchor mina queue'.");
+                    let output: JsonOutput<()> = JsonOutput::error(
+                        "Batch queue is empty. Add receipts with 'anchor mina queue'.",
+                    );
                     println!("{}", serde_json::to_string_pretty(&output)?);
                 } else {
                     println!("Batch queue is empty.");
@@ -4516,12 +4715,18 @@ fn handle_mina(action: &MinaCommands, json: bool) -> Result<(), Box<dyn std::err
                         NotReadyResult {
                             pending_count: pending.len(),
                             needed: 8 - pending.len(),
-                        }
+                        },
                     );
                     println!("{}", serde_json::to_string_pretty(&output)?);
                 } else {
-                    println!("Queue has {} receipts (need 8 for optimal batching).", pending.len());
-                    println!("Use --force to submit a partial batch, or add {} more receipts.", 8 - pending.len());
+                    println!(
+                        "Queue has {} receipts (need 8 for optimal batching).",
+                        pending.len()
+                    );
+                    println!(
+                        "Use --force to submit a partial batch, or add {} more receipts.",
+                        8 - pending.len()
+                    );
                 }
                 return Ok(());
             }
@@ -4577,11 +4782,14 @@ fn handle_mina(action: &MinaCommands, json: bool) -> Result<(), Box<dyn std::err
 
                 let output = JsonOutput::success(StatusResult {
                     pending_count: pending.len(),
-                    pending: pending.iter().map(|e| PendingEntry {
-                        digest: e.digest.clone(),
-                        receipt_path: e.receipt_path.clone(),
-                        queued_at: e.queued_at,
-                    }).collect(),
+                    pending: pending
+                        .iter()
+                        .map(|e| PendingEntry {
+                            digest: e.digest.clone(),
+                            receipt_path: e.receipt_path.clone(),
+                            queued_at: e.queued_at,
+                        })
+                        .collect(),
                     history_count: history.len(),
                     ready_for_batch: pending.len() >= 8,
                 });
@@ -4607,7 +4815,10 @@ fn handle_mina(action: &MinaCommands, json: bool) -> Result<(), Box<dyn std::err
                         println!("Queue is full! Run 'anubis-notary anchor mina flush' to submit.");
                     } else {
                         println!();
-                        println!("Add {} more receipts for optimal 8x cost savings.", 8 - pending.len());
+                        println!(
+                            "Add {} more receipts for optimal 8x cost savings.",
+                            8 - pending.len()
+                        );
                     }
                 }
             }
@@ -5709,8 +5920,13 @@ fn handle_private_batch(
             let mut recipient_pks: Vec<MlKemPublicKey> = Vec::with_capacity(recipients.len());
             for pk_path in recipients {
                 let pk_bytes = read_file(pk_path)?;
-                let pk = MlKemPublicKey::from_bytes(&pk_bytes)
-                    .map_err(|e| format!("Invalid ML-KEM public key in {}: {:?}", pk_path.display(), e))?;
+                let pk = MlKemPublicKey::from_bytes(&pk_bytes).map_err(|e| {
+                    format!(
+                        "Invalid ML-KEM public key in {}: {:?}",
+                        pk_path.display(),
+                        e
+                    )
+                })?;
                 recipient_pks.push(pk);
             }
 
@@ -5753,7 +5969,11 @@ fn handle_private_batch(
             Ok(())
         }
 
-        PrivateBatchCommands::DecryptShare { batch, secret_key, out } => {
+        PrivateBatchCommands::DecryptShare {
+            batch,
+            secret_key,
+            out,
+        } => {
             // Read batch file
             let batch_bytes = read_file(batch)?;
             let private_batch = PrivateBatch::from_bytes(&batch_bytes)
@@ -5821,18 +6041,23 @@ fn handle_private_batch(
             // Read and add shares
             for share_path in share {
                 let share_bytes = read_file(share_path)?;
-                let decrypted = DecryptedShare::from_bytes(&share_bytes)
-                    .map_err(|e| format!("Failed to parse share file {}: {:?}", share_path.display(), e))?;
+                let decrypted = DecryptedShare::from_bytes(&share_bytes).map_err(|e| {
+                    format!(
+                        "Failed to parse share file {}: {:?}",
+                        share_path.display(),
+                        e
+                    )
+                })?;
 
                 // Verify batch ID matches
                 if decrypted.batch_id != private_batch.batch_id {
-                    return Err(format!(
-                        "Share {} is for a different batch",
-                        share_path.display()
-                    ).into());
+                    return Err(
+                        format!("Share {} is for a different batch", share_path.display()).into(),
+                    );
                 }
 
-                decryptor.add_share(decrypted.share)
+                decryptor
+                    .add_share(decrypted.share)
                     .map_err(|e| format!("Failed to add share: {:?}", e))?;
             }
 
@@ -5842,11 +6067,13 @@ fn handle_private_batch(
                     "Not enough shares. Have {}, need {}",
                     decryptor.shares_collected(),
                     decryptor.threshold()
-                ).into());
+                )
+                .into());
             }
 
             // Decrypt the batch
-            let plaintexts = decryptor.decrypt_private_batch(&private_batch)
+            let plaintexts = decryptor
+                .decrypt_private_batch(&private_batch)
                 .map_err(|e| format!("Failed to decrypt batch: {:?}", e))?;
 
             // Create output directory
@@ -5882,7 +6109,11 @@ fn handle_private_batch(
             Ok(())
         }
 
-        PrivateBatchCommands::Verify { batch, receipt: _, index } => {
+        PrivateBatchCommands::Verify {
+            batch,
+            receipt: _,
+            index,
+        } => {
             // Read batch file
             let batch_bytes = read_file(batch)?;
             let private_batch = PrivateBatch::from_bytes(&batch_bytes)
@@ -5894,11 +6125,13 @@ fn handle_private_batch(
                     "Index {} out of range (batch has {} leaves)",
                     index,
                     private_batch.len()
-                ).into());
+                )
+                .into());
             }
 
             // Verify Merkle proof
-            let valid = private_batch.verify_leaf(*index)
+            let valid = private_batch
+                .verify_leaf(*index)
                 .map_err(|e| format!("Verification failed: {:?}", e))?;
 
             if json {
@@ -5918,7 +6151,11 @@ fn handle_private_batch(
                 println!("{}", serde_json::to_string_pretty(&output)?);
             } else if valid {
                 println!("Verification PASSED");
-                println!("  Leaf {} is included in batch {}", index, hex::encode(private_batch.batch_id));
+                println!(
+                    "  Leaf {} is included in batch {}",
+                    index,
+                    hex::encode(private_batch.batch_id)
+                );
             } else {
                 println!("Verification FAILED");
                 return Err("Merkle proof verification failed".into());
@@ -5944,7 +6181,9 @@ fn handle_private_batch(
                     anchored: bool,
                     recipient_fingerprints: Vec<String>,
                 }
-                let fingerprints: Vec<String> = private_batch.key_envelope.recipient_shares
+                let fingerprints: Vec<String> = private_batch
+                    .key_envelope
+                    .recipient_shares
                     .iter()
                     .map(|rs| hex::encode(rs.recipient_fingerprint))
                     .collect();
@@ -5966,14 +6205,26 @@ fn handle_private_batch(
                 println!("Batch ID:     {}", hex::encode(private_batch.batch_id));
                 println!("Merkle root:  {}", hex::encode(private_batch.merkle_root));
                 println!("Leaves:       {}", private_batch.len());
-                println!("Threshold:    {}-of-{}",
-                    private_batch.key_envelope.threshold,
-                    private_batch.key_envelope.total_shares);
-                println!("Created:      {} (Unix timestamp)", private_batch.created_at);
-                println!("Anchored:     {}", if private_batch.anchored { "Yes" } else { "No" });
+                println!(
+                    "Threshold:    {}-of-{}",
+                    private_batch.key_envelope.threshold, private_batch.key_envelope.total_shares
+                );
+                println!(
+                    "Created:      {} (Unix timestamp)",
+                    private_batch.created_at
+                );
+                println!(
+                    "Anchored:     {}",
+                    if private_batch.anchored { "Yes" } else { "No" }
+                );
                 println!();
                 println!("Recipients:");
-                for (i, rs) in private_batch.key_envelope.recipient_shares.iter().enumerate() {
+                for (i, rs) in private_batch
+                    .key_envelope
+                    .recipient_shares
+                    .iter()
+                    .enumerate()
+                {
                     println!("  {}: {}", i, hex::encode(rs.recipient_fingerprint));
                 }
             }
@@ -6464,7 +6715,11 @@ fn handle_marriage(
                 },
                 "simple" => MarriageTerms::default(),
                 _ => {
-                    return Err(format!("Unknown template: {}. Use: monogamy, polygamy, simple", template).into());
+                    return Err(format!(
+                        "Unknown template: {}. Use: monogamy, polygamy, simple",
+                        template
+                    )
+                    .into());
                 }
             };
 
@@ -6559,14 +6814,25 @@ fn handle_marriage(
                 println!("  Parties: {:?}", party_names);
                 println!("  Jurisdiction: {}", jurisdiction);
                 println!("\nNext steps:");
-                println!("  1. Each party signs: anubis-notary marriage sign {} --party <index>", out.display());
-                println!("  2. Create on-chain: anubis-notary marriage create {}", out.display());
+                println!(
+                    "  1. Each party signs: anubis-notary marriage sign {} --party <index>",
+                    out.display()
+                );
+                println!(
+                    "  2. Create on-chain: anubis-notary marriage create {}",
+                    out.display()
+                );
             }
 
             Ok(())
         }
 
-        MarriageCommands::Sign { document, party, vows, out } => {
+        MarriageCommands::Sign {
+            document,
+            party,
+            vows,
+            out,
+        } => {
             // Load keystore and keypair
             let ks = Keystore::open(Keystore::default_path())?;
             let keypair = load_keypair_with_password(&ks)?;
@@ -6583,7 +6849,9 @@ fn handle_marriage(
                 .unwrap_or(0);
 
             if *party >= party_count {
-                return Err(format!("Party index {} out of range (0-{})", party, party_count - 1).into());
+                return Err(
+                    format!("Party index {} out of range (0-{})", party, party_count - 1).into(),
+                );
             }
 
             // Get party name for display
@@ -6640,7 +6908,10 @@ fn handle_marriage(
                 let output = JsonOutput::success(output_data);
                 println!("{}", serde_json::to_string_pretty(&output)?);
             } else {
-                println!("Marriage document signed by party {} ({})", party, party_name);
+                println!(
+                    "Marriage document signed by party {} ({})",
+                    party, party_name
+                );
                 println!("  Document: {}", output_path.display());
                 if let Some(ref vh) = vows_hash {
                     println!("  Vows hash: {}", vh);
@@ -6681,20 +6952,32 @@ fn handle_marriage(
                 if fully_signed {
                     println!("  Status: FULLY SIGNED - Ready for on-chain creation");
                 } else {
-                    println!("  Status: PENDING - {} more signature(s) needed", party_count - sig_count);
+                    println!(
+                        "  Status: PENDING - {} more signature(s) needed",
+                        party_count - sig_count
+                    );
                 }
             }
 
             Ok(())
         }
 
-        MarriageCommands::Create { document, network, mint_rings, wait: _ } => {
+        MarriageCommands::Create {
+            document,
+            network,
+            mint_rings,
+            wait: _,
+        } => {
             let doc_str = std::fs::read_to_string(&document)?;
             let doc_value: serde_json::Value = serde_json::from_str(&doc_str)?;
 
-            let parties = doc_value["parties"].as_array().ok_or("No parties in document")?;
+            let parties = doc_value["parties"]
+                .as_array()
+                .ok_or("No parties in document")?;
             let party_count = parties.len();
-            let signatures = doc_value["signatures"].as_array().ok_or("No signatures in document")?;
+            let signatures = doc_value["signatures"]
+                .as_array()
+                .ok_or("No signatures in document")?;
             let sig_count = signatures.len();
 
             if sig_count != party_count {
@@ -6721,7 +7004,8 @@ fn handle_marriage(
                 "mainnet" => contracts::MARRIAGE_RING_MAINNET,
                 _ => contracts::MARRIAGE_RING_SEPOLIA,
             };
-            let account_name = std::env::var("STARKNET_ACCOUNT_NAME").unwrap_or_else(|_| "anubis-deployer".to_string());
+            let account_name = std::env::var("STARKNET_ACCOUNT_NAME")
+                .unwrap_or_else(|_| "anubis-deployer".to_string());
 
             if !json {
                 println!("Creating marriage on Starknet ({})...", network);
@@ -6731,12 +7015,20 @@ fn handle_marriage(
 
             // Get next marriage ID (current count + 1 since create_marriage increments after)
             let count_output = std::process::Command::new("sncast")
-                .args(["call", "--url", rpc_url, "--contract-address", marriage_contract,
-                       "--function", "get_marriage_count"])
+                .args([
+                    "call",
+                    "--url",
+                    rpc_url,
+                    "--contract-address",
+                    marriage_contract,
+                    "--function",
+                    "get_marriage_count",
+                ])
                 .output()?;
             let count_str = String::from_utf8_lossy(&count_output.stdout);
             // Parse "Response:     7_u64" or "Response Raw: [0x7]" format
-            let marriage_id: u64 = count_str.lines()
+            let marriage_id: u64 = count_str
+                .lines()
                 .find(|l| l.contains("Response:") && !l.contains("Raw"))
                 .and_then(|l| {
                     // Extract number from "Response:     7_u64"
@@ -6747,13 +7039,28 @@ fn handle_marriage(
                 })
                 .or_else(|| {
                     // Fallback: try parsing hex from Raw response
-                    count_str.lines()
-                        .find(|l| l.contains("0x"))
-                        .and_then(|l| {
-                            l.split("0x").nth(1)
-                                .and_then(|s| s.chars().take_while(|c| c.is_ascii_hexdigit()).collect::<String>().parse().ok())
-                                .or_else(|| u64::from_str_radix(&l.split("0x").nth(1)?.chars().take_while(|c| c.is_ascii_hexdigit()).collect::<String>(), 16).ok())
-                        })
+                    count_str.lines().find(|l| l.contains("0x")).and_then(|l| {
+                        l.split("0x")
+                            .nth(1)
+                            .and_then(|s| {
+                                s.chars()
+                                    .take_while(|c| c.is_ascii_hexdigit())
+                                    .collect::<String>()
+                                    .parse()
+                                    .ok()
+                            })
+                            .or_else(|| {
+                                u64::from_str_radix(
+                                    &l.split("0x")
+                                        .nth(1)?
+                                        .chars()
+                                        .take_while(|c| c.is_ascii_hexdigit())
+                                        .collect::<String>(),
+                                    16,
+                                )
+                                .ok()
+                            })
+                    })
                 })
                 .unwrap_or(1);
 
@@ -6771,7 +7078,10 @@ fn handle_marriage(
 
             // Add placeholder partner addresses (use account address for demo)
             for _ in 0..party_count {
-                calldata.push("0x0634a183f349e68fde9719a3c3bbc83faf557afcad28b143ae99340f2bb2458e".to_string());
+                calldata.push(
+                    "0x0634a183f349e68fde9719a3c3bbc83faf557afcad28b143ae99340f2bb2458e"
+                        .to_string(),
+                );
             }
             calldata.push(cert_hash_felt.clone());
             calldata.push("0".to_string()); // anchor_id
@@ -6781,10 +7091,19 @@ fn handle_marriage(
 
             // Create marriage on-chain
             let create_output = std::process::Command::new("sncast")
-                .args(["--account", &account_name, "invoke", "--url", rpc_url,
-                       "--contract-address", marriage_contract,
-                       "--function", "create_marriage",
-                       "--calldata", &calldata_str])
+                .args([
+                    "--account",
+                    &account_name,
+                    "invoke",
+                    "--url",
+                    rpc_url,
+                    "--contract-address",
+                    marriage_contract,
+                    "--function",
+                    "create_marriage",
+                    "--calldata",
+                    &calldata_str,
+                ])
                 .output()?;
 
             let create_stdout = String::from_utf8_lossy(&create_output.stdout);
@@ -6795,7 +7114,8 @@ fn handle_marriage(
             }
 
             // Extract transaction hash
-            let tx_hash = create_stdout.lines()
+            let tx_hash = create_stdout
+                .lines()
                 .find(|l| l.contains("transaction_hash"))
                 .and_then(|l| l.split(':').nth(1).or(l.split('=').nth(1)))
                 .map(|s| s.trim().to_string())
@@ -6818,7 +7138,8 @@ fn handle_marriage(
                 for (i, sig) in signatures.iter().enumerate() {
                     // Get vows hash or compute from party name
                     // Truncate to 31 bytes (62 hex chars) to fit in felt252
-                    let vows_hash = sig.get("vows_hash")
+                    let vows_hash = sig
+                        .get("vows_hash")
                         .and_then(|v| v.as_str())
                         .map(|s| {
                             // Truncate "0x..." hash to fit felt252 (max 31 bytes = 62 hex chars)
@@ -6836,7 +7157,8 @@ fn handle_marriage(
                     vows_hashes.push(vows_hash);
 
                     // Get party name hash
-                    let party_name = parties.get(i)
+                    let party_name = parties
+                        .get(i)
                         .and_then(|p| p["name"].as_str())
                         .unwrap_or("Partner");
                     let name_hash_bytes = anubis_core::keccak::sha3_256(party_name.as_bytes());
@@ -6845,14 +7167,15 @@ fn handle_marriage(
 
                 // Build mint calldata
                 // mint_rings(marriage_id, partner_count, partners[], name_hashes[], vows_hashes[], marriage_hash)
-                let mut mint_calldata: Vec<String> = vec![
-                    next_marriage_id.to_string(),
-                    party_count.to_string(),
-                ];
+                let mut mint_calldata: Vec<String> =
+                    vec![next_marriage_id.to_string(), party_count.to_string()];
 
                 // Partner addresses (placeholders)
                 for _ in 0..party_count {
-                    mint_calldata.push("0x0634a183f349e68fde9719a3c3bbc83faf557afcad28b143ae99340f2bb2458e".to_string());
+                    mint_calldata.push(
+                        "0x0634a183f349e68fde9719a3c3bbc83faf557afcad28b143ae99340f2bb2458e"
+                            .to_string(),
+                    );
                 }
 
                 // Name hashes
@@ -6873,16 +7196,26 @@ fn handle_marriage(
                 let mint_calldata_str = mint_calldata.join(" ");
 
                 let mint_output = std::process::Command::new("sncast")
-                    .args(["--account", &account_name, "invoke", "--url", rpc_url,
-                           "--contract-address", ring_contract,
-                           "--function", "mint_rings",
-                           "--calldata", &mint_calldata_str])
+                    .args([
+                        "--account",
+                        &account_name,
+                        "invoke",
+                        "--url",
+                        rpc_url,
+                        "--contract-address",
+                        ring_contract,
+                        "--function",
+                        "mint_rings",
+                        "--calldata",
+                        &mint_calldata_str,
+                    ])
                     .output()?;
 
                 let mint_stdout = String::from_utf8_lossy(&mint_output.stdout);
 
                 if mint_output.status.success() {
-                    let mint_tx = mint_stdout.lines()
+                    let mint_tx = mint_stdout
+                        .lines()
                         .find(|l| l.contains("transaction_hash"))
                         .and_then(|l| l.split(':').nth(1).or(l.split('=').nth(1)))
                         .map(|s| s.trim().to_string())
@@ -6892,7 +7225,8 @@ fn handle_marriage(
                         println!("  Rings minted! TX: {}", mint_tx);
                         for i in 0..party_count {
                             let token_id = next_marriage_id * 1000 + i as u64;
-                            let party_name = parties.get(i)
+                            let party_name = parties
+                                .get(i)
                                 .and_then(|p| p["name"].as_str())
                                 .unwrap_or("Partner");
                             println!("    Ring #{} for {}", token_id, party_name);
@@ -6924,17 +7258,28 @@ fn handle_marriage(
                 let output = JsonOutput::success(output_data);
                 println!("{}", serde_json::to_string_pretty(&output)?);
             } else {
-                println!("\nMarriage #{} successfully created on Starknet!", next_marriage_id);
+                println!(
+                    "\nMarriage #{} successfully created on Starknet!",
+                    next_marriage_id
+                );
                 if !*mint_rings {
                     println!("\nTo mint NFT rings, run:");
-                    println!("  anubis-notary marriage rings mint --marriage-id {}", next_marriage_id);
+                    println!(
+                        "  anubis-notary marriage rings mint --marriage-id {}",
+                        next_marriage_id
+                    );
                 }
             }
 
             Ok(())
         }
 
-        MarriageCommands::Divorce { marriage_id, reason, network, wait: _ } => {
+        MarriageCommands::Divorce {
+            marriage_id,
+            reason,
+            network,
+            wait: _,
+        } => {
             let rpc_url = match network.as_str() {
                 "mainnet" => "https://rpc.starknet.lava.build",
                 _ => "https://api.cartridge.gg/x/starknet/sepolia",
@@ -6947,7 +7292,8 @@ fn handle_marriage(
                 "mainnet" => contracts::MARRIAGE_RING_MAINNET,
                 _ => contracts::MARRIAGE_RING_SEPOLIA,
             };
-            let account_name = std::env::var("STARKNET_ACCOUNT_NAME").unwrap_or_else(|_| "anubis-deployer".to_string());
+            let account_name = std::env::var("STARKNET_ACCOUNT_NAME")
+                .unwrap_or_else(|_| "anubis-deployer".to_string());
 
             if !json {
                 println!("Executing divorce for marriage #{}...", marriage_id);
@@ -6955,16 +7301,24 @@ fn handle_marriage(
 
             // Step 1: Get marriage info to know partner count
             let get_marriage_output = std::process::Command::new("sncast")
-                .args(["call", "--url", rpc_url,
-                       "--contract-address", marriage_contract,
-                       "--function", "get_marriage",
-                       "--calldata", &marriage_id.to_string()])
+                .args([
+                    "call",
+                    "--url",
+                    rpc_url,
+                    "--contract-address",
+                    marriage_contract,
+                    "--function",
+                    "get_marriage",
+                    "--calldata",
+                    &marriage_id.to_string(),
+                ])
                 .output()?;
 
             let stdout = String::from_utf8_lossy(&get_marriage_output.stdout);
 
             // Parse partner_count from response (second field in MarriageRecord)
-            let partner_count: u64 = stdout.lines()
+            let partner_count: u64 = stdout
+                .lines()
                 .find(|l| l.contains("partner_count:"))
                 .and_then(|l| l.split("partner_count:").nth(1))
                 .and_then(|s| s.trim().split('_').next())
@@ -6976,13 +7330,29 @@ fn handle_marriage(
             }
 
             // Step 2: Execute divorce on-chain
-            let reason_hash = format!("0x{:x}", reason.bytes().fold(0u64, |acc, b| acc.wrapping_mul(31).wrapping_add(b as u64)));
+            let reason_hash = format!(
+                "0x{:x}",
+                reason
+                    .bytes()
+                    .fold(0u64, |acc, b| acc.wrapping_mul(31).wrapping_add(b as u64))
+            );
 
             let divorce_output = std::process::Command::new("sncast")
-                .args(["--account", &account_name, "invoke", "--url", rpc_url,
-                       "--contract-address", marriage_contract,
-                       "--function", "execute_divorce",
-                       "--calldata", &marriage_id.to_string(), &reason_hash, "1"])
+                .args([
+                    "--account",
+                    &account_name,
+                    "invoke",
+                    "--url",
+                    rpc_url,
+                    "--contract-address",
+                    marriage_contract,
+                    "--function",
+                    "execute_divorce",
+                    "--calldata",
+                    &marriage_id.to_string(),
+                    &reason_hash,
+                    "1",
+                ])
                 .output()?;
 
             let divorce_stdout = String::from_utf8_lossy(&divorce_output.stdout);
@@ -6992,7 +7362,8 @@ fn handle_marriage(
                 return Err(format!("Failed to execute divorce: {}", divorce_stderr).into());
             }
 
-            let divorce_tx = divorce_stdout.lines()
+            let divorce_tx = divorce_stdout
+                .lines()
                 .find(|line| line.contains("Transaction Hash:"))
                 .and_then(|line| line.split(':').nth(1))
                 .map(|s| s.trim())
@@ -7010,10 +7381,18 @@ fn handle_marriage(
 
                 // Check if ring exists first
                 let exists_output = std::process::Command::new("sncast")
-                    .args(["call", "--url", rpc_url,
-                           "--contract-address", ring_contract,
-                           "--function", "exists",
-                           "--calldata", &token_id.to_string(), "0"])
+                    .args([
+                        "call",
+                        "--url",
+                        rpc_url,
+                        "--contract-address",
+                        ring_contract,
+                        "--function",
+                        "exists",
+                        "--calldata",
+                        &token_id.to_string(),
+                        "0",
+                    ])
                     .output()?;
 
                 let exists_stdout = String::from_utf8_lossy(&exists_output.stdout);
@@ -7021,16 +7400,27 @@ fn handle_marriage(
 
                 if ring_exists {
                     let burn_output = std::process::Command::new("sncast")
-                        .args(["--account", &account_name, "invoke", "--url", rpc_url,
-                               "--contract-address", ring_contract,
-                               "--function", "burn_ring",
-                               "--calldata", &token_id.to_string(), "0"])
+                        .args([
+                            "--account",
+                            &account_name,
+                            "invoke",
+                            "--url",
+                            rpc_url,
+                            "--contract-address",
+                            ring_contract,
+                            "--function",
+                            "burn_ring",
+                            "--calldata",
+                            &token_id.to_string(),
+                            "0",
+                        ])
                         .output()?;
 
                     let burn_stdout = String::from_utf8_lossy(&burn_output.stdout);
 
                     if burn_output.status.success() {
-                        let burn_tx = burn_stdout.lines()
+                        let burn_tx = burn_stdout
+                            .lines()
                             .find(|line| line.contains("Transaction Hash:"))
                             .and_then(|line| line.split(':').nth(1))
                             .map(|s| s.trim().to_string())
@@ -7159,8 +7549,10 @@ fn handle_marriage(
 
 fn handle_rings(action: &RingsCommands, json: bool) -> Result<(), Box<dyn std::error::Error>> {
     // Contract addresses
-    const RING_CONTRACT_SEPOLIA: &str = "0x07f579e725cbd8dbac8974245d05824f1024bc0c041d98e0a6133dbd5cdc7090";
-    const RING_CONTRACT_MAINNET: &str = "0x07f579e725cbd8dbac8974245d05824f1024bc0c041d98e0a6133dbd5cdc7090"; // TODO: Deploy mainnet
+    const RING_CONTRACT_SEPOLIA: &str =
+        "0x07f579e725cbd8dbac8974245d05824f1024bc0c041d98e0a6133dbd5cdc7090";
+    const RING_CONTRACT_MAINNET: &str =
+        "0x07f579e725cbd8dbac8974245d05824f1024bc0c041d98e0a6133dbd5cdc7090"; // TODO: Deploy mainnet
 
     fn get_ring_contract(network: &str) -> &'static str {
         match network {
@@ -7177,7 +7569,14 @@ fn handle_rings(action: &RingsCommands, json: bool) -> Result<(), Box<dyn std::e
     }
 
     match action {
-        RingsCommands::Mint { marriage_id, partners, name_hashes, vows_hashes, marriage_hash, network } => {
+        RingsCommands::Mint {
+            marriage_id,
+            partners,
+            name_hashes,
+            vows_hashes,
+            marriage_hash,
+            network,
+        } => {
             let contract = get_ring_contract(network);
             let rpc_url = get_rpc_url(network);
 
@@ -7186,7 +7585,9 @@ fn handle_rings(action: &RingsCommands, json: bool) -> Result<(), Box<dyn std::e
             let name_hash_list: Vec<&str> = name_hashes.split(',').map(|s| s.trim()).collect();
             let vows_hash_list: Vec<&str> = vows_hashes.split(',').map(|s| s.trim()).collect();
 
-            if partner_list.len() != name_hash_list.len() || partner_list.len() != vows_hash_list.len() {
+            if partner_list.len() != name_hash_list.len()
+                || partner_list.len() != vows_hash_list.len()
+            {
                 return Err("Number of partners, name_hashes, and vows_hashes must match".into());
             }
 
@@ -7211,17 +7612,30 @@ fn handle_rings(action: &RingsCommands, json: bool) -> Result<(), Box<dyn std::e
             let calldata_str = calldata.join(" ");
 
             if !json {
-                println!("Minting {} rings for marriage #{}...", partner_list.len(), marriage_id);
+                println!(
+                    "Minting {} rings for marriage #{}...",
+                    partner_list.len(),
+                    marriage_id
+                );
             }
 
             // Get account name from env or use default
-            let account_name = std::env::var("STARKNET_ACCOUNT_NAME").unwrap_or_else(|_| "anubis-deployer".to_string());
+            let account_name = std::env::var("STARKNET_ACCOUNT_NAME")
+                .unwrap_or_else(|_| "anubis-deployer".to_string());
 
             let output = std::process::Command::new("sncast")
-                .args(["--account", &account_name, "invoke", "--url", rpc_url,
-                       "--contract-address", contract,
-                       "--function", "mint_rings",
-                       "--calldata"])
+                .args([
+                    "--account",
+                    &account_name,
+                    "invoke",
+                    "--url",
+                    rpc_url,
+                    "--contract-address",
+                    contract,
+                    "--function",
+                    "mint_rings",
+                    "--calldata",
+                ])
                 .args(calldata_str.split_whitespace())
                 .output()?;
 
@@ -7230,7 +7644,8 @@ fn handle_rings(action: &RingsCommands, json: bool) -> Result<(), Box<dyn std::e
 
             if output.status.success() {
                 // Extract transaction hash
-                let tx_hash = stdout.lines()
+                let tx_hash = stdout
+                    .lines()
                     .find(|line| line.contains("Transaction Hash:"))
                     .and_then(|line| line.split(':').nth(1))
                     .map(|s| s.trim())
@@ -7271,20 +7686,32 @@ fn handle_rings(action: &RingsCommands, json: bool) -> Result<(), Box<dyn std::e
                 println!("Burning ring #{}...", token_id);
             }
 
-            let account_name = std::env::var("STARKNET_ACCOUNT_NAME").unwrap_or_else(|_| "anubis-deployer".to_string());
+            let account_name = std::env::var("STARKNET_ACCOUNT_NAME")
+                .unwrap_or_else(|_| "anubis-deployer".to_string());
 
             let output = std::process::Command::new("sncast")
-                .args(["--account", &account_name, "invoke", "--url", rpc_url,
-                       "--contract-address", contract,
-                       "--function", "burn_ring",
-                       "--calldata", &token_id.to_string(), "0"]) // u256 = (low, high)
+                .args([
+                    "--account",
+                    &account_name,
+                    "invoke",
+                    "--url",
+                    rpc_url,
+                    "--contract-address",
+                    contract,
+                    "--function",
+                    "burn_ring",
+                    "--calldata",
+                    &token_id.to_string(),
+                    "0",
+                ]) // u256 = (low, high)
                 .output()?;
 
             let stdout = String::from_utf8_lossy(&output.stdout);
             let stderr = String::from_utf8_lossy(&output.stderr);
 
             if output.status.success() {
-                let tx_hash = stdout.lines()
+                let tx_hash = stdout
+                    .lines()
                     .find(|line| line.contains("Transaction Hash:"))
                     .and_then(|line| line.split(':').nth(1))
                     .map(|s| s.trim())
@@ -7313,10 +7740,18 @@ fn handle_rings(action: &RingsCommands, json: bool) -> Result<(), Box<dyn std::e
             let rpc_url = get_rpc_url(network);
 
             let output = std::process::Command::new("sncast")
-                .args(["call", "--url", rpc_url,
-                       "--contract-address", contract,
-                       "--function", "get_ring_metadata",
-                       "--calldata", &token_id.to_string(), "0"])
+                .args([
+                    "call",
+                    "--url",
+                    rpc_url,
+                    "--contract-address",
+                    contract,
+                    "--function",
+                    "get_ring_metadata",
+                    "--calldata",
+                    &token_id.to_string(),
+                    "0",
+                ])
                 .output()?;
 
             let stdout = String::from_utf8_lossy(&output.stdout);
@@ -7359,10 +7794,18 @@ fn handle_rings(action: &RingsCommands, json: bool) -> Result<(), Box<dyn std::e
             let rpc_url = get_rpc_url(network);
 
             let output = std::process::Command::new("sncast")
-                .args(["call", "--url", rpc_url,
-                       "--contract-address", contract,
-                       "--function", "exists",
-                       "--calldata", &token_id.to_string(), "0"])
+                .args([
+                    "call",
+                    "--url",
+                    rpc_url,
+                    "--contract-address",
+                    contract,
+                    "--function",
+                    "exists",
+                    "--calldata",
+                    &token_id.to_string(),
+                    "0",
+                ])
                 .output()?;
 
             let stdout = String::from_utf8_lossy(&output.stdout);
@@ -7395,9 +7838,15 @@ fn handle_rings(action: &RingsCommands, json: bool) -> Result<(), Box<dyn std::e
             let rpc_url = get_rpc_url(network);
 
             let output = std::process::Command::new("sncast")
-                .args(["call", "--url", rpc_url,
-                       "--contract-address", contract,
-                       "--function", "total_supply"])
+                .args([
+                    "call",
+                    "--url",
+                    rpc_url,
+                    "--contract-address",
+                    contract,
+                    "--function",
+                    "total_supply",
+                ])
                 .output()?;
 
             let stdout = String::from_utf8_lossy(&output.stdout);
@@ -7405,7 +7854,8 @@ fn handle_rings(action: &RingsCommands, json: bool) -> Result<(), Box<dyn std::e
 
             if output.status.success() {
                 // Extract supply from response
-                let supply = stdout.lines()
+                let supply = stdout
+                    .lines()
                     .find(|l| l.starts_with("Response:"))
                     .and_then(|l| l.split_whitespace().nth(1))
                     .and_then(|s| s.trim_end_matches("_u256").parse::<u64>().ok())
@@ -7425,7 +7875,11 @@ fn handle_rings(action: &RingsCommands, json: bool) -> Result<(), Box<dyn std::e
             }
         }
 
-        RingsCommands::UpdateVows { token_id, vows_hash, network } => {
+        RingsCommands::UpdateVows {
+            token_id,
+            vows_hash,
+            network,
+        } => {
             let contract = get_ring_contract(network);
             let rpc_url = get_rpc_url(network);
 
@@ -7433,20 +7887,33 @@ fn handle_rings(action: &RingsCommands, json: bool) -> Result<(), Box<dyn std::e
                 println!("Updating vows for ring #{}...", token_id);
             }
 
-            let account_name = std::env::var("STARKNET_ACCOUNT_NAME").unwrap_or_else(|_| "anubis-deployer".to_string());
+            let account_name = std::env::var("STARKNET_ACCOUNT_NAME")
+                .unwrap_or_else(|_| "anubis-deployer".to_string());
 
             let output = std::process::Command::new("sncast")
-                .args(["--account", &account_name, "invoke", "--url", rpc_url,
-                       "--contract-address", contract,
-                       "--function", "update_vows",
-                       "--calldata", &token_id.to_string(), "0", vows_hash])
+                .args([
+                    "--account",
+                    &account_name,
+                    "invoke",
+                    "--url",
+                    rpc_url,
+                    "--contract-address",
+                    contract,
+                    "--function",
+                    "update_vows",
+                    "--calldata",
+                    &token_id.to_string(),
+                    "0",
+                    vows_hash,
+                ])
                 .output()?;
 
             let stdout = String::from_utf8_lossy(&output.stdout);
             let stderr = String::from_utf8_lossy(&output.stderr);
 
             if output.status.success() {
-                let tx_hash = stdout.lines()
+                let tx_hash = stdout
+                    .lines()
                     .find(|line| line.contains("Transaction Hash:"))
                     .and_then(|line| line.split(':').nth(1))
                     .map(|s| s.trim())

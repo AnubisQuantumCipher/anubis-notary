@@ -199,7 +199,10 @@ mod tests {
         assert_eq!(restored.batch_id, original.batch_id);
         assert_eq!(restored.merkle_root, original.merkle_root);
         assert_eq!(restored.leaves.len(), original.leaves.len());
-        assert_eq!(restored.key_envelope.threshold, original.key_envelope.threshold);
+        assert_eq!(
+            restored.key_envelope.threshold,
+            original.key_envelope.threshold
+        );
 
         // Verify decryption still works after round-trip
         let (sk1, _) = kp1.into_parts();

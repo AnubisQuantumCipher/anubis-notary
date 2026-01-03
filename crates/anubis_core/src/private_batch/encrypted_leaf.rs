@@ -169,7 +169,9 @@ impl EncryptedLeaf {
         let ct_len = u32::from_le_bytes(bytes[48..52].try_into().unwrap()) as usize;
 
         if bytes.len() != 52 + ct_len {
-            return Err(PrivateBatchError::CborError("leaf length mismatch".to_string()));
+            return Err(PrivateBatchError::CborError(
+                "leaf length mismatch".to_string(),
+            ));
         }
 
         let ciphertext = bytes[52..].to_vec();

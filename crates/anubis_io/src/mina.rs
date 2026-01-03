@@ -372,10 +372,16 @@ impl BridgeCommand {
     fn to_json(&self) -> String {
         match self {
             BridgeCommand::Anchor { merkle_root } => {
-                format!(r#"{{"cmd":"anchor","root":"{}"}}"#, hex::encode(merkle_root))
+                format!(
+                    r#"{{"cmd":"anchor","root":"{}"}}"#,
+                    hex::encode(merkle_root)
+                )
             }
             BridgeCommand::Verify { merkle_root } => {
-                format!(r#"{{"cmd":"verify","root":"{}"}}"#, hex::encode(merkle_root))
+                format!(
+                    r#"{{"cmd":"verify","root":"{}"}}"#,
+                    hex::encode(merkle_root)
+                )
             }
             BridgeCommand::GetTime => r#"{"cmd":"time"}"#.to_string(),
             BridgeCommand::GetBalance => r#"{"cmd":"balance"}"#.to_string(),
@@ -565,7 +571,10 @@ impl MinaClient {
     /// Returns balance in nanomina (1 MINA = 1_000_000_000 nanomina).
     pub fn get_balance(&mut self) -> Result<u64> {
         // Verify wallet is configured
-        let _key = self.config.wallet_private_key.as_ref()
+        let _key = self
+            .config
+            .wallet_private_key
+            .as_ref()
             .ok_or_else(|| MinaError::WalletError("No wallet configured".to_string()))?;
 
         // Fall back to bridge to derive address from private key
@@ -585,7 +594,8 @@ impl MinaClient {
         // Simple JSON parsing without dependencies
         // Expected format: {"ok":true,"address":"B62...","tx":"Ckp...","height":123,"timestamp":1234567890000,"proof":"..."}
         if response.contains(r#""ok":false"#) || response.contains(r#""error""#) {
-            let err = extract_json_string(response, "error").unwrap_or_else(|| "unknown".to_string());
+            let err =
+                extract_json_string(response, "error").unwrap_or_else(|| "unknown".to_string());
             return Err(MinaError::TransactionFailed(err));
         }
 
@@ -611,7 +621,8 @@ impl MinaClient {
     /// Parse verify response JSON.
     fn parse_verify_response(&self, response: &str) -> Result<bool> {
         if response.contains(r#""error""#) {
-            let err = extract_json_string(response, "error").unwrap_or_else(|| "unknown".to_string());
+            let err =
+                extract_json_string(response, "error").unwrap_or_else(|| "unknown".to_string());
             return Err(MinaError::VerificationFailed(err));
         }
 
@@ -622,7 +633,8 @@ impl MinaClient {
     #[allow(dead_code)]
     fn parse_time_response(&self, response: &str) -> Result<MinaTimeResult> {
         if response.contains(r#""error""#) {
-            let err = extract_json_string(response, "error").unwrap_or_else(|| "unknown".to_string());
+            let err =
+                extract_json_string(response, "error").unwrap_or_else(|| "unknown".to_string());
             return Err(MinaError::NetworkError(err));
         }
 
@@ -641,7 +653,8 @@ impl MinaClient {
     /// Parse balance response JSON.
     fn parse_balance_response(&self, response: &str) -> Result<u64> {
         if response.contains(r#""error""#) {
-            let err = extract_json_string(response, "error").unwrap_or_else(|| "unknown".to_string());
+            let err =
+                extract_json_string(response, "error").unwrap_or_else(|| "unknown".to_string());
             return Err(MinaError::WalletError(err));
         }
 
@@ -711,7 +724,9 @@ mod tests {
             .graphql_url()
             .contains("minaexplorer.com"));
         assert!(MinaNetwork::Devnet.graphql_url().contains("devnet"));
-        assert!(MinaNetwork::LocalTestnet.graphql_url().contains("localhost"));
+        assert!(MinaNetwork::LocalTestnet
+            .graphql_url()
+            .contains("localhost"));
     }
 
     #[test]
@@ -758,10 +773,7 @@ mod tests {
             extract_json_string(json, "address"),
             Some("B62qtest".to_string())
         );
-        assert_eq!(
-            extract_json_string(json, "tx"),
-            Some("Ckptest".to_string())
-        );
+        assert_eq!(extract_json_string(json, "tx"), Some("Ckptest".to_string()));
         assert_eq!(extract_json_string(json, "missing"), None);
     }
 
