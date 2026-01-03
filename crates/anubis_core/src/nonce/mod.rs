@@ -13,7 +13,7 @@
 //! use anubis_core::nonce::{PersistentNonceCounter, NonceDeriver};
 //!
 //! let counter = PersistentNonceCounter::load_or_create(path)?;
-//! let next = counter.next()?; // Atomically increments and persists
+//! let next = counter.advance()?; // Atomically increments and persists
 //! let nonce = deriver.derive(next, entry_id, domain)?;
 //! ```
 
@@ -77,7 +77,7 @@ impl std::error::Error for NonceError {}
 ///
 /// ```ignore
 /// let counter = PersistentNonceCounter::load_or_create("~/.anubis/nonce_counter")?;
-/// let next = counter.next()?;  // Atomically increments and persists
+/// let next = counter.advance()?;  // Atomically increments and persists
 /// ```
 #[cfg(feature = "std")]
 pub struct PersistentNonceCounter {
@@ -151,7 +151,7 @@ impl PersistentNonceCounter {
     ///
     /// Returns `CounterOverflow` if counter would exceed MAX_COUNTER.
     /// Returns `PersistenceFailed` if disk write fails.
-    pub fn next(&mut self) -> Result<u64, NonceError> {
+    pub fn advance(&mut self) -> Result<u64, NonceError> {
         let next = self
             .counter
             .checked_add(1)
@@ -509,7 +509,7 @@ mod tests {
             assert_eq!(counter.current(), 0);
             assert!(counter_path.exists());
 
-            let next = counter.next().unwrap();
+            let next = counter.advance().unwrap();
             assert_eq!(next, 1);
             assert_eq!(counter.current(), 1);
 
@@ -527,16 +527,16 @@ mod tests {
             // Create and increment
             {
                 let mut counter = PersistentNonceCounter::load_or_create(&counter_path).unwrap();
-                assert_eq!(counter.next().unwrap(), 1);
-                assert_eq!(counter.next().unwrap(), 2);
-                assert_eq!(counter.next().unwrap(), 3);
+                assert_eq!(counter.advance().unwrap(), 1);
+                assert_eq!(counter.advance().unwrap(), 2);
+                assert_eq!(counter.advance().unwrap(), 3);
             }
 
             // Reload and verify persistence
             {
                 let mut counter = PersistentNonceCounter::load_or_create(&counter_path).unwrap();
                 assert_eq!(counter.current(), 3);
-                assert_eq!(counter.next().unwrap(), 4);
+                assert_eq!(counter.advance().unwrap(), 4);
             }
 
             // Cleanup
@@ -557,7 +557,7 @@ mod tests {
             assert_eq!(counter.current(), 11); // Counter advanced by 10+1
 
             // Next after reserve should be 12
-            let next = counter.next().unwrap();
+            let next = counter.advance().unwrap();
             assert_eq!(next, 12);
 
             // Cleanup
@@ -577,7 +577,7 @@ mod tests {
             for _ in 0..5 {
                 let mut counter = PersistentNonceCounter::load_or_create(&counter_path).unwrap();
                 for _ in 0..10 {
-                    all_values.push(counter.next().unwrap());
+                    all_values.push(counter.advance().unwrap());
                 }
             }
 
@@ -615,11 +615,11 @@ mod tests {
             assert_eq!(counter.current(), near_max);
 
             // One more should work
-            let next = counter.next().unwrap();
+            let next = counter.advance().unwrap();
             assert_eq!(next, near_max + 1);
 
             // This should overflow
-            let result = counter.next();
+            let result = counter.advance();
             assert!(matches!(result, Err(NonceError::CounterOverflow)));
 
             // Cleanup
@@ -638,7 +638,7 @@ mod tests {
             // Generate nonces
             let mut nonces = Vec::new();
             for _ in 0..10 {
-                let c = counter.next().unwrap();
+                let c = counter.advance().unwrap();
                 let nonce = deriver.derive(c, 0, domains::KEY_WRAP).unwrap();
                 nonces.push(nonce);
             }
