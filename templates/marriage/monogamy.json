@@ -1,0 +1,28 @@
+{
+  "template_name": "monogamy",
+  "version": 1,
+  "description": "Standard two-party marriage contract with equal asset distribution",
+  "max_parties": 2,
+  "required_signatures": 2,
+  "default_terms": {
+    "asset_split": "equal",
+    "divorce_conditions": ["mutual_consent"],
+    "financial_obligations": [],
+    "custom_clauses": []
+  },
+  "required_fields": [
+    "party_names",
+    "jurisdiction"
+  ],
+  "optional_fields": [
+    "witnesses",
+    "prenup_terms",
+    "starknet_addresses"
+  ],
+  "starknet": {
+    "contract_type": "marriage_oracle",
+    "ring_nft": true,
+    "rings_per_party": 1
+  },
+  "example_usage": "anubis-notary marriage init --template monogamy --parties \"Alice,Bob\" --jurisdiction US-CA -o marriage.json"
+}

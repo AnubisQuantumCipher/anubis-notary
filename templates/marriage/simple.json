@@ -1,0 +1,29 @@
+{
+  "template_name": "simple",
+  "version": 1,
+  "description": "Minimal marriage contract with default terms - suitable for quick ceremonies",
+  "max_parties": 2,
+  "required_signatures": 2,
+  "default_terms": {
+    "asset_split": "equal",
+    "divorce_conditions": ["mutual_consent"],
+    "financial_obligations": [],
+    "custom_clauses": []
+  },
+  "required_fields": [
+    "party_names",
+    "jurisdiction"
+  ],
+  "optional_fields": [],
+  "starknet": {
+    "contract_type": "marriage_oracle",
+    "ring_nft": true,
+    "rings_per_party": 1
+  },
+  "notes": [
+    "This is the most basic template",
+    "Use for simple unions with no custom terms",
+    "Equal asset split and mutual consent divorce"
+  ],
+  "example_usage": "anubis-notary marriage init --template simple --parties \"Alice,Bob\" --jurisdiction US-NV -o marriage.json"
+}

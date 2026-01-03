@@ -1,0 +1,78 @@
+{
+  "template_name": "comprehensive",
+  "version": 1,
+  "description": "Full legal marriage contract with all provisions - suitable for complex arrangements",
+  "max_parties": 10,
+  "required_signatures": "all",
+  "default_terms": {
+    "asset_split": "custom",
+    "divorce_conditions": [
+      "mutual_consent",
+      {
+        "type": "time_lock",
+        "minimum_days": 180,
+        "description": "6-month cooling period before divorce finalization"
+      },
+      {
+        "type": "mediation",
+        "required": true,
+        "description": "Mandatory mediation before divorce proceedings"
+      }
+    ],
+    "financial_obligations": [
+      {
+        "type": "spousal_support",
+        "description": "Terms to be negotiated based on earning capacity"
+      },
+      {
+        "type": "debt_responsibility",
+        "description": "Joint responsibility for marital debt"
+      }
+    ],
+    "custom_clauses": []
+  },
+  "required_fields": [
+    "party_names",
+    "jurisdiction",
+    "witnesses",
+    "legal_counsel_attestation"
+  ],
+  "optional_fields": [
+    "starknet_addresses",
+    "child_custody_terms",
+    "inheritance_provisions",
+    "power_of_attorney",
+    "healthcare_proxy",
+    "business_ownership_terms",
+    "real_estate_provisions",
+    "retirement_account_provisions"
+  ],
+  "starknet": {
+    "contract_type": "marriage_oracle",
+    "ring_nft": true,
+    "rings_per_party": 1,
+    "amendment_support": true,
+    "notary_witness_required": true
+  },
+  "witnesses": {
+    "minimum": 2,
+    "maximum": 4,
+    "roles": ["officiant", "witness", "legal_counsel"]
+  },
+  "privacy": {
+    "encrypt_financial_terms": true,
+    "use_private_batch": true,
+    "threshold_decryption": {
+      "parties_required": 2,
+      "include_legal_counsel": true
+    }
+  },
+  "notes": [
+    "This template is designed for complex legal arrangements",
+    "Requires legal counsel attestation from both parties",
+    "Financial terms should be encrypted using private-batch",
+    "Supports amendments via on-chain proposals",
+    "6-month cooling period and mandatory mediation for divorce"
+  ],
+  "example_usage": "anubis-notary marriage init --template comprehensive --parties \"Alice,Bob\" --jurisdiction US-CA -o marriage.json --terms full-terms.json"
+}

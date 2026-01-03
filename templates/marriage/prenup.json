@@ -1,0 +1,49 @@
+{
+  "template_name": "prenup",
+  "version": 1,
+  "description": "Marriage with prenuptial agreement - protects pre-marriage assets",
+  "max_parties": 2,
+  "required_signatures": 2,
+  "default_terms": {
+    "asset_split": "custom",
+    "divorce_conditions": [
+      "mutual_consent",
+      {
+        "type": "time_lock",
+        "minimum_days": 90,
+        "description": "90-day cooling off period before divorce finalization"
+      }
+    ],
+    "financial_obligations": [],
+    "custom_clauses": [
+      "All assets owned prior to marriage remain separate property",
+      "Assets acquired during marriage are subject to negotiated split",
+      "Gifts and inheritances during marriage remain separate property"
+    ]
+  },
+  "required_fields": [
+    "party_names",
+    "jurisdiction",
+    "pre_marriage_assets_party_0",
+    "pre_marriage_assets_party_1"
+  ],
+  "optional_fields": [
+    "witnesses",
+    "legal_counsel_attestation",
+    "starknet_addresses",
+    "custom_asset_split_formula"
+  ],
+  "starknet": {
+    "contract_type": "marriage_oracle",
+    "ring_nft": true,
+    "rings_per_party": 1,
+    "prenup_hash_stored": true
+  },
+  "notes": [
+    "Prenuptial terms are hashed and stored on-chain",
+    "Full prenup document should be sealed separately using private-batch",
+    "90-day cooling period before divorce can be finalized",
+    "Consider using 'anubis-notary seal' for private financial terms"
+  ],
+  "example_usage": "anubis-notary marriage init --template prenup --parties \"Alice,Bob\" --jurisdiction US-NY -o marriage.json --terms prenup-terms.json"
+}

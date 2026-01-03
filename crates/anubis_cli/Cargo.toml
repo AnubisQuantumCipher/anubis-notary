@@ -11,7 +11,7 @@ name = "anubis-notary"
 path = "src/main.rs"
 
 [dependencies]
-anubis_core = { path = "../anubis_core" }
+anubis_core = { path = "../anubis_core", features = ["std"] }
 anubis_io = { path = "../anubis_io" }
 clap = { workspace = true }
 serde = { workspace = true }

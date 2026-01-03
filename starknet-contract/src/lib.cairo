@@ -3,6 +3,15 @@
 /// A decentralized notary service providing cryptographic proof-of-existence
 /// for documents, files, and digital assets on the Starknet blockchain.
 ///
+/// ## Contracts
+///
+/// - **NotaryOracle**: Core document anchoring and verification
+/// - **MarriageOracle**: Blockchain-anchored marriage contracts
+/// - **AnubisMarriageRing**: ERC721 digital wedding rings
+
+pub mod marriage;
+pub mod marriage_ring;
+///
 /// ## What is a Notary Oracle?
 ///
 /// This smart contract acts as an immutable, trustless notary that:
