@@ -70,13 +70,13 @@ pub mod contracts {
     pub const MARRIAGE_RING_SEPOLIA: &str =
         "0x07f579e725cbd8dbac8974245d05824f1024bc0c041d98e0a6133dbd5cdc7090";
 
-    /// Marriage Oracle contract address on Mainnet (TODO: Deploy).
+    /// Marriage Oracle contract address on Mainnet.
     pub const MARRIAGE_ORACLE_MAINNET: &str =
-        "0x0457be1c094b09a3f27690388b8a4d70c908fec9b7de45bfb5d152488acd2181"; // Placeholder
+        "0x005d0a4cc5757e6d63dd6f7835c11a373af002e4c2603f040e2f5bf702a71ff8";
 
-    /// Marriage Ring NFT contract address on Mainnet (TODO: Deploy).
+    /// Marriage Ring NFT contract address on Mainnet.
     pub const MARRIAGE_RING_MAINNET: &str =
-        "0x07f579e725cbd8dbac8974245d05824f1024bc0c041d98e0a6133dbd5cdc7090"; // Placeholder
+        "0x00884842791e3542c42140d581edd7ab0327bf6ec276ca9d6201c9168c9f63d3";
 }
 
 /// Marriage error types.
