@@ -552,18 +552,12 @@ fn extract_number_field(json: &str, key: &str) -> Option<u64> {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use std::fs;
-
-    fn temp_dir() -> PathBuf {
-        let dir = std::env::temp_dir().join(format!("anubis_batch_test_{}", std::process::id()));
-        fs::create_dir_all(&dir).unwrap();
-        dir
-    }
+    use tempfile::TempDir;
 
     #[test]
     fn test_queue_basic() {
-        let dir = temp_dir();
-        let queue = BatchQueue::open(&dir).unwrap();
+        let dir = TempDir::new().unwrap();
+        let queue = BatchQueue::open(dir.path()).unwrap();
 
         // Queue should be empty initially
         assert_eq!(queue.pending_count().unwrap(), 0);
@@ -576,15 +570,13 @@ mod tests {
 
         assert_eq!(entry.digest, hex::encode([1u8; 32]));
         assert_eq!(queue.pending_count().unwrap(), 1);
-
-        // Clean up
-        fs::remove_dir_all(&dir).unwrap();
+        // TempDir auto-cleans on drop
     }
 
     #[test]
     fn test_queue_duplicate() {
-        let dir = temp_dir();
-        let queue = BatchQueue::open(&dir).unwrap();
+        let dir = TempDir::new().unwrap();
+        let queue = BatchQueue::open(dir.path()).unwrap();
 
         let digest = [2u8; 32];
         let path = PathBuf::from("/test/receipt.anb");
@@ -594,8 +586,7 @@ mod tests {
 
         // Second add should fail (duplicate)
         assert!(queue.enqueue(&digest, &path).is_err());
-
-        fs::remove_dir_all(&dir).unwrap();
+        // TempDir auto-cleans on drop
     }
 
     #[test]
