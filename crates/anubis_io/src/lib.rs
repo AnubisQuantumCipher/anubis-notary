@@ -61,6 +61,7 @@ pub mod mina_graphql;
 pub mod rate_limit;
 pub mod seal;
 pub mod starknet;
+pub mod ztarknet;
 
 // Mina module exports
 pub use batch_queue::{BatchQueue, BatchQueueEntry};
@@ -72,6 +73,13 @@ pub use starknet::{
     sha256_to_poseidon_felt, AnchorRecord as StarknetAnchorRecord, StarknetAnchorResult,
     StarknetBatchResult, StarknetClient, StarknetConfig, StarknetError, StarknetNetwork,
     StarknetTimeResult, TransactionStatus as StarknetTransactionStatus,
+};
+
+// Ztarknet module exports (privacy-preserving anchoring)
+pub use ztarknet::{
+    BlockTimeResult as ZtarknetBlockTimeResult, CommitmentInfo, DisclosureToken,
+    PedersenCommitment, PrivacyAnchorResult, PrivacyMode, RevealResult, VerifyResult,
+    ZtarknetClient, ZtarknetConfig, ZtarknetError, ZtarknetNetwork,
 };
 
 pub use rate_limit::{format_delay, RateLimiter};

@@ -8,9 +8,11 @@
 /// - **NotaryOracle**: Core document anchoring and verification
 /// - **MarriageOracle**: Blockchain-anchored marriage contracts
 /// - **AnubisMarriageRing**: ERC721 digital wedding rings
+/// - **PrivacyOracle**: Zero-knowledge privacy-preserving anchoring (Ztarknet)
 
 pub mod marriage;
 pub mod marriage_ring;
+pub mod privacy_oracle;
 ///
 /// ## What is a Notary Oracle?
 ///
