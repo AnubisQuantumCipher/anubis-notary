@@ -444,6 +444,14 @@ enum StarknetCommands {
     },
     /// Show Starknet batch queue status.
     QueueStatus,
+    /// Embed anchor proof into a receipt after manual sncast submission.
+    Embed {
+        /// Receipt file to update.
+        receipt: PathBuf,
+        /// Transaction hash from sncast (0x-prefixed).
+        #[arg(long)]
+        tx_hash: String,
+    },
 }
 
 #[derive(Subcommand)]
@@ -2170,7 +2178,7 @@ fn handle_anchor(action: &AnchorCommands, json: bool) -> Result<(), Box<dyn std:
 }
 
 fn handle_starknet(action: &StarknetCommands, json: bool) -> Result<(), Box<dyn std::error::Error>> {
-    use anubis_core::receipt::Receipt;
+    use anubis_core::receipt::{AnchorType, Receipt};
     use anubis_io::{StarknetClient, StarknetConfig, StarknetNetwork};
 
     let ks = Keystore::open(Keystore::default_path())?;
@@ -2731,6 +2739,7 @@ fn handle_starknet(action: &StarknetCommands, json: bool) -> Result<(), Box<dyn 
                         }
 
                         // Wait for confirmation if --wait flag is set
+                        let mut confirmed_block: Option<u64> = None;
                         if *wait {
                             if !json {
                                 println!();
@@ -2740,6 +2749,7 @@ fn handle_starknet(action: &StarknetCommands, json: bool) -> Result<(), Box<dyn 
                             // Poll for up to 5 minutes (60 attempts, 5 seconds each)
                             match client.wait_for_transaction(&result.tx_hash, 60, 5) {
                                 Ok(status) => {
+                                    confirmed_block = status.block_number;
                                     if json {
                                         let output = JsonOutput::success(AnchorResultJson {
                                             success: true,
@@ -2758,8 +2768,9 @@ fn handle_starknet(action: &StarknetCommands, json: bool) -> Result<(), Box<dyn 
                                         println!();
                                         println!("✓ Transaction confirmed on L2!");
                                         println!("  Status: {} / {:?}", status.finality_status, status.execution_status);
-                                        println!();
-                                        println!("The receipt digest {} has been anchored to Starknet.", digest_hex);
+                                        if let Some(block) = status.block_number {
+                                            println!("  Block: {}", block);
+                                        }
                                     }
                                 }
                                 Err(e) => {
@@ -2786,11 +2797,86 @@ fn handle_starknet(action: &StarknetCommands, json: bool) -> Result<(), Box<dyn 
                                     execution_status: None,
                                 });
                                 println!("{}", serde_json::to_string_pretty(&output)?);
-                            } else {
-                                println!();
-                                println!("The receipt digest {} has been anchored to Starknet.", digest_hex);
-                                println!("Use --wait to wait for confirmation.");
                             }
+                        }
+
+                        // Update the receipt with anchor proof
+                        if !json {
+                            println!();
+                            println!("Updating receipt with anchor proof...");
+                        }
+
+                        // Parse tx_hash and contract to bytes
+                        let tx_hash_str = result.tx_hash.trim_start_matches("0x");
+                        let contract_str = result.contract_address.trim_start_matches("0x");
+
+                        let mut tx_hash_arr = [0u8; 32];
+                        let mut contract_addr_arr = [0u8; 32];
+                        let mut tx_hash_len = 0usize;
+                        let mut contract_addr_len = 0usize;
+
+                        if let Ok(tx_bytes) = hex::decode(tx_hash_str) {
+                            tx_hash_len = tx_bytes.len().min(32);
+                            tx_hash_arr[..tx_hash_len].copy_from_slice(&tx_bytes[..tx_hash_len]);
+                        }
+                        if let Ok(contract_decoded) = hex::decode(contract_str) {
+                            contract_addr_len = contract_decoded.len().min(32);
+                            contract_addr_arr[..contract_addr_len].copy_from_slice(&contract_decoded[..contract_addr_len]);
+                        }
+
+                        // Get current timestamp
+                        let timestamp = std::time::SystemTime::now()
+                            .duration_since(std::time::UNIX_EPOCH)
+                            .map(|d| d.as_secs())
+                            .unwrap_or(0);
+
+                        // Create updated receipt with anchor
+                        let anchor = AnchorType::Starknet {
+                            contract_addr: contract_addr_arr,
+                            contract_addr_len,
+                            tx_hash: tx_hash_arr,
+                            tx_hash_len,
+                            block_number: confirmed_block.unwrap_or(0),
+                            timestamp,
+                            root_id: 0, // Not available from RPC directly
+                        };
+
+                        let updated_receipt = Receipt::new(parsed.digest, parsed.created)
+                            .with_anchor(anchor);
+
+                        // Re-sign the receipt
+                        let kp = load_keypair_with_password(&ks)?;
+
+                        let mut signable_buf = [0u8; 4096];
+                        let signable_len = updated_receipt
+                            .encode_signable(&mut signable_buf)
+                            .map_err(|e| format!("Failed to encode signable receipt: {:?}", e))?;
+
+                        let mut message_to_sign = Vec::with_capacity(signable_len + 32);
+                        message_to_sign.extend_from_slice(b"anubis-notary:attest:v1:");
+                        message_to_sign.extend_from_slice(&signable_buf[..signable_len]);
+
+                        let signature = kp
+                            .sign(&message_to_sign)
+                            .map_err(|e| format!("Signing failed: {:?}", e))?;
+
+                        let signed_receipt = updated_receipt
+                            .with_signature(&signature.to_bytes())
+                            .map_err(|e| format!("Failed to add signature: {:?}", e))?;
+
+                        // Write updated receipt
+                        let mut buf = [0u8; 8192];
+                        let len = signed_receipt.encode(&mut buf).map_err(|e| format!("{:?}", e))?;
+                        write_file_atomic(receipt, &buf[..len])?;
+
+                        if !json {
+                            println!("✓ Receipt updated with Starknet anchor proof!");
+                            println!("  TX: {}", result.tx_hash);
+                            if let Some(block) = confirmed_block {
+                                println!("  Block: {}", block);
+                            }
+                            println!();
+                            println!("The receipt now contains cryptographic proof of when it was anchored.");
                         }
                     }
                     Err(e) => {
@@ -3153,6 +3239,154 @@ fn handle_starknet(action: &StarknetCommands, json: bool) -> Result<(), Box<dyn 
                     println!();
                     println!("Queue is full! Run 'anchor starknet flush' to submit batch.");
                 }
+            }
+        }
+        StarknetCommands::Embed { receipt, tx_hash } => {
+            // Load configuration to get contract address
+            let config_path = ks.path().join("starknet.json");
+            if !config_path.exists() {
+                return Err("Starknet not configured. Run 'anchor starknet config' first.".into());
+            }
+
+            let config_data = std::fs::read_to_string(&config_path)?;
+            let config_json: serde_json::Value = serde_json::from_str(&config_data)?;
+
+            let contract_address = config_json
+                .get("contract_address")
+                .and_then(|v| v.as_str())
+                .ok_or("No contract address configured")?;
+
+            let network = match config_json
+                .get("network")
+                .and_then(|v| v.as_str())
+                .unwrap_or("mainnet")
+            {
+                "sepolia" => StarknetNetwork::Sepolia,
+                "devnet" => StarknetNetwork::Devnet,
+                _ => StarknetNetwork::Mainnet,
+            };
+
+            let rpc_url = config_json
+                .get("rpc_url")
+                .and_then(|v| v.as_str())
+                .map(String::from)
+                .unwrap_or_else(|| network.default_rpc_url().to_string());
+
+            // Load and parse the receipt
+            let receipt_data = read_file(receipt)?;
+            let parsed = Receipt::decode(&receipt_data)
+                .map_err(|e| format!("Invalid receipt: {:?}", e))?;
+
+            if !json {
+                println!("Embedding anchor proof into receipt...");
+                println!("  TX: {}", tx_hash);
+            }
+
+            // Create Starknet client to fetch tx status
+            let config = StarknetConfig {
+                network,
+                rpc_url,
+                contract_address: Some(contract_address.to_string()),
+                account_address: None,
+                fee_multiplier: 1.5,
+                timeout_secs: 60,
+            };
+
+            let client = StarknetClient::new(config)?;
+
+            // Check transaction status
+            let status = client.get_transaction_status(tx_hash)?;
+
+            if status.finality_status != "ACCEPTED_ON_L2" && status.finality_status != "ACCEPTED_ON_L1" {
+                return Err(format!("Transaction not confirmed yet. Status: {}", status.finality_status).into());
+            }
+
+            // Parse tx_hash and contract to bytes
+            let tx_hash_str = tx_hash.trim_start_matches("0x");
+            let contract_str = contract_address.trim_start_matches("0x");
+
+            let mut tx_hash_arr = [0u8; 32];
+            let mut contract_addr_arr = [0u8; 32];
+            let mut tx_hash_len = 0usize;
+            let mut contract_addr_len = 0usize;
+
+            if let Ok(tx_bytes) = hex::decode(tx_hash_str) {
+                tx_hash_len = tx_bytes.len().min(32);
+                tx_hash_arr[..tx_hash_len].copy_from_slice(&tx_bytes[..tx_hash_len]);
+            }
+            if let Ok(contract_decoded) = hex::decode(contract_str) {
+                contract_addr_len = contract_decoded.len().min(32);
+                contract_addr_arr[..contract_addr_len].copy_from_slice(&contract_decoded[..contract_addr_len]);
+            }
+
+            // Get timestamp
+            let timestamp = std::time::SystemTime::now()
+                .duration_since(std::time::UNIX_EPOCH)
+                .map(|d| d.as_secs())
+                .unwrap_or(0);
+
+            // Create anchor
+            let anchor = AnchorType::Starknet {
+                contract_addr: contract_addr_arr,
+                contract_addr_len,
+                tx_hash: tx_hash_arr,
+                tx_hash_len,
+                block_number: status.block_number.unwrap_or(0),
+                timestamp,
+                root_id: 0,
+            };
+
+            let updated_receipt = Receipt::new(parsed.digest, parsed.created)
+                .with_anchor(anchor);
+
+            // Re-sign the receipt
+            let kp = load_keypair_with_password(&ks)?;
+
+            let mut signable_buf = [0u8; 4096];
+            let signable_len = updated_receipt
+                .encode_signable(&mut signable_buf)
+                .map_err(|e| format!("Failed to encode signable receipt: {:?}", e))?;
+
+            let mut message_to_sign = Vec::with_capacity(signable_len + 32);
+            message_to_sign.extend_from_slice(b"anubis-notary:attest:v1:");
+            message_to_sign.extend_from_slice(&signable_buf[..signable_len]);
+
+            let signature = kp
+                .sign(&message_to_sign)
+                .map_err(|e| format!("Signing failed: {:?}", e))?;
+
+            let signed_receipt = updated_receipt
+                .with_signature(&signature.to_bytes())
+                .map_err(|e| format!("Failed to add signature: {:?}", e))?;
+
+            // Write updated receipt
+            let mut buf = [0u8; 8192];
+            let len = signed_receipt.encode(&mut buf).map_err(|e| format!("{:?}", e))?;
+            write_file_atomic(receipt, &buf[..len])?;
+
+            if json {
+                #[derive(Serialize)]
+                struct EmbedResult {
+                    success: bool,
+                    receipt: String,
+                    tx_hash: String,
+                    block_number: u64,
+                }
+                let output = JsonOutput::success(EmbedResult {
+                    success: true,
+                    receipt: receipt.display().to_string(),
+                    tx_hash: tx_hash.clone(),
+                    block_number: status.block_number.unwrap_or(0),
+                });
+                println!("{}", serde_json::to_string_pretty(&output)?);
+            } else {
+                println!("✓ Receipt updated with Starknet anchor proof!");
+                println!("  TX: {}", tx_hash);
+                if let Some(block) = status.block_number {
+                    println!("  Block: {}", block);
+                }
+                println!();
+                println!("The receipt now contains cryptographic proof of when it was anchored.");
             }
         }
     }

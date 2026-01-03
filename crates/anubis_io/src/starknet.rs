@@ -343,6 +343,8 @@ pub struct TransactionStatus {
     pub finality_status: String,
     /// Execution status: SUCCEEDED, REVERTED (only present after execution)
     pub execution_status: Option<String>,
+    /// Block number when included (only present after ACCEPTED_ON_L2)
+    pub block_number: Option<u64>,
 }
 
 /// Anchor record from the contract.
@@ -703,16 +705,36 @@ impl StarknetClient {
             serde_json::json!([tx_hash]),
         )?;
 
+        let finality_status = result
+            .get("finality_status")
+            .and_then(|v| v.as_str())
+            .unwrap_or("UNKNOWN")
+            .to_string();
+
+        let execution_status = result
+            .get("execution_status")
+            .and_then(|v| v.as_str())
+            .map(|s| s.to_string());
+
+        // Try to get block number from transaction receipt if confirmed
+        let block_number = if finality_status == "ACCEPTED_ON_L2" || finality_status == "ACCEPTED_ON_L1" {
+            self.call_rpc::<serde_json::Value>(
+                "starknet_getTransactionReceipt",
+                serde_json::json!([tx_hash]),
+            )
+            .ok()
+            .and_then(|receipt| {
+                receipt.get("block_number")
+                    .and_then(|v| v.as_u64())
+            })
+        } else {
+            None
+        };
+
         Ok(TransactionStatus {
-            finality_status: result
-                .get("finality_status")
-                .and_then(|v| v.as_str())
-                .unwrap_or("UNKNOWN")
-                .to_string(),
-            execution_status: result
-                .get("execution_status")
-                .and_then(|v| v.as_str())
-                .map(|s| s.to_string()),
+            finality_status,
+            execution_status,
+            block_number,
         })
     }
 
