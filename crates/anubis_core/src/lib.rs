@@ -96,6 +96,10 @@ pub mod streaming;
 /// Uses ML-KEM-1024 for ephemeral key encapsulation and Shamir for threshold decryption
 pub mod private_batch;
 
+/// Marriage document schema for blockchain-anchored marriage contracts
+/// Supports multi-party consent, polygamy, and post-quantum signatures
+pub mod marriage;
+
 /// Prelude with commonly used types
 pub mod prelude {
     // Unified error type
@@ -158,5 +162,11 @@ pub mod prelude {
     pub use crate::private_batch::{
         CollaborativeDecryptor, DecryptedShare, EncryptedLeaf, KeyShareEnvelope, PrivateBatch,
         PrivateBatchError, RecipientKeyShare,
+    };
+
+    // Marriage documents
+    pub use crate::marriage::{
+        AssetSplit, DivorceCondition, DivorceDocument, MarriageDocument, MarriageError,
+        MarriageTerms, Party, PartySignature, Witness, WitnessRole,
     };
 }

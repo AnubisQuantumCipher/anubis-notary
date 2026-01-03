@@ -1,0 +1,41 @@
+{
+  "template_name": "polygamy",
+  "version": 1,
+  "description": "Multi-party marriage contract supporting 2-10 parties with proportional asset distribution",
+  "min_parties": 2,
+  "max_parties": 10,
+  "required_signatures": "all",
+  "default_terms": {
+    "asset_split": "proportional",
+    "divorce_conditions": [
+      {
+        "type": "threshold",
+        "description": "Majority of parties must consent to divorce",
+        "formula": "floor(n/2) + 1"
+      }
+    ],
+    "financial_obligations": [],
+    "custom_clauses": []
+  },
+  "required_fields": [
+    "party_names",
+    "jurisdiction"
+  ],
+  "optional_fields": [
+    "witnesses",
+    "individual_asset_contributions",
+    "starknet_addresses",
+    "hierarchy_order"
+  ],
+  "starknet": {
+    "contract_type": "marriage_oracle",
+    "ring_nft": true,
+    "rings_per_party": 1
+  },
+  "notes": [
+    "Divorce threshold is calculated as majority (n/2 + 1)",
+    "Asset split is proportional to number of parties",
+    "All parties must sign for marriage to be valid"
+  ],
+  "example_usage": "anubis-notary marriage init --template polygamy --parties \"Alice,Bob,Carol\" --jurisdiction US-UT -o marriage.json"
+}

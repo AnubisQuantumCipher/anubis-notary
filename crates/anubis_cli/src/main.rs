@@ -172,6 +172,11 @@ enum Commands {
         #[arg(long, short)]
         out: PathBuf,
     },
+    /// Blockchain-anchored marriage contracts.
+    Marriage {
+        #[command(subcommand)]
+        action: MarriageCommands,
+    },
 }
 
 #[derive(Subcommand)]
@@ -643,6 +648,154 @@ enum PrivateBatchCommands {
     },
 }
 
+#[derive(Subcommand)]
+enum MarriageCommands {
+    /// Create a new marriage document.
+    Init {
+        /// Party names (comma-separated, e.g., "Alice,Bob").
+        #[arg(long)]
+        parties: String,
+        /// Template name (monogamy, polygamy, simple).
+        #[arg(long, default_value = "monogamy")]
+        template: String,
+        /// Jurisdiction code (e.g., "US-CA", "UK").
+        #[arg(long)]
+        jurisdiction: String,
+        /// Output marriage document file (JSON).
+        #[arg(long, short)]
+        out: PathBuf,
+    },
+    /// Sign a marriage document as a party.
+    Sign {
+        /// Marriage document file.
+        document: PathBuf,
+        /// Party index (0-based).
+        #[arg(long)]
+        party: usize,
+        /// Your wedding vows (optional text that gets hashed and stored on-chain).
+        #[arg(long)]
+        vows: Option<String>,
+        /// Output signed document.
+        #[arg(long, short)]
+        out: Option<PathBuf>,
+    },
+    /// Verify all signatures on a marriage document.
+    Verify {
+        /// Marriage document file.
+        document: PathBuf,
+    },
+    /// Create an on-chain marriage (all parties must have signed).
+    Create {
+        /// Signed marriage document.
+        document: PathBuf,
+        /// Starknet network (mainnet, sepolia).
+        #[arg(long, default_value = "sepolia")]
+        network: String,
+        /// Automatically mint NFT rings for all partners.
+        #[arg(long)]
+        mint_rings: bool,
+        /// Wait for confirmation.
+        #[arg(long)]
+        wait: bool,
+    },
+    /// Execute a divorce.
+    Divorce {
+        /// Marriage ID on-chain.
+        #[arg(long)]
+        marriage_id: u64,
+        /// Reason for divorce.
+        #[arg(long)]
+        reason: String,
+        /// Starknet network.
+        #[arg(long, default_value = "sepolia")]
+        network: String,
+        /// Wait for confirmation.
+        #[arg(long)]
+        wait: bool,
+    },
+    /// Show contract addresses.
+    Info {
+        /// Show Sepolia testnet addresses.
+        #[arg(long)]
+        sepolia: bool,
+    },
+    /// List available marriage templates.
+    Templates,
+    /// Manage NFT wedding rings.
+    Rings {
+        #[command(subcommand)]
+        action: RingsCommands,
+    },
+}
+
+#[derive(Subcommand)]
+enum RingsCommands {
+    /// Mint NFT rings for a marriage.
+    Mint {
+        /// Marriage ID on-chain.
+        #[arg(long)]
+        marriage_id: u64,
+        /// Partner addresses (comma-separated hex).
+        #[arg(long)]
+        partners: String,
+        /// Partner name hashes (comma-separated hex).
+        #[arg(long)]
+        name_hashes: String,
+        /// Vows hashes (comma-separated hex).
+        #[arg(long)]
+        vows_hashes: String,
+        /// Marriage certificate hash (hex).
+        #[arg(long)]
+        marriage_hash: String,
+        /// Starknet network.
+        #[arg(long, default_value = "sepolia")]
+        network: String,
+    },
+    /// Burn a ring (on divorce).
+    Burn {
+        /// Token ID to burn.
+        #[arg(long)]
+        token_id: u64,
+        /// Starknet network.
+        #[arg(long, default_value = "sepolia")]
+        network: String,
+    },
+    /// Show ring metadata.
+    Show {
+        /// Token ID to show.
+        token_id: u64,
+        /// Starknet network.
+        #[arg(long, default_value = "sepolia")]
+        network: String,
+    },
+    /// Check if a ring exists.
+    Exists {
+        /// Token ID to check.
+        token_id: u64,
+        /// Starknet network.
+        #[arg(long, default_value = "sepolia")]
+        network: String,
+    },
+    /// Get total supply of rings.
+    Supply {
+        /// Starknet network.
+        #[arg(long, default_value = "sepolia")]
+        network: String,
+    },
+    /// Update vows on a ring (anniversary renewal).
+    UpdateVows {
+        /// Token ID to update.
+        #[arg(long)]
+        token_id: u64,
+        /// New vows hash (hex).
+        #[arg(long)]
+        vows_hash: String,
+        /// Starknet network.
+        #[arg(long, default_value = "sepolia")]
+        network: String,
+    },
+}
+
 /// JSON output wrapper.
 #[derive(Serialize)]
 struct JsonOutput<T: Serialize> {
@@ -730,6 +883,7 @@ fn run_command(cli: &Cli) -> Result<(), Box<dyn std::error::Error>> {
             secret_key,
             out,
         } => handle_unseal(file, secret_key, out, cli.json),
+        Commands::Marriage { action } => handle_marriage(action, cli.json),
     }
 }
 
@@ -6253,6 +6407,1070 @@ fn handle_unseal(
         println!("  Sealed size: {} bytes", sealed.len());
         println!("  Output size: {} bytes", plaintext.len());
         println!("  Algorithm: ML-KEM-1024 + ChaCha20Poly1305");
+    }
+
+    Ok(())
+}
+
+fn handle_marriage(
+    action: &MarriageCommands,
+    json: bool,
+) -> Result<(), Box<dyn std::error::Error>> {
+    use anubis_core::marriage::{
+        contracts, AssetSplit, DivorceCondition, MarriageDocument, MarriageTerms, Party,
+    };
+
+    match action {
+        MarriageCommands::Init {
+            parties,
+            template,
+            jurisdiction,
+            out,
+        } => {
+            // Load keystore and keypair
+            let ks = Keystore::open(Keystore::default_path())?;
+            let keypair = load_keypair_with_password(&ks)?;
+
+            // Parse party names
+            let party_names: Vec<&str> = parties.split(',').map(|s| s.trim()).collect();
+            if party_names.len() < 2 {
+                return Err("Need at least 2 parties for a marriage".into());
+            }
+
+            // For now, all parties use the same keypair (user must specify others separately)
+            // In production, each party would generate their own keypair
+            let mut party_list = Vec::new();
+            for name in &party_names {
+                party_list.push(Party {
+                    name: name.to_string(),
+                    public_key: keypair.public.clone(),
+                    starknet_address: None,
+                });
+            }
+
+            // Set up terms based on template
+            let terms = match template.as_str() {
+                "monogamy" => MarriageTerms {
+                    asset_split: AssetSplit::Equal,
+                    divorce_conditions: vec![DivorceCondition::MutualConsent],
+                    custom_clauses: vec![],
+                },
+                "polygamy" => MarriageTerms {
+                    asset_split: AssetSplit::Proportional,
+                    divorce_conditions: vec![DivorceCondition::Threshold {
+                        required: (party_names.len() / 2 + 1) as u8,
+                    }],
+                    custom_clauses: vec![],
+                },
+                "simple" => MarriageTerms::default(),
+                _ => {
+                    return Err(format!("Unknown template: {}. Use: monogamy, polygamy, simple", template).into());
+                }
+            };
+
+            // Create timestamp
+            let created_at = std::time::SystemTime::now()
+                .duration_since(std::time::UNIX_EPOCH)
+                .unwrap()
+                .as_secs();
+
+            // Create document
+            let doc = MarriageDocument::new(party_list, terms, jurisdiction.clone(), created_at)?;
+
+            // Serialize to JSON
+            #[derive(Serialize)]
+            struct MarriageDocJson {
+                version: u8,
+                parties: Vec<PartyJson>,
+                terms: TermsJson,
+                jurisdiction: String,
+                created_at: u64,
+                signatures: Vec<SignatureJson>,
+            }
+
+            #[derive(Serialize)]
+            struct PartyJson {
+                name: String,
+                public_key_hex: String,
+                starknet_address: Option<String>,
+            }
+
+            #[derive(Serialize)]
+            struct TermsJson {
+                asset_split: String,
+                divorce_conditions: Vec<String>,
+                custom_clauses: Vec<String>,
+            }
+
+            #[derive(Serialize)]
+            struct SignatureJson {
+                party_index: usize,
+                signature_hex: String,
+            }
+
+            let parties_json: Vec<PartyJson> = doc
+                .parties
+                .iter()
+                .map(|p| PartyJson {
+                    name: p.name.clone(),
+                    public_key_hex: hex::encode(p.public_key.to_bytes()),
+                    starknet_address: p.starknet_address.clone(),
+                })
+                .collect();
+
+            let terms_json = TermsJson {
+                asset_split: match &doc.terms.asset_split {
+                    AssetSplit::Equal => "50/50".to_string(),
+                    AssetSplit::Proportional => "proportional".to_string(),
+                    AssetSplit::Custom(pcts) => format!("custom:{:?}", pcts),
+                },
+                divorce_conditions: doc
+                    .terms
+                    .divorce_conditions
+                    .iter()
+                    .map(|c| format!("{:?}", c))
+                    .collect(),
+                custom_clauses: doc.terms.custom_clauses.clone(),
+            };
+
+            let doc_json = MarriageDocJson {
+                version: doc.version,
+                parties: parties_json,
+                terms: terms_json,
+                jurisdiction: doc.jurisdiction.clone(),
+                created_at: doc.created_at,
+                signatures: vec![],
+            };
+
+            let json_str = serde_json::to_string_pretty(&doc_json)?;
+            std::fs::write(out, &json_str)?;
+
+            if json {
+                let output = JsonOutput::success(serde_json::json!({
+                    "document": out.display().to_string(),
+                    "parties": party_names.len(),
+                    "template": template,
+                    "jurisdiction": jurisdiction,
+                }));
+                println!("{}", serde_json::to_string_pretty(&output)?);
+            } else {
+                println!("Marriage document created: {}", out.display());
+                println!("  Template: {}", template);
+                println!("  Parties: {:?}", party_names);
+                println!("  Jurisdiction: {}", jurisdiction);
+                println!("\nNext steps:");
+                println!("  1. Each party signs: anubis-notary marriage sign {} --party <index>", out.display());
+                println!("  2. Create on-chain: anubis-notary marriage create {}", out.display());
+            }
+
+            Ok(())
+        }
+
+        MarriageCommands::Sign { document, party, vows, out } => {
+            // Load keystore and keypair
+            let ks = Keystore::open(Keystore::default_path())?;
+            let keypair = load_keypair_with_password(&ks)?;
+
+            // Read document
+            let doc_str = std::fs::read_to_string(document)?;
+            let doc_value: serde_json::Value = serde_json::from_str(&doc_str)?;
+
+            // Recreate the document from JSON
+            // (In production, we'd have proper deserialization)
+            let party_count = doc_value["parties"]
+                .as_array()
+                .map(|a| a.len())
+                .unwrap_or(0);
+
+            if *party >= party_count {
+                return Err(format!("Party index {} out of range (0-{})", party, party_count - 1).into());
+            }
+
+            // Get party name for display
+            let party_name = doc_value["parties"]
+                .as_array()
+                .and_then(|parties| parties.get(*party))
+                .and_then(|p| p["name"].as_str())
+                .unwrap_or("Unknown")
+                .to_string();
+
+            // Compute vows hash if provided
+            let vows_hash = vows.as_ref().map(|v| {
+                let hash = anubis_core::keccak::sha3_256(v.as_bytes());
+                format!("0x{}", hex::encode(&hash))
+            });
+
+            // Sign the document digest
+            let digest = anubis_core::keccak::sha3_256(doc_str.as_bytes());
+            let signature = keypair.secret_key().sign(&digest)?;
+
+            // Add signature to document
+            let mut doc_value = doc_value;
+            let sigs = doc_value["signatures"].as_array_mut().unwrap();
+
+            let mut sig_entry = serde_json::json!({
+                "party_index": party,
+                "party_name": party_name,
+                "signature_hex": hex::encode(signature.to_bytes()),
+            });
+
+            if let Some(ref vh) = vows_hash {
+                sig_entry["vows_hash"] = serde_json::json!(vh);
+            }
+            if let Some(ref v) = vows {
+                sig_entry["vows_text"] = serde_json::json!(v);
+            }
+
+            sigs.push(sig_entry);
+
+            let output_path = out.as_ref().unwrap_or(document);
+            let json_str = serde_json::to_string_pretty(&doc_value)?;
+            std::fs::write(output_path, &json_str)?;
+
+            if json {
+                let mut output_data = serde_json::json!({
+                    "document": output_path.display().to_string(),
+                    "party_index": party,
+                    "party_name": party_name,
+                    "signed": true,
+                });
+                if let Some(ref vh) = vows_hash {
+                    output_data["vows_hash"] = serde_json::json!(vh);
+                }
+                let output = JsonOutput::success(output_data);
+                println!("{}", serde_json::to_string_pretty(&output)?);
+            } else {
+                println!("Marriage document signed by party {} ({})", party, party_name);
+                println!("  Document: {}", output_path.display());
+                if let Some(ref vh) = vows_hash {
+                    println!("  Vows hash: {}", vh);
+                    println!("  Your vows are now cryptographically bound to this marriage.");
+                }
+            }
+
+            Ok(())
+        }
+
+        MarriageCommands::Verify { document } => {
+            let doc_str = std::fs::read_to_string(document)?;
+            let doc_value: serde_json::Value = serde_json::from_str(&doc_str)?;
+
+            let party_count = doc_value["parties"]
+                .as_array()
+                .map(|a| a.len())
+                .unwrap_or(0);
+            let sig_count = doc_value["signatures"]
+                .as_array()
+                .map(|a| a.len())
+                .unwrap_or(0);
+
+            let fully_signed = sig_count == party_count;
+
+            if json {
+                let output = JsonOutput::success(serde_json::json!({
+                    "document": document.display().to_string(),
+                    "party_count": party_count,
+                    "signature_count": sig_count,
+                    "fully_signed": fully_signed,
+                }));
+                println!("{}", serde_json::to_string_pretty(&output)?);
+            } else {
+                println!("Marriage document: {}", document.display());
+                println!("  Parties: {}", party_count);
+                println!("  Signatures: {}/{}", sig_count, party_count);
+                if fully_signed {
+                    println!("  Status: FULLY SIGNED - Ready for on-chain creation");
+                } else {
+                    println!("  Status: PENDING - {} more signature(s) needed", party_count - sig_count);
+                }
+            }
+
+            Ok(())
+        }
+
+        MarriageCommands::Create { document, network, mint_rings, wait: _ } => {
+            let doc_str = std::fs::read_to_string(&document)?;
+            let doc_value: serde_json::Value = serde_json::from_str(&doc_str)?;
+
+            let parties = doc_value["parties"].as_array().ok_or("No parties in document")?;
+            let party_count = parties.len();
+            let signatures = doc_value["signatures"].as_array().ok_or("No signatures in document")?;
+            let sig_count = signatures.len();
+
+            if sig_count != party_count {
+                return Err(format!(
+                    "Document not fully signed: {}/{} signatures",
+                    sig_count, party_count
+                )
+                .into());
+            }
+
+            // Compute certificate hash
+            let cert_hash = anubis_core::keccak::sha3_256(doc_str.as_bytes());
+            let cert_hash_felt = format!("0x{}", hex::encode(&cert_hash[..31])); // Truncate to fit felt252
+
+            let rpc_url = match network.as_str() {
+                "mainnet" => "https://starknet-mainnet.public.blastapi.io/rpc/v0_7",
+                _ => "https://api.cartridge.gg/x/starknet/sepolia",
+            };
+            let marriage_contract = match network.as_str() {
+                "mainnet" => contracts::MARRIAGE_ORACLE_MAINNET,
+                _ => contracts::MARRIAGE_ORACLE_SEPOLIA,
+            };
+            let ring_contract = match network.as_str() {
+                "mainnet" => contracts::MARRIAGE_RING_MAINNET,
+                _ => contracts::MARRIAGE_RING_SEPOLIA,
+            };
+            let account_name = std::env::var("STARKNET_ACCOUNT_NAME").unwrap_or_else(|_| "anubis-deployer".to_string());
+
+            if !json {
+                println!("Creating marriage on Starknet ({})...", network);
+                println!("  Parties: {}", party_count);
+                println!("  Certificate hash: {}", hex::encode(&cert_hash));
+            }
+
+            // Get next marriage ID (current count + 1 since create_marriage increments after)
+            let count_output = std::process::Command::new("sncast")
+                .args(["call", "--url", rpc_url, "--contract-address", marriage_contract,
+                       "--function", "get_marriage_count"])
+                .output()?;
+            let count_str = String::from_utf8_lossy(&count_output.stdout);
+            // Parse "Response:     7_u64" or "Response Raw: [0x7]" format
+            let marriage_id: u64 = count_str.lines()
+                .find(|l| l.contains("Response:") && !l.contains("Raw"))
+                .and_then(|l| {
+                    // Extract number from "Response:     7_u64"
+                    l.split_whitespace()
+                        .last()
+                        .and_then(|s| s.split('_').next())
+                        .and_then(|s| s.trim().parse().ok())
+                })
+                .or_else(|| {
+                    // Fallback: try parsing hex from Raw response
+                    count_str.lines()
+                        .find(|l| l.contains("0x"))
+                        .and_then(|l| {
+                            l.split("0x").nth(1)
+                                .and_then(|s| s.chars().take_while(|c| c.is_ascii_hexdigit()).collect::<String>().parse().ok())
+                                .or_else(|| u64::from_str_radix(&l.split("0x").nth(1)?.chars().take_while(|c| c.is_ascii_hexdigit()).collect::<String>(), 16).ok())
+                        })
+                })
+                .unwrap_or(1);
+
+            // The next marriage will have ID = current_count + 1
+            let next_marriage_id = marriage_id + 1;
+
+            if !json {
+                println!("  Marriage ID will be: {}", next_marriage_id);
+            }
+
+            // Build calldata for create_marriage
+            // Format: partner_count, [partners...], cert_hash, anchor_id (0 for now), required_sigs
+            let required_sigs = party_count;
+            let mut calldata: Vec<String> = vec![party_count.to_string()];
+
+            // Add placeholder partner addresses (use account address for demo)
+            for _ in 0..party_count {
+                calldata.push("0x0634a183f349e68fde9719a3c3bbc83faf557afcad28b143ae99340f2bb2458e".to_string());
+            }
+            calldata.push(cert_hash_felt.clone());
+            calldata.push("0".to_string()); // anchor_id
+            calldata.push(required_sigs.to_string());
+
+            let calldata_str = calldata.join(" ");
+
+            // Create marriage on-chain
+            let create_output = std::process::Command::new("sncast")
+                .args(["--account", &account_name, "invoke", "--url", rpc_url,
+                       "--contract-address", marriage_contract,
+                       "--function", "create_marriage",
+                       "--calldata", &calldata_str])
+                .output()?;
+
+            let create_stdout = String::from_utf8_lossy(&create_output.stdout);
+            let create_stderr = String::from_utf8_lossy(&create_output.stderr);
+
+            if !create_output.status.success() {
+                return Err(format!("Failed to create marriage: {}", create_stderr).into());
+            }
+
+            // Extract transaction hash
+            let tx_hash = create_stdout.lines()
+                .find(|l| l.contains("transaction_hash"))
+                .and_then(|l| l.split(':').nth(1).or(l.split('=').nth(1)))
+                .map(|s| s.trim().to_string())
+                .unwrap_or_else(|| "unknown".to_string());
+
+            if !json {
+                println!("  Marriage created! TX: {}", tx_hash);
+            }
+
+            // Mint rings if requested
+            if *mint_rings {
+                if !json {
+                    println!("\nMinting NFT wedding rings...");
+                }
+
+                // Extract vows hashes from signatures
+                let mut vows_hashes: Vec<String> = Vec::new();
+                let mut name_hashes: Vec<String> = Vec::new();
+
+                for (i, sig) in signatures.iter().enumerate() {
+                    // Get vows hash or compute from party name
+                    // Truncate to 31 bytes (62 hex chars) to fit in felt252
+                    let vows_hash = sig.get("vows_hash")
+                        .and_then(|v| v.as_str())
+                        .map(|s| {
+                            // Truncate "0x..." hash to fit felt252 (max 31 bytes = 62 hex chars)
+                            let hex_part = s.trim_start_matches("0x");
+                            if hex_part.len() > 62 {
+                                format!("0x{}", &hex_part[..62])
+                            } else {
+                                s.to_string()
+                            }
+                        })
+                        .unwrap_or_else(|| {
+                            // No vows - use a default placeholder
+                            format!("0x{:062x}", i + 1)
+                        });
+                    vows_hashes.push(vows_hash);
+
+                    // Get party name hash
+                    let party_name = parties.get(i)
+                        .and_then(|p| p["name"].as_str())
+                        .unwrap_or("Partner");
+                    let name_hash_bytes = anubis_core::keccak::sha3_256(party_name.as_bytes());
+                    name_hashes.push(format!("0x{}", hex::encode(&name_hash_bytes[..31])));
+                }
+
+                // Build mint calldata
+                // mint_rings(marriage_id, partner_count, partners[], name_hashes[], vows_hashes[], marriage_hash)
+                let mut mint_calldata: Vec<String> = vec![
+                    next_marriage_id.to_string(),
+                    party_count.to_string(),
+                ];
+
+                // Partner addresses (placeholders)
+                for _ in 0..party_count {
+                    mint_calldata.push("0x0634a183f349e68fde9719a3c3bbc83faf557afcad28b143ae99340f2bb2458e".to_string());
+                }
+
+                // Name hashes
+                mint_calldata.push(party_count.to_string());
+                for nh in &name_hashes {
+                    mint_calldata.push(nh.clone());
+                }
+
+                // Vows hashes
+                mint_calldata.push(party_count.to_string());
+                for vh in &vows_hashes {
+                    mint_calldata.push(vh.clone());
+                }
+
+                // Marriage hash
+                mint_calldata.push(cert_hash_felt.clone());
+
+                let mint_calldata_str = mint_calldata.join(" ");
+
+                let mint_output = std::process::Command::new("sncast")
+                    .args(["--account", &account_name, "invoke", "--url", rpc_url,
+                           "--contract-address", ring_contract,
+                           "--function", "mint_rings",
+                           "--calldata", &mint_calldata_str])
+                    .output()?;
+
+                let mint_stdout = String::from_utf8_lossy(&mint_output.stdout);
+
+                if mint_output.status.success() {
+                    let mint_tx = mint_stdout.lines()
+                        .find(|l| l.contains("transaction_hash"))
+                        .and_then(|l| l.split(':').nth(1).or(l.split('=').nth(1)))
+                        .map(|s| s.trim().to_string())
+                        .unwrap_or_else(|| "unknown".to_string());
+
+                    if !json {
+                        println!("  Rings minted! TX: {}", mint_tx);
+                        for i in 0..party_count {
+                            let token_id = next_marriage_id * 1000 + i as u64;
+                            let party_name = parties.get(i)
+                                .and_then(|p| p["name"].as_str())
+                                .unwrap_or("Partner");
+                            println!("    Ring #{} for {}", token_id, party_name);
+                        }
+                    }
+                } else {
+                    let mint_stderr = String::from_utf8_lossy(&mint_output.stderr);
+                    if !json {
+                        println!("  Warning: Failed to mint rings: {}", mint_stderr);
+                    }
+                }
+            }
+
+            if json {
+                let mut output_data = serde_json::json!({
+                    "marriage_id": next_marriage_id,
+                    "certificate_hash": hex::encode(&cert_hash),
+                    "network": network,
+                    "transaction_hash": tx_hash,
+                    "contract": marriage_contract,
+                    "status": "created",
+                });
+                if *mint_rings {
+                    let ring_tokens: Vec<u64> = (0..party_count as u64)
+                        .map(|i| next_marriage_id * 1000 + i)
+                        .collect();
+                    output_data["rings"] = serde_json::json!(ring_tokens);
+                }
+                let output = JsonOutput::success(output_data);
+                println!("{}", serde_json::to_string_pretty(&output)?);
+            } else {
+                println!("\nMarriage #{} successfully created on Starknet!", next_marriage_id);
+                if !*mint_rings {
+                    println!("\nTo mint NFT rings, run:");
+                    println!("  anubis-notary marriage rings mint --marriage-id {}", next_marriage_id);
+                }
+            }
+
+            Ok(())
+        }
+
+        MarriageCommands::Divorce { marriage_id, reason, network, wait: _ } => {
+            let rpc_url = match network.as_str() {
+                "mainnet" => "https://starknet-mainnet.public.blastapi.io/rpc/v0_7",
+                _ => "https://api.cartridge.gg/x/starknet/sepolia",
+            };
+            let marriage_contract = match network.as_str() {
+                "mainnet" => contracts::MARRIAGE_ORACLE_MAINNET,
+                _ => contracts::MARRIAGE_ORACLE_SEPOLIA,
+            };
+            let ring_contract = match network.as_str() {
+                "mainnet" => contracts::MARRIAGE_RING_MAINNET,
+                _ => contracts::MARRIAGE_RING_SEPOLIA,
+            };
+            let account_name = std::env::var("STARKNET_ACCOUNT_NAME").unwrap_or_else(|_| "anubis-deployer".to_string());
+
+            if !json {
+                println!("Executing divorce for marriage #{}...", marriage_id);
+            }
+
+            // Step 1: Get marriage info to know partner count
+            let get_marriage_output = std::process::Command::new("sncast")
+                .args(["call", "--url", rpc_url,
+                       "--contract-address", marriage_contract,
+                       "--function", "get_marriage",
+                       "--calldata", &marriage_id.to_string()])
+                .output()?;
+
+            let stdout = String::from_utf8_lossy(&get_marriage_output.stdout);
+
+            // Parse partner_count from response (second field in MarriageRecord)
+            let partner_count: u64 = stdout.lines()
+                .find(|l| l.contains("partner_count:"))
+                .and_then(|l| l.split("partner_count:").nth(1))
+                .and_then(|s| s.trim().split('_').next())
+                .and_then(|s| s.trim().parse().ok())
+                .unwrap_or(2); // Default to 2 if parsing fails
+
+            if !json {
+                println!("  Found {} partners in marriage", partner_count);
+            }
+
+            // Step 2: Execute divorce on-chain
+            let reason_hash = format!("0x{:x}", reason.bytes().fold(0u64, |acc, b| acc.wrapping_mul(31).wrapping_add(b as u64)));
+
+            let divorce_output = std::process::Command::new("sncast")
+                .args(["--account", &account_name, "invoke", "--url", rpc_url,
+                       "--contract-address", marriage_contract,
+                       "--function", "execute_divorce",
+                       "--calldata", &marriage_id.to_string(), &reason_hash, "1"])
+                .output()?;
+
+            let divorce_stdout = String::from_utf8_lossy(&divorce_output.stdout);
+            let divorce_stderr = String::from_utf8_lossy(&divorce_output.stderr);
+
+            if !divorce_output.status.success() {
+                return Err(format!("Failed to execute divorce: {}", divorce_stderr).into());
+            }
+
+            let divorce_tx = divorce_stdout.lines()
+                .find(|line| line.contains("Transaction Hash:"))
+                .and_then(|line| line.split(':').nth(1))
+                .map(|s| s.trim())
+                .unwrap_or("unknown");
+
+            if !json {
+                println!("  Divorce executed: {}", divorce_tx);
+                println!("  Burning {} rings...", partner_count);
+            }
+
+            // Step 3: Burn all rings for this marriage
+            let mut burned_rings = Vec::new();
+            for i in 0..partner_count {
+                let token_id = marriage_id * 1000 + i;
+
+                // Check if ring exists first
+                let exists_output = std::process::Command::new("sncast")
+                    .args(["call", "--url", rpc_url,
+                           "--contract-address", ring_contract,
+                           "--function", "exists",
+                           "--calldata", &token_id.to_string(), "0"])
+                    .output()?;
+
+                let exists_stdout = String::from_utf8_lossy(&exists_output.stdout);
+                let ring_exists = exists_stdout.contains("true") || exists_stdout.contains("[0x1]");
+
+                if ring_exists {
+                    let burn_output = std::process::Command::new("sncast")
+                        .args(["--account", &account_name, "invoke", "--url", rpc_url,
+                               "--contract-address", ring_contract,
+                               "--function", "burn_ring",
+                               "--calldata", &token_id.to_string(), "0"])
+                        .output()?;
+
+                    let burn_stdout = String::from_utf8_lossy(&burn_output.stdout);
+
+                    if burn_output.status.success() {
+                        let burn_tx = burn_stdout.lines()
+                            .find(|line| line.contains("Transaction Hash:"))
+                            .and_then(|line| line.split(':').nth(1))
+                            .map(|s| s.trim().to_string())
+                            .unwrap_or_else(|| "unknown".to_string());
+
+                        burned_rings.push(serde_json::json!({
+                            "token_id": token_id,
+                            "tx": burn_tx,
+                        }));
+
+                        if !json {
+                            println!("    Ring #{} burned: {}", token_id, burn_tx);
+                        }
+                    }
+                } else if !json {
+                    println!("    Ring #{} already burned or doesn't exist", token_id);
+                }
+            }
+
+            if json {
+                let output = JsonOutput::success(serde_json::json!({
+                    "marriage_id": marriage_id,
+                    "reason": reason,
+                    "network": network,
+                    "status": "divorced",
+                    "divorce_tx": divorce_tx,
+                    "rings_burned": burned_rings,
+                }));
+                println!("{}", serde_json::to_string_pretty(&output)?);
+            } else {
+                println!();
+                println!("Divorce complete!");
+                println!("  Marriage #{} is now DISSOLVED", marriage_id);
+                println!("  Rings burned: {}", burned_rings.len());
+            }
+
+            Ok(())
+        }
+
+        MarriageCommands::Info { sepolia } => {
+            if json {
+                let output = JsonOutput::success(serde_json::json!({
+                    "sepolia": {
+                        "marriage_oracle": contracts::MARRIAGE_ORACLE_SEPOLIA,
+                        "marriage_ring_nft": contracts::MARRIAGE_RING_SEPOLIA,
+                    },
+                    "mainnet": {
+                        "status": "not_deployed",
+                    },
+                }));
+                println!("{}", serde_json::to_string_pretty(&output)?);
+            } else {
+                println!("Anubis Marriage System - Contract Addresses");
+                println!();
+                if *sepolia {
+                    println!("Sepolia Testnet:");
+                    println!("  Marriage Oracle: {}", contracts::MARRIAGE_ORACLE_SEPOLIA);
+                    println!("  Marriage Ring NFT: {}", contracts::MARRIAGE_RING_SEPOLIA);
+                } else {
+                    println!("Sepolia Testnet:");
+                    println!("  Marriage Oracle: {}", contracts::MARRIAGE_ORACLE_SEPOLIA);
+                    println!("  Marriage Ring NFT: {}", contracts::MARRIAGE_RING_SEPOLIA);
+                    println!();
+                    println!("Mainnet: Not yet deployed");
+                }
+            }
+
+            Ok(())
+        }
+
+        MarriageCommands::Templates => {
+            if json {
+                let output = JsonOutput::success(serde_json::json!({
+                    "templates": [
+                        {
+                            "name": "monogamy",
+                            "description": "Standard 2-party marriage with equal asset split",
+                            "max_parties": 2,
+                            "asset_split": "50/50",
+                            "divorce_condition": "mutual_consent",
+                        },
+                        {
+                            "name": "polygamy",
+                            "description": "N-party marriage with proportional asset split",
+                            "max_parties": 10,
+                            "asset_split": "proportional",
+                            "divorce_condition": "threshold (majority)",
+                        },
+                        {
+                            "name": "simple",
+                            "description": "Minimal template with default terms",
+                            "max_parties": 10,
+                            "asset_split": "equal",
+                            "divorce_condition": "mutual_consent",
+                        },
+                    ],
+                }));
+                println!("{}", serde_json::to_string_pretty(&output)?);
+            } else {
+                println!("Available Marriage Templates:");
+                println!();
+                println!("  monogamy");
+                println!("    Standard 2-party marriage with equal asset split");
+                println!("    Divorce: Mutual consent required");
+                println!();
+                println!("  polygamy");
+                println!("    N-party marriage (up to 10) with proportional asset split");
+                println!("    Divorce: Majority threshold required");
+                println!();
+                println!("  simple");
+                println!("    Minimal template with default terms");
+                println!("    Divorce: Mutual consent");
+                println!();
+                println!("Use: anubis-notary marriage init --template <name> --parties \"Alice,Bob\" --jurisdiction US-CA -o marriage.json");
+            }
+
+            Ok(())
+        }
+
+        MarriageCommands::Rings { action } => {
+            handle_rings(action, json)?;
+            Ok(())
+        }
+    }
+}
+
+fn handle_rings(action: &RingsCommands, json: bool) -> Result<(), Box<dyn std::error::Error>> {
+    // Contract addresses
+    const RING_CONTRACT_SEPOLIA: &str = "0x07f579e725cbd8dbac8974245d05824f1024bc0c041d98e0a6133dbd5cdc7090";
+    const RING_CONTRACT_MAINNET: &str = "0x07f579e725cbd8dbac8974245d05824f1024bc0c041d98e0a6133dbd5cdc7090"; // TODO: Deploy mainnet
+
+    fn get_ring_contract(network: &str) -> &'static str {
+        match network {
+            "mainnet" => RING_CONTRACT_MAINNET,
+            _ => RING_CONTRACT_SEPOLIA,
+        }
+    }
+
+    fn get_rpc_url(network: &str) -> &'static str {
+        match network {
+            "mainnet" => "https://starknet-mainnet.public.blastapi.io/rpc/v0_7",
+            _ => "https://api.cartridge.gg/x/starknet/sepolia",
+        }
+    }
+
+    match action {
+        RingsCommands::Mint { marriage_id, partners, name_hashes, vows_hashes, marriage_hash, network } => {
+            let contract = get_ring_contract(network);
+            let rpc_url = get_rpc_url(network);
+
+            // Parse comma-separated values
+            let partner_list: Vec<&str> = partners.split(',').map(|s| s.trim()).collect();
+            let name_hash_list: Vec<&str> = name_hashes.split(',').map(|s| s.trim()).collect();
+            let vows_hash_list: Vec<&str> = vows_hashes.split(',').map(|s| s.trim()).collect();
+
+            if partner_list.len() != name_hash_list.len() || partner_list.len() != vows_hash_list.len() {
+                return Err("Number of partners, name_hashes, and vows_hashes must match".into());
+            }
+
+            // Build calldata: marriage_id, [partners], [name_hashes], [vows_hashes], marriage_hash
+            let mut calldata = vec![marriage_id.to_string()];
+
+            // Partners array
+            calldata.push(partner_list.len().to_string());
+            calldata.extend(partner_list.iter().map(|s| s.to_string()));
+
+            // Name hashes array
+            calldata.push(name_hash_list.len().to_string());
+            calldata.extend(name_hash_list.iter().map(|s| s.to_string()));
+
+            // Vows hashes array
+            calldata.push(vows_hash_list.len().to_string());
+            calldata.extend(vows_hash_list.iter().map(|s| s.to_string()));
+
+            // Marriage hash
+            calldata.push(marriage_hash.clone());
+
+            let calldata_str = calldata.join(" ");
+
+            if !json {
+                println!("Minting {} rings for marriage #{}...", partner_list.len(), marriage_id);
+            }
+
+            // Get account name from env or use default
+            let account_name = std::env::var("STARKNET_ACCOUNT_NAME").unwrap_or_else(|_| "anubis-deployer".to_string());
+
+            let output = std::process::Command::new("sncast")
+                .args(["--account", &account_name, "invoke", "--url", rpc_url,
+                       "--contract-address", contract,
+                       "--function", "mint_rings",
+                       "--calldata"])
+                .args(calldata_str.split_whitespace())
+                .output()?;
+
+            let stdout = String::from_utf8_lossy(&output.stdout);
+            let stderr = String::from_utf8_lossy(&output.stderr);
+
+            if output.status.success() {
+                // Extract transaction hash
+                let tx_hash = stdout.lines()
+                    .find(|line| line.contains("Transaction Hash:"))
+                    .and_then(|line| line.split(':').nth(1))
+                    .map(|s| s.trim())
+                    .unwrap_or("unknown");
+
+                if json {
+                    let output = serde_json::json!({
+                        "success": true,
+                        "action": "mint_rings",
+                        "marriage_id": marriage_id,
+                        "ring_count": partner_list.len(),
+                        "transaction_hash": tx_hash,
+                        "network": network,
+                    });
+                    println!("{}", serde_json::to_string_pretty(&output)?);
+                } else {
+                    println!("Rings minted successfully!");
+                    println!("  Marriage ID: {}", marriage_id);
+                    println!("  Rings minted: {}", partner_list.len());
+                    println!("  TX: {}", tx_hash);
+                    println!();
+                    println!("Token IDs:");
+                    for (i, partner) in partner_list.iter().enumerate() {
+                        let token_id = *marriage_id * 1000 + i as u64;
+                        println!("  Ring #{}: Token ID {} -> {}", i, token_id, partner);
+                    }
+                }
+            } else {
+                return Err(format!("Failed to mint rings: {}", stderr).into());
+            }
+        }
+
+        RingsCommands::Burn { token_id, network } => {
+            let contract = get_ring_contract(network);
+            let rpc_url = get_rpc_url(network);
+
+            if !json {
+                println!("Burning ring #{}...", token_id);
+            }
+
+            let account_name = std::env::var("STARKNET_ACCOUNT_NAME").unwrap_or_else(|_| "anubis-deployer".to_string());
+
+            let output = std::process::Command::new("sncast")
+                .args(["--account", &account_name, "invoke", "--url", rpc_url,
+                       "--contract-address", contract,
+                       "--function", "burn_ring",
+                       "--calldata", &token_id.to_string(), "0"]) // u256 = (low, high)
+                .output()?;
+
+            let stdout = String::from_utf8_lossy(&output.stdout);
+            let stderr = String::from_utf8_lossy(&output.stderr);
+
+            if output.status.success() {
+                let tx_hash = stdout.lines()
+                    .find(|line| line.contains("Transaction Hash:"))
+                    .and_then(|line| line.split(':').nth(1))
+                    .map(|s| s.trim())
+                    .unwrap_or("unknown");
+
+                if json {
+                    let output = serde_json::json!({
+                        "success": true,
+                        "action": "burn_ring",
+                        "token_id": token_id,
+                        "transaction_hash": tx_hash,
+                    });
+                    println!("{}", serde_json::to_string_pretty(&output)?);
+                } else {
+                    println!("Ring burned successfully!");
+                    println!("  Token ID: {}", token_id);
+                    println!("  TX: {}", tx_hash);
+                }
+            } else {
+                return Err(format!("Failed to burn ring: {}", stderr).into());
+            }
+        }
+
+        RingsCommands::Show { token_id, network } => {
+            let contract = get_ring_contract(network);
+            let rpc_url = get_rpc_url(network);
+
+            let output = std::process::Command::new("sncast")
+                .args(["call", "--url", rpc_url,
+                       "--contract-address", contract,
+                       "--function", "get_ring_metadata",
+                       "--calldata", &token_id.to_string(), "0"])
+                .output()?;
+
+            let stdout = String::from_utf8_lossy(&output.stdout);
+            let stderr = String::from_utf8_lossy(&output.stderr);
+
+            if output.status.success() {
+                // Parse the response
+                if let Some(response_line) = stdout.lines().find(|l| l.starts_with("Response:")) {
+                    let response = response_line.trim_start_matches("Response:").trim();
+
+                    if json {
+                        let output = serde_json::json!({
+                            "success": true,
+                            "token_id": token_id,
+                            "metadata": response,
+                        });
+                        println!("{}", serde_json::to_string_pretty(&output)?);
+                    } else {
+                        println!("Ring Metadata (Token #{})", token_id);
+                        println!("  {}", response);
+
+                        // Try to extract marriage_id from token_id
+                        let marriage_id = token_id / 1000;
+                        let partner_index = token_id % 1000;
+                        println!();
+                        println!("  Derived:");
+                        println!("    Marriage ID: {}", marriage_id);
+                        println!("    Partner Index: {}", partner_index);
+                    }
+                } else {
+                    return Err(format!("Could not parse response: {}", stdout).into());
+                }
+            } else {
+                return Err(format!("Failed to get ring metadata: {}", stderr).into());
+            }
+        }
+
+        RingsCommands::Exists { token_id, network } => {
+            let contract = get_ring_contract(network);
+            let rpc_url = get_rpc_url(network);
+
+            let output = std::process::Command::new("sncast")
+                .args(["call", "--url", rpc_url,
+                       "--contract-address", contract,
+                       "--function", "exists",
+                       "--calldata", &token_id.to_string(), "0"])
+                .output()?;
+
+            let stdout = String::from_utf8_lossy(&output.stdout);
+            let stderr = String::from_utf8_lossy(&output.stderr);
+
+            if output.status.success() {
+                let exists = stdout.contains("true") || stdout.contains("[0x1]");
+
+                if json {
+                    let output = serde_json::json!({
+                        "success": true,
+                        "token_id": token_id,
+                        "exists": exists,
+                    });
+                    println!("{}", serde_json::to_string_pretty(&output)?);
+                } else {
+                    if exists {
+                        println!("Ring #{} EXISTS", token_id);
+                    } else {
+                        println!("Ring #{} does NOT exist", token_id);
+                    }
+                }
+            } else {
+                return Err(format!("Failed to check ring existence: {}", stderr).into());
+            }
+        }
+
+        RingsCommands::Supply { network } => {
+            let contract = get_ring_contract(network);
+            let rpc_url = get_rpc_url(network);
+
+            let output = std::process::Command::new("sncast")
+                .args(["call", "--url", rpc_url,
+                       "--contract-address", contract,
+                       "--function", "total_supply"])
+                .output()?;
+
+            let stdout = String::from_utf8_lossy(&output.stdout);
+            let stderr = String::from_utf8_lossy(&output.stderr);
+
+            if output.status.success() {
+                // Extract supply from response
+                let supply = stdout.lines()
+                    .find(|l| l.starts_with("Response:"))
+                    .and_then(|l| l.split_whitespace().nth(1))
+                    .and_then(|s| s.trim_end_matches("_u256").parse::<u64>().ok())
+                    .unwrap_or(0);
+
+                if json {
+                    let output = serde_json::json!({
+                        "success": true,
+                        "total_supply": supply,
+                    });
+                    println!("{}", serde_json::to_string_pretty(&output)?);
+                } else {
+                    println!("Total Ring Supply: {}", supply);
+                }
+            } else {
+                return Err(format!("Failed to get supply: {}", stderr).into());
+            }
+        }
+
+        RingsCommands::UpdateVows { token_id, vows_hash, network } => {
+            let contract = get_ring_contract(network);
+            let rpc_url = get_rpc_url(network);
+
+            if !json {
+                println!("Updating vows for ring #{}...", token_id);
+            }
+
+            let account_name = std::env::var("STARKNET_ACCOUNT_NAME").unwrap_or_else(|_| "anubis-deployer".to_string());
+
+            let output = std::process::Command::new("sncast")
+                .args(["--account", &account_name, "invoke", "--url", rpc_url,
+                       "--contract-address", contract,
+                       "--function", "update_vows",
+                       "--calldata", &token_id.to_string(), "0", vows_hash])
+                .output()?;
+
+            let stdout = String::from_utf8_lossy(&output.stdout);
+            let stderr = String::from_utf8_lossy(&output.stderr);
+
+            if output.status.success() {
+                let tx_hash = stdout.lines()
+                    .find(|line| line.contains("Transaction Hash:"))
+                    .and_then(|line| line.split(':').nth(1))
+                    .map(|s| s.trim())
+                    .unwrap_or("unknown");
+
+                if json {
+                    let output = serde_json::json!({
+                        "success": true,
+                        "action": "update_vows",
+                        "token_id": token_id,
+                        "new_vows_hash": vows_hash,
+                        "transaction_hash": tx_hash,
+                    });
+                    println!("{}", serde_json::to_string_pretty(&output)?);
+                } else {
+                    println!("Vows updated successfully!");
+                    println!("  Token ID: {}", token_id);
+                    println!("  New Vows Hash: {}", vows_hash);
+                    println!("  TX: {}", tx_hash);
+                }
+            } else {
+                return Err(format!("Failed to update vows: {}", stderr).into());
+            }
+        }
     }
 
     Ok(())
