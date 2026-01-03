@@ -158,20 +158,15 @@ impl core::fmt::Display for MarriageError {
 impl std::error::Error for MarriageError {}
 
 /// Asset split configuration for divorce.
-#[derive(Debug, Clone, PartialEq, Eq)]
+#[derive(Debug, Clone, PartialEq, Eq, Default)]
 pub enum AssetSplit {
     /// Equal 50/50 split.
+    #[default]
     Equal,
     /// Proportional based on contribution.
     Proportional,
     /// Custom percentages per party.
     Custom(Vec<u8>), // Percentages for each party (must sum to 100)
-}
-
-impl Default for AssetSplit {
-    fn default() -> Self {
-        AssetSplit::Equal
-    }
 }
 
 /// Divorce condition types.

@@ -3169,7 +3169,7 @@ fn handle_starknet(
                     Err(e) => {
                         if json {
                             let output: JsonOutput<()> =
-                                JsonOutput::error(&format!("Transaction failed: {}", e));
+                                JsonOutput::error(format!("Transaction failed: {}", e));
                             println!("{}", serde_json::to_string_pretty(&output)?);
                         } else {
                             println!();
@@ -3181,10 +3181,10 @@ fn handle_starknet(
                             println!("  - Network connectivity issues");
                             println!("  - Contract not deployed on this network");
                         }
-                        return Err(Box::new(std::io::Error::new(
-                            std::io::ErrorKind::Other,
-                            format!("Starknet transaction failed: {}", e),
-                        )));
+                        return Err(Box::new(std::io::Error::other(format!(
+                            "Starknet transaction failed: {}",
+                            e
+                        ))));
                     }
                 }
             } else {
@@ -3358,7 +3358,7 @@ fn handle_starknet(
             use anubis_io::BatchQueue;
 
             // Verify the receipt is valid
-            let receipt_data = read_file(&receipt)?;
+            let receipt_data = read_file(receipt)?;
             let parsed =
                 Receipt::decode(&receipt_data).map_err(|e| format!("Invalid receipt: {:?}", e))?;
 
@@ -3367,7 +3367,7 @@ fn handle_starknet(
             let queue = BatchQueue::open(&queue_path)?;
 
             // Add to queue
-            let entry = queue.enqueue(&parsed.digest, &receipt)?;
+            let entry = queue.enqueue(&parsed.digest, receipt)?;
 
             if json {
                 #[derive(Serialize)]
@@ -3997,7 +3997,7 @@ fn handle_mina(action: &MinaCommands, json: bool) -> Result<(), Box<dyn std::err
                     .unwrap_or("Unknown error");
                 if json {
                     let output: JsonOutput<()> =
-                        JsonOutput::error(&format!("Anchor failed: {}", err));
+                        JsonOutput::error(format!("Anchor failed: {}", err));
                     println!("{}", serde_json::to_string_pretty(&output)?);
                 } else {
                     println!();
@@ -4160,7 +4160,7 @@ fn handle_mina(action: &MinaCommands, json: bool) -> Result<(), Box<dyn std::err
                         .unwrap_or("Unknown error");
                     if json {
                         let output: JsonOutput<()> =
-                            JsonOutput::error(&format!("Bridge error: {}", err));
+                            JsonOutput::error(format!("Bridge error: {}", err));
                         println!("{}", serde_json::to_string_pretty(&output)?);
                     } else {
                         println!("Mina Time:");
@@ -4483,58 +4483,56 @@ fn handle_mina(action: &MinaCommands, json: bool) -> Result<(), Box<dyn std::err
 
             if json {
                 println!("{}", response.trim());
-            } else {
-                if let Ok(parsed) = serde_json::from_str::<serde_json::Value>(&response) {
-                    if parsed.get("ok").and_then(|v| v.as_bool()) == Some(true) {
-                        println!("╔════════════════════════════════════════════════════════════════════════╗");
-                        println!("║                 ZKAPP DEPLOYED SUCCESSFULLY                            ║");
-                        println!("╠════════════════════════════════════════════════════════════════════════╣");
-                        if let Some(addr) = parsed.get("zkappAddress").and_then(|v| v.as_str()) {
-                            println!("║  zkApp Address: {}  ║", addr);
-                        }
-                        if let Some(tx) = parsed.get("txHash").and_then(|v| v.as_str()) {
-                            println!("║  Transaction:   {}  ║", tx);
-                        }
-                        if let Some(url) = parsed.get("explorerUrl").and_then(|v| v.as_str()) {
-                            println!("║  Explorer:      {}  ║", url);
-                        }
-                        println!("╟────────────────────────────────────────────────────────────────────────╢");
-                        println!("║  zkApp Private Key (for upgrades only):                               ║");
-                        if let Some(sk) = parsed.get("zkappPrivateKey").and_then(|v| v.as_str()) {
-                            println!("║    {}  ║", sk);
-                        }
-                        println!("╠════════════════════════════════════════════════════════════════════════╣");
-                        println!("║  ⚠️  SAVE THE ZKAPP PRIVATE KEY - needed for contract upgrades         ║");
-                        println!("╚════════════════════════════════════════════════════════════════════════╝");
-                        println!();
-
-                        // Save config automatically
-                        if let Some(addr) = parsed.get("zkappAddress").and_then(|v| v.as_str()) {
-                            let config_path = dirs::home_dir()
-                                .unwrap_or_else(|| PathBuf::from("."))
-                                .join(".anubis")
-                                .join("mina-config.json");
-                            let config = serde_json::json!({
-                                "network": "mainnet",
-                                "zkapp_address": addr,
-                                "fee_mina": 0.1,
-                            });
-                            if std::fs::write(&config_path, serde_json::to_string_pretty(&config)?)
-                                .is_ok()
-                            {
-                                println!("Configuration saved to: {}", config_path.display());
-                                println!();
-                                println!(
-                                    "You can now use: anubis-notary anchor mina anchor <receipt>"
-                                );
-                            }
-                        }
-                    } else if let Some(err) = parsed.get("error").and_then(|v| v.as_str()) {
-                        println!("Deployment failed: {}", err);
+            } else if let Ok(parsed) = serde_json::from_str::<serde_json::Value>(&response) {
+                if parsed.get("ok").and_then(|v| v.as_bool()) == Some(true) {
+                    println!("╔════════════════════════════════════════════════════════════════════════╗");
+                    println!("║                 ZKAPP DEPLOYED SUCCESSFULLY                            ║");
+                    println!("╠════════════════════════════════════════════════════════════════════════╣");
+                    if let Some(addr) = parsed.get("zkappAddress").and_then(|v| v.as_str()) {
+                        println!("║  zkApp Address: {}  ║", addr);
                     }
-                } else {
-                    println!("Response: {}", response.trim());
+                    if let Some(tx) = parsed.get("txHash").and_then(|v| v.as_str()) {
+                        println!("║  Transaction:   {}  ║", tx);
+                    }
+                    if let Some(url) = parsed.get("explorerUrl").and_then(|v| v.as_str()) {
+                        println!("║  Explorer:      {}  ║", url);
+                    }
+                    println!("╟────────────────────────────────────────────────────────────────────────╢");
+                    println!(
+                        "║  zkApp Private Key (for upgrades only):                               ║"
+                    );
+                    if let Some(sk) = parsed.get("zkappPrivateKey").and_then(|v| v.as_str()) {
+                        println!("║    {}  ║", sk);
+                    }
+                    println!("╠════════════════════════════════════════════════════════════════════════╣");
+                    println!("║  ⚠️  SAVE THE ZKAPP PRIVATE KEY - needed for contract upgrades         ║");
+                    println!("╚════════════════════════════════════════════════════════════════════════╝");
+                    println!();
+
+                    // Save config automatically
+                    if let Some(addr) = parsed.get("zkappAddress").and_then(|v| v.as_str()) {
+                        let config_path = dirs::home_dir()
+                            .unwrap_or_else(|| PathBuf::from("."))
+                            .join(".anubis")
+                            .join("mina-config.json");
+                        let config = serde_json::json!({
+                            "network": "mainnet",
+                            "zkapp_address": addr,
+                            "fee_mina": 0.1,
+                        });
+                        if std::fs::write(&config_path, serde_json::to_string_pretty(&config)?)
+                            .is_ok()
+                        {
+                            println!("Configuration saved to: {}", config_path.display());
+                            println!();
+                            println!("You can now use: anubis-notary anchor mina anchor <receipt>");
+                        }
+                    }
+                } else if let Some(err) = parsed.get("error").and_then(|v| v.as_str()) {
+                    println!("Deployment failed: {}", err);
                 }
+            } else {
+                println!("Response: {}", response.trim());
             }
         }
         MinaCommands::Info => {
@@ -4587,49 +4585,43 @@ fn handle_mina(action: &MinaCommands, json: bool) -> Result<(), Box<dyn std::err
 
             if json {
                 println!("{}", response.trim());
-            } else {
-                if let Ok(parsed) = serde_json::from_str::<serde_json::Value>(&response) {
-                    if parsed.get("ok").and_then(|v| v.as_bool()) == Some(true) {
-                        println!("╔════════════════════════════════════════════════════════════════════════╗");
-                        println!("║                    MINA MAINNET DEPLOYMENT INFO                        ║");
-                        println!("╠════════════════════════════════════════════════════════════════════════╣");
-                        println!("║  Network:              mainnet                                         ║");
-                        println!("║  GraphQL Endpoint:     https://api.minascan.io/node/mainnet/v1/graphql ║");
-                        println!("║  Explorer:             https://minascan.io/mainnet                     ║");
-                        println!("╟────────────────────────────────────────────────────────────────────────╢");
-                        println!("║  DEPLOYMENT COSTS                                                      ║");
-                        println!("║  ─────────────────                                                     ║");
-                        if let Some(fee) = parsed.get("accountCreationFee").and_then(|v| v.as_f64())
-                        {
-                            println!("║  Account Creation Fee: {} MINA                                         ║", fee);
-                        }
-                        if let Some(fee) = parsed.get("transactionFee").and_then(|v| v.as_f64()) {
-                            println!("║  Transaction Fee:      {} MINA                                         ║", fee);
-                        }
-                        if let Some(total) =
-                            parsed.get("totalDeploymentCost").and_then(|v| v.as_f64())
-                        {
-                            println!("║  ─────────────────────────────                                         ║");
-                            println!("║  TOTAL DEPLOYMENT:     {} MINA                                         ║", total);
-                        }
-                        println!("╟────────────────────────────────────────────────────────────────────────╢");
-                        println!("║  PER-ANCHOR COSTS                                                      ║");
-                        println!("║  ─────────────────                                                     ║");
-                        println!("║  Transaction Fee:      0.1 MINA per anchor                             ║");
-                        println!("╚════════════════════════════════════════════════════════════════════════╝");
-                        println!();
-                        println!("To deploy:");
-                        println!("  1. Run: anubis-notary anchor mina keygen");
-                        println!("  2. Fund the generated address with 1.1+ MINA");
-                        println!(
-                            "  3. Run: anubis-notary anchor mina deploy --fee-payer-key <key>"
-                        );
-                    } else if let Some(err) = parsed.get("error").and_then(|v| v.as_str()) {
-                        println!("Error: {}", err);
+            } else if let Ok(parsed) = serde_json::from_str::<serde_json::Value>(&response) {
+                if parsed.get("ok").and_then(|v| v.as_bool()) == Some(true) {
+                    println!("╔════════════════════════════════════════════════════════════════════════╗");
+                    println!("║                    MINA MAINNET DEPLOYMENT INFO                        ║");
+                    println!("╠════════════════════════════════════════════════════════════════════════╣");
+                    println!("║  Network:              mainnet                                         ║");
+                    println!("║  GraphQL Endpoint:     https://api.minascan.io/node/mainnet/v1/graphql ║");
+                    println!("║  Explorer:             https://minascan.io/mainnet                     ║");
+                    println!("╟────────────────────────────────────────────────────────────────────────╢");
+                    println!("║  DEPLOYMENT COSTS                                                      ║");
+                    println!("║  ─────────────────                                                     ║");
+                    if let Some(fee) = parsed.get("accountCreationFee").and_then(|v| v.as_f64()) {
+                        println!("║  Account Creation Fee: {} MINA                                         ║", fee);
                     }
-                } else {
-                    println!("Response: {}", response.trim());
+                    if let Some(fee) = parsed.get("transactionFee").and_then(|v| v.as_f64()) {
+                        println!("║  Transaction Fee:      {} MINA                                         ║", fee);
+                    }
+                    if let Some(total) = parsed.get("totalDeploymentCost").and_then(|v| v.as_f64())
+                    {
+                        println!("║  ─────────────────────────────                                         ║");
+                        println!("║  TOTAL DEPLOYMENT:     {} MINA                                         ║", total);
+                    }
+                    println!("╟────────────────────────────────────────────────────────────────────────╢");
+                    println!("║  PER-ANCHOR COSTS                                                      ║");
+                    println!("║  ─────────────────                                                     ║");
+                    println!("║  Transaction Fee:      0.1 MINA per anchor                             ║");
+                    println!("╚════════════════════════════════════════════════════════════════════════╝");
+                    println!();
+                    println!("To deploy:");
+                    println!("  1. Run: anubis-notary anchor mina keygen");
+                    println!("  2. Fund the generated address with 1.1+ MINA");
+                    println!("  3. Run: anubis-notary anchor mina deploy --fee-payer-key <key>");
+                } else if let Some(err) = parsed.get("error").and_then(|v| v.as_str()) {
+                    println!("Error: {}", err);
                 }
+            } else {
+                println!("Response: {}", response.trim());
             }
         }
         MinaCommands::Queue { receipt } => {
@@ -4637,7 +4629,7 @@ fn handle_mina(action: &MinaCommands, json: bool) -> Result<(), Box<dyn std::err
             use anubis_io::BatchQueue;
 
             // Verify the receipt is valid
-            let receipt_data = read_file(&receipt)?;
+            let receipt_data = read_file(receipt)?;
             let parsed =
                 Receipt::decode(&receipt_data).map_err(|e| format!("Invalid receipt: {:?}", e))?;
 
@@ -4646,7 +4638,7 @@ fn handle_mina(action: &MinaCommands, json: bool) -> Result<(), Box<dyn std::err
             let queue = BatchQueue::open(&queue_path)?;
 
             // Add to queue
-            let entry = queue.enqueue(&parsed.digest, &receipt)?;
+            let entry = queue.enqueue(&parsed.digest, receipt)?;
 
             if json {
                 #[derive(Serialize)]
@@ -6865,7 +6857,7 @@ fn handle_marriage(
             // Compute vows hash if provided
             let vows_hash = vows.as_ref().map(|v| {
                 let hash = anubis_core::keccak::sha3_256(v.as_bytes());
-                format!("0x{}", hex::encode(&hash))
+                format!("0x{}", hex::encode(hash))
             });
 
             // Sign the document digest
@@ -6968,7 +6960,7 @@ fn handle_marriage(
             mint_rings,
             wait: _,
         } => {
-            let doc_str = std::fs::read_to_string(&document)?;
+            let doc_str = std::fs::read_to_string(document)?;
             let doc_value: serde_json::Value = serde_json::from_str(&doc_str)?;
 
             let parties = doc_value["parties"]
@@ -7010,7 +7002,7 @@ fn handle_marriage(
             if !json {
                 println!("Creating marriage on Starknet ({})...", network);
                 println!("  Parties: {}", party_count);
-                println!("  Certificate hash: {}", hex::encode(&cert_hash));
+                println!("  Certificate hash: {}", hex::encode(cert_hash));
             }
 
             // Get next marriage ID (current count + 1 since create_marriage increments after)
@@ -7243,7 +7235,7 @@ fn handle_marriage(
             if json {
                 let mut output_data = serde_json::json!({
                     "marriage_id": next_marriage_id,
-                    "certificate_hash": hex::encode(&cert_hash),
+                    "certificate_hash": hex::encode(cert_hash),
                     "network": network,
                     "transaction_hash": tx_hash,
                     "contract": marriage_contract,
@@ -7821,12 +7813,10 @@ fn handle_rings(action: &RingsCommands, json: bool) -> Result<(), Box<dyn std::e
                         "exists": exists,
                     });
                     println!("{}", serde_json::to_string_pretty(&output)?);
+                } else if exists {
+                    println!("Ring #{} EXISTS", token_id);
                 } else {
-                    if exists {
-                        println!("Ring #{} EXISTS", token_id);
-                    } else {
-                        println!("Ring #{} does NOT exist", token_id);
-                    }
+                    println!("Ring #{} does NOT exist", token_id);
                 }
             } else {
                 return Err(format!("Failed to check ring existence: {}", stderr).into());

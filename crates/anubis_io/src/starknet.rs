@@ -296,10 +296,7 @@ pub struct StarknetAnchorResult {
 /// Both hashes are cryptographically secure, maintaining full integrity guarantees.
 pub fn sha256_to_poseidon_felt(hash: &[u8; 32]) -> [u8; 32] {
     // Split the 32-byte hash into two 16-byte chunks and convert to felts
-    let hash_as_felts: Vec<Felt> = hash
-        .chunks(16)
-        .map(|chunk| Felt::from_bytes_be_slice(chunk))
-        .collect();
+    let hash_as_felts: Vec<Felt> = hash.chunks(16).map(Felt::from_bytes_be_slice).collect();
 
     // Compute Poseidon hash
     let poseidon_result = poseidon_hash_many(&hash_as_felts);
@@ -660,7 +657,7 @@ impl StarknetClient {
         let tx_hash = stdout
             .lines()
             .find(|line| line.contains("Transaction Hash:"))
-            .and_then(|line| line.split(':').last())
+            .and_then(|line| line.split(':').next_back())
             .map(|s| s.trim().to_string())
             .ok_or_else(|| {
                 StarknetError::Bridge(format!(
