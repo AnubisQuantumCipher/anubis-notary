@@ -306,6 +306,11 @@ enum AnchorCommands {
         #[command(subcommand)]
         action: StarknetCommands,
     },
+    /// Ztarknet Protocol anchoring (privacy-preserving, Zcash L1 settlement).
+    Ztarknet {
+        #[command(subcommand)]
+        action: ZtarknetCommands,
+    },
 }
 
 #[derive(Subcommand)]
@@ -457,6 +462,98 @@ enum StarknetCommands {
         #[arg(long)]
         tx_hash: String,
     },
+}
+
+#[derive(Subcommand)]
+enum ZtarknetCommands {
+    /// Configure Ztarknet anchoring settings.
+    Config {
+        /// PrivacyOracle contract address (hex, 0x-prefixed).
+        #[arg(long)]
+        contract: Option<String>,
+        /// Network (mainnet, testnet).
+        #[arg(long)]
+        network: Option<String>,
+        /// Custom RPC URL (Madara-compatible).
+        #[arg(long)]
+        rpc: Option<String>,
+        /// Show current configuration.
+        #[arg(long)]
+        show: bool,
+    },
+    /// Anchor a receipt with privacy mode.
+    Anchor {
+        /// Receipt file to anchor.
+        receipt: PathBuf,
+        /// Privacy mode (public, selective, committed).
+        #[arg(long, default_value = "public")]
+        mode: String,
+        /// Viewing key file (for selective mode).
+        #[arg(long)]
+        viewing_key: Option<PathBuf>,
+        /// Wait for confirmation.
+        #[arg(long)]
+        wait: bool,
+    },
+    /// Verify a Ztarknet anchor or commitment.
+    Verify {
+        /// Receipt with Ztarknet anchor.
+        receipt: PathBuf,
+        /// Commitment ID (for committed mode verification).
+        #[arg(long)]
+        commitment_id: Option<u64>,
+        /// Blinding factor (hex, for committed mode).
+        #[arg(long)]
+        blinding: Option<String>,
+    },
+    /// Reveal a committed anchor (makes hash public).
+    Reveal {
+        /// Commitment ID.
+        #[arg(long)]
+        commitment_id: u64,
+        /// Blinding factor (hex).
+        #[arg(long)]
+        blinding: String,
+        /// Original document hash (hex).
+        #[arg(long)]
+        original_hash: String,
+    },
+    /// Grant disclosure to an auditor.
+    Disclose {
+        /// Commitment ID.
+        #[arg(long)]
+        commitment_id: u64,
+        /// Recipient address (hex).
+        #[arg(long)]
+        recipient: String,
+        /// Duration in seconds.
+        #[arg(long)]
+        duration: u64,
+    },
+    /// Revoke a disclosure token.
+    Revoke {
+        /// Token ID (hex).
+        #[arg(long)]
+        token_id: String,
+    },
+    /// Get information about a commitment.
+    Commitment {
+        /// Commitment ID.
+        #[arg(long)]
+        id: u64,
+    },
+    /// Get current Ztarknet blockchain time.
+    Time,
+    /// Get account balance.
+    Balance {
+        /// Account address (optional, uses configured if not provided).
+        #[arg(long)]
+        account: Option<String>,
+    },
+    /// Show network info and privacy features.
+    Info,
+    /// Generate a new Ztarknet keypair.
+    Keygen,
 }
 
 #[derive(Subcommand)]
@@ -2327,6 +2424,7 @@ fn handle_anchor(action: &AnchorCommands, json: bool) -> Result<(), Box<dyn std:
         }
         AnchorCommands::Mina { action } => handle_mina(action, json)?,
         AnchorCommands::Starknet { action } => handle_starknet(action, json)?,
+        AnchorCommands::Ztarknet { action } => handle_ztarknet(action, json)?,
     }
     Ok(())
 }
@@ -3696,6 +3794,970 @@ fn handle_starknet(
                 }
                 println!();
                 println!("The receipt now contains cryptographic proof of when it was anchored.");
+            }
+        }
+    }
+
+    Ok(())
+}
+
+fn handle_ztarknet(
+    action: &ZtarknetCommands,
+    json: bool,
+) -> Result<(), Box<dyn std::error::Error>> {
+    use anubis_core::receipt::Receipt;
+    use anubis_io::ztarknet::{PrivacyMode, ZtarknetClient, ZtarknetConfig, ZtarknetNetwork};
+
+    let ks = Keystore::open(Keystore::default_path())?;
+
+    match action {
+        ZtarknetCommands::Config {
+            contract,
+            network,
+            rpc,
+            show,
+        } => {
+            let config_path = ks.path().join("ztarknet.json");
+
+            if *show || (contract.is_none() && network.is_none() && rpc.is_none()) {
+                // Show current configuration
+                if config_path.exists() {
+                    let config_data = std::fs::read_to_string(&config_path)?;
+                    let config: serde_json::Value = serde_json::from_str(&config_data)?;
+
+                    if json {
+                        let output = JsonOutput::success(&config);
+                        println!("{}", serde_json::to_string_pretty(&output)?);
+                    } else {
+                        println!("Ztarknet Configuration:");
+                        if let Some(addr) = config.get("contract_address").and_then(|v| v.as_str())
+                        {
+                            println!("  Contract Address: {}", addr);
+                        }
+                        if let Some(net) = config.get("network").and_then(|v| v.as_str()) {
+                            println!("  Network: {}", net);
+                        }
+                        if let Some(url) = config.get("rpc_url").and_then(|v| v.as_str()) {
+                            println!("  RPC URL: {}", url);
+                        }
+                    }
+                } else {
+                    // Show defaults
+                    let default_config = serde_json::json!({
+                        "network": "mainnet",
+                        "rpc_url": "https://rpc.ztarknet.cash",
+                        "status": "No contract deployed yet. Use PrivacyOracle contract."
+                    });
+
+                    if json {
+                        let output = JsonOutput::success(&default_config);
+                        println!("{}", serde_json::to_string_pretty(&output)?);
+                    } else {
+                        println!("Ztarknet Configuration (defaults):");
+                        println!("  Network: mainnet");
+                        println!("  RPC URL: https://rpc.ztarknet.cash");
+                        println!();
+                        println!("Configure with:");
+                        println!("  anubis-notary anchor ztarknet config --contract <address>");
+                    }
+                }
+            } else {
+                // Update configuration
+                let mut config: serde_json::Value = if config_path.exists() {
+                    let data = std::fs::read_to_string(&config_path)?;
+                    serde_json::from_str(&data)?
+                } else {
+                    serde_json::json!({})
+                };
+
+                if let Some(addr) = contract {
+                    config["contract_address"] = serde_json::json!(addr);
+                }
+                if let Some(net) = network {
+                    config["network"] = serde_json::json!(net);
+                }
+                if let Some(url) = rpc {
+                    config["rpc_url"] = serde_json::json!(url);
+                }
+
+                std::fs::write(&config_path, serde_json::to_string_pretty(&config)?)?;
+
+                if json {
+                    let output = JsonOutput::success(&config);
+                    println!("{}", serde_json::to_string_pretty(&output)?);
+                } else {
+                    println!("Ztarknet configuration updated.");
+                }
+            }
+        }
+        ZtarknetCommands::Time => {
+            let config_path = ks.path().join("ztarknet.json");
+            let (network, rpc_url) = if config_path.exists() {
+                let data = std::fs::read_to_string(&config_path)?;
+                let config: serde_json::Value = serde_json::from_str(&data)?;
+                let net = config
+                    .get("network")
+                    .and_then(|v| v.as_str())
+                    .unwrap_or("mainnet");
+                let network = match net {
+                    "testnet" => ZtarknetNetwork::Testnet,
+                    _ => ZtarknetNetwork::Mainnet,
+                };
+                let url = config
+                    .get("rpc_url")
+                    .and_then(|v| v.as_str())
+                    .map(String::from);
+                (network, url)
+            } else {
+                (ZtarknetNetwork::Mainnet, None)
+            };
+
+            let config = ZtarknetConfig {
+                network,
+                rpc_url: rpc_url.unwrap_or_else(|| network.default_rpc_url().to_string()),
+                contract_address: None,
+                account_address: None,
+                default_privacy_mode: PrivacyMode::Committed,
+                fee_multiplier: 1.0,
+                timeout_secs: 30,
+            };
+
+            let client = ZtarknetClient::new(config)?;
+            let time_result = client.get_block_time()?;
+
+            if json {
+                #[derive(Serialize)]
+                struct TimeResult {
+                    block_number: u64,
+                    timestamp: u64,
+                    network: String,
+                }
+                let output = JsonOutput::success(TimeResult {
+                    block_number: time_result.block_number,
+                    timestamp: time_result.timestamp,
+                    network: format!("{:?}", network).to_lowercase(),
+                });
+                println!("{}", serde_json::to_string_pretty(&output)?);
+            } else {
+                println!("Ztarknet Time:");
+                println!("  Block Number: {}", time_result.block_number);
+                println!("  Timestamp: {} ({})", time_result.timestamp, {
+                    use std::time::{Duration, UNIX_EPOCH};
+                    let dt = UNIX_EPOCH + Duration::from_secs(time_result.timestamp);
+                    format!("{:?}", dt)
+                });
+                println!("  Network: {:?}", network);
+                println!("  L1 Settlement: Zcash");
+            }
+        }
+        ZtarknetCommands::Balance { account } => {
+            let config_path = ks.path().join("ztarknet.json");
+            let (network, rpc_url) = if config_path.exists() {
+                let data = std::fs::read_to_string(&config_path)?;
+                let config: serde_json::Value = serde_json::from_str(&data)?;
+                let net = config
+                    .get("network")
+                    .and_then(|v| v.as_str())
+                    .unwrap_or("mainnet");
+                let network = match net {
+                    "testnet" => ZtarknetNetwork::Testnet,
+                    _ => ZtarknetNetwork::Mainnet,
+                };
+                let url = config
+                    .get("rpc_url")
+                    .and_then(|v| v.as_str())
+                    .map(String::from);
+                (network, url)
+            } else {
+                (ZtarknetNetwork::Mainnet, None)
+            };
+
+            let account_addr = account
+                .clone()
+                .or_else(|| std::env::var("ZTARKNET_ACCOUNT").ok());
+
+            if account_addr.is_none() {
+                if json {
+                    let output: JsonOutput<()> = JsonOutput::error(
+                        "No account specified. Use --account or set ZTARKNET_ACCOUNT.",
+                    );
+                    println!("{}", serde_json::to_string_pretty(&output)?);
+                } else {
+                    println!("Error: No account specified.");
+                    println!(
+                        "Use --account <address> or set ZTARKNET_ACCOUNT environment variable."
+                    );
+                }
+                return Ok(());
+            }
+
+            let config = ZtarknetConfig {
+                network,
+                rpc_url: rpc_url.unwrap_or_else(|| network.default_rpc_url().to_string()),
+                contract_address: None,
+                account_address: account_addr.clone(),
+                default_privacy_mode: PrivacyMode::Committed,
+                fee_multiplier: 1.0,
+                timeout_secs: 30,
+            };
+
+            let client = ZtarknetClient::new(config)?;
+            let balance = client.get_balance(&account_addr.unwrap())?;
+
+            // Convert from wei to ZEC (18 decimals)
+            let zec_balance = balance as f64 / 1e18;
+
+            if json {
+                #[derive(Serialize)]
+                struct BalanceResult {
+                    balance_wei: String,
+                    balance_zec: f64,
+                    network: String,
+                }
+                let output = JsonOutput::success(BalanceResult {
+                    balance_wei: balance.to_string(),
+                    balance_zec: zec_balance,
+                    network: format!("{:?}", network).to_lowercase(),
+                });
+                println!("{}", serde_json::to_string_pretty(&output)?);
+            } else {
+                println!("Ztarknet Balance:");
+                println!("  Account: {}", account.as_deref().unwrap_or("(from env)"));
+                println!("  Balance: {:.6} ZEC ({} wei)", zec_balance, balance);
+                println!("  Network: {:?}", network);
+            }
+        }
+        ZtarknetCommands::Info => {
+            if json {
+                #[derive(Serialize)]
+                struct ZtarknetInfo {
+                    networks: Vec<NetworkInfo>,
+                    costs: CostInfo,
+                    privacy_modes: Vec<PrivacyModeInfo>,
+                    features: Vec<String>,
+                }
+                #[derive(Serialize)]
+                struct NetworkInfo {
+                    name: String,
+                    rpc_url: String,
+                    l1_settlement: String,
+                }
+                #[derive(Serialize)]
+                struct CostInfo {
+                    public_anchor_usd: String,
+                    committed_anchor_usd: String,
+                    reveal_usd: String,
+                    disclosure_usd: String,
+                }
+                #[derive(Serialize)]
+                struct PrivacyModeInfo {
+                    mode: String,
+                    description: String,
+                }
+                let output = JsonOutput::success(ZtarknetInfo {
+                    networks: vec![
+                        NetworkInfo {
+                            name: "mainnet".to_string(),
+                            rpc_url: "https://rpc.ztarknet.cash".to_string(),
+                            l1_settlement: "Zcash mainnet".to_string(),
+                        },
+                        NetworkInfo {
+                            name: "testnet".to_string(),
+                            rpc_url: "https://testnet-rpc.ztarknet.cash".to_string(),
+                            l1_settlement: "Zcash testnet".to_string(),
+                        },
+                    ],
+                    costs: CostInfo {
+                        public_anchor_usd: "~$0.0005".to_string(),
+                        committed_anchor_usd: "~$0.0008".to_string(),
+                        reveal_usd: "~$0.0005".to_string(),
+                        disclosure_usd: "~$0.0003".to_string(),
+                    },
+                    privacy_modes: vec![
+                        PrivacyModeInfo {
+                            mode: "public".to_string(),
+                            description: "Document hash visible on-chain".to_string(),
+                        },
+                        PrivacyModeInfo {
+                            mode: "selective".to_string(),
+                            description: "Viewing key required to see hash".to_string(),
+                        },
+                        PrivacyModeInfo {
+                            mode: "committed".to_string(),
+                            description: "Only Pedersen commitment on-chain".to_string(),
+                        },
+                    ],
+                    features: vec![
+                        "Zcash L1 settlement (native privacy)".to_string(),
+                        "Circle STARK proofs (Stwo prover)".to_string(),
+                        "Pedersen commitments for hash hiding".to_string(),
+                        "Disclosure tokens for auditors".to_string(),
+                        "Time-locked selective revelation".to_string(),
+                    ],
+                });
+                println!("{}", serde_json::to_string_pretty(&output)?);
+            } else {
+                println!(
+                    "╔══════════════════════════════════════════════════════════════════════════╗"
+                );
+                println!(
+                    "║                 ZTARKNET PRIVACY-PRESERVING ANCHORING                    ║"
+                );
+                println!(
+                    "╠══════════════════════════════════════════════════════════════════════════╣"
+                );
+                println!(
+                    "║  PRIVACY MODES                                                           ║"
+                );
+                println!(
+                    "║  ─────────────                                                           ║"
+                );
+                println!(
+                    "║  public    - Document hash visible on-chain                              ║"
+                );
+                println!(
+                    "║  selective - Viewing key required to see hash                            ║"
+                );
+                println!(
+                    "║  committed - Only Pedersen commitment on-chain (ZK)                      ║"
+                );
+                println!(
+                    "╟──────────────────────────────────────────────────────────────────────────╢"
+                );
+                println!(
+                    "║  NETWORKS                                                                ║"
+                );
+                println!(
+                    "║  ────────                                                                ║"
+                );
+                println!(
+                    "║  mainnet  - https://rpc.ztarknet.cash (Zcash L1 settlement)              ║"
+                );
+                println!(
+                    "║  testnet  - https://testnet-rpc.ztarknet.cash (Zcash testnet)            ║"
+                );
+                println!(
+                    "╟──────────────────────────────────────────────────────────────────────────╢"
+                );
+                println!(
+                    "║  COSTS (Privacy-preserving, ~50% cheaper than Starknet)                  ║"
+                );
+                println!(
+                    "║  ─────                                                                   ║"
+                );
+                println!(
+                    "║  Public Anchor:     ~$0.0005 per transaction                             ║"
+                );
+                println!(
+                    "║  Committed Anchor:  ~$0.0008 per transaction                             ║"
+                );
+                println!(
+                    "║  Reveal:            ~$0.0005 per transaction                             ║"
+                );
+                println!(
+                    "║  Disclosure Grant:  ~$0.0003 per transaction                             ║"
+                );
+                println!(
+                    "╟──────────────────────────────────────────────────────────────────────────╢"
+                );
+                println!(
+                    "║  FEATURES                                                                ║"
+                );
+                println!(
+                    "║  ────────                                                                ║"
+                );
+                println!(
+                    "║  • Zcash L1 settlement (native shielded pool privacy)                    ║"
+                );
+                println!(
+                    "║  • Circle STARK proofs via Stwo prover (quantum-resistant)               ║"
+                );
+                println!(
+                    "║  • Pedersen commitments for hiding document hashes                       ║"
+                );
+                println!(
+                    "║  • Disclosure tokens for time-limited auditor access                     ║"
+                );
+                println!(
+                    "║  • Nullifier set prevents double-reveal attacks                          ║"
+                );
+                println!(
+                    "║  • Cairo VM compatible (Madara sequencer)                                ║"
+                );
+                println!(
+                    "╚══════════════════════════════════════════════════════════════════════════╝"
+                );
+                println!();
+                println!("To get started:");
+                println!("  1. Configure: anubis-notary anchor ztarknet config --contract <addr>");
+                println!("  2. Anchor:    anubis-notary anchor ztarknet anchor receipt.anb --mode committed");
+                println!("  3. Reveal:    anubis-notary anchor ztarknet reveal --commitment-id <id> --blinding <hex>");
+            }
+        }
+        ZtarknetCommands::Keygen => {
+            // Generate a new Ztarknet keypair (same as Starknet - Cairo VM compatible)
+            use starknet_crypto::get_public_key;
+            use zeroize::Zeroize;
+
+            // Generate random private key
+            let mut private_key_bytes = [0u8; 32];
+            getrandom::getrandom(&mut private_key_bytes)
+                .map_err(|e| format!("Failed to generate random key: {}", e))?;
+
+            // Convert to felt252
+            let private_key = starknet_core::types::Felt::from_bytes_be(&private_key_bytes);
+
+            // Zeroize the raw bytes immediately after conversion
+            private_key_bytes.zeroize();
+
+            let public_key = get_public_key(&private_key);
+
+            if json {
+                #[derive(Serialize)]
+                struct KeygenResult {
+                    private_key: String,
+                    public_key: String,
+                    note: String,
+                }
+                let output = JsonOutput::success(KeygenResult {
+                    private_key: format!("{:#x}", private_key),
+                    public_key: format!("{:#x}", public_key),
+                    note:
+                        "Save the private key securely. Set as ZTARKNET_PRIVATE_KEY for operations."
+                            .to_string(),
+                });
+                println!("{}", serde_json::to_string_pretty(&output)?);
+            } else {
+                println!(
+                    "╔══════════════════════════════════════════════════════════════════════════╗"
+                );
+                println!(
+                    "║                    ZTARKNET KEYPAIR GENERATED                            ║"
+                );
+                println!(
+                    "╠══════════════════════════════════════════════════════════════════════════╣"
+                );
+                println!(
+                    "║  Private Key:                                                            ║"
+                );
+                println!("║    {:#x}", private_key);
+                println!(
+                    "║                                                                          ║"
+                );
+                println!(
+                    "║  Public Key:                                                             ║"
+                );
+                println!("║    {:#x}", public_key);
+                println!(
+                    "╠══════════════════════════════════════════════════════════════════════════╣"
+                );
+                println!(
+                    "║  ⚠️  SAVE THE PRIVATE KEY SECURELY - IT CANNOT BE RECOVERED              ║"
+                );
+                println!(
+                    "╚══════════════════════════════════════════════════════════════════════════╝"
+                );
+                println!();
+                println!("Next steps:");
+                println!("  1. Fund the account with ZEC on Ztarknet");
+                println!("  2. Set: export ZTARKNET_PRIVATE_KEY={:#x}", private_key);
+                println!("  3. Configure PrivacyOracle contract address");
+            }
+        }
+        ZtarknetCommands::Anchor {
+            receipt,
+            mode,
+            viewing_key: _,
+            wait,
+        } => {
+            // Load receipt
+            let receipt_data = std::fs::read(receipt)?;
+            let receipt_obj = Receipt::decode(&receipt_data)
+                .map_err(|e| format!("Failed to decode receipt: {:?}", e))?;
+
+            // Get document hash from receipt
+            let doc_hash: [u8; 32] = receipt_obj.digest;
+
+            // Parse privacy mode
+            let privacy_mode = match mode.to_lowercase().as_str() {
+                "public" => PrivacyMode::Public,
+                "selective" => PrivacyMode::Selective,
+                "committed" => PrivacyMode::Committed,
+                _ => {
+                    return Err(format!("Invalid privacy mode: {}. Use public, selective, or committed.", mode).into());
+                }
+            };
+
+            // Load Ztarknet config
+            let config_path = ks.path().join("ztarknet.json");
+            if !config_path.exists() {
+                return Err("Ztarknet not configured. Run 'anchor ztarknet config' first.".into());
+            }
+
+            let config_data = std::fs::read_to_string(&config_path)?;
+            let config_json: serde_json::Value = serde_json::from_str(&config_data)?;
+
+            let contract_addr = config_json
+                .get("contract_address")
+                .and_then(|v| v.as_str())
+                .ok_or("No contract address configured")?;
+
+            let net_str = config_json
+                .get("network")
+                .and_then(|v| v.as_str())
+                .unwrap_or("mainnet");
+            let network = match net_str {
+                "testnet" => ZtarknetNetwork::Testnet,
+                _ => ZtarknetNetwork::Mainnet,
+            };
+
+            let rpc_url = config_json
+                .get("rpc_url")
+                .and_then(|v| v.as_str())
+                .map(String::from)
+                .unwrap_or_else(|| network.default_rpc_url().to_string());
+
+            let config = ZtarknetConfig {
+                network,
+                rpc_url,
+                contract_address: Some(contract_addr.to_string()),
+                account_address: std::env::var("ZTARKNET_ACCOUNT").ok(),
+                default_privacy_mode: privacy_mode.clone(),
+                fee_multiplier: 1.0,
+                timeout_secs: if *wait { 120 } else { 30 },
+            };
+
+            if !json {
+                println!("Anchoring to Ztarknet with {:?} privacy mode...", privacy_mode);
+            }
+
+            let client = ZtarknetClient::new(config)?;
+            let result = client.anchor_with_privacy(&doc_hash, privacy_mode.clone())?;
+
+            if json {
+                #[derive(Serialize)]
+                struct AnchorResult {
+                    tx_hash: String,
+                    commitment_id: u64,
+                    blinding_factor: Option<String>,
+                    privacy_mode: String,
+                    network: String,
+                }
+                let output = JsonOutput::success(AnchorResult {
+                    tx_hash: result.tx_hash.clone(),
+                    commitment_id: result.commitment_id,
+                    blinding_factor: result.blinding_factor.map(|b| hex::encode(b)),
+                    privacy_mode: format!("{:?}", privacy_mode),
+                    network: net_str.to_string(),
+                });
+                println!("{}", serde_json::to_string_pretty(&output)?);
+            } else {
+                println!("Anchored successfully!");
+                println!("  Transaction: {}", result.tx_hash);
+                println!("  Commitment ID: {}", result.commitment_id);
+                if let Some(bf) = result.blinding_factor {
+                    println!("  Blinding Factor: {} (SAVE THIS!)", hex::encode(bf));
+                }
+                println!("  Privacy Mode: {:?}", privacy_mode);
+                println!("  Network: {}", net_str);
+            }
+        }
+        ZtarknetCommands::Verify {
+            receipt,
+            commitment_id,
+            blinding,
+        } => {
+            // Load receipt
+            let receipt_data = std::fs::read(receipt)?;
+            let receipt_obj = Receipt::decode(&receipt_data)
+                .map_err(|e| format!("Failed to decode receipt: {:?}", e))?;
+
+            // Get document hash from receipt
+            let doc_hash: [u8; 32] = receipt_obj.digest;
+
+            // Load Ztarknet config
+            let config_path = ks.path().join("ztarknet.json");
+            if !config_path.exists() {
+                return Err("Ztarknet not configured. Run 'anchor ztarknet config' first.".into());
+            }
+
+            let config_data = std::fs::read_to_string(&config_path)?;
+            let config_json: serde_json::Value = serde_json::from_str(&config_data)?;
+
+            let contract_addr = config_json
+                .get("contract_address")
+                .and_then(|v| v.as_str())
+                .ok_or("No contract address configured")?;
+
+            let net_str = config_json
+                .get("network")
+                .and_then(|v| v.as_str())
+                .unwrap_or("mainnet");
+            let network = match net_str {
+                "testnet" => ZtarknetNetwork::Testnet,
+                _ => ZtarknetNetwork::Mainnet,
+            };
+
+            let rpc_url = config_json
+                .get("rpc_url")
+                .and_then(|v| v.as_str())
+                .map(String::from)
+                .unwrap_or_else(|| network.default_rpc_url().to_string());
+
+            let config = ZtarknetConfig {
+                network,
+                rpc_url,
+                contract_address: Some(contract_addr.to_string()),
+                account_address: None,
+                default_privacy_mode: PrivacyMode::Committed,
+                fee_multiplier: 1.0,
+                timeout_secs: 30,
+            };
+
+            let client = ZtarknetClient::new(config)?;
+
+            // Determine verification mode
+            let privacy_mode = if commitment_id.is_some() && blinding.is_some() {
+                PrivacyMode::Committed
+            } else {
+                PrivacyMode::Public
+            };
+
+            let result = client.verify_anchor(&doc_hash, privacy_mode)?;
+
+            // Convert enum result to our output format
+            let (verified, anchor_type, timestamp) = match &result {
+                anubis_io::VerifyResult::Public { verified, timestamp } => {
+                    (*verified, "public".to_string(), Some(*timestamp))
+                }
+                anubis_io::VerifyResult::CommitmentExists { commitment_id, timestamp } => {
+                    (true, format!("committed (id: {})", commitment_id), Some(*timestamp))
+                }
+                anubis_io::VerifyResult::Revealed { verified, commitment_id, timestamp } => {
+                    (*verified, format!("revealed (id: {})", commitment_id), Some(*timestamp))
+                }
+                anubis_io::VerifyResult::NeedsDisclosure => {
+                    (false, "needs_disclosure".to_string(), None)
+                }
+            };
+
+            if json {
+                #[derive(Serialize)]
+                struct VerifyResultOutput {
+                    verified: bool,
+                    anchor_type: String,
+                    timestamp: Option<u64>,
+                    network: String,
+                }
+                let output = JsonOutput::success(VerifyResultOutput {
+                    verified,
+                    anchor_type: anchor_type.clone(),
+                    timestamp,
+                    network: net_str.to_string(),
+                });
+                println!("{}", serde_json::to_string_pretty(&output)?);
+            } else {
+                if verified {
+                    println!("Verification PASSED");
+                    println!("  Anchor Type: {}", anchor_type);
+                    if let Some(ts) = timestamp {
+                        println!("  Timestamp: {}", ts);
+                    }
+                    println!("  Network: {}", net_str);
+                } else {
+                    println!("Verification FAILED");
+                    println!("  Document not found on Ztarknet");
+                }
+            }
+        }
+        ZtarknetCommands::Reveal {
+            commitment_id,
+            blinding,
+            original_hash,
+        } => {
+            // Parse hex inputs
+            let blinding_bytes: [u8; 32] = hex::decode(blinding.trim_start_matches("0x"))
+                .map_err(|_| "Invalid blinding factor hex")?
+                .try_into()
+                .map_err(|_| "Blinding factor must be 32 bytes")?;
+
+            let hash_bytes: [u8; 32] = hex::decode(original_hash.trim_start_matches("0x"))
+                .map_err(|_| "Invalid original hash hex")?
+                .try_into()
+                .map_err(|_| "Original hash must be 32 bytes")?;
+
+            // Load Ztarknet config
+            let config_path = ks.path().join("ztarknet.json");
+            if !config_path.exists() {
+                return Err("Ztarknet not configured. Run 'anchor ztarknet config' first.".into());
+            }
+
+            let config_data = std::fs::read_to_string(&config_path)?;
+            let config_json: serde_json::Value = serde_json::from_str(&config_data)?;
+
+            let contract_addr = config_json
+                .get("contract_address")
+                .and_then(|v| v.as_str())
+                .ok_or("No contract address configured")?;
+
+            let net_str = config_json
+                .get("network")
+                .and_then(|v| v.as_str())
+                .unwrap_or("mainnet");
+            let network = match net_str {
+                "testnet" => ZtarknetNetwork::Testnet,
+                _ => ZtarknetNetwork::Mainnet,
+            };
+
+            let rpc_url = config_json
+                .get("rpc_url")
+                .and_then(|v| v.as_str())
+                .map(String::from)
+                .unwrap_or_else(|| network.default_rpc_url().to_string());
+
+            let config = ZtarknetConfig {
+                network,
+                rpc_url,
+                contract_address: Some(contract_addr.to_string()),
+                account_address: std::env::var("ZTARKNET_ACCOUNT").ok(),
+                default_privacy_mode: PrivacyMode::Committed,
+                fee_multiplier: 1.0,
+                timeout_secs: 60,
+            };
+
+            if !json {
+                println!("Revealing commitment {}...", commitment_id);
+            }
+
+            let client = ZtarknetClient::new(config)?;
+            let result = client.reveal_commitment(*commitment_id, &hash_bytes, &blinding_bytes)?;
+
+            // If we get here without error, reveal succeeded
+            if json {
+                #[derive(Serialize)]
+                struct RevealResultOutput {
+                    success: bool,
+                    tx_hash: String,
+                    commitment_id: u64,
+                    block_number: u64,
+                }
+                let output = JsonOutput::success(RevealResultOutput {
+                    success: true,
+                    tx_hash: result.tx_hash.clone(),
+                    commitment_id: result.commitment_id,
+                    block_number: result.block_number,
+                });
+                println!("{}", serde_json::to_string_pretty(&output)?);
+            } else {
+                println!("Commitment revealed successfully!");
+                println!("  Transaction: {}", result.tx_hash);
+                println!("  Block: {}", result.block_number);
+                println!("  Original Hash: 0x{}", hex::encode(result.original_hash));
+                println!("  The document hash is now publicly visible.");
+            }
+        }
+        ZtarknetCommands::Disclose {
+            commitment_id,
+            recipient,
+            duration,
+        } => {
+            // Load Ztarknet config
+            let config_path = ks.path().join("ztarknet.json");
+            if !config_path.exists() {
+                return Err("Ztarknet not configured. Run 'anchor ztarknet config' first.".into());
+            }
+
+            let config_data = std::fs::read_to_string(&config_path)?;
+            let config_json: serde_json::Value = serde_json::from_str(&config_data)?;
+
+            let contract_addr = config_json
+                .get("contract_address")
+                .and_then(|v| v.as_str())
+                .ok_or("No contract address configured")?;
+
+            let net_str = config_json
+                .get("network")
+                .and_then(|v| v.as_str())
+                .unwrap_or("mainnet");
+            let network = match net_str {
+                "testnet" => ZtarknetNetwork::Testnet,
+                _ => ZtarknetNetwork::Mainnet,
+            };
+
+            let rpc_url = config_json
+                .get("rpc_url")
+                .and_then(|v| v.as_str())
+                .map(String::from)
+                .unwrap_or_else(|| network.default_rpc_url().to_string());
+
+            let config = ZtarknetConfig {
+                network,
+                rpc_url,
+                contract_address: Some(contract_addr.to_string()),
+                account_address: std::env::var("ZTARKNET_ACCOUNT").ok(),
+                default_privacy_mode: PrivacyMode::Committed,
+                fee_multiplier: 1.0,
+                timeout_secs: 60,
+            };
+
+            if !json {
+                println!("Granting disclosure for commitment {} to {}...", commitment_id, recipient);
+            }
+
+            let client = ZtarknetClient::new(config)?;
+            let token = client.grant_disclosure(*commitment_id, recipient, *duration)?;
+
+            if json {
+                #[derive(Serialize)]
+                struct DisclosureResult {
+                    token_id: String,
+                    commitment_id: u64,
+                    recipient: String,
+                    expires_at: u64,
+                }
+                let output = JsonOutput::success(DisclosureResult {
+                    token_id: hex::encode(token.token_id),
+                    commitment_id: token.commitment_id,
+                    recipient: token.recipient.clone(),
+                    expires_at: token.expires_at,
+                });
+                println!("{}", serde_json::to_string_pretty(&output)?);
+            } else {
+                println!("Disclosure token granted!");
+                println!("  Token ID: 0x{}", hex::encode(token.token_id));
+                println!("  Commitment ID: {}", token.commitment_id);
+                println!("  Recipient: {}", token.recipient);
+                println!("  Expires: {} ({}s from now)", token.expires_at, duration);
+            }
+        }
+        ZtarknetCommands::Revoke { token_id } => {
+            // Load Ztarknet config
+            let config_path = ks.path().join("ztarknet.json");
+            if !config_path.exists() {
+                return Err("Ztarknet not configured. Run 'anchor ztarknet config' first.".into());
+            }
+
+            let config_data = std::fs::read_to_string(&config_path)?;
+            let config_json: serde_json::Value = serde_json::from_str(&config_data)?;
+
+            let contract_addr = config_json
+                .get("contract_address")
+                .and_then(|v| v.as_str())
+                .ok_or("No contract address configured")?;
+
+            let net_str = config_json
+                .get("network")
+                .and_then(|v| v.as_str())
+                .unwrap_or("mainnet");
+            let network = match net_str {
+                "testnet" => ZtarknetNetwork::Testnet,
+                _ => ZtarknetNetwork::Mainnet,
+            };
+
+            let rpc_url = config_json
+                .get("rpc_url")
+                .and_then(|v| v.as_str())
+                .map(String::from)
+                .unwrap_or_else(|| network.default_rpc_url().to_string());
+
+            let config = ZtarknetConfig {
+                network,
+                rpc_url,
+                contract_address: Some(contract_addr.to_string()),
+                account_address: std::env::var("ZTARKNET_ACCOUNT").ok(),
+                default_privacy_mode: PrivacyMode::Committed,
+                fee_multiplier: 1.0,
+                timeout_secs: 60,
+            };
+
+            // Parse token ID
+            let token_bytes: [u8; 32] = hex::decode(token_id.trim_start_matches("0x"))
+                .map_err(|_| "Invalid token ID hex")?
+                .try_into()
+                .map_err(|_| "Token ID must be 32 bytes")?;
+
+            if !json {
+                println!("Revoking disclosure token {}...", token_id);
+            }
+
+            let client = ZtarknetClient::new(config)?;
+            let success = client.revoke_disclosure(&token_bytes)?;
+
+            if json {
+                #[derive(Serialize)]
+                struct RevokeResult {
+                    success: bool,
+                    token_id: String,
+                }
+                let output = JsonOutput::success(RevokeResult {
+                    success,
+                    token_id: token_id.clone(),
+                });
+                println!("{}", serde_json::to_string_pretty(&output)?);
+            } else {
+                if success {
+                    println!("Disclosure token revoked successfully.");
+                } else {
+                    println!("Failed to revoke token. Check token ID and ownership.");
+                }
+            }
+        }
+        ZtarknetCommands::Commitment { id } => {
+            // Load Ztarknet config
+            let config_path = ks.path().join("ztarknet.json");
+            if !config_path.exists() {
+                return Err("Ztarknet not configured. Run 'anchor ztarknet config' first.".into());
+            }
+
+            let config_data = std::fs::read_to_string(&config_path)?;
+            let config_json: serde_json::Value = serde_json::from_str(&config_data)?;
+
+            let contract_addr = config_json
+                .get("contract_address")
+                .and_then(|v| v.as_str())
+                .ok_or("No contract address configured")?;
+
+            let net_str = config_json
+                .get("network")
+                .and_then(|v| v.as_str())
+                .unwrap_or("mainnet");
+            let network = match net_str {
+                "testnet" => ZtarknetNetwork::Testnet,
+                _ => ZtarknetNetwork::Mainnet,
+            };
+
+            let rpc_url = config_json
+                .get("rpc_url")
+                .and_then(|v| v.as_str())
+                .map(String::from)
+                .unwrap_or_else(|| network.default_rpc_url().to_string());
+
+            let config = ZtarknetConfig {
+                network,
+                rpc_url,
+                contract_address: Some(contract_addr.to_string()),
+                account_address: None,
+                default_privacy_mode: PrivacyMode::Committed,
+                fee_multiplier: 1.0,
+                timeout_secs: 30,
+            };
+
+            let client = ZtarknetClient::new(config)?;
+            let info = client.get_commitment_info(*id)?;
+
+            if json {
+                let output = JsonOutput::success(&info);
+                println!("{}", serde_json::to_string_pretty(&output)?);
+            } else {
+                println!("Commitment #{}:", id);
+                println!("  Pedersen Commitment: 0x{}", hex::encode(&info.commitment));
+                println!("  Timestamp: {}", info.timestamp);
+                println!("  Revealed: {}", info.revealed);
+                if info.revealed {
+                    if let Some(hash) = &info.original_hash {
+                        println!("  Original Hash: 0x{}", hex::encode(hash));
+                    }
+                }
             }
         }
     }
