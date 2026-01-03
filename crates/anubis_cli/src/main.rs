@@ -2371,7 +2371,7 @@ fn handle_starknet(action: &StarknetCommands, json: bool) -> Result<(), Box<dyn 
                     // Show defaults
                     let default_config = serde_json::json!({
                         "network": "mainnet",
-                        "rpc_url": "https://starknet-mainnet.public.blastapi.io",
+                        "rpc_url": "https://rpc.starknet.lava.build",
                         "status": "No contract deployed yet. Run 'anchor starknet deploy' to deploy."
                     });
 
@@ -2381,7 +2381,7 @@ fn handle_starknet(action: &StarknetCommands, json: bool) -> Result<(), Box<dyn 
                     } else {
                         println!("Starknet Configuration (defaults):");
                         println!("  Network: mainnet");
-                        println!("  RPC URL: https://starknet-mainnet.public.blastapi.io");
+                        println!("  RPC URL: https://rpc.starknet.lava.build");
                         println!();
                         println!("No contract configured. Deploy with:");
                         println!("  anubis-notary anchor starknet deploy");
@@ -2574,7 +2574,7 @@ fn handle_starknet(action: &StarknetCommands, json: bool) -> Result<(), Box<dyn 
                     networks: vec![
                         NetworkInfo {
                             name: "mainnet".to_string(),
-                            rpc_url: "https://starknet-mainnet.public.blastapi.io".to_string(),
+                            rpc_url: "https://rpc.starknet.lava.build".to_string(),
                             explorer: "https://starkscan.co".to_string(),
                         },
                         NetworkInfo {
@@ -2597,7 +2597,7 @@ fn handle_starknet(action: &StarknetCommands, json: bool) -> Result<(), Box<dyn 
                 println!("╠══════════════════════════════════════════════════════════════════════════╣");
                 println!("║  NETWORKS                                                                ║");
                 println!("║  ────────                                                                ║");
-                println!("║  mainnet  - https://starknet-mainnet.public.blastapi.io                  ║");
+                println!("║  mainnet  - https://rpc.starknet.lava.build                  ║");
                 println!("║            Explorer: https://starkscan.co                                ║");
                 println!("║  sepolia  - https://starknet-sepolia.public.blastapi.io                  ║");
                 println!("║            Explorer: https://sepolia.starkscan.co                        ║");
@@ -6710,7 +6710,7 @@ fn handle_marriage(
             let cert_hash_felt = format!("0x{}", hex::encode(&cert_hash[..31])); // Truncate to fit felt252
 
             let rpc_url = match network.as_str() {
-                "mainnet" => "https://starknet-mainnet.public.blastapi.io/rpc/v0_7",
+                "mainnet" => "https://rpc.starknet.lava.build",
                 _ => "https://api.cartridge.gg/x/starknet/sepolia",
             };
             let marriage_contract = match network.as_str() {
@@ -6936,7 +6936,7 @@ fn handle_marriage(
 
         MarriageCommands::Divorce { marriage_id, reason, network, wait: _ } => {
             let rpc_url = match network.as_str() {
-                "mainnet" => "https://starknet-mainnet.public.blastapi.io/rpc/v0_7",
+                "mainnet" => "https://rpc.starknet.lava.build",
                 _ => "https://api.cartridge.gg/x/starknet/sepolia",
             };
             let marriage_contract = match network.as_str() {
@@ -7171,7 +7171,7 @@ fn handle_rings(action: &RingsCommands, json: bool) -> Result<(), Box<dyn std::e
 
     fn get_rpc_url(network: &str) -> &'static str {
         match network {
-            "mainnet" => "https://starknet-mainnet.public.blastapi.io/rpc/v0_7",
+            "mainnet" => "https://rpc.starknet.lava.build/rpc/v0_7",
             _ => "https://api.cartridge.gg/x/starknet/sepolia",
         }
     }
