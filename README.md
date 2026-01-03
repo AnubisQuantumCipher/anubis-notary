@@ -2,7 +2,7 @@
 
 **Post-Quantum Secure Notary CLI with Formal Proofs and Blockchain Anchoring**
 
-A command-line tool for cryptographic signing, timestamping, licensing, and multi-signature governance using NIST-approved post-quantum algorithms with optional Mina Protocol blockchain anchoring.
+A command-line tool for cryptographic signing, timestamping, licensing, and multi-signature governance using NIST-approved post-quantum algorithms with optional blockchain anchoring.
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Rust](https://img.shields.io/badge/rust-1.75+-orange.svg)](https://www.rust-lang.org)
