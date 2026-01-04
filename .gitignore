@@ -124,11 +124,6 @@ snfoundry.toml
 starknet-contract/target/
 
 # ===========================
-# Development Files
-# ===========================
-CLAUDE.md
-
-# ===========================
 # Mina zkApp
 # ===========================
 mina-zkapp/node_modules/
