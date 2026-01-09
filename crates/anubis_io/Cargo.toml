@@ -4,6 +4,7 @@ version.workspace = true
 edition.workspace = true
 license.workspace = true
 rust-version.workspace = true
+authors = ["AnubisQuantumCipher <sic.tau@proton.me>"]
 description = "I/O layer for Anubis Notary"
 
 [dependencies]
@@ -11,6 +12,7 @@ anubis_core = { path = "../anubis_core" }
 thiserror = { workspace = true }
 hex = { workspace = true }
 zeroize = { workspace = true }
+subtle = { workspace = true }
 
 # Argon2id password hashing - RFC 9106, OWASP recommended
 # Part of password-hash ecosystem (audited by Cryptography Services)
@@ -28,6 +30,46 @@ serde_json = { workspace = true }
 
 # Platform-specific home directory
 dirs = "5"
+
+# Starknet Protocol integration (core types only, no async runtime)
+# Uses ureq for blocking JSON-RPC calls to avoid tokio dependency
+starknet-core = "0.16"
+starknet-crypto = "0.8"
+
+# SHA3/Keccak for Starknet selector computation
+sha3 = "0.10"
+
+# Base58 encoding for Neo N3 address conversion
+bs58 = "0.5"
+
+# Base64 encoding for Neo N3 JSON-RPC ByteArray parameters
+base64 = "0.22"
+
+# secp256r1 (P-256/NIST P-256) for Neo N3 transaction signing
+p256 = { version = "0.13", features = ["ecdsa", "sha256"] }
+elliptic-curve = { version = "0.13", features = ["sec1"] }
+signature = "2.2"
+
+# RIPEMD-160 for Neo address derivation
+ripemd = "0.1"
+
+# SHA2 for Neo address derivation (double-SHA256 checksum)
+sha2 = "0.10"
+
+# HMAC for AWS Signature V4 (S3 multipart upload)
+hmac = "0.12"
+
+# URL encoding for S3 API
+percent-encoding = "2.3"
+
+# XML parsing for S3 API responses
+quick-xml = { version = "0.37", features = ["serialize"] }
+
+# Time handling for AWS signatures
+chrono = { version = "0.4", default-features = false, features = ["std", "clock"] }
+
+# Parallel processing for S3 multipart uploads
+rayon = "1.10"
 
 [dev-dependencies]
 tempfile = "3"

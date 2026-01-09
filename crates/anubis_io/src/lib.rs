@@ -5,9 +5,45 @@
 //! - Time sources (system clock, RFC 3161 TSA)
 //! - Keystore management (Argon2id-sealed key storage)
 //! - Key sealing/unsealing with password protection
+//! - Mina Protocol integration for blockchain anchoring
+//! - Starknet Protocol integration for low-cost STARK anchoring
 //!
 //! All cryptographic logic is in `anubis_core`; this crate only provides
 //! the I/O bridge.
+//!
+//! # Mina Protocol Integration
+//!
+//! The [`mina`] module provides integration with the Mina Protocol blockchain
+//! for timestamping and anchoring. This enables:
+//!
+//! - **Merkle Root Anchoring**: Store SHA3-256 Merkle roots on-chain
+//! - **Blockchain Timestamps**: Leverage Mina's block timestamps for proof-of-existence
+//! - **ZK Verification**: Generate proofs for offline verification
+//!
+//! ## Architecture
+//!
+//! Since there is no official Mina Rust SDK, this module uses a Node.js subprocess
+//! bridge that interfaces with the o1js library:
+//!
+//! ```text
+//! Rust (anubis_io) → stdin/stdout → Node.js (mina-bridge.js) → o1js → Mina Network
+//! ```
+//!
+//! ## Example
+//!
+//! ```ignore
+//! use anubis_io::mina::{MinaClient, MinaConfig};
+//!
+//! let config = MinaConfig::devnet("B62q...")
+//!     .with_fee(100_000_000);  // 0.1 MINA
+//!
+//! let mut client = MinaClient::new(config)?;
+//! client.connect()?;
+//!
+//! // Anchor a Merkle root
+//! let result = client.anchor(&merkle_root)?;
+//! println!("Anchored at block {}", result.block_height);
+//! ```
 
 use std::fs::{self, File, OpenOptions};
 use std::io::{self, Read, Write};
@@ -19,11 +55,77 @@ use thiserror::Error;
 pub use anubis_core;
 
 pub mod anchor;
+pub mod batch_queue;
+pub mod mina;
+pub mod mina_graphql;
+pub mod neo;
+pub mod neo_marriage;
+pub mod neo_rings;
+pub mod pipeline;
 pub mod rate_limit;
+pub mod s3;
 pub mod seal;
+pub mod starknet;
+pub mod ztarknet;
 
-pub use rate_limit::{RateLimiter, format_delay};
-pub use rate_limit::{ApiRateLimiter, ApiRateLimitConfig, RateLimitResult, SharedApiRateLimiter, shared_rate_limiter};
+// Batch queue module exports
+pub use batch_queue::{BatchQueue, BatchQueueEntry};
+
+// Pipeline module exports (Smart Notarization Pipeline)
+pub use pipeline::{
+    AnchorInfo, NotarizationResult, Pipeline, PipelineConfig, PipelineError,
+    PipelineIdentityStatus, PreflightResult, QueueResult,
+};
+
+// Mina module exports
+pub use mina::{MinaAnchorResult, MinaClient, MinaConfig, MinaError, MinaNetwork, MinaTimeResult};
+pub use mina_graphql::MinaGraphQL;
+
+// Starknet module exports
+pub use starknet::{
+    sha256_to_poseidon_felt, AnchorRecord as StarknetAnchorRecord, StarknetAnchorResult,
+    StarknetBatchResult, StarknetClient, StarknetConfig, StarknetError, StarknetNetwork,
+    StarknetTimeResult, TransactionStatus as StarknetTransactionStatus,
+};
+
+// Ztarknet module exports (privacy-preserving anchoring)
+pub use ztarknet::{
+    BlockTimeResult as ZtarknetBlockTimeResult, CommitmentInfo, DisclosureToken,
+    PedersenCommitment, PrivacyAnchorResult, PrivacyMode, RevealResult, VerifyResult,
+    ZtarknetClient, ZtarknetConfig, ZtarknetError, ZtarknetNetwork,
+};
+
+// Neo N3 module exports
+pub use neo::{
+    // Core client types
+    ChunkedManifest, NeoAnchorRecord, NeoAnchorResult, NeoBatchResult, NeoClient, NeoConfig,
+    NeoError, NeoFsAuth, NeoFsClient, NeoFsContainerConfig, NeoFsContainerResult,
+    NeoFsObjectAttributes, NeoFsStoreResult, NeoIdClient, NeoIdVerifyResult, NeoNetwork,
+    NeoTimeResult, NeoTransactionStatus, NeoWallet, NnsClient, NnsResolveResult, QsiDocument,
+    // Dual-Key Quantum-Safe Identity (DK-QSI) types
+    BatchParticipantsValidationResult, CtaResolveResult, DkQsiRegistrationResult, IdentityStatus,
+    ParticipantValidationResult,
+};
+
+// Neo Marriage module exports
+pub use neo_marriage::{
+    dora_contract_link, dora_tx_link, MarriageStatus, NeoDivorceResult, NeoMarriageRecord,
+    NeoMarriageResult,
+};
+
+// Neo Wedding Rings module exports
+pub use neo_rings::{BurnRingResult, MintRingsResult, RingMetadata, UpdateVowsResult};
+
+pub use rate_limit::{format_delay, RateLimiter};
+pub use rate_limit::{
+    shared_rate_limiter, ApiRateLimitConfig, ApiRateLimiter, RateLimitResult, SharedApiRateLimiter,
+};
+
+// S3 module exports (NeoFS S3 Gateway with multipart upload)
+pub use s3::{
+    download_encrypted as s3_download_encrypted, upload_encrypted as s3_upload_encrypted,
+    S3Client, S3Config, S3Error, S3UploadResult, DEFAULT_PART_SIZE, MULTIPART_THRESHOLD,
+};
 
 /// I/O errors.
 #[derive(Error, Debug)]
@@ -68,9 +170,9 @@ pub enum IoError {
 /// Result type for I/O operations.
 pub type Result<T> = std::result::Result<T, IoError>;
 
-/// Maximum file size for read operations (100 MiB).
-/// This prevents denial-of-service attacks from extremely large files.
-pub const MAX_FILE_SIZE: u64 = 100 * 1024 * 1024;
+/// Maximum file size for read operations (3 GiB).
+/// Increased to support large video files while still preventing DoS.
+pub const MAX_FILE_SIZE: u64 = 3 * 1024 * 1024 * 1024;
 
 /// Time source for obtaining timestamps.
 pub trait TimeSource {
@@ -161,7 +263,10 @@ pub fn read_file_with_limit(path: impl AsRef<Path>, max_size: u64) -> Result<Vec
     let metadata = file.metadata()?;
     let size = metadata.len();
     if size > max_size {
-        return Err(IoError::FileTooLarge { size, limit: max_size });
+        return Err(IoError::FileTooLarge {
+            size,
+            limit: max_size,
+        });
     }
 
     let mut contents = Vec::with_capacity(size as usize);
@@ -223,16 +328,16 @@ fn rand_hex(len: usize) -> String {
     hex[..len.min(16)].to_string()
 }
 
-/// Compute SHA3-256 hash of a file.
-pub fn hash_file(path: impl AsRef<Path>) -> Result<[u8; 32]> {
+/// Compute SHA-512 hash of a file (NIST Level 5).
+pub fn hash_file(path: impl AsRef<Path>) -> Result<[u8; 64]> {
     let data = read_file(path)?;
-    Ok(anubis_core::keccak::sha3::sha3_256(&data))
+    Ok(anubis_core::sha2::sha512(&data))
 }
 
 /// Recursively hash a directory tree.
 ///
 /// Returns a sorted list of (relative_path, hash) pairs.
-pub fn hash_directory(path: impl AsRef<Path>) -> Result<Vec<(PathBuf, [u8; 32])>> {
+pub fn hash_directory(path: impl AsRef<Path>) -> Result<Vec<(PathBuf, [u8; 64])>> {
     let root = path.as_ref();
     if !root.is_dir() {
         return Err(IoError::InvalidPath(format!(
@@ -253,7 +358,7 @@ pub fn hash_directory(path: impl AsRef<Path>) -> Result<Vec<(PathBuf, [u8; 32])>
 fn hash_dir_recursive(
     root: &Path,
     current: &Path,
-    entries: &mut Vec<(PathBuf, [u8; 32])>,
+    entries: &mut Vec<(PathBuf, [u8; 64])>,
 ) -> Result<()> {
     for entry in fs::read_dir(current)? {
         let entry = entry?;
@@ -388,6 +493,11 @@ pub mod keystore {
             self.key_path().exists()
         }
 
+        /// Get the keystore base path.
+        pub fn path(&self) -> &Path {
+            &self.path
+        }
+
         /// Get the sealed key file path.
         pub fn key_path(&self) -> PathBuf {
             self.path.join(KEY_FILE)
@@ -477,7 +587,11 @@ pub mod keystore {
         /// #[rr::ensures("uses_argon2id_low_memory_params()")]
         /// #[rr::ensures("sealed_key_version() = VERSION_LOW_MEMORY")]
         /// ```
-        pub fn seal_and_store_key_low_memory(&self, password: &[u8], secret_key: &[u8]) -> Result<()> {
+        pub fn seal_and_store_key_low_memory(
+            &self,
+            password: &[u8],
+            secret_key: &[u8],
+        ) -> Result<()> {
             let sealed = seal::seal_key_low_memory(password, secret_key)
                 .map_err(|e| IoError::Keystore(format!("seal failed: {}", e)))?;
             self.write_sealed_key(&sealed)
@@ -659,7 +773,9 @@ pub mod keystore {
 
         /// Write a rotation certificate (signature proving key rotation authorization).
         pub fn write_rotation_cert(&self, archive_id: &str, cert_data: &[u8]) -> Result<()> {
-            let cert_path = self.archive_path().join(format!("{}{}", archive_id, ROTATION_CERT_SUFFIX));
+            let cert_path = self
+                .archive_path()
+                .join(format!("{}{}", archive_id, ROTATION_CERT_SUFFIX));
             write_file_atomic(&cert_path, cert_data)?;
             #[cfg(unix)]
             {
@@ -702,7 +818,16 @@ pub mod keystore {
 
         /// Check if a public key fingerprint is revoked.
         ///
-        /// Fingerprint is the hex-encoded SHA3-256 hash of the public key bytes.
+        /// # Fingerprint Format
+        ///
+        /// For CNSA 2.0 compliance (v0.5+), fingerprints are:
+        /// - **SHA-512**: 128 hex characters (64 bytes) - NIST Level 5
+        ///
+        /// For backward compatibility with older keystores:
+        /// - **SHA3-256**: 64 hex characters (32 bytes) - pre-v0.5
+        ///
+        /// This function checks for exact string match, so fingerprints from
+        /// different algorithms won't match each other.
         pub fn is_revoked(&self, fingerprint: &str) -> Result<bool> {
             let revoked_path = self.revoked_path();
             if !revoked_path.exists() {
@@ -736,7 +861,9 @@ pub mod keystore {
             let mut contents = if revoked_path.exists() {
                 String::from_utf8_lossy(&read_file(&revoked_path)?).to_string()
             } else {
-                String::from("# Anubis Notary Revoked Keys\n# Format: fingerprint:timestamp:reason\n")
+                String::from(
+                    "# Anubis Notary Revoked Keys\n# Format: fingerprint:timestamp:reason\n",
+                )
             };
 
             // Check if already revoked
@@ -752,7 +879,8 @@ pub mod keystore {
             }
 
             // Sanitize reason (no colons or newlines)
-            let safe_reason: String = reason.chars()
+            let safe_reason: String = reason
+                .chars()
                 .filter(|c| *c != ':' && *c != '\n' && *c != '\r')
                 .collect();
 
@@ -895,7 +1023,8 @@ pub mod keystore {
             message.extend_from_slice(b"anubis-notary:revocation-list:v1:");
             message.extend_from_slice(&signable_buf[..signable_len]);
 
-            let signature = keypair.sign(&message)
+            let signature = keypair
+                .sign(&message)
                 .map_err(|e| IoError::Keystore(format!("Signing failed: {:?}", e)))?;
 
             // Build final output with signature
@@ -903,51 +1032,69 @@ pub mod keystore {
             let mut out_enc = Encoder::new(&mut output_buf);
 
             // Map with 5 fields (signable fields + signature)
-            out_enc.encode_map_header(5)
+            out_enc
+                .encode_map_header(5)
                 .map_err(|e| IoError::Keystore(format!("CBOR encode error: {:?}", e)))?;
 
             // Copy signable fields (created, issuer, revocations, v)
-            out_enc.encode_text("created")
+            out_enc
+                .encode_text("created")
                 .map_err(|e| IoError::Keystore(format!("CBOR encode error: {:?}", e)))?;
-            out_enc.encode_int(timestamp)
-                .map_err(|e| IoError::Keystore(format!("CBOR encode error: {:?}", e)))?;
-
-            out_enc.encode_text("issuer")
-                .map_err(|e| IoError::Keystore(format!("CBOR encode error: {:?}", e)))?;
-            out_enc.encode_text(issuer_fingerprint)
+            out_enc
+                .encode_int(timestamp)
                 .map_err(|e| IoError::Keystore(format!("CBOR encode error: {:?}", e)))?;
 
-            out_enc.encode_text("revocations")
+            out_enc
+                .encode_text("issuer")
                 .map_err(|e| IoError::Keystore(format!("CBOR encode error: {:?}", e)))?;
-            out_enc.encode_array_header(revocations.len())
+            out_enc
+                .encode_text(issuer_fingerprint)
+                .map_err(|e| IoError::Keystore(format!("CBOR encode error: {:?}", e)))?;
+
+            out_enc
+                .encode_text("revocations")
+                .map_err(|e| IoError::Keystore(format!("CBOR encode error: {:?}", e)))?;
+            out_enc
+                .encode_array_header(revocations.len())
                 .map_err(|e| IoError::Keystore(format!("CBOR encode error: {:?}", e)))?;
 
             for (fp, ts, reason) in &revocations {
-                out_enc.encode_map_header(3)
+                out_enc
+                    .encode_map_header(3)
                     .map_err(|e| IoError::Keystore(format!("CBOR encode error: {:?}", e)))?;
-                out_enc.encode_text("fp")
+                out_enc
+                    .encode_text("fp")
                     .map_err(|e| IoError::Keystore(format!("CBOR encode error: {:?}", e)))?;
-                out_enc.encode_text(fp)
+                out_enc
+                    .encode_text(fp)
                     .map_err(|e| IoError::Keystore(format!("CBOR encode error: {:?}", e)))?;
-                out_enc.encode_text("reason")
+                out_enc
+                    .encode_text("reason")
                     .map_err(|e| IoError::Keystore(format!("CBOR encode error: {:?}", e)))?;
-                out_enc.encode_text(reason)
+                out_enc
+                    .encode_text(reason)
                     .map_err(|e| IoError::Keystore(format!("CBOR encode error: {:?}", e)))?;
-                out_enc.encode_text("ts")
+                out_enc
+                    .encode_text("ts")
                     .map_err(|e| IoError::Keystore(format!("CBOR encode error: {:?}", e)))?;
-                out_enc.encode_int(*ts)
+                out_enc
+                    .encode_int(*ts)
                     .map_err(|e| IoError::Keystore(format!("CBOR encode error: {:?}", e)))?;
             }
 
             // "sig" - signature
-            out_enc.encode_text("sig")
+            out_enc
+                .encode_text("sig")
                 .map_err(|e| IoError::Keystore(format!("CBOR encode error: {:?}", e)))?;
-            out_enc.encode_bytes(&signature.to_bytes())
+            out_enc
+                .encode_bytes(&signature.to_bytes())
                 .map_err(|e| IoError::Keystore(format!("CBOR encode error: {:?}", e)))?;
 
-            out_enc.encode_text("v")
+            out_enc
+                .encode_text("v")
                 .map_err(|e| IoError::Keystore(format!("CBOR encode error: {:?}", e)))?;
-            out_enc.encode_uint(1)
+            out_enc
+                .encode_uint(1)
                 .map_err(|e| IoError::Keystore(format!("CBOR encode error: {:?}", e)))?;
 
             let output_len = out_enc.position();
@@ -974,10 +1121,13 @@ pub mod keystore {
             let mut dec = Decoder::new(data);
 
             // Decode map header
-            let map_len = dec.decode_map_header()
-                .map_err(|e| IoError::Keystore(format!("Invalid signed revocation list: {:?}", e)))?;
+            let map_len = dec.decode_map_header().map_err(|e| {
+                IoError::Keystore(format!("Invalid signed revocation list: {:?}", e))
+            })?;
             if map_len != 5 {
-                return Err(IoError::Keystore("Invalid signed revocation list: expected 5 fields".to_string()));
+                return Err(IoError::Keystore(
+                    "Invalid signed revocation list: expected 5 fields".to_string(),
+                ));
             }
 
             let mut created: Option<i64> = None;
@@ -988,27 +1138,36 @@ pub mod keystore {
 
             // Parse fields
             for _ in 0..map_len {
-                let key = dec.decode_text()
+                let key = dec
+                    .decode_text()
                     .map_err(|e| IoError::Keystore(format!("Invalid field key: {:?}", e)))?;
 
                 match key {
                     "created" => {
-                        created = Some(dec.decode_int()
-                            .map_err(|e| IoError::Keystore(format!("Invalid created: {:?}", e)))?);
+                        created =
+                            Some(dec.decode_int().map_err(|e| {
+                                IoError::Keystore(format!("Invalid created: {:?}", e))
+                            })?);
                     }
                     "issuer" => {
-                        issuer = Some(dec.decode_text()
-                            .map_err(|e| IoError::Keystore(format!("Invalid issuer: {:?}", e)))?
-                            .to_string());
+                        issuer = Some(
+                            dec.decode_text()
+                                .map_err(|e| IoError::Keystore(format!("Invalid issuer: {:?}", e)))?
+                                .to_string(),
+                        );
                     }
                     "revocations" => {
-                        let arr_len = dec.decode_array_header()
-                            .map_err(|e| IoError::Keystore(format!("Invalid revocations: {:?}", e)))?;
+                        let arr_len = dec.decode_array_header().map_err(|e| {
+                            IoError::Keystore(format!("Invalid revocations: {:?}", e))
+                        })?;
                         for _ in 0..arr_len {
-                            let entry_len = dec.decode_map_header()
-                                .map_err(|e| IoError::Keystore(format!("Invalid entry: {:?}", e)))?;
+                            let entry_len = dec.decode_map_header().map_err(|e| {
+                                IoError::Keystore(format!("Invalid entry: {:?}", e))
+                            })?;
                             if entry_len != 3 {
-                                return Err(IoError::Keystore("Invalid revocation entry".to_string()));
+                                return Err(IoError::Keystore(
+                                    "Invalid revocation entry".to_string(),
+                                ));
                             }
 
                             let mut fp = String::new();
@@ -1016,31 +1175,62 @@ pub mod keystore {
                             let mut reason = String::new();
 
                             for _ in 0..3 {
-                                let field = dec.decode_text()
-                                    .map_err(|e| IoError::Keystore(format!("Invalid field: {:?}", e)))?
+                                let field = dec
+                                    .decode_text()
+                                    .map_err(|e| {
+                                        IoError::Keystore(format!("Invalid field: {:?}", e))
+                                    })?
                                     .to_string();
                                 match field.as_str() {
-                                    "fp" => fp = dec.decode_text()
-                                        .map_err(|e| IoError::Keystore(format!("Invalid fp: {:?}", e)))?
-                                        .to_string(),
-                                    "ts" => ts = dec.decode_int()
-                                        .map_err(|e| IoError::Keystore(format!("Invalid ts: {:?}", e)))?,
-                                    "reason" => reason = dec.decode_text()
-                                        .map_err(|e| IoError::Keystore(format!("Invalid reason: {:?}", e)))?
-                                        .to_string(),
-                                    _ => return Err(IoError::Keystore(format!("Unknown field: {}", field))),
+                                    "fp" => {
+                                        fp = dec
+                                            .decode_text()
+                                            .map_err(|e| {
+                                                IoError::Keystore(format!("Invalid fp: {:?}", e))
+                                            })?
+                                            .to_string()
+                                    }
+                                    "ts" => {
+                                        ts = dec.decode_int().map_err(|e| {
+                                            IoError::Keystore(format!("Invalid ts: {:?}", e))
+                                        })?
+                                    }
+                                    "reason" => {
+                                        reason = dec
+                                            .decode_text()
+                                            .map_err(|e| {
+                                                IoError::Keystore(format!(
+                                                    "Invalid reason: {:?}",
+                                                    e
+                                                ))
+                                            })?
+                                            .to_string()
+                                    }
+                                    _ => {
+                                        return Err(IoError::Keystore(format!(
+                                            "Unknown field: {}",
+                                            field
+                                        )))
+                                    }
                                 }
                             }
                             revocations.push((fp, ts, reason));
                         }
                     }
                     "sig" => {
-                        signature = Some(dec.decode_bytes()
-                            .map_err(|e| IoError::Keystore(format!("Invalid signature: {:?}", e)))?.to_vec());
+                        signature = Some(
+                            dec.decode_bytes()
+                                .map_err(|e| {
+                                    IoError::Keystore(format!("Invalid signature: {:?}", e))
+                                })?
+                                .to_vec(),
+                        );
                     }
                     "v" => {
-                        version = Some(dec.decode_uint()
-                            .map_err(|e| IoError::Keystore(format!("Invalid version: {:?}", e)))?);
+                        version =
+                            Some(dec.decode_uint().map_err(|e| {
+                                IoError::Keystore(format!("Invalid version: {:?}", e))
+                            })?);
                     }
                     _ => {
                         dec.skip_value()
@@ -1050,13 +1240,19 @@ pub mod keystore {
             }
 
             // Validate required fields
-            let created = created.ok_or_else(|| IoError::Keystore("Missing created".to_string()))?;
+            let created =
+                created.ok_or_else(|| IoError::Keystore("Missing created".to_string()))?;
             let issuer = issuer.ok_or_else(|| IoError::Keystore("Missing issuer".to_string()))?;
-            let signature = signature.ok_or_else(|| IoError::Keystore("Missing signature".to_string()))?;
-            let version = version.ok_or_else(|| IoError::Keystore("Missing version".to_string()))?;
+            let signature =
+                signature.ok_or_else(|| IoError::Keystore("Missing signature".to_string()))?;
+            let version =
+                version.ok_or_else(|| IoError::Keystore("Missing version".to_string()))?;
 
             if version != 1 {
-                return Err(IoError::Keystore(format!("Unsupported version: {}", version)));
+                return Err(IoError::Keystore(format!(
+                    "Unsupported version: {}",
+                    version
+                )));
             }
 
             // Reconstruct signable content
@@ -1112,7 +1308,9 @@ pub mod keystore {
                 .map_err(|e| IoError::Keystore(format!("Invalid signature bytes: {:?}", e)))?;
 
             if !issuer_pubkey.verify(&message, &sig) {
-                return Err(IoError::Keystore("Signature verification failed".to_string()));
+                return Err(IoError::Keystore(
+                    "Signature verification failed".to_string(),
+                ));
             }
 
             Ok((issuer, created, revocations))
@@ -1168,8 +1366,8 @@ pub mod keystore {
             // Read the receipt
             let receipt_data = read_file(receipt_path)?;
 
-            // Compute digest as ID
-            let digest = anubis_core::keccak::sha3::sha3_256(&receipt_data);
+            // Compute digest as ID (SHA-512 for CNSA 2.0)
+            let digest = anubis_core::sha2::sha512(&receipt_data);
             let digest_hex = hex::encode(digest);
 
             // Store in queue with metadata
@@ -1214,7 +1412,9 @@ pub mod keystore {
             let data = read_file(&queue_path)?;
 
             // Split at first newline
-            let newline_pos = data.iter().position(|&b| b == b'\n')
+            let newline_pos = data
+                .iter()
+                .position(|&b| b == b'\n')
                 .ok_or_else(|| IoError::Keystore("Invalid queue entry format".to_string()))?;
 
             let path_str = String::from_utf8_lossy(&data[..newline_pos]).to_string();
@@ -1324,8 +1524,8 @@ pub mod keystore {
                 }
             }
 
-            // Compute license ID from hash
-            let digest = anubis_core::keccak::sha3::sha3_256(license_data);
+            // Compute license ID from hash (SHA-512 for CNSA 2.0)
+            let digest = anubis_core::sha2::sha512(license_data);
             let license_id = hex::encode(&digest[..16]); // First 16 bytes = 32 hex chars
 
             // Store the license file

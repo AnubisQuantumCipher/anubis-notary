@@ -4,6 +4,7 @@ version.workspace = true
 edition.workspace = true
 license.workspace = true
 rust-version.workspace = true
+authors = ["AnubisQuantumCipher <sic.tau@proton.me>"]
 description = "CLI for Anubis Notary"
 
 [[bin]]
@@ -11,7 +12,7 @@ name = "anubis-notary"
 path = "src/main.rs"
 
 [dependencies]
-anubis_core = { path = "../anubis_core" }
+anubis_core = { path = "../anubis_core", features = ["std"] }
 anubis_io = { path = "../anubis_io" }
 clap = { workspace = true }
 serde = { workspace = true }
@@ -22,6 +23,13 @@ getrandom = "0.2"
 rpassword = "7"
 # Zeroization of password buffers
 zeroize = { workspace = true }
+# Platform-specific home directory (for Mina bridge setup)
+dirs = "5"
+# Starknet crypto for keygen (same versions as anubis_io)
+starknet-core = "0.16"
+starknet-crypto = "0.8"
+# DateTime formatting
+chrono = "0.4"
 
 [dev-dependencies]
 assert_cmd = "2.0"
